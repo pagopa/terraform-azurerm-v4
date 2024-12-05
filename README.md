@@ -36,11 +36,9 @@ bash .utils/terraform_run_all.sh init local
 pre-commit run -a
 ```
 
-## Migration from azurerm v2
+## Migration from azurerm v3
 
-If you use this modules as replace for the olds modules v2.
-Please follow this list [Migration List](.docs/MIGRATION_FROM_V2.md), and read for each module the README to understand wich procedure you need to follow to execute the migration.
+If you use this modules as replace for the olds modules v3.
+Please follow this list [Migration List](.docs/MIGRATION_GUIDE_FROM_V3.md), and read for each module the README to understand wich procedure you need to follow to execute the migration.
 
-### Migration of resources (not modules)
-
-Follow this guide for all this resources that are not a module [Migration resources](.docs/MIGRATION_GUIDE_GENERIC_RESOURCES.md)
+More information can be found in the [official documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/4.0-upgrade-guide).
