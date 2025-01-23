@@ -2,11 +2,11 @@ resource "azurerm_cosmosdb_sql_container" "this" {
   name                = var.name
   resource_group_name = var.resource_group_name
 
-  account_name       = var.account_name
-  database_name      = var.database_name
-  partition_key_path = var.partition_key_path
-  throughput         = var.throughput
-  default_ttl        = var.default_ttl
+  account_name        = var.account_name
+  database_name       = var.database_name
+  partition_key_paths = var.partition_key_paths
+  throughput          = var.throughput
+  default_ttl         = var.default_ttl
 
   dynamic "indexing_policy" {
     for_each = var.indexing_policy == null ? [] : [var.indexing_policy]

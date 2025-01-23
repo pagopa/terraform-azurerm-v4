@@ -18,8 +18,8 @@ variable "database_name" {
   description = "The name of the Cosmos DB SQL Database to create the container within."
 }
 
-variable "partition_key_path" {
-  type        = string
+variable "partition_key_paths" {
+  type        = list(string)
   description = "Define a partition key."
   default     = null
 }
