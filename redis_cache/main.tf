@@ -4,7 +4,7 @@ resource "azurerm_redis_cache" "this" {
   resource_group_name           = var.resource_group_name
   capacity                      = var.capacity
   shard_count                   = var.shard_count
-  enable_non_ssl_port           = var.enable_non_ssl_port
+  non_ssl_port_enabled          = var.enable_non_ssl_port
   minimum_tls_version           = "1.2"
   subnet_id                     = var.subnet_id
   private_static_ip_address     = var.private_static_ip_address
@@ -15,7 +15,7 @@ resource "azurerm_redis_cache" "this" {
   zones                         = var.sku_name == "Premium" ? var.zones : null
 
   redis_configuration {
-    enable_authentication         = var.enable_authentication
+    authentication_enabled        = var.enable_authentication
     rdb_backup_enabled            = var.backup_configuration != null
     rdb_backup_frequency          = var.backup_configuration != null ? var.backup_configuration.frequency : null
     rdb_backup_max_snapshot_count = var.backup_configuration != null ? var.backup_configuration.max_snapshot_count : null
