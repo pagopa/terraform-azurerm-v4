@@ -1,0 +1,136 @@
+locals {
+  allowed_ips                   = [for ip in var.allowed_ips : { ip_address = ip, virtual_network_subnet_id = null }]
+  allowed_subnets               = [for s in var.allowed_subnets : { ip_address = null, virtual_network_subnet_id = s }]
+  ip_restrictions               = concat(local.allowed_subnets, local.allowed_ips)
+  ip_restriction_default_action = length(local.ip_restrictions) == 0 ? "Allow" : "Deny"
+}
+
+resource "azurerm_linux_function_app_slot" "this" {
+  name                          = var.name
+  function_app_id               = var.function_app_id
+  storage_account_name          = var.storage_account_name
+  storage_account_access_key    = var.storage_account_access_key
+  https_only                    = var.https_only
+  client_certificate_enabled    = var.client_certificate_enabled
+  functions_extension_version   = var.runtime_version
+  public_network_access_enabled = var.enable_function_app_public_network_access
+
+  site_config {
+    minimum_tls_version       = "1.2"
+    ftps_state                = "Disabled"
+    http2_enabled             = true
+    always_on                 = var.always_on
+    pre_warmed_instance_count = var.pre_warmed_instance_count
+    vnet_route_all_enabled    = var.subnet_id == null ? false : true
+    use_32_bit_worker         = var.use_32_bit_worker_process
+    application_insights_key  = var.application_insights_instrumentation_key
+
+    application_stack {
+      dotnet_version              = var.dotnet_version
+      use_dotnet_isolated_runtime = var.use_dotnet_isolated_runtime
+      java_version                = var.java_version
+      python_version              = var.python_version
+      node_version                = var.node_version
+      powershell_core_version     = var.powershell_core_version
+      use_custom_runtime          = var.use_custom_runtime
+      dynamic "docker" {
+        for_each = length(var.docker) > 0 ? [1] : []
+        content {
+          registry_url      = var.docker.registry_url
+          image_name        = var.docker.image_name
+          image_tag         = var.docker.image_tag
+          registry_username = var.docker.registry_username
+          registry_password = var.docker.registry_password
+        }
+      }
+    }
+    dynamic "ip_restriction" {
+      for_each = local.ip_restrictions
+      iterator = ip
+
+      content {
+        ip_address                = ip.value.ip_address
+        virtual_network_subnet_id = ip.value.virtual_network_subnet_id
+        name                      = "rule"
+      }
+    }
+
+    dynamic "ip_restriction" {
+      for_each = var.allowed_service_tags
+      iterator = st
+
+      content {
+        service_tag = st.value
+        name        = "rule"
+      }
+    }
+
+    dynamic "cors" {
+      for_each = var.cors != null ? [var.cors] : []
+      content {
+        allowed_origins = cors.value.allowed_origins
+      }
+    }
+
+    auto_swap_slot_name               = var.auto_swap_slot_name
+    health_check_path                 = var.health_check_path
+    health_check_eviction_time_in_min = var.health_check_path != null ? var.health_check_maxpingfailures : null
+    ip_restriction_default_action     = var.ip_restriction_default_action != null ? var.ip_restriction_default_action : local.ip_restriction_default_action
+  }
+
+  app_settings = merge(
+    {
+      # No downtime on slots swap
+      WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG = 1
+      # https://docs.microsoft.com/en-us/samples/azure-samples/azure-functions-private-endpoints/connect-to-private-endpoints-with-azure-functions/
+      SLOT_TASK_HUBNAME        = format("%sTaskHub", title(var.name))
+      WEBSITE_RUN_FROM_PACKAGE = 1
+      # https://docs.microsoft.com/en-us/azure/virtual-network/what-is-ip-address-168-63-129-16
+      WEBSITE_DNS_SERVER = "168.63.129.16"
+      # https://docs.microsoft.com/en-us/azure/azure-monitor/app/sampling
+      APPINSIGHTS_SAMPLING_PERCENTAGE = 5
+    },
+    var.internal_storage_connection_string != null ? {
+      DURABLE_FUNCTION_STORAGE_CONNECTION_STRING = var.internal_storage_connection_string
+      INTERNAL_STORAGE_CONNECTION_STRING         = var.internal_storage_connection_string
+    } : {},
+    var.app_settings,
+  )
+
+  builtin_logging_enabled = false
+
+  dynamic "identity" {
+    for_each = var.system_identity_enabled ? [1] : []
+    content {
+      type = "SystemAssigned"
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      virtual_network_subnet_id,
+      app_settings["WEBSITE_HEALTHCHECK_MAXPINGFAILURES"],
+      tags["hidden-link: /app-insights-conn-string"],
+      tags["hidden-link: /app-insights-instrumentation-key"],
+      tags["hidden-link: /app-insights-resource-id"]
+    ]
+  }
+
+  tags = var.tags
+
+}
+
+data "azurerm_function_app_host_keys" "this" {
+  count               = var.export_keys ? 1 : 0
+  name                = var.name
+  resource_group_name = var.resource_group_name
+  depends_on          = [azurerm_linux_function_app_slot.this]
+}
+
+resource "azurerm_app_service_slot_virtual_network_swift_connection" "this" {
+  count = var.vnet_integration ? 1 : 0
+
+  slot_name      = azurerm_linux_function_app_slot.this.name
+  app_service_id = var.function_app_id
+  subnet_id      = var.subnet_id
+}
