@@ -1,0 +1,14 @@
+%{ if affinity_selector != null }
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: ${affinity_selector.key}
+          operator: In
+          values:
+            - ${affinity_selector.value}
+%{ endif }
+admissionWebhooks:
+  certManager:
+    enabled: false
