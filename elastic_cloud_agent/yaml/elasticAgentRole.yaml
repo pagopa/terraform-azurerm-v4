@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: elastic-cloud-agent
+  # Should be the namespace where elastic-agent is running
+  namespace: ${namespace}
+  labels:
+    k8s-app: elastic-cloud-agent
+rules:
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs: ["get", "create", "update"]
