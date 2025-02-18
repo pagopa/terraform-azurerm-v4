@@ -25,10 +25,6 @@ locals {
 
 }
 
-output "test" {
-  value = local.index_custom_component
-}
-
 resource "elasticstack_elasticsearch_ingest_pipeline" "ingest_pipeline" {
   for_each    = local.ingest_pipeline
   name        = "${local.application_id}-${each.key}-pipeline"
@@ -43,8 +39,8 @@ resource "elasticstack_elasticsearch_component_template" "custom_index_component
   name     = "${local.application_id}-${each.key}@custom"
   template {
 
-    settings = each.value.template.settings != null ? jsonencode(each.value.template.settings) : null
-    mappings = lookup(each.value.template, "mappings", null) != null ? jsonencode(each.value.template.mappings) : null
+    settings = each.value.template.settings != null ? jsonencode(each.value.template.settings) : jsondecode(null)
+    mappings = lookup(each.value.template, "mappings", null) != null ? jsonencode(each.value.template.mappings) : jsondecode(null)
   }
 
   metadata = jsonencode(lookup(each.value, "_meta", null))
