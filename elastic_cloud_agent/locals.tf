@@ -31,6 +31,8 @@ locals {
 
     elasticsearch_api_key = var.elasticsearch_api_key
     elastic_agent_version = "8.17.1"
+
+    tolerated_taints = var.tolerated_taints
   }
 }
 
