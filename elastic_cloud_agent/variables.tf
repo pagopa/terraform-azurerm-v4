@@ -10,11 +10,11 @@ variable "dedicated_log_instance_name" {
 
 variable "tolerated_taints" {
   type = list(object({
-    key = string
+    key    = string
     effect = optional(string, "NoSchedule")
   }))
   description = "List of tolerated taint keys. Optionally 'effect' can be defined"
-  default = []
+  default     = []
 }
 
 variable "system_integration_policy" {
