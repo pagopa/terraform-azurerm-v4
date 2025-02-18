@@ -22,9 +22,9 @@ spec:
         - key: node-role.kubernetes.io/master
           effect: NoSchedule
         %{~ for taint in tolerated_taints ~}
-        - key: taint.key
+        - key: ${taint.key}
           operator: "Exists"
-          effect: taint.effect
+          effect: ${taint.effect}
         %{~ endfor ~}
       serviceAccountName: elastic-cloud-agent
       hostNetwork: false
