@@ -13,9 +13,12 @@ variable "target_name" {
 variable "configuration" {
   type = object({
     displayName = string
-    indexTemplate = object({
+    indexTemplate = map(object({
       indexPatterns = list(string)
-    })
+      customComponent  = optional(string, null)
+      packageComponent = optional(string, null)
+      ingestPipeline   = string
+    }))
     dataStream = list(string)
     dataView = object({
       indexIdentifiers = list(string)
@@ -26,9 +29,7 @@ variable "configuration" {
       }), {
       indexIdentifiers = []
     })
-    customComponent  = optional(string, null)
-    packageComponent = optional(string, null)
-    ingestPipeline   = string
+
   })
 
   description = "Configuration for this application"
