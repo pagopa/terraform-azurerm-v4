@@ -19,7 +19,7 @@ variable "configuration" {
     dataStream = list(string)
     dataView = object({
       indexIdentifiers = list(string)
-      runtimeFields   = optional(list(any), [])
+      runtimeFields    = optional(list(any), [])
     })
     apmDataView = optional(object({
       indexIdentifiers = list(string)

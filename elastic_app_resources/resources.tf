@@ -104,7 +104,7 @@ resource "elasticstack_kibana_data_view" "kibana_data_view" {
   data_view = {
     id              = "${replace(var.configuration.displayName, "-", "_")}_${var.target_name}_${var.target_env}"
     name            = "${var.configuration.displayName} ${var.target_name} ${var.target_env}"
-    title           = join(",", [for idx in var.configuration.dataView.indexIdentifiers: "${idx}-${var.target_name}.${var.target_env}" ] )
+    title           = join(",", [for idx in var.configuration.dataView.indexIdentifiers : "${idx}-${var.target_name}.${var.target_env}"])
     time_field_name = "@timestamp"
 
     runtime_field_map = length(local.runtime_fields) != 0 ? local.runtime_fields : null
