@@ -14,7 +14,7 @@ variable "configuration" {
   type = object({
     displayName = string
     indexTemplate = map(object({
-      indexPatterns = list(string)
+      indexPatterns    = list(string)
       customComponent  = optional(string, null)
       packageComponent = optional(string, null)
       ingestPipeline   = string
