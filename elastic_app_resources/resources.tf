@@ -25,6 +25,10 @@ locals {
 
 }
 
+output "test" {
+  value = local.index_custom_component
+}
+
 resource "elasticstack_elasticsearch_ingest_pipeline" "ingest_pipeline" {
   for_each    = local.ingest_pipeline
   name        = "${local.application_id}-${each.key}-pipeline"
