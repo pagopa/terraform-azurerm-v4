@@ -43,8 +43,8 @@ resource "elasticstack_elasticsearch_component_template" "custom_index_component
   name     = "${local.application_id}-${each.key}@custom"
   template {
 
-    settings = lookup(each.value.template, "settings", null) != null ? jsonencode(lookup(each.value.template, "settings", null)) : "${jsonencode(each.value)}"
-    mappings = lookup(each.value.template, "mappings", null) != null ? jsonencode(lookup(each.value.template, "mappings", null)) : "{}"
+    settings = lookup(each.value.template, "settings", null) != null ? jsonencode(each.value.template.settings) : "${jsonencode(each.value.template.settings)}"
+    mappings = lookup(each.value.template, "mappings", null) != null ? jsonencode(lookup(each.value.template, "mappings", null)) : "${jsonencode(each.value.template.mappings)}"
   }
 
   metadata = jsonencode(lookup(each.value, "_meta", null))
