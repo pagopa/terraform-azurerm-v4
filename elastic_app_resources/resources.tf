@@ -44,7 +44,7 @@ resource "elasticstack_elasticsearch_component_template" "custom_index_component
   template {
 
     settings = lookup(each.value.template, "settings", null) != null ? jsonencode(each.value.template.settings) : "${jsonencode(each.value.template.settings)}"
-    mappings = lookup(each.value.template, "mappings", null) != null ? jsonencode(lookup(each.value.template, "mappings", null)) : "${jsonencode(each.value.template.mappings)}"
+    mappings = lookup(each.value.template, "mappings", null) != null ? jsonencode(lookup(each.value.template, "mappings", null)) : "${jsonencode(each.value)}"
   }
 
   metadata = jsonencode(lookup(each.value, "_meta", null))
