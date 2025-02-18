@@ -4,15 +4,15 @@ locals {
   dashboards     = { for df in fileset("${var.dashboard_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => "${var.dashboard_folder}/${df}" }
   queries        = { for df in fileset("${var.query_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => "${var.query_folder}/${df}" }
 
-  index_custom_component = {for k,v in var.configuration.indexTemplate: k => jsondecode(templatefile("${var.library_index_custom_path}/${lookup(var.configuration, "customComponent", var.default_custom_component_name)}.json", {
+  index_custom_component = {for k,v in var.configuration.indexTemplate: k => jsondecode(templatefile("${var.library_index_custom_path}/${lookup(v, "customComponent", var.default_custom_component_name)}.json", {
     name      = "${k}-${local.application_id}"
     pipeline  = elasticstack_elasticsearch_ingest_pipeline.ingest_pipeline[k].name
     lifecycle = "${var.target_name}-${var.target_env}-${var.ilm_name}-ilm"
   }))}
 
-  index_package_component = {for k,v in var.configuration.indexTemplate: k => jsondecode(templatefile("${var.library_index_package_path}/${var.configuration.packageComponent}.json", {
+  index_package_component = {for k,v in var.configuration.indexTemplate: k => jsondecode(templatefile("${var.library_index_package_path}/${v.packageComponent}.json", {
     name = "${k}-${local.application_id}"
-  })) if lookup(var.configuration, "packageComponent", null) != null
+  })) if lookup(v, "packageComponent", null) != null
   }
 
   runtime_fields = { for field in lookup(var.configuration.dataView, "runtimeFields", {}) : field.name => {
@@ -21,7 +21,7 @@ locals {
     }
   }
 
-  ingest_pipeline = {for k,v in var.configuration.indexTemplate: k => jsondecode(file("${var.library_ingest_pipeline_path}/${v}.json"))}
+  ingest_pipeline = {for k,v in var.configuration.indexTemplate: k => jsondecode(file("${var.library_ingest_pipeline_path}/${v.ingestPipeline}.json"))}
 
 }
 
