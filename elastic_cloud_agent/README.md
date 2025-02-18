@@ -53,6 +53,7 @@ No modules.
 | <a name="input_system_package_version"></a> [system\_package\_version](#input\_system\_package\_version) | Version of the 'system' integration package | `string` | n/a | yes |
 | <a name="input_target"></a> [target](#input\_target) | Identifier of a target within an elastic deployment, such as 'pagopa-dev' or 'arc-uat' | `string` | n/a | yes |
 | <a name="input_target_namespace"></a> [target\_namespace](#input\_target\_namespace) | Identifier of a target within an elastic deployment, expressed in an elastic namespace format, such as 'pagopa.dev' or 'arc.uat' | `string` | n/a | yes |
+| <a name="input_tolerated_taints"></a> [tolerated\_taints](#input\_tolerated\_taints) | List of tolerated taint keys. Optionally 'effect' can be defined | <pre>list(object({<br/>    key    = string<br/>    effect = optional(string, "NoSchedule")<br/>  }))</pre> | `[]` | no |
 
 ## Outputs
 

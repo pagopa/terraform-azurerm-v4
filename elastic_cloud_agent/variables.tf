@@ -8,6 +8,15 @@ variable "dedicated_log_instance_name" {
   description = "List of namespaces or pod names for which the logs will be collected by the elastic agent"
 }
 
+variable "tolerated_taints" {
+  type = list(object({
+    key    = string
+    effect = optional(string, "NoSchedule")
+  }))
+  description = "List of tolerated taint keys. Optionally 'effect' can be defined"
+  default     = []
+}
+
 variable "system_integration_policy" {
   type = object({
     name = string
