@@ -21,6 +21,9 @@ spec:
           effect: NoSchedule
         - key: node-role.kubernetes.io/master
           effect: NoSchedule
+        - key: "dedicated"
+          operator: "Exists"
+          effect: "NoSchedule"
       serviceAccountName: elastic-cloud-agent
       hostNetwork: false
       dnsPolicy: ClusterFirstWithHostNet
