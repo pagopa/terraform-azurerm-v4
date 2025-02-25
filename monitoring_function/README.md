@@ -168,6 +168,12 @@ module "monitoring_function" {
 }
 ```
 
+### How to: Migration from v3
+
+#### Removed parameters:
+
+* `legacy` parameter has been removed, the job container app always use terraform resources
+* `private_endpoint_subnet_id` -> now is `storage_private_endpoint_subnet_id`
 
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->
