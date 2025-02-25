@@ -79,7 +79,7 @@ resource "azurerm_private_endpoint" "synthetic_monitoring_storage_private_endpoi
   name                = "${var.prefix}-syntheticmonitoringsa-private-endpoint"
   location            = var.location
   resource_group_name = var.resource_group_name
-  subnet_id           = var.private_endpoint_subnet_id
+  subnet_id           = var.storage_private_endpoint_subnet_id
 
   private_dns_zone_group {
     name = "${var.prefix}-synthetic-monitoring-private-dns-zone-group"

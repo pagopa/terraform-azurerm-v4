@@ -80,7 +80,7 @@ variable "docker_settings" {
   }
 }
 
-variable "private_endpoint_subnet_id" {
+variable "storage_private_endpoint_subnet_id" {
   type        = string
   description = "(Optional) Subnet id where to create the private endpoint for backups storage account"
   default     = null
