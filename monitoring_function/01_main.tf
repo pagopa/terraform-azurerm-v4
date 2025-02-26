@@ -119,6 +119,8 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
     replica_completion_count = 1
   }
 
+  workload_profile_name = "Consumption"
+
   template {
     container {
       cpu    = var.job_settings.cpu_requirement
