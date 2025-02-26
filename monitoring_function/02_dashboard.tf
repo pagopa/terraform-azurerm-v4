@@ -6,7 +6,7 @@ resource "grafana_folder" "sythetic_monitoring" {
 }
 
 resource "grafana_dashboard" "sythetic_monitoring" {
-  count    = var.enabled_sythetic_dashboard
+  count    = var.enabled_sythetic_dashboard ? 1 : 0
   provider = grafana.cloud
 
   folder = grafana_folder.sythetic_monitoring.uid

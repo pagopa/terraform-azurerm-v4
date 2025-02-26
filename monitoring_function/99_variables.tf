@@ -150,23 +150,24 @@ variable "alert_set_auto_mitigate" {
 
 variable "subscription_id" {
   type        = string
-  description = "(Required) Azure subscription id"
+  description = "(Optional) Azure subscription id"
+  default     = null
 }
 
 variable "grafana_url" {
   type        = string
-  description = "Grafana Managed url"
+  description = "(Optional) Grafana Managed url"
   default     = ""
 }
 
 variable "grafana_api_key" {
   type        = string
-  description = "Grafana Managed Service Account key"
+  description = "(Optional) Grafana Managed Service Account key"
   default     = ""
 }
 
 variable "enabled_sythetic_dashboard" {
   type        = bool
-  description = "Enabled sythetic dashboard on grafana"
+  description = "(Optional) Enabled sythetic dashboard on grafana"
   default     = false
 }
