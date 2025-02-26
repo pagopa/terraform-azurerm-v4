@@ -157,7 +157,7 @@ variable "subscription_id" {
 variable "grafana_url" {
   type        = string
   description = "(Optional) Grafana Managed url"
-  default     = ""
+  default     = "https://PLACEHOLDER.com"
 }
 
 variable "grafana_api_key" {
