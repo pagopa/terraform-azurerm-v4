@@ -25,6 +25,7 @@ variable "storage_account_settings" {
     backup_retention_days     = optional(number, 0)           #(Optional) number of days for which the storage account is available for point in time recovery
     backup_enabled            = optional(bool, false)         # (Optional) enables storage account point in time recovery
     private_endpoint_enabled  = optional(bool, false)         #(Optional) enables the creation and usage of private endpoint
+    advanced_threat_protection  = optional(bool, false)         #(Optional) enables or not the advanced threat protection
     table_private_dns_zone_id = string                        # (Optional) table storage private dns zone id
   })
   default = {

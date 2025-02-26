@@ -18,16 +18,18 @@ module "synthetic_monitoring_storage_account" {
   source = "../storage_account"
 
   name                            = "${local.sa_prefix}synthmon"
+  location                        = var.location
+  resource_group_name             = var.resource_group_name
+
   account_kind                    = var.storage_account_settings.kind
   account_tier                    = var.storage_account_settings.tier
   account_replication_type        = var.storage_account_settings.replication_type
-  blob_versioning_enabled         = true
-  resource_group_name             = var.resource_group_name
-  location                        = var.location
-  allow_nested_items_to_be_public = false
-  advanced_threat_protection      = true
-  enable_low_availability_alert   = false
+  advanced_threat_protection      = var.storage_account_settings.advanced_threat_protection
   public_network_access_enabled   = var.storage_account_settings.private_endpoint_enabled ? false : true
+
+  blob_versioning_enabled         = true
+  allow_nested_items_to_be_public = false
+  enable_low_availability_alert   = false
   tags                            = var.tags
 
   # it needs to be higher than the other retention policies
@@ -39,7 +41,6 @@ module "synthetic_monitoring_storage_account" {
     enable_immutability_policy = false
     blob_restore_policy_days   = var.storage_account_settings.backup_retention_days
   }
-
 }
 
 resource "azurerm_storage_table" "table_storage" {
