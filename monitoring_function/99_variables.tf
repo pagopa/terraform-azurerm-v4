@@ -41,26 +41,26 @@ variable "storage_account_settings" {
 
 variable "job_settings" {
   type = object({
+    container_app_environment_id = string                        #(Required) If defined, the id of the container app environment tu be used to run the monitoring job. If provided, skips the creation of a dedicated subnet
+    cert_validity_range_days     = optional(number, 7)           #(Optional) Number of days before the expiration date of a certificate over which the check is considered success
     execution_timeout_seconds    = optional(number, 300)         #(Optional) Job execution timeout, in seconds
-    cron_scheduling              = optional(string, "* * * * *") #(Optional) Cron expression defining the execution scheduling of the monitoring function
+    cron_scheduling              = optional(string, "*/5 * * * *") #(Optional) Cron expression defining the execution scheduling of the monitoring function
     cpu_requirement              = optional(number, 0.25)        #(Optional) Decimal; cpu requirement
     memory_requirement           = optional(string, "0.5Gi")     #(Optional) Memory requirement
     http_client_timeout          = optional(number, 30000)       #(Optional) Default http client response timeout, in milliseconds
     default_duration_limit       = optional(number, 10000)       #(Optional) Duration limit applied if none is given in the monitoring configuration. in milliseconds
     availability_prefix          = optional(string, "synthetic") #(Optional) Prefix used for prefixing availability test names
-    container_app_environment_id = string                        #(Required) If defined, the id of the container app environment tu be used to run the monitoring job. If provided, skips the creation of a dedicated subnet
-    cert_validity_range_days     = optional(number, 7)           #(Optional) Number of days before the expiration date of a certificate over which the check is considered success
   })
   default = {
+    container_app_environment_id = null
+    cert_validity_range_days     = 7
     execution_timeout_seconds    = 300
-    cron_scheduling              = "* * * * *"
+    cron_scheduling              = "*/5 * * * *"
     cpu_requirement              = 0.25
     memory_requirement           = "0.5Gi"
     http_client_timeout          = 30000
     default_duration_limit       = 10000
     availability_prefix          = "synthetic"
-    container_app_environment_id = null
-    cert_validity_range_days     = 7
   }
   validation {
     condition     = length(var.job_settings.availability_prefix) > 0
@@ -76,7 +76,7 @@ variable "docker_settings" {
   })
   default = {
     registry_url = "ghcr.io"
-    image_tag    = "1.0.0"
+    image_tag    = "v1.10.0@sha256:1686c4a719dc1a3c270f98f527ebc34179764ddf53ee3089febcb26df7a2d71d"
     image_name   = "pagopa/azure-synthetic-monitoring"
   }
 }
