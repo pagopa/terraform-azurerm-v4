@@ -39,7 +39,6 @@ module "synthetic_monitoring_storage_account" {
 
 }
 
-
 resource "azurerm_storage_table" "table_storage" {
   name                 = "monitoringconfiguration"
   storage_account_name = module.synthetic_monitoring_storage_account.name
@@ -53,7 +52,6 @@ locals {
 resource "azurerm_storage_table_entity" "monitoring_configuration" {
   for_each         = local.monitoring_configuration
   storage_table_id = azurerm_storage_table.table_storage.id
-
 
   partition_key = "${each.value.appName}-${each.value.apiName}"
   row_key       = each.value.type

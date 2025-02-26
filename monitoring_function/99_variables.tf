@@ -148,3 +148,25 @@ variable "alert_set_auto_mitigate" {
   description = "(Optional) Should the alerts in this Metric Alert be auto resolved? Defaults to true."
 }
 
+variable "subscription_id" {
+  type        = string
+  description = "(Required) Azure subscription id"
+}
+
+variable "grafana_url" {
+  type        = string
+  description = "Grafana Managed url"
+  default     = ""
+}
+
+variable "grafana_api_key" {
+  type        = string
+  description = "Grafana Managed Service Account key"
+  default     = ""
+}
+
+variable "enabled_sythetic_dashboard" {
+  type        = bool
+  description = "Enabled sythetic dashboard on grafana"
+  default     = false
+}
