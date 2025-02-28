@@ -39,3 +39,8 @@ variable "create_namespace" {
   default     = true
   description = "If true creates the namespace used by otel, expects it to be created otherwise"
 }
+
+variable "deployment_env" {
+  type        = string
+  description = "Deployment.environment tag value"
+}
