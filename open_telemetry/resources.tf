@@ -33,6 +33,7 @@ resource "kubectl_manifest" "otel_collector" {
     apm_api_key   = var.elasticsearch_api_key
     apm_endpoint  = var.elasticsearch_apm_host
     receiver_port = var.grpc_receiver_port
+    deployment_env = var.deployment_env
   })
 
   force_conflicts = true
