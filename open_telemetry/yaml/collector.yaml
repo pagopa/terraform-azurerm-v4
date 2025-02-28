@@ -38,10 +38,13 @@ spec:
       pipelines:
         traces:
           receivers: [otlp]
+          processors: [resource]
           exporters: [logging, otlphttp/elastic]
         metrics:
           receivers: [otlp]
+          processors: [resource]
           exporters: [logging, otlphttp/elastic]
         logs:
           receivers: [otlp]
+          processors: [resource]
           exporters: [logging, otlphttp/elastic]
