@@ -34,6 +34,7 @@ resource "kubectl_manifest" "otel_collector" {
     apm_endpoint  = var.elasticsearch_apm_host
     receiver_port = var.grpc_receiver_port
     deployment_env = var.deployment_env
+    elastic_namespace = var.elastic_namespace
   })
 
   force_conflicts = true
