@@ -41,11 +41,6 @@ variable "create_namespace" {
 }
 
 variable "deployment_env" {
-  type = string
+  type        = string
   description = "Deployment.environment tag value"
-}
-
-variable "elastic_namespace" {
-  type = string
-  description = "elastic.namespace tag value, can be used to route the apm trace to specific indexes"
 }

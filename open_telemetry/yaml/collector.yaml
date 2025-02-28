@@ -22,9 +22,6 @@ spec:
         - key: deployment.environment
           value: ${deployment_env}
           action: upsert
-        - key: elastic.namespace
-          value: ${elastic_namespace}
-          action: upsert
 
     exporters:
       logging:
