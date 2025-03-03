@@ -14,5 +14,6 @@ resource "grafana_dashboard" "sythetic_monitoring" {
     subscription_id           = var.subscription_id
     resource_group_name       = var.application_insight_rg_name
     application_insights_name = var.application_insight_name
-  }) # test
+  })
+  depends_on = [grafana_folder.sythetic_monitoring]
 }
