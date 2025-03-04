@@ -17,21 +17,16 @@ variable "location" {
   description = "(Required) Resource location"
 }
 
-variable "legacy" {
-  type        = bool
-  default     = true
-  description = "(Optional) Enable new terraform resource features for container app job."
-}
-
 variable "storage_account_settings" {
   type = object({
-    tier                      = optional(string, "Standard")  #(Optional) Tier used for the backup storage account
-    replication_type          = optional(string, "ZRS")       #(Optional) Replication type used for the backup storage account
-    kind                      = optional(string, "StorageV2") #(Optional) Defines the Kind of account. Valid options are BlobStorage, BlockBlobStorage, FileStorage, Storage and StorageV2. Defaults to StorageV2
-    backup_retention_days     = optional(number, 0)           #(Optional) number of days for which the storage account is available for point in time recovery
-    backup_enabled            = optional(bool, false)         # (Optional) enables storage account point in time recovery
-    private_endpoint_enabled  = optional(bool, false)         #(Optional) enables the creation and usage of private endpoint
-    table_private_dns_zone_id = string                        # (Optional) table storage private dns zone id
+    tier                       = optional(string, "Standard")  #(Optional) Tier used for the backup storage account
+    replication_type           = optional(string, "ZRS")       #(Optional) Replication type used for the backup storage account
+    kind                       = optional(string, "StorageV2") #(Optional) Defines the Kind of account. Valid options are BlobStorage, BlockBlobStorage, FileStorage, Storage and StorageV2. Defaults to StorageV2
+    backup_retention_days      = optional(number, 0)           #(Optional) number of days for which the storage account is available for point in time recovery
+    backup_enabled             = optional(bool, false)         # (Optional) enables storage account point in time recovery
+    private_endpoint_enabled   = optional(bool, false)         #(Optional) enables the creation and usage of private endpoint
+    advanced_threat_protection = optional(bool, false)         #(Optional) enables or not the advanced threat protection
+    table_private_dns_zone_id  = string                        # (Optional) table storage private dns zone id
   })
   default = {
     tier                      = "Standard"
@@ -46,26 +41,26 @@ variable "storage_account_settings" {
 
 variable "job_settings" {
   type = object({
-    execution_timeout_seconds    = optional(number, 300)         #(Optional) Job execution timeout, in seconds
-    cron_scheduling              = optional(string, "* * * * *") #(Optional) Cron expression defining the execution scheduling of the monitoring function
-    cpu_requirement              = optional(number, 0.25)        #(Optional) Decimal; cpu requirement
-    memory_requirement           = optional(string, "0.5Gi")     #(Optional) Memory requirement
-    http_client_timeout          = optional(number, 30000)       #(Optional) Default http client response timeout, in milliseconds
-    default_duration_limit       = optional(number, 10000)       #(Optional) Duration limit applied if none is given in the monitoring configuration. in milliseconds
-    availability_prefix          = optional(string, "synthetic") #(Optional) Prefix used for prefixing availability test names
-    container_app_environment_id = string                        #(Required) If defined, the id of the container app environment tu be used to run the monitoring job. If provided, skips the creation of a dedicated subnet
-    cert_validity_range_days     = optional(number, 7)           #(Optional) Number of days before the expiration date of a certificate over which the check is considered success
+    container_app_environment_id = string                          #(Required) If defined, the id of the container app environment tu be used to run the monitoring job. If provided, skips the creation of a dedicated subnet
+    cert_validity_range_days     = optional(number, 7)             #(Optional) Number of days before the expiration date of a certificate over which the check is considered success
+    execution_timeout_seconds    = optional(number, 300)           #(Optional) Job execution timeout, in seconds
+    cron_scheduling              = optional(string, "*/5 * * * *") #(Optional) Cron expression defining the execution scheduling of the monitoring function
+    cpu_requirement              = optional(number, 0.25)          #(Optional) Decimal; cpu requirement
+    memory_requirement           = optional(string, "0.5Gi")       #(Optional) Memory requirement
+    http_client_timeout          = optional(number, 30000)         #(Optional) Default http client response timeout, in milliseconds
+    default_duration_limit       = optional(number, 10000)         #(Optional) Duration limit applied if none is given in the monitoring configuration. in milliseconds
+    availability_prefix          = optional(string, "synthetic")   #(Optional) Prefix used for prefixing availability test names
   })
   default = {
+    container_app_environment_id = null
+    cert_validity_range_days     = 7
     execution_timeout_seconds    = 300
-    cron_scheduling              = "* * * * *"
+    cron_scheduling              = "*/5 * * * *"
     cpu_requirement              = 0.25
     memory_requirement           = "0.5Gi"
     http_client_timeout          = 30000
     default_duration_limit       = 10000
     availability_prefix          = "synthetic"
-    container_app_environment_id = null
-    cert_validity_range_days     = 7
   }
   validation {
     condition     = length(var.job_settings.availability_prefix) > 0
@@ -81,12 +76,12 @@ variable "docker_settings" {
   })
   default = {
     registry_url = "ghcr.io"
-    image_tag    = "1.0.0"
+    image_tag    = "v1.10.0@sha256:1686c4a719dc1a3c270f98f527ebc34179764ddf53ee3089febcb26df7a2d71d"
     image_name   = "pagopa/azure-synthetic-monitoring"
   }
 }
 
-variable "private_endpoint_subnet_id" {
+variable "storage_private_endpoint_subnet_id" {
   type        = string
   description = "(Optional) Subnet id where to create the private endpoint for backups storage account"
   default     = null
@@ -110,8 +105,6 @@ variable "application_insights_action_group_ids" {
 variable "monitoring_configuration_encoded" {
   type        = string
   description = "(Required) monitoring configuration provided in JSON string format (use jsonencode)"
-
-
 
   validation {
     condition = alltrue([

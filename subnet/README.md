@@ -100,4 +100,6 @@ No modules.
 | <a name="output_address_prefixes"></a> [address\_prefixes](#output\_address\_prefixes) | n/a |
 | <a name="output_id"></a> [id](#output\_id) | n/a |
 | <a name="output_name"></a> [name](#output\_name) | n/a |
+| <a name="output_subnet_id"></a> [subnet\_id](#output\_subnet\_id) | n/a |
+| <a name="output_subnet_name"></a> [subnet\_name](#output\_subnet\_name) | n/a |
 <!-- END_TF_DOCS -->

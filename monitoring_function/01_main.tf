@@ -11,20 +11,25 @@ data "azurerm_application_insights" "app_insight" {
   resource_group_name = var.application_insight_rg_name
 }
 
+#
+# Storage Account
+#
 module "synthetic_monitoring_storage_account" {
   source = "../storage_account"
 
-  name                            = "${local.sa_prefix}synthmon"
-  account_kind                    = var.storage_account_settings.kind
-  account_tier                    = var.storage_account_settings.tier
-  account_replication_type        = var.storage_account_settings.replication_type
+  name                = "${local.sa_prefix}synthmon"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+
+  account_kind                  = var.storage_account_settings.kind
+  account_tier                  = var.storage_account_settings.tier
+  account_replication_type      = var.storage_account_settings.replication_type
+  advanced_threat_protection    = var.storage_account_settings.advanced_threat_protection
+  public_network_access_enabled = var.storage_account_settings.private_endpoint_enabled ? false : true
+
   blob_versioning_enabled         = true
-  resource_group_name             = var.resource_group_name
-  location                        = var.location
   allow_nested_items_to_be_public = false
-  advanced_threat_protection      = true
   enable_low_availability_alert   = false
-  public_network_access_enabled   = var.storage_account_settings.private_endpoint_enabled ? false : true
   tags                            = var.tags
 
   # it needs to be higher than the other retention policies
@@ -36,7 +41,6 @@ module "synthetic_monitoring_storage_account" {
     enable_immutability_policy = false
     blob_restore_policy_days   = var.storage_account_settings.backup_retention_days
   }
-
 }
 
 resource "azurerm_storage_table" "table_storage" {
@@ -76,7 +80,7 @@ resource "azurerm_private_endpoint" "synthetic_monitoring_storage_private_endpoi
   name                = "${var.prefix}-syntheticmonitoringsa-private-endpoint"
   location            = var.location
   resource_group_name = var.resource_group_name
-  subnet_id           = var.private_endpoint_subnet_id
+  subnet_id           = var.storage_private_endpoint_subnet_id
 
   private_dns_zone_group {
     name = "${var.prefix}-synthetic-monitoring-private-dns-zone-group"
@@ -95,92 +99,10 @@ resource "azurerm_private_endpoint" "synthetic_monitoring_storage_private_endpoi
   tags = var.tags
 }
 
-resource "azapi_resource" "monitoring_app_job" {
-  count = var.legacy == true ? 1 : 0
-
-  type      = "Microsoft.App/jobs@2022-11-01-preview"
-  name      = "${var.prefix}-monitoring-app-job"
-  location  = var.location
-  parent_id = data.azurerm_resource_group.parent_rg.id
-  tags      = var.tags
-  identity {
-    type = "SystemAssigned"
-  }
-  body = jsonencode({
-    properties = {
-      configuration = {
-        registries        = []
-        replicaRetryLimit = 1
-        replicaTimeout    = var.job_settings.execution_timeout_seconds
-        scheduleTriggerConfig = {
-          cronExpression         = var.job_settings.cron_scheduling
-          parallelism            = 1
-          replicaCompletionCount = 1
-        }
-        secrets     = []
-        triggerType = "Schedule"
-      }
-      environmentId = var.job_settings.container_app_environment_id
-      template = {
-        containers = [
-          {
-            args    = []
-            command = []
-            env = [
-              {
-                name  = "APP_INSIGHT_CONNECTION_STRING"
-                value = data.azurerm_application_insights.app_insight.connection_string
-              },
-              {
-                name  = "STORAGE_ACCOUNT_NAME"
-                value = module.synthetic_monitoring_storage_account.name
-              },
-              {
-                name  = "STORAGE_ACCOUNT_KEY"
-                value = module.synthetic_monitoring_storage_account.primary_access_key
-              },
-              {
-                name  = "STORAGE_ACCOUNT_TABLE_NAME"
-                value = azurerm_storage_table.table_storage.name
-              },
-              {
-                name  = "AVAILABILITY_PREFIX"
-                value = var.job_settings.availability_prefix
-              },
-              {
-                name  = "HTTP_CLIENT_TIMEOUT"
-                value = tostring(var.job_settings.http_client_timeout)
-              },
-              {
-                name  = "LOCATION"
-                value = var.location
-              },
-              {
-                name  = "CERT_VALIDITY_RANGE_DAYS"
-                value = tostring(var.job_settings.cert_validity_range_days)
-              }
-
-            ]
-            image = "${var.docker_settings.registry_url}/${var.docker_settings.image_name}:${var.docker_settings.image_tag}"
-            name  = "synthetic-monitoring"
-            probes = [
-            ]
-            resources = {
-              cpu    = var.job_settings.cpu_requirement
-              memory = var.job_settings.memory_requirement
-            }
-            volumeMounts = []
-          }
-        ]
-        initContainers = []
-        volumes        = []
-      }
-    }
-  })
-}
-
+#
+# Container app JOB
+#
 resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
-  count = var.legacy == false ? 1 : 0
 
   name                         = "${var.prefix}-monitoring-app-job"
   resource_group_name          = var.resource_group_name
@@ -197,6 +119,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
     replica_completion_count = 1
   }
 
+  workload_profile_name = "Consumption"
 
   template {
     container {
@@ -244,19 +167,11 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
   replica_timeout_in_seconds = var.job_settings.execution_timeout_seconds
 
   tags = var.tags
-
-  # Prevents non-sequential destruction of the legacy resource azapi_resource.monitoring_app_job.
-  # This configuration forces resources to be destroyed and created sequentially by
-  # avoiding the duplicate resource error and enabling a switch to a new or old version
-  # (in case rollback is needed).
-  lifecycle {
-    precondition {
-      condition     = length(azapi_resource.monitoring_app_job) == 0
-      error_message = "Warning: You cannot create the new resource. Perform legacy import before proceeding with changes."
-    }
-  }
 }
 
+#
+# Alerts configuration
+#
 locals {
   default_alert_configuration = {
     enabled       = true,
@@ -270,7 +185,6 @@ locals {
 
   default_custom_action_groups = []
 }
-
 
 resource "azurerm_monitor_metric_alert" "alert" {
   for_each = local.monitoring_configuration
@@ -304,7 +218,6 @@ resource "azurerm_monitor_metric_alert" "alert" {
     }
   }
 
-
   dynamic "action" {
     for_each = concat(var.application_insights_action_group_ids, lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "customActionGroupIds", local.default_custom_action_groups))
 
@@ -315,7 +228,9 @@ resource "azurerm_monitor_metric_alert" "alert" {
 
 }
 
-
+#
+# Self Alert
+#
 resource "azurerm_monitor_metric_alert" "self_alert" {
   name                = "availability-synthetic-monitoring-function"
   resource_group_name = var.resource_group_name
@@ -344,7 +259,6 @@ resource "azurerm_monitor_metric_alert" "self_alert" {
     }
   }
 
-
   dynamic "action" {
     for_each = var.application_insights_action_group_ids
 
@@ -352,6 +266,4 @@ resource "azurerm_monitor_metric_alert" "self_alert" {
       action_group_id = action.value
     }
   }
-
 }
-
