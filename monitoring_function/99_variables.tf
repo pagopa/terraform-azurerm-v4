@@ -141,3 +141,26 @@ variable "alert_set_auto_mitigate" {
   description = "(Optional) Should the alerts in this Metric Alert be auto resolved? Defaults to true."
 }
 
+variable "subscription_id" {
+  type        = string
+  description = "(Optional) Azure subscription id"
+  default     = null
+}
+
+variable "grafana_url" {
+  type        = string
+  description = "(Optional) Grafana Managed url"
+  default     = "https://PLACEHOLDER.com"
+}
+
+variable "grafana_api_key" {
+  type        = string
+  description = "(Optional) Grafana Managed Service Account key"
+  default     = ""
+}
+
+variable "enabled_sythetic_dashboard" {
+  type        = bool
+  description = "(Optional) Enabled sythetic dashboard on grafana"
+  default     = false
+}

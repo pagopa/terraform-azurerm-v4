@@ -4,11 +4,22 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4"
+      version = "~> 4.0"
     }
     null = {
       source  = "hashicorp/null"
       version = "~> 3.2"
     }
+    grafana = {
+      source  = "grafana/grafana"
+      version = "~> 2.3"
+    }
   }
+}
+
+provider "grafana" {
+  alias = "cloud"
+
+  url  = var.grafana_url
+  auth = var.grafana_api_key
 }
