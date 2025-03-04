@@ -17,15 +17,15 @@ data "azurerm_application_insights" "app_insight" {
 module "synthetic_monitoring_storage_account" {
   source = "../storage_account"
 
-  name                            = "${local.sa_prefix}synthmon"
-  location                        = var.location
-  resource_group_name             = var.resource_group_name
+  name                = "${local.sa_prefix}synthmon"
+  location            = var.location
+  resource_group_name = var.resource_group_name
 
-  account_kind                    = var.storage_account_settings.kind
-  account_tier                    = var.storage_account_settings.tier
-  account_replication_type        = var.storage_account_settings.replication_type
-  advanced_threat_protection      = var.storage_account_settings.advanced_threat_protection
-  public_network_access_enabled   = var.storage_account_settings.private_endpoint_enabled ? false : true
+  account_kind                  = var.storage_account_settings.kind
+  account_tier                  = var.storage_account_settings.tier
+  account_replication_type      = var.storage_account_settings.replication_type
+  advanced_threat_protection    = var.storage_account_settings.advanced_threat_protection
+  public_network_access_enabled = var.storage_account_settings.private_endpoint_enabled ? false : true
 
   blob_versioning_enabled         = true
   allow_nested_items_to_be_public = false
