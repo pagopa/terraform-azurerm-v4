@@ -308,3 +308,29 @@ variable "private_ip_address" {
     error_message = "Private IP address must contain at most one element"
   }
 }
+
+variable "custom_error_configurations" {
+  type = list(object({
+    status_code           = string # HTTP status code for which to display the error page
+    custom_error_page_url = string # URL of the custom error page, must be publicly reachable
+  }))
+  default     = []
+  description = "Configurations of custom error pages for common error status codes"
+
+  validation {
+    condition = alltrue([
+      for c in var.custom_error_configurations : contains([
+        "HttpStatus400",
+        "HttpStatus403",
+        "HttpStatus404",
+        "HttpStatus405",
+        "HttpStatus408",
+        "HttpStatus500",
+        "HttpStatus502",
+        "HttpStatus503",
+        "HttpStatus504",
+      ], c.status_code)
+    ])
+    error_message = "status_code must be one of HttpStatus{400,403,404,405,408,500,502,503,504}"
+  }
+}
