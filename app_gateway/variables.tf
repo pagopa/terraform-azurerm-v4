@@ -172,6 +172,13 @@ variable "identity_ids" {
 }
 
 # WAF
+
+variable "firewall_policy_id" {
+  type        = string
+  default     = null
+  description = "(Optional) Id of the WAF policy to attach to the gateway"
+}
+
 variable "waf_enabled" {
   type        = bool
   default     = true
