@@ -37,6 +37,8 @@ resource "azurerm_postgresql_flexible_server" "this" {
   storage_mb = var.storage_mb
   sku_name   = var.sku_name
 
+  auto_grow_enabled = var.auto_grow_enabled
+
   dynamic "high_availability" {
     for_each = var.high_availability_enabled && var.standby_availability_zone != null ? ["dummy"] : []
 
