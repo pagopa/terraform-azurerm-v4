@@ -44,3 +44,9 @@ variable "deployment_env" {
   type        = string
   description = "Deployment.environment tag value"
 }
+
+variable "elastic_namespace" {
+  type        = string
+  description = "Elastic namespace used to store the apm data. defaults to 'default'"
+  default     = "default"
+}
