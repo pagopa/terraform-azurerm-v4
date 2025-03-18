@@ -42,11 +42,19 @@ locals {
         name   = d.name
         rgroup = d.resource_group_name
         sub    = split("/", d.id)[0]
+        domain_exists = lookup(required_tags, "domain", "nodomain") 
       }
     ]
   ])
 
 
+}
+
+resource "grafana_folder" "domainsfolderexist" {
+  provider = grafana.cloud
+  for_each = { for i in range(length(local.dashboard_folder_map)) : local.dashboard_folder_map[i].domain_exists => i }
+
+  title = upper(local.dashboard_folder_map[each.value].domain_exists != "nodomain") ? "${upper(var.prefix)}-${upper(local.dashboard_folder_map[each.value].domain_exists)}" : null
 }
 
 resource "grafana_folder" "domainsfolder" {
