@@ -33,7 +33,7 @@ locals {
     elastic_agent_version = "8.17.1"
 
     tolerated_taints = var.tolerated_taints
-    prometheus_url   = var.use_managed_prometheus ? "ama-metrics-ksm.kube-system.svc.cluster.local:8080" : "prometheus-kube-state-metrics.${unmanaged_prometheus_namespace}.svc.cluster.local:8080"
+    prometheus_url   = var.use_managed_prometheus ? "ama-metrics-ksm.kube-system.svc.cluster.local:8080" : "prometheus-kube-state-metrics.${var.unmanaged_prometheus_namespace}.svc.cluster.local:8080"
   }
 
 
