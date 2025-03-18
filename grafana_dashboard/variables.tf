@@ -19,6 +19,12 @@ variable "prefix" {
   description = "product label used for dashboard folder and title"
 }
 
+variable "enable_auto_dashboard" {
+  type        = bool
+  default     = true
+  description = "enable auto dashboard creation"
+}
+
 variable "monitor_workspace_id" {
   type        = string
   description = "Azure Log Analytics workspace id"

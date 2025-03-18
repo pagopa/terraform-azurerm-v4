@@ -54,6 +54,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_dashboard_directory_path"></a> [dashboard\_directory\_path](#input\_dashboard\_directory\_path) | path for dashboard template | `string` | `"dashboard"` | no |
+| <a name="input_enable_auto_dashboard"></a> [enable\_auto\_dashboard](#input\_enable\_auto\_dashboard) | enable auto dashboard creation | `bool` | `true` | no |
 | <a name="input_grafana_api_key"></a> [grafana\_api\_key](#input\_grafana\_api\_key) | Grafana Managed Service Account key | `string` | n/a | yes |
 | <a name="input_grafana_url"></a> [grafana\_url](#input\_grafana\_url) | Grafana Managed url | `string` | n/a | yes |
 | <a name="input_monitor_workspace_id"></a> [monitor\_workspace\_id](#input\_monitor\_workspace\_id) | Azure Log Analytics workspace id | `string` | n/a | yes |
