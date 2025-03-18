@@ -40,7 +40,7 @@ locals {
       for d in rt.resources : {
         type   = d.type
         name   = d.name
-        rgroup = split("/", d.id)[4]
+        rgroup = d.resource_group_name
         sub    = split("/", d.id)[0]
       }
     ]
