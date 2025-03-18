@@ -1,9 +1,3 @@
-provider "grafana" {
-  alias = "cloud"
-
-  url  = var.grafana_url
-  auth = var.grafana_api_key
-}
 
 locals {
   allowed_resource_by_file = fileset("${path.module}/${var.dashboard_directory_path}", "*.json")
@@ -50,15 +44,13 @@ locals {
 }
 
 resource "grafana_folder" "domainsfolder" {
-  provider = grafana.cloud
-  for_each = var.enable_auto_dashboard ? { for i in range(length(local.dashboard_folder_map)) : local.dashboard_folder_map[i].name => i } : {}
+  for_each = { for i in range(length(local.dashboard_folder_map)) : local.dashboard_folder_map[i].name => i }
 
   title = "${upper(var.prefix)}-${upper(local.dashboard_folder_map[each.value].name)}"
 }
 
 resource "grafana_dashboard" "azure_monitor_grafana" {
-  provider = grafana.cloud
-  for_each = var.enable_auto_dashboard ? { for i in range(length(local.dashboard_resource_map)) : local.dashboard_resource_map[i].name => i } : {}
+  for_each = { for i in range(length(local.dashboard_resource_map)) : local.dashboard_resource_map[i].name => i }
 
   config_json = templatefile(
     "${path.module}/${var.dashboard_directory_path}/${replace(local.dashboard_resource_map[each.value].type, "/", "_")}.json",

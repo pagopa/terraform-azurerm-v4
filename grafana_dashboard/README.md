@@ -6,6 +6,19 @@ This module allow the creation of Grafana Dashboard to all "grafana = yes" tagge
 
 ## How to use it
 
+### Configure grafana provider
+
+```ts
+ provider "grafana" {
+  alias = "cloud"
+
+  url  = var.grafana_url
+  auth = var.grafana_auth_api_key
+}
+```
+
+### Import module in your configuration
+
 ```ts
 module "auto_dashboard" {
 
