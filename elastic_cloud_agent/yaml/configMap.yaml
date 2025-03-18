@@ -22,7 +22,7 @@ data:
         name: ${system_name}
         type: logfile
         data_stream:
-          namespace: default
+          namespace: ${target_namespace}
         use_output: default
         package_policy_id: ${system_id}
         streams:
@@ -67,7 +67,7 @@ data:
         name: ${system_name}
         type: winlog
         data_stream:
-          namespace: default
+          namespace: ${target_namespace}
         use_output: default
         package_policy_id: ${system_id}
         streams:
@@ -101,7 +101,7 @@ data:
         name: ${system_name}
         type: system/metrics
         data_stream:
-          namespace: default
+          namespace: ${target_namespace}
         use_output: default
         package_policy_id: ${system_id}
         streams:
@@ -291,7 +291,7 @@ data:
         name: ${system_name}
         type: journald
         data_stream:
-          namespace: ${namespace}
+          namespace: ${target_namespace}
         use_output: default
         package_policy_id: ${system_id}
         streams:
@@ -352,7 +352,7 @@ data:
               - state_container
             add_metadata: true
             hosts:
-              - 'prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -365,7 +365,7 @@ data:
               - state_cronjob
             add_metadata: true
             hosts:
-              - 'prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -378,7 +378,7 @@ data:
               - state_daemonset
             add_metadata: true
             hosts:
-              - 'prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -391,7 +391,7 @@ data:
               - state_deployment
             add_metadata: true
             hosts:
-              - 'prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -404,7 +404,7 @@ data:
               - state_job
             add_metadata: true
             hosts:
-              - 'prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -417,7 +417,7 @@ data:
               - state_namespace
             add_metadata: true
             hosts:
-              - prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -430,7 +430,7 @@ data:
               - state_node
             add_metadata: true
             hosts:
-              - prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -443,7 +443,7 @@ data:
               - state_persistentvolume
             add_metadata: true
             hosts:
-              - prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -456,7 +456,7 @@ data:
               - state_persistentvolumeclaim
             add_metadata: true
             hosts:
-              - prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -469,7 +469,7 @@ data:
               - state_pod
             add_metadata: true
             hosts:
-              - prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -482,7 +482,7 @@ data:
               - state_replicaset
             add_metadata: true
             hosts:
-              - prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -495,7 +495,7 @@ data:
               - state_resourcequota
             add_metadata: true
             hosts:
-              - prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -508,7 +508,7 @@ data:
               - state_service
             add_metadata: true
             hosts:
-              - prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -521,7 +521,7 @@ data:
               - state_statefulset
             add_metadata: true
             hosts:
-              - prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -534,7 +534,7 @@ data:
               - state_storageclass
             add_metadata: true
             hosts:
-              - prometheus-kube-state-metrics.elastic-system.svc.cluster.local:8080'
+              - '${prometheus_url}'
             period: 10s
             condition: '$${kubernetes_leaderelection.leader} == true'
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -625,7 +625,7 @@ data:
         name: ${apm_name}
         type: apm
         data_stream:
-          namespace: default
+          namespace: ${target_namespace}
         use_output: default
         package_policy_id: ${apm_id}
         apm-server:

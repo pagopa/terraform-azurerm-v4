@@ -92,3 +92,14 @@ variable "create_namespace" {
   default     = true
   description = "If true creates the namespace used by elastic-agent, expects it to be created otherwise"
 }
+
+variable "use_managed_prometheus" {
+  type = bool
+  default = true
+  description = "If true, the elastic agent will use the managed prometheus instance (ama metrics) to retrieve metrics, otherwise it will use the prometheus-kube-state-metrics instance"
+}
+
+variable "unmanaged_prometheus_namespace" {
+  type = string
+  description = "Namespace where the prometheus-kube-state-metrics is installed"
+}
