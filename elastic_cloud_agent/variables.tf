@@ -102,4 +102,5 @@ variable "use_managed_prometheus" {
 variable "unmanaged_prometheus_namespace" {
   type        = string
   description = "Namespace where the prometheus-kube-state-metrics is installed"
+  default     = "ND"
 }
