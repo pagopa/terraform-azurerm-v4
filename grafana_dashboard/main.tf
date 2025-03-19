@@ -28,6 +28,9 @@ data "azurerm_resources" "sub_resources" {
   }
 }
 
+output "risorse" {
+  value = data.azurerm_resources.sub_resources
+}
 locals {
   dashboard_folder_map = flatten([
     for rt in data.azurerm_resources.sub_resources : {
