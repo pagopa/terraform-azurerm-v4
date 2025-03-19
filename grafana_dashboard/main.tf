@@ -43,26 +43,20 @@ locals {
         name   = d.name
         rgroup = d.resource_group_name
         sub    = split("/", d.id)[0]
-        rtag   = d.tags
+        domain_exists = lookup(d.tags , "domain", "nodomain") 
       }
     ]
   ])
-  # dashboard_domain_map = flatten([
-  #   for rt in data.azurerm_resources.sub_resources.required_tags : {
-      
-  #      domain_exists = lookup(rt , "domain", "nodomain") 
-      
-  #   }
-  # ])
+
 
 }
 
-# resource "grafana_folder" "domainsfolderexist" {
-#   provider = grafana.cloud
-#   for_each = { for i in range(length(local.dashboard_domain_map)) : local.dashboard_domain_map[i].domain_exists => i }
+resource "grafana_folder" "domainsfolderexist" {
+  provider = grafana.cloud
+  for_each = { for i in range(length(local.dashboard_resource_map)) : local.dashboard_resource_map[i].domain_exists => i }
 
-#   title = upper(local.dashboard_folder_map[each.value].domain_exists != "nodomain") ? "${upper(var.prefix)}-${upper(local.dashboard_folder_map[each.value].domain_exists)}" : null
-# }
+  title = upper(local.dashboard_folder_map[each.value].domain_exists != "nodomain") ? "${upper(var.prefix)}-${upper(local.dashboard_folder_map[each.value].domain_exists)}" : null
+}
 
 resource "grafana_folder" "domainsfolder" {
   provider = grafana.cloud
