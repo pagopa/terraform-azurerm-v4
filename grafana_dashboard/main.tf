@@ -86,6 +86,6 @@ resource "grafana_dashboard" "azure_monitor_grafana" {
       workspace = "${var.monitor_workspace_id}"
     }
   )
-  folder    = grafana_folder.domainsfolder["${upper(local.dashboard_resource_map[each.value].domain_exists)}-${split("/", local.dashboard_resource_map[each.value].type)[1]}"].id
+  folder    = grafana_folder.domainsfolder["${upper(local.dashboard_resource_map[each.value].domain_exists)}-${local.dashboard_resource_map[each.value].type}"].id
   overwrite = true
 }
