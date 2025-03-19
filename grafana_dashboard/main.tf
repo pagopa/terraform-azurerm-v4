@@ -43,6 +43,7 @@ locals {
         name   = d.name
         rgroup = d.resource_group_name
         sub    = split("/", d.id)[0]
+        rtag   = d.tags
       }
     ]
   ])

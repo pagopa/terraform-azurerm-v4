@@ -1,6 +1,4 @@
-output "risorse" {
-  value = jsonencode(data.azurerm_resources.sub_resources.required_tags)
-}
+
 output "localrisorse" {
-  value = local.allowed_resource_type
+  value = local.dashboard_resource_map
 }
