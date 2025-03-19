@@ -54,6 +54,8 @@ No modules.
 | <a name="input_target"></a> [target](#input\_target) | Identifier of a target within an elastic deployment, such as 'pagopa-dev' or 'arc-uat' | `string` | n/a | yes |
 | <a name="input_target_namespace"></a> [target\_namespace](#input\_target\_namespace) | Identifier of a target within an elastic deployment, expressed in an elastic namespace format, such as 'pagopa.dev' or 'arc.uat' | `string` | n/a | yes |
 | <a name="input_tolerated_taints"></a> [tolerated\_taints](#input\_tolerated\_taints) | List of tolerated taint keys. Optionally 'effect' can be defined | <pre>list(object({<br/>    key    = string<br/>    effect = optional(string, "NoSchedule")<br/>  }))</pre> | `[]` | no |
+| <a name="input_unmanaged_prometheus_namespace"></a> [unmanaged\_prometheus\_namespace](#input\_unmanaged\_prometheus\_namespace) | Namespace where the prometheus-kube-state-metrics is installed | `string` | `"ND"` | no |
+| <a name="input_use_managed_prometheus"></a> [use\_managed\_prometheus](#input\_use\_managed\_prometheus) | If true, the elastic agent will use the managed prometheus instance (ama metrics) to retrieve metrics, otherwise it will use the prometheus-kube-state-metrics instance | `bool` | `true` | no |
 
 ## Outputs
 
