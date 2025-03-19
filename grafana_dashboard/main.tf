@@ -28,33 +28,45 @@ data "azurerm_resources" "sub_resources" {
   }
 }
 
+
 locals {
   dashboard_folder_map = flatten([
-    for rt in data.azurerm_resources.sub_resources : {
-      name = split("/", rt.type)[1]
-    }
+    for rt in data.azurerm_resources.sub_resources : [
+      for d in rt.resources : {
+        domain_exists = lookup(d.tags, "domain", "nodomain")
+      }
+    ]
   ])
 
   dashboard_resource_map = flatten([
     for rt in data.azurerm_resources.sub_resources : [
       for d in rt.resources : {
-        type   = d.type
-        name   = d.name
-        rgroup = split("/", d.id)[4]
-        sub    = split("/", d.id)[0]
+        type          = d.type
+        name          = d.name
+        rgroup        = d.resource_group_name
+        sub           = split("/", d.id)[0]
+        domain_exists = lookup(d.tags, "domain", "nodomain")
       }
     ]
   ])
 
+}
 
+resource "grafana_folder" "domainsfolderexist" {
+  provider = grafana.cloud
+  for_each = { for i in range(length(distinct(local.dashboard_folder_map))) : local.dashboard_folder_map[i].domain_exists => i }
+
+  title = "${upper(var.prefix)}-${upper(local.dashboard_folder_map[each.value].domain_exists)}"
 }
 
 resource "grafana_folder" "domainsfolder" {
-  provider = grafana.cloud
-  for_each = { for i in range(length(local.dashboard_folder_map)) : local.dashboard_folder_map[i].name => i }
+  provider          = grafana.cloud
+  for_each          = { for i in range(length(local.dashboard_resource_map)) : format("%s-%s", local.dashboard_resource_map[i].domain_exists, local.dashboard_resource_map[i].type) => i }
+  parent_folder_uid = grafana_folder.domainsfolderexist["${local.dashboard_resource_map[each.value].domain_exists}"].uid
 
-  title = "${upper(var.prefix)}-${upper(local.dashboard_folder_map[each.value].name)}"
+  title = "${upper(local.dashboard_resource_map[each.value].domain_exists)}-${split("/", local.dashboard_resource_map[each.value].type)[1]}"
 }
+
 
 resource "grafana_dashboard" "azure_monitor_grafana" {
   provider = grafana.cloud
@@ -71,6 +83,6 @@ resource "grafana_dashboard" "azure_monitor_grafana" {
       workspace = "${var.monitor_workspace_id}"
     }
   )
-  folder    = grafana_folder.domainsfolder["${split("/", local.dashboard_resource_map[each.value].type)[1]}"].id
+  folder    = grafana_folder.domainsfolder["${local.dashboard_resource_map[each.value].domain_exists}-${local.dashboard_resource_map[each.value].type}"].id
   overwrite = true
 }
