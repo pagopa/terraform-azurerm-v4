@@ -48,7 +48,6 @@ locals {
     ]
   ])
 
-
 }
 
 resource "grafana_folder" "domainsfolderexist" {
@@ -60,10 +59,17 @@ resource "grafana_folder" "domainsfolderexist" {
 
 resource "grafana_folder" "domainsfolder" {
   provider = grafana.cloud
-  for_each = { for i in range(length(local.dashboard_folder_map)) : local.dashboard_folder_map[i].name => i }
+  for_each = { for i in range(length(local.dashboard_resource_map)) : local.dashboard_resource_map[i].domain_exists => local.dashboard_resource_map[i].type }
+  parent_folder_uid = grafana_folder.domainsfolderexist["${local.dashboard_resource_map[each.value].domain_exits}"]
 
-  title = "${upper(var.prefix)}-${upper(local.dashboard_folder_map[each.value].name)}"
+  title = upper(split("/", local.dashboard_resource_map[each.value].type)[1])
 }
+# resource "grafana_folder" "domainsfolder" {
+#   provider = grafana.cloud
+#   for_each = { for i in range(length(local.dashboard_folder_map)) : local.dashboard_folder_map[i].name => i }
+
+#   title = "${upper(var.prefix)}-${upper(local.dashboard_folder_map[each.value].name)}"
+# }
 
 resource "grafana_dashboard" "azure_monitor_grafana" {
   provider = grafana.cloud
