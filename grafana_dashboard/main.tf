@@ -53,7 +53,7 @@ locals {
 
 resource "grafana_folder" "domainsfolderexist" {
   provider = grafana.cloud
-  for_each = { for i in range(length(local.dashboard_folder_map)) : local.dashboard_folder_map[i].domain_exists => i }
+  for_each = { for i in range(length(local.dashboard_resource_map)) : local.dashboard_resource_map[i].domain_exists => i }
 
   title = upper(local.dashboard_folder_map[each.value].domain_exists != "nodomain") ? "${upper(var.prefix)}-${upper(local.dashboard_folder_map[each.value].domain_exists)}" : null
 }
