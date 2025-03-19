@@ -54,7 +54,7 @@ resource "grafana_folder" "domainsfolderexist" {
   provider = grafana.cloud
   for_each = { for i in range(length(local.dashboard_resource_map)) : local.dashboard_resource_map[i].domain_exists => i }
 
-  title = upper(var.prefix)-upper(local.dashboard_resource_map[each.value].domain_exists)
+  title = "${upper(var.prefix)}-${upper(local.dashboard_resource_map[each.value].domain_exists)}"
 }
 
 resource "grafana_folder" "domainsfolder" {
