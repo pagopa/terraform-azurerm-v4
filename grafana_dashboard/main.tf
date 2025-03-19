@@ -47,11 +47,11 @@ locals {
     ]
   ])
   dashboard_domain_map = flatten([
-    for rt in data.azurerm_resources.sub_resources : [
-      for d in rt.required_tags : {
-       domain_exists = lookup(d , "domain", "nodomain") 
-      }
-    ]
+    for rt in data.azurerm_resources.sub_resources.tags : {
+      
+       domain_exists = lookup(rt , "domain", "nodomain") 
+      
+    }
   ])
 
 }
