@@ -59,7 +59,7 @@ resource "grafana_folder" "domainsfolderexist" {
 
 resource "grafana_folder" "domainsfolder" {
   provider = grafana.cloud
-  for_each = { for i in range(length(local.dashboard_resource_map)) : merge(local.dashboard_resource_map[i].type,split("/", local.dashboard_resource_map[i].type)[1]) => i  }
+  for_each = { for i in range(length(local.dashboard_resource_map)) : join("-",local.dashboard_resource_map[i].domain_exists,split("/", local.dashboard_resource_map[i].type)[1]) => i  }
   parent_folder_uid = grafana_folder.domainsfolderexist["${local.dashboard_resource_map[each.value].domain_exists}"].id
 
   title = "${upper(local.dashboard_resource_map[each.value].domain_exists)}-${split("/", local.dashboard_resource_map[each.value].type)[1]}"
@@ -86,6 +86,6 @@ resource "grafana_dashboard" "azure_monitor_grafana" {
       workspace = "${var.monitor_workspace_id}"
     }
   )
-  folder    = grafana_folder.domainsfolder["${upper(local.dashboard_resource_map[each.value].domain_exists)}${split("/", local.dashboard_resource_map[each.value].type)[1]}"].id
+  folder    = grafana_folder.domainsfolder["${upper(local.dashboard_resource_map[each.value].domain_exists)}-${split("/", local.dashboard_resource_map[each.value].type)[1]}"].id
   overwrite = true
 }
