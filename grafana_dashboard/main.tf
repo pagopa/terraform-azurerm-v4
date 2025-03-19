@@ -42,7 +42,7 @@ locals {
         name   = d.name
         rgroup = d.resource_group_name
         sub    = split("/", d.id)[0]
-        domain_exists = lookup(required_tags, "domain", "nodomain") 
+        domain_exists = lookup(d.required_tags, "domain", "nodomain") 
       }
     ]
   ])
