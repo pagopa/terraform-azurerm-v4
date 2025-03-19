@@ -66,12 +66,7 @@ resource "grafana_folder" "domainsfolder" {
 
   title = "${upper(local.dashboard_resource_map[each.value].domain_exists)}-${split("/", local.dashboard_resource_map[each.value].type)[1]}"
 }
-# resource "grafana_folder" "domainsfolder" {
-#   provider = grafana.cloud
-#   for_each = { for i in range(length(local.dashboard_folder_map)) : local.dashboard_folder_map[i].name => i }
 
-#   title = "${upper(var.prefix)}-${upper(local.dashboard_folder_map[each.value].name)}"
-# }
 
 resource "grafana_dashboard" "azure_monitor_grafana" {
   provider = grafana.cloud
