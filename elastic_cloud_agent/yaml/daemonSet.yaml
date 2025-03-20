@@ -6,7 +6,7 @@ metadata:
   labels:
     app: elastic-cloud-agent
   annotations:
-    services: ${dedicated_log_instance_name}
+    services: ${join(",", dedicated_log_instance_name)}
 spec:
   selector:
     matchLabels:
