@@ -59,7 +59,7 @@ resource "kubectl_manifest" "secret_api_key" {
 }
 
 resource "kubectl_manifest" "daemon_set" {
-  depends_on = [kubectl_manifest.secret_api_key]
+  depends_on = [kubectl_manifest.secret_api_key, kubectl_manifest.config_map]
   yaml_body  = (replace(replace(templatefile("${path.module}/yaml/daemonSet.yaml", local.template_resolution_variables), "/(?s:\nstatus:.*)$/", ""), "0640", "416"))
 
 }
