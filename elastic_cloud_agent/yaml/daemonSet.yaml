@@ -5,6 +5,8 @@ metadata:
   namespace: ${namespace}
   labels:
     app: elastic-cloud-agent
+  annotations:
+    services: ${dedicated_log_instance_name}
 spec:
   selector:
     matchLabels:
