@@ -5,9 +5,11 @@ metadata:
   namespace: ${namespace}
   labels:
     app: elastic-cloud-agent
-  annotations:
-    services: ${join(",", dedicated_log_instance_name)}
 spec:
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: elastic-cloud-agent
@@ -15,6 +17,8 @@ spec:
     metadata:
       labels:
         app: elastic-cloud-agent
+      annotations:
+        services: ${join(",", dedicated_log_instance_name)}
     spec:
       # Tolerations are needed to run Elastic Agent on Kubernetes control-plane nodes.
       # Agents running on control-plane nodes collect metrics from the control plane components (scheduler, controller manager) of Kubernetes
