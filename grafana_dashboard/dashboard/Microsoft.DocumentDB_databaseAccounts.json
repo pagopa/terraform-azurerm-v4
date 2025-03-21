@@ -135,8 +135,8 @@
             "metricDefinition": "$ns",
             "metricName": "TotalRequests",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "$rg",
-            "resourceName": "$resource",
+            "resourceGroup": "${rg}",
+            "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -183,7 +183,7 @@
           },
           "queryType": "Azure Monitor",
           "refId": "A",
-          "subscription": "$sub"
+          "subscription": "${sub}"
         }
       ],
       "thresholds": [],
@@ -326,8 +326,8 @@
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
             "resources": [
               {
-                "resourceGroup": "$rg",
-                "resourceName": "$resource"
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}"
               }
             ],
             "timeGrain": "auto",
@@ -376,7 +376,7 @@
           },
           "queryType": "Azure Monitor",
           "refId": "A",
-          "subscription": "$sub"
+          "subscription": "${sub}"
         }
       ],
       "title": "Throttled Requests (429s)",
@@ -467,8 +467,8 @@
             "metricDefinition": "$ns",
             "metricName": "NormalizedRUConsumption",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "$rg",
-            "resourceName": "$resource",
+            "resourceGroup": "${rg}",
+            "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -499,7 +499,7 @@
           },
           "queryType": "Azure Monitor",
           "refId": "A",
-          "subscription": "$sub"
+          "subscription": "${sub}"
         }
       ],
       "thresholds": [],
@@ -610,8 +610,8 @@
             "metricDefinition": "$ns",
             "metricName": "IndexUsage",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "$rg",
-            "resourceName": "$resource",
+            "resourceGroup": "${rg}",
+            "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -631,7 +631,7 @@
           "hide": false,
           "queryType": "Azure Monitor",
           "refId": "A",
-          "subscription": "$sub"
+          "subscription": "${sub}"
         },
         {
           "azureMonitor": {
@@ -662,8 +662,8 @@
             "metricDefinition": "$ns",
             "metricName": "DataUsage",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "$rg",
-            "resourceName": "$resource",
+            "resourceGroup": "${rg}",
+            "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -683,7 +683,7 @@
           "hide": false,
           "queryType": "Azure Monitor",
           "refId": "B",
-          "subscription": "$sub"
+          "subscription": "${sub}"
         }
       ],
       "thresholds": [],
@@ -842,8 +842,8 @@
             "metricDefinition": "$ns",
             "metricName": "TotalRequests",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "$rg",
-            "resourceName": "$resource",
+            "resourceGroup": "${rg}",
+            "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -891,7 +891,7 @@
           "hide": false,
           "queryType": "Azure Monitor",
           "refId": "A",
-          "subscription": "$sub"
+          "subscription": "${sub}"
         }
       ],
       "title": "Total Requests (Count) By Collection",
@@ -1015,8 +1015,8 @@
             "metricDefinition": "$ns",
             "metricName": "DocumentCount",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "$rg",
-            "resourceName": "$resource",
+            "resourceGroup": "${rg}",
+            "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -1036,7 +1036,7 @@
           "hide": false,
           "queryType": "Azure Monitor",
           "refId": "B",
-          "subscription": "$sub"
+          "subscription": "${sub}"
         }
       ],
       "title": "Document Count (Avg) By Collection",
@@ -1160,8 +1160,8 @@
             "metricDefinition": "$ns",
             "metricName": "DataUsage",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "$rg",
-            "resourceName": "$resource",
+            "resourceGroup": "${rg}",
+            "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -1181,7 +1181,7 @@
           "hide": false,
           "queryType": "Azure Monitor",
           "refId": "C",
-          "subscription": "$sub"
+          "subscription": "${sub}"
         }
       ],
       "title": "Data Usage (Avg) By Collection",
@@ -1305,8 +1305,8 @@
             "metricDefinition": "$ns",
             "metricName": "IndexUsage",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "$rg",
-            "resourceName": "$resource",
+            "resourceGroup": "${rg}",
+            "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -1326,7 +1326,7 @@
           "hide": false,
           "queryType": "Azure Monitor",
           "refId": "D",
-          "subscription": "$sub"
+          "subscription": "${sub}"
         }
       ],
       "title": "Index Usage (Avg) By Collection",
@@ -1445,8 +1445,8 @@
             "metricDefinition": "$ns",
             "metricName": "ProvisionedThroughput",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "$rg",
-            "resourceName": "$resource",
+            "resourceGroup": "${rg}",
+            "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -1466,7 +1466,7 @@
           "hide": false,
           "queryType": "Azure Monitor",
           "refId": "E",
-          "subscription": "$sub"
+          "subscription": "${sub}"
         }
       ],
       "title": "Provisioned Throughput (Max) By Collection",
@@ -1597,8 +1597,8 @@
             "metricDefinition": "$ns",
             "metricName": "NormalizedRUConsumption",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "$rg",
-            "resourceName": "$resource",
+            "resourceGroup": "${rg}",
+            "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -1630,7 +1630,7 @@
           "hide": false,
           "queryType": "Azure Monitor",
           "refId": "F",
-          "subscription": "$sub"
+          "subscription": "${sub}"
         }
       ],
       "title": "Normalized RU Consumption (Max) By Collection",
@@ -1750,8 +1750,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "TotalRequestUnits",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -1798,7 +1798,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -1918,8 +1918,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "NormalizedRUConsumption",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -1950,7 +1950,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -2056,8 +2056,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "ProvisionedThroughput",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -2076,7 +2076,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "title": "Provisioned Throughput (Max) by Collection",
@@ -2208,8 +2208,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "TotalRequests",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -2256,7 +2256,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -2390,8 +2390,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "TotalRequests",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -2438,7 +2438,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -2572,8 +2572,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "TotalRequests",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -2620,7 +2620,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -2760,8 +2760,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "DataUsage",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -2780,7 +2780,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             },
             {
               "azureMonitor": {
@@ -2816,8 +2816,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "IndexUsage",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -2837,7 +2837,7 @@
               "hide": false,
               "queryType": "Azure Monitor",
               "refId": "B",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -2952,8 +2952,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "DocumentCount",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -2972,7 +2972,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -3089,8 +3089,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "DataUsage",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3109,7 +3109,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             },
             {
               "azureMonitor": {
@@ -3146,8 +3146,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "IndexUsage",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3167,7 +3167,7 @@
               "hide": false,
               "queryType": "Azure Monitor",
               "refId": "B",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             },
             {
               "azureMonitor": {
@@ -3204,8 +3204,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "DocumentCount",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3225,7 +3225,7 @@
               "hide": false,
               "queryType": "Azure Monitor",
               "refId": "C",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "title": "Data, Index & Document Usage",
@@ -3326,8 +3326,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "ServiceAvailability",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3346,7 +3346,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             },
             {
               "azureMonitor": {
@@ -3370,8 +3370,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "ServiceAvailability",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3391,7 +3391,7 @@
               "hide": false,
               "queryType": "Azure Monitor",
               "refId": "B",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             },
             {
               "azureMonitor": {
@@ -3415,8 +3415,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "ServiceAvailability",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3436,7 +3436,7 @@
               "hide": false,
               "queryType": "Azure Monitor",
               "refId": "C",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -3589,8 +3589,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "ServerSideLatency",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3609,7 +3609,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -3736,8 +3736,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "ServerSideLatency",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3756,7 +3756,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -3907,8 +3907,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "MetadataRequests",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3955,7 +3955,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -4081,8 +4081,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "MetadataRequests",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4129,7 +4129,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -4255,8 +4255,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "CreateAccount",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4275,7 +4275,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             },
             {
               "azureMonitor": {
@@ -4297,8 +4297,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "DeleteAccount",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4318,7 +4318,7 @@
               "hide": false,
               "queryType": "Azure Monitor",
               "refId": "B",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             },
             {
               "azureMonitor": {
@@ -4345,8 +4345,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "UpdateAccountKeys",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4366,7 +4366,7 @@
               "hide": false,
               "queryType": "Azure Monitor",
               "refId": "C",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -4476,8 +4476,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "UpdateDiagnosticsSettings",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4496,7 +4496,7 @@
               },
               "queryType": "Azure Monitor",
               "refId": "A",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             },
             {
               "azureMonitor": {
@@ -4518,8 +4518,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "UpdateAccountNetworkSettings",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4539,7 +4539,7 @@
               "hide": false,
               "queryType": "Azure Monitor",
               "refId": "B",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             },
             {
               "azureMonitor": {
@@ -4561,8 +4561,8 @@
                 "metricDefinition": "$ns",
                 "metricName": "UpdateAccountReplicationSettings",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "$rg",
-                "resourceName": "$resource",
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4582,7 +4582,7 @@
               "hide": false,
               "queryType": "Azure Monitor",
               "refId": "C",
-              "subscription": "$sub"
+              "subscription": "${sub}"
             }
           ],
           "thresholds": [],
@@ -4687,14 +4687,14 @@
         "datasource": {
           "uid": "${ds}"
         },
-        "definition": "ResourceGroups($sub)",
+        "definition": "ResourceGroups(${sub})",
         "hide": 0,
         "includeAll": false,
         "label": "Resource Group",
         "multi": false,
         "name": "rg",
         "options": [],
-        "query": "ResourceGroups($sub)",
+        "query": "ResourceGroups(${sub})",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -4736,14 +4736,14 @@
         "datasource": {
           "uid": "${ds}"
         },
-        "definition": "ResourceNames($sub, $rg, $ns)",
+        "definition": "ResourceNames(${sub}, ${rg}, $ns)",
         "hide": 0,
         "includeAll": false,
         "label": "Resource",
         "multi": false,
         "name": "resource",
         "options": [],
-        "query": "ResourceNames($sub, $rg, $ns)",
+        "query": "ResourceNames(${sub}, ${rg}, $ns)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
