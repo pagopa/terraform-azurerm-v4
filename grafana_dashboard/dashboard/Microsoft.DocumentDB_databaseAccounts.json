@@ -4761,8 +4761,6 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Azure / Insights / Cosmos DB",
-  "uid": "INH9berMk",
-  "version": 2,
+  "title": "${resource}",
   "weekStart": ""
 }
