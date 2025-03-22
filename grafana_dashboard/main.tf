@@ -41,7 +41,7 @@ locals {
   dashboard_subfolder_map = flatten([
     for rt in data.azurerm_resources.sub_resources : [
       for d in rt.resources : {
-        subdomain_exists = format("%s%s",lookup(d.tags, "domain", "nodomain"),split("/", d.type)[1])
+        subdomain_exists = split("/", d.type)[1]
         //type = split("/", d.type)[1]
       }
     ]
