@@ -38,14 +38,18 @@ locals {
     ]
   ])
 
-  dashboard_subfolder_map = toset(flatten([
+  dashboard_subfolder_map = flatten([
     for rt in data.azurerm_resources.sub_resources : [
       for d in rt.resources : {
         subdomain_exists = format("%s-%s",lookup(d.tags, "domain", "nodomain"),split("/", d.type)[1])
         //type = split("/", d.type)[1]
       }
     ]
-  ]))
+  ])
+
+  distinct_subdomains = toset([
+    for item in local.dashboard_subfolder_map : item.subdomain_exists
+  ])
 
   dashboard_resource_map = flatten([
     for rt in data.azurerm_resources.sub_resources : [
@@ -71,8 +75,8 @@ resource "grafana_folder" "domainsfolderexist" {
 resource "grafana_folder" "domainsfolder" {
   provider = grafana.cloud
   for_each = {
-    for subdomain in local.dashboard_subfolder_map :
-    subdomain => subdomain_exists
+    for subdomain in local.distinct_subdomains :
+    subdomain => subdomain
   }
 
   parent_folder_uid = grafana_folder.domainsfolderexist["${split("-", each.key)[0]}"].uid
