@@ -742,7 +742,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "Total"
             ],
             "fields": "",
             "values": false
@@ -896,7 +896,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "Total"
             ],
             "fields": "",
             "values": false
