@@ -1204,7 +1204,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "sum"
+              "max"
             ],
             "fields": "",
             "values": false
@@ -3005,8 +3005,9 @@
     "refresh": "1m",
     "schemaVersion": 39,
     "tags": [
-      "azure",
-      "templates"
+      "${prefix}",
+      "auto_dashboard",
+      "terraform"
     ],
     "time": {
       "from": "now-1h",

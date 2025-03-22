@@ -2375,7 +2375,11 @@
     "refresh": "1m",
     "schemaVersion": 38,
     "style": "dark",
-    "tags": [],
+    "tags": [
+      "${prefix}",
+      "auto_dashboard",
+      "terraform"
+    ],
     "time": {
       "from": "now-3h",
       "to": "now"
