@@ -74,10 +74,7 @@ resource "grafana_folder" "domainsfolderexist" {
 
 resource "grafana_folder" "domainsfolder" {
   provider = grafana.cloud
-  for_each = {
-    for subdomain in local.distinct_subfolder :
-    subdomain => subdomain
-  }
+  for_each = { for subdomain in local.distinct_subfolder : subdomain => subdomain }
 
   parent_folder_uid = grafana_folder.domainsfolderexist["${split("-", each.key)[0]}"].uid
   title             = "${upper(split("-", each.key)[0])}-${split("-", each.key)[1]}"
