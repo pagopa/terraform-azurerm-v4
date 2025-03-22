@@ -93,21 +93,21 @@ resource "grafana_folder" "domainsfolder" {
 # }
 
 
-resource "grafana_dashboard" "azure_monitor_grafana" {
-  provider = grafana.cloud
-  for_each = { for i in range(length(local.dashboard_resource_map)) : local.dashboard_resource_map[i].name => i }
+# resource "grafana_dashboard" "azure_monitor_grafana" {
+#   provider = grafana.cloud
+#   for_each = { for i in range(length(local.dashboard_resource_map)) : local.dashboard_resource_map[i].name => i }
 
-  config_json = templatefile(
-    "${path.module}/${var.dashboard_directory_path}/${replace(local.dashboard_resource_map[each.value].type, "/", "_")}.json",
-    {
-      resource  = "${local.dashboard_resource_map[each.value].name}"
-      rg        = "${local.dashboard_resource_map[each.value].rgroup}"
-      sub       = "${local.dashboard_resource_map[each.value].sub}"
-      ds        = "Azure Monitor"
-      prefix    = "${var.prefix}"
-      workspace = "${var.monitor_workspace_id}"
-    }
-  )
-  folder    = grafana_folder.domainsfolder["${local.dashboard_resource_map[each.value].domain_exists}-${local.dashboard_resource_map[each.value].type}"].id
-  overwrite = true
-}
+#   config_json = templatefile(
+#     "${path.module}/${var.dashboard_directory_path}/${replace(local.dashboard_resource_map[each.value].type, "/", "_")}.json",
+#     {
+#       resource  = "${local.dashboard_resource_map[each.value].name}"
+#       rg        = "${local.dashboard_resource_map[each.value].rgroup}"
+#       sub       = "${local.dashboard_resource_map[each.value].sub}"
+#       ds        = "Azure Monitor"
+#       prefix    = "${var.prefix}"
+#       workspace = "${var.monitor_workspace_id}"
+#     }
+#   )
+#   folder    = grafana_folder.domainsfolder["${local.dashboard_resource_map[each.value].domain_exists}-${local.dashboard_resource_map[each.value].type}"].id
+#   overwrite = true
+# }
