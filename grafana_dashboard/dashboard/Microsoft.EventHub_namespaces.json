@@ -40,7 +40,7 @@
             },
             "gridPos": {
               "h": 3,
-              "w": 12,
+              "w": 24,
               "x": 0,
               "y": 0
             },
@@ -114,7 +114,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "sum"
             ],
             "fields": "",
             "values": false
@@ -272,7 +272,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "sum"
             ],
             "fields": "",
             "values": false
@@ -430,7 +430,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "sum"
             ],
             "fields": "",
             "values": false
@@ -588,7 +588,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "sum"
             ],
             "fields": "",
             "values": false
@@ -1050,7 +1050,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "sum"
             ],
             "fields": "",
             "values": false
@@ -1204,7 +1204,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "sum"
             ],
             "fields": "",
             "values": false
@@ -1353,7 +1353,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "sum"
             ],
             "fields": "",
             "values": false
@@ -1507,7 +1507,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "sum"
             ],
             "fields": "",
             "values": false
@@ -1661,7 +1661,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "sum"
             ],
             "fields": "",
             "values": false
@@ -2591,7 +2591,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "sum"
             ],
             "fields": "",
             "values": false
@@ -2745,7 +2745,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "sum"
             ],
             "fields": "",
             "values": false
@@ -2899,7 +2899,7 @@
           "orientation": "horizontal",
           "reduceOptions": {
             "calcs": [
-              "lastNotNull"
+              "sum"
             ],
             "fields": "",
             "values": false
