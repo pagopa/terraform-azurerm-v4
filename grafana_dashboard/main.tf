@@ -38,6 +38,15 @@ locals {
     ]
   ])
 
+  dashboard_subfolder_map = flatten([
+    for rt in data.azurerm_resources.sub_resources : [
+      for d in rt.resources : {
+        domain_exists = lookup(d.tags, "domain", "nodomain")
+        type = split("/", d.type)[1]
+      }
+    ]
+  ])
+
   dashboard_resource_map = flatten([
     for rt in data.azurerm_resources.sub_resources : [
       for d in rt.resources : {
@@ -60,12 +69,21 @@ resource "grafana_folder" "domainsfolderexist" {
 }
 
 resource "grafana_folder" "domainsfolder" {
-  provider          = grafana.cloud
-  for_each          = { for i in range(length(local.dashboard_resource_map)) : distinct(format("%s-%s", local.dashboard_resource_map[i].domain_exists, local.dashboard_resource_map[i].type)) => i }
-  parent_folder_uid = grafana_folder.domainsfolderexist["${local.dashboard_resource_map[each.value].domain_exists}"].uid
+  provider = grafana.cloud
+  for_each = { for i in range(length(distinct(local.dashboard_subfolder_map))) : local.dashboard_subfolder_map[i].domain_exists => i }
 
-  title = "${upper(local.dashboard_resource_map[each.value].domain_exists)}-${split("/", local.dashboard_resource_map[each.value].type)[1]}"
+  parent_folder_uid = grafana_folder.domainsfolderexist["${local.dashboard_resource_map[each.value].domain_exists}"].uid
+  title = "${upper(local.dashboard_subfolder_map[each.value].domain_exists)}-${local.dashboard_subfolder_map[each.value].type}"
 }
+
+
+# resource "grafana_folder" "domainsfolder" {
+#   provider          = grafana.cloud
+#   for_each          = { for i in range(length(local.dashboard_resource_map)) : distinct(format("%s-%s", local.dashboard_resource_map[i].domain_exists, local.dashboard_resource_map[i].type)) => i }
+#   parent_folder_uid = grafana_folder.domainsfolderexist["${local.dashboard_resource_map[each.value].domain_exists}"].uid
+
+#   title = "${upper(local.dashboard_resource_map[each.value].domain_exists)}-${split("/", local.dashboard_resource_map[each.value].type)[1]}"
+# }
 
 
 resource "grafana_dashboard" "azure_monitor_grafana" {
