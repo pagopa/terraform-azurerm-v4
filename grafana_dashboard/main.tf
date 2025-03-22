@@ -72,7 +72,7 @@ resource "grafana_folder" "domainsfolderexist" {
 
 resource "grafana_folder" "domainsfolder" {
   provider = grafana.cloud
-  for_each = { for x in range(length(local.dashboard_subfolder_clean_map)) : local.dashboard_subfolder_clean_map[x].subdomain_exists => x }
+  for_each = local.dashboard_subfolder_clean_map
 
   parent_folder_uid = grafana_folder.domainsfolderexist["${split("-",local.dashboard_subfolder_clean_map[each.value].subdomain_exists)[0]}"].uid
   title = "${upper(split("-",local.dashboard_subfolder_clean_map[each.value].subdomain_exists)[0])}-${split("-",local.dashboard_subfolder_clean_map[each.value].subdomain_exists)[1]}"
