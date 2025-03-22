@@ -41,7 +41,7 @@ locals {
   dashboard_subfolder_map = flatten([
     for rt in data.azurerm_resources.sub_resources : [
       for d in rt.resources : {
-        subdomain_exists = format("%s-%s",lookup(d.tags, "domain", "nodomain"),split("/", d.type)[1])
+        subdomain_exists = format("%s_%s",lookup(d.tags, "domain", "nodomain"),split("/", d.type)[1])
         //type = split("/", d.type)[1]
       }
     ]
@@ -72,42 +72,42 @@ resource "grafana_folder" "domainsfolderexist" {
   title = "${upper(var.prefix)}-${upper(local.dashboard_folder_map[each.value].domain_exists)}"
 }
 
-resource "grafana_folder" "domainsfolder" {
-  provider = grafana.cloud
-  for_each = {
-    for subdomain in local.distinct_subdomains :
-    subdomain => subdomain
-  }
-
-  parent_folder_uid = grafana_folder.domainsfolderexist["${split("-", each.key)[0]}"].uid
-  title             = "${upper(split("-", each.key)[0])}-${split("-", each.key)[1]}"
-}
-
-
 # resource "grafana_folder" "domainsfolder" {
-#   provider          = grafana.cloud
-#   for_each          = { for i in range(length(local.dashboard_resource_map)) : distinct(format("%s-%s", local.dashboard_resource_map[i].domain_exists, local.dashboard_resource_map[i].type)) => i }
-#   parent_folder_uid = grafana_folder.domainsfolderexist["${local.dashboard_resource_map[each.value].domain_exists}"].uid
+#   provider = grafana.cloud
+#   for_each = {
+#     for subdomain in local.distinct_subdomains :
+#     subdomain => subdomain
+#   }
 
-#   title = "${upper(local.dashboard_resource_map[each.value].domain_exists)}-${split("/", local.dashboard_resource_map[each.value].type)[1]}"
+#   parent_folder_uid = grafana_folder.domainsfolderexist["${split("-", each.key)[0]}"].uid
+#   title             = "${upper(split("-", each.key)[0])}-${split("-", each.key)[1]}"
 # }
 
 
-resource "grafana_dashboard" "azure_monitor_grafana" {
+resource "grafana_folder" "domainsfolder" {
   provider = grafana.cloud
-  for_each = { for i in range(length(local.dashboard_resource_map)) : local.dashboard_resource_map[i].name => i }
+  for_each = { for i in range(length(distinct(local.dashboard_subfolder_map))) : local.dashboard_subfolder_map[i].subdomain_exists => i }
 
-  config_json = templatefile(
-    "${path.module}/${var.dashboard_directory_path}/${replace(local.dashboard_resource_map[each.value].type, "/", "_")}.json",
-    {
-      resource  = "${local.dashboard_resource_map[each.value].name}"
-      rg        = "${local.dashboard_resource_map[each.value].rgroup}"
-      sub       = "${local.dashboard_resource_map[each.value].sub}"
-      ds        = "Azure Monitor"
-      prefix    = "${var.prefix}"
-      workspace = "${var.monitor_workspace_id}"
-    }
-  )
-  folder    = grafana_folder.domainsfolder["${local.dashboard_resource_map[each.value].domain_exists}-${split("/",local.dashboard_resource_map[each.value].type)[1]}"].id
-  overwrite = true
+  parent_folder_uid = grafana_folder.domainsfolderexist["${split("_",local.dashboard_subfolder_map[each.value].subdomain_exists)[0]}"].uid
+  title = "${upper(split("_",local.dashboard_subfolder_map[each.value].subdomain_exists)[0])}-${split("_",local.dashboard_subfolder_map[each.value].subdomain_exists)[1]}"
 }
+
+
+# resource "grafana_dashboard" "azure_monitor_grafana" {
+#   provider = grafana.cloud
+#   for_each = { for i in range(length(local.dashboard_resource_map)) : local.dashboard_resource_map[i].name => i }
+
+#   config_json = templatefile(
+#     "${path.module}/${var.dashboard_directory_path}/${replace(local.dashboard_resource_map[each.value].type, "/", "_")}.json",
+#     {
+#       resource  = "${local.dashboard_resource_map[each.value].name}"
+#       rg        = "${local.dashboard_resource_map[each.value].rgroup}"
+#       sub       = "${local.dashboard_resource_map[each.value].sub}"
+#       ds        = "Azure Monitor"
+#       prefix    = "${var.prefix}"
+#       workspace = "${var.monitor_workspace_id}"
+#     }
+#   )
+#   folder    = grafana_folder.domainsfolder["${local.dashboard_resource_map[each.value].domain_exists}-${split("/",local.dashboard_resource_map[each.value].type)[1]}"].id
+#   overwrite = true
+# }
