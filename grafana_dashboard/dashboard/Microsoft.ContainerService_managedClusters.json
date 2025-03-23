@@ -25,7 +25,7 @@
     "liveNow": false,
     "panels": [
       {
-        "collapsed": false,
+        "collapsed": true,
         "datasource": {
           "type": "datasource",
           "uid": "grafana"
