@@ -25,7 +25,7 @@
     "liveNow": false,
     "panels": [
       {
-        "collapsed": true,
+        "collapsed": false,
         "datasource": {
           "type": "datasource",
           "uid": "grafana"
@@ -45,7 +45,7 @@
             },
             "gridPos": {
               "h": 3,
-              "w": 12,
+              "w": 24,
               "x": 0,
               "y": 0
             },
