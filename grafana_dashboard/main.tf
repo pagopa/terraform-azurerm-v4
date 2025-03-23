@@ -7,10 +7,10 @@ provider "grafana" {
 
 # GET allowed dashboard by file exists in folder 
 locals {
-  
+
   # GET all file in folder
   allowed_resource_by_file = fileset("${path.module}/${var.dashboard_directory_path}", "*.json")
-  
+
   # replace / with _
   allowed_resource_type_replaced = [
     for item in local.allowed_resource_by_file :
@@ -59,7 +59,7 @@ locals {
   dashboard_subfolder_map = flatten([
     for rt in data.azurerm_resources.sub_resources : [
       for d in rt.resources : {
-        subdomain_exists = format("%s-%s",lookup(d.tags, "domain", "nodomain"),split("/", d.type)[1])
+        subdomain_exists = format("%s-%s", lookup(d.tags, "domain", "nodomain"), split("/", d.type)[1])
         //type = split("/", d.type)[1]
       }
     ]
@@ -130,6 +130,6 @@ resource "grafana_dashboard" "azure_monitor_grafana" {
       workspace = "${var.monitor_workspace_id}"
     }
   )
-  folder    = grafana_folder.domainsfolder["${local.dashboard_resource_map[each.value].domain_exists}-${split("/",local.dashboard_resource_map[each.value].type)[1]}"].id
+  folder    = grafana_folder.domainsfolder["${local.dashboard_resource_map[each.value].domain_exists}-${split("/", local.dashboard_resource_map[each.value].type)[1]}"].id
   overwrite = true
 }
