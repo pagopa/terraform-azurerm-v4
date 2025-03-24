@@ -212,7 +212,7 @@ variable "docker_image" {
 }
 variable "docker_image_tag" {
   type    = string
-  default = null
+  default = "latest"
 }
 variable "dotnet_version" {
   type    = string
