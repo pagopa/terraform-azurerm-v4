@@ -22,6 +22,11 @@ resource "azurerm_service_plan" "this" {
   tags = var.tags
 }
 
+locals {
+  docker_image_tag  = var.docker_image_tag != null ? var.docker_image_tag : "latest"
+  docker_image_name = var.docker_image != null ? "${var.docker_image}:${local.docker_image_tag}" : null
+}
+
 resource "azurerm_linux_web_app" "this" {
   name                = var.name
   location            = var.location
@@ -48,7 +53,7 @@ resource "azurerm_linux_web_app" "this" {
     always_on         = var.always_on
     use_32_bit_worker = var.use_32_bit_worker_process
     application_stack {
-      docker_image_name = "${var.docker_image}:${var.docker_image_tag}"
+      docker_image_name = local.docker_image_name
 
       dotnet_version      = var.dotnet_version
       python_version      = var.python_version
