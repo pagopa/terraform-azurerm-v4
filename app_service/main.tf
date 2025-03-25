@@ -14,8 +14,9 @@ resource "azurerm_service_plan" "this" {
   sku_name = var.sku_name
   os_type  = "Linux"
 
-  maximum_elastic_worker_count = var.plan_maximum_elastic_worker_count
-  per_site_scaling_enabled     = var.plan_per_site_scaling
+  maximum_elastic_worker_count    = var.plan_maximum_elastic_worker_count
+  per_site_scaling_enabled        = var.plan_per_site_scaling
+  premium_plan_auto_scale_enabled = var.premium_plan_auto_scale_enabled
 
   zone_balancing_enabled = var.zone_balancing_enabled
 
