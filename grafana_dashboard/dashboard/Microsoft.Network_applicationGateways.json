@@ -38,7 +38,7 @@
         },
         "gridPos": {
           "h": 3,
-          "w": 12,
+          "w": 24,
           "x": 0,
           "y": 0
         },
@@ -2375,7 +2375,11 @@
     "refresh": "1m",
     "schemaVersion": 38,
     "style": "dark",
-    "tags": [],
+    "tags": [
+      "${prefix}",
+      "auto_dashboard",
+      "terraform"
+    ],
     "time": {
       "from": "now-3h",
       "to": "now"

@@ -62,5 +62,8 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_folder"></a> [folder](#output\_folder) | n/a |
+| <a name="output_subfolder"></a> [subfolder](#output\_subfolder) | n/a |
 <!-- END_TF_DOCS -->

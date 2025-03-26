@@ -45,7 +45,7 @@
             },
             "gridPos": {
               "h": 3,
-              "w": 12,
+              "w": 24,
               "x": 0,
               "y": 0
             },
@@ -5108,9 +5108,12 @@
     "refresh": "",
     "schemaVersion": 38,
     "style": "dark",
-    "tags": [],
-    "templating": {
-      "list": [
+    "tags": [
+      "${prefix}",
+      "auto_dashboard",
+      "terraform"
+    ],    "templating": {
+    "list": [
         {
           "current": {
             "isNone": true,
