@@ -250,3 +250,9 @@ variable "ruby_version" {
   type    = string
   default = null
 }
+
+variable "premium_plan_auto_scale_enabled" {
+  type        = bool
+  description = "(Optional) Should the Premium Plan auto scale be enabled. Defaults to false."
+  default     = false
+}
