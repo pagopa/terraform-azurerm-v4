@@ -137,6 +137,8 @@ resource "elasticstack_kibana_import_saved_objects" "dashboard" {
     data_view_name  = elasticstack_kibana_data_view.kibana_data_view.data_view.name
     data_view_title = elasticstack_kibana_data_view.kibana_data_view.data_view.title
     apm_data_view   = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
+    apm_data_view_name   = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.name
+    apm_data_view_title   = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
   })
 }
 
