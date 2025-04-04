@@ -8,14 +8,53 @@ This module deploys the cert mounter blueprint in the target namespace, creating
 
 module "cert_mounter" {
   source           = "git::https://github.com/pagopa/terraform-azurerm-v3.git//cert_mounter?ref=v8.37.0"
+  
   namespace        = var.domain
   certificate_name = replace(local.domain_aks_hostname, ".", "-")
   kv_name          = data.azurerm_key_vault.kv_domain.name
   tenant_id        = data.azurerm_subscription.current.tenant_id
   
-  workload_identity_enabled = true
   workload_identity_service_account_name = "${var.domain}-workload-identity"
   workload_identity_client_id = azurerm_user_assigned_identity.this.client_id
+  
+  tolerations = jsonencode([
+    {
+      key: "ChangeMe"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+    }
+  ])
+  affinity = jsonencode({
+    nodeAffinity = {
+      requiredDuringSchedulingIgnoredDuringExecution = {
+        nodeSelectorTerms = [{
+            matchExpressions = [
+              {
+                key      = "node_type"
+                operator = "In"
+                values   = ["user"]
+              }
+            ]
+        }]
+      }
+    }
+    podAntiAffinity = {
+      preferredDuringSchedulingIgnoredDuringExecution = [{
+        weight = 100
+        podAffinityTerm = {
+          namespaces = [var.domain]
+          topologyKey = "topology.kubernetes.io/zone"
+          labelSelector = {
+            matchLabels = {
+              "app.kubernetes.io/instance" = "cert-mounter-blueprint"
+            }
+          }
+        }
+      }]
+    }
+  })
+
 }
 
 ```
