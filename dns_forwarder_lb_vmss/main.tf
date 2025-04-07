@@ -159,7 +159,10 @@ module "vmss" {
   admin_password                         = random_password.psw.result
   vm_sku                                 = var.vm_sku
   storage_sku                            = var.storage_sku
-  tags                                   = var.tags
+  scale_in_rule                          = var.scale_in_rule
+  force_deletion_enabled                 = var.force_deletion_enabled
+
+  tags = var.tags
 }
 
 #
