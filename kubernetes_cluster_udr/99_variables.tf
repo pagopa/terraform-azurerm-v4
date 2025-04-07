@@ -314,6 +314,19 @@ variable "addon_azure_pod_identity_enabled" {
   default     = false
 }
 
+variable "monitor_metrics" {
+  type = object({
+    annotations_allowed = optional(string, null)
+    labels_allowed      = optional(string, null)
+  })
+  default = {
+    annotations_allowed = null
+    labels_allowed      = null
+  }
+  description = "(Optional) Specifies a comma-separated list of Kubernetes annotation keys that will be used in the resource's labels metric."
+}
+
+
 # Kubernetes RBAC
 variable "rbac_enabled" {
   type        = bool
@@ -356,4 +369,11 @@ variable "disk_encryption_set_id" {
   type        = string
   default     = null
   description = "ID of the disk EncryptionSet ."
+}
+
+### Prometheus managed
+variable "enable_prometheus_monitor_metrics" {
+  description = "Enable or disable Prometheus managed metrics"
+  type        = bool
+  default     = false
 }
