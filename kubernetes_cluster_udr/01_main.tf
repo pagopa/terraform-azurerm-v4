@@ -136,6 +136,15 @@ resource "azurerm_kubernetes_cluster" "this" {
     }
   }
 
+  ### Prometheus managed metrics
+  dynamic "monitor_metrics" {
+    for_each = var.enable_prometheus_monitor_metrics ? [1] : []
+    content {
+      annotations_allowed = var.monitor_metrics.annotations_allowed
+      labels_allowed      = var.monitor_metrics.labels_allowed
+    }
+  }
+
   lifecycle {
     ignore_changes = [
       default_node_pool[0].node_count,
