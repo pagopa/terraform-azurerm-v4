@@ -92,6 +92,18 @@ variable "create_vmss_nsg" {
   default     = true
 }
 
+variable "scale_in_rule" {
+  type        = string
+  description = "(Optional) The scale in rule to use for the VMSS. See https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-autoscale#scale-in-rules for more information"
+  default     = null
+}
+
+variable "force_deletion_enabled" {
+  type        = string
+  description = "(Optional) Should the virtual machines chosen for removal be force deleted when the virtual machine scale set is being scaled-in? Possible values are true or false"
+  default     = null
+}
+
 variable "tags" {
   description = "(Required) Tags of all resources."
   type        = map(any)
