@@ -68,6 +68,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   }
 
   automatic_upgrade_channel = var.automatic_channel_upgrade
+  node_os_upgrade_channel   = var.node_os_upgrade_channel
 
   # managed identity type: https://docs.microsoft.com/en-us/azure/aks/use-managed-identity
   identity {

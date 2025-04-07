@@ -59,6 +59,8 @@ resource "azurerm_kubernetes_cluster" "this" {
   }
 
   automatic_upgrade_channel = var.automatic_channel_upgrade
+  node_os_upgrade_channel   = var.node_os_upgrade_channel
+
   api_server_access_profile {
     authorized_ip_ranges = var.api_server_authorized_ip_ranges
   }
