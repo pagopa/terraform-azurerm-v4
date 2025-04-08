@@ -1,5 +1,5 @@
 locals {
-  
+
   default_resource_groups = {
     data     = "${var.resource_group_prefix}-data-rg"
     security = "${var.resource_group_prefix}-security-rg"
@@ -30,5 +30,7 @@ resource "azurerm_management_lock" "resource_group_lock" {
   scope      = azurerm_resource_group.resource_groups[each.key].id
   lock_level = "CanNotDelete"
   notes      = "This Resource Group is locked and cannot be deleted"
+
+  depends_on = [azurerm_resource_group.resource_groups]
 }
 
