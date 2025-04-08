@@ -44,7 +44,7 @@ locals {
 }
 
 module "default_resource_groups" {
-  source = "./modules/azure_default_resource_groups"
+  source               = "git::https://github.com/pagopa/terraform-azurerm-v3.git//azure_default_resource_groups?ref=main"
   for_each = local.domains_setup
 
   resource_group_prefix = "${local.product_nodomain}-${each.key}"
