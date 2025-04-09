@@ -101,11 +101,12 @@ data "azurerm_dashboard_grafana" "grafana" {
 }
 
 resource "azurerm_role_assignment" "datareaderrole" {
+  count = length(data.azurerm_dashboard_grafana.grafana.identity) > 0 ? 1 : 0
+
   scope              = data.azurerm_monitor_workspace.this.id
   role_definition_id = "/subscriptions/${split("/", data.azurerm_monitor_workspace.this.id)[2]}/providers/Microsoft.Authorization/roleDefinitions/b0d8363b-8ddd-447d-831f-62ca05bff136"
-  principal_id       = data.azurerm_dashboard_grafana.grafana.identity.0.principal_id
+  principal_id       = data.azurerm_dashboard_grafana.grafana.identity[0].principal_id
 }
-
 
 resource "azurerm_dashboard_grafana_managed_private_endpoint" "this" {
   grafana_id                   = data.azurerm_dashboard_grafana.grafana.id

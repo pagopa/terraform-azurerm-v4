@@ -268,24 +268,32 @@ variable "node_os_upgrade_channel" {
   default     = "None"
 }
 
+variable "force_upgrade_enabled" {
+  type        = string
+  description = "(Optional) If set to true, cluster will be forced to upgrade even if the latest version of the control plane and agents is not available."
+  default     = null
+}
+
 variable "network_profile" {
   type = object({
-    dns_service_ip      = optional(string, "10.2.0.10")    # e.g. '10.2.0.10'. IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns)
-    network_policy      = optional(string, "azure")        # e.g. 'azure'. Sets up network policy to be used with Azure CNI. Currently supported values are calico and azure.
-    network_plugin      = optional(string, "azure")        # e.g. 'azure'. Network plugin to use for networking. Currently supported values are azure and kubenet
-    network_plugin_mode = optional(string, null)           # e.g. 'azure'. Network plugin mode to use for networking. Currently supported value is overlay
-    outbound_type       = optional(string, "loadBalancer") # e.g. 'loadBalancer'. The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are loadBalancer, userDefinedRouting, managedNATGateway and userAssignedNATGateway. Defaults to loadBalancer
-    service_cidr        = optional(string, "10.2.0.0/16")  # e.g. '10.2.0.0/16'. The Network Range used by the Kubernetes service
-    network_data_plane  = optional(string, "azure")        # e.g. 'azure'. (Optional) Specifies the data plane used for building the Kubernetes network. Possible values are azure and cilium. Defaults to azure. Disabling this forces a new resource to be created.
+    dns_service_ip          = optional(string, "10.2.0.10")    # e.g. '10.2.0.10'. IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns)
+    network_policy          = optional(string, "azure")        # e.g. 'azure'. Sets up network policy to be used with Azure CNI. Currently supported values are calico and azure.
+    network_plugin          = optional(string, "azure")        # e.g. 'azure'. Network plugin to use for networking. Currently supported values are azure and kubenet
+    network_plugin_mode     = optional(string, null)           # e.g. 'azure'. Network plugin mode to use for networking. Currently supported value is overlay
+    outbound_type           = optional(string, "loadBalancer") # e.g. 'loadBalancer'. The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are loadBalancer, userDefinedRouting, managedNATGateway and userAssignedNATGateway. Defaults to loadBalancer
+    service_cidr            = optional(string, "10.2.0.0/16")  # e.g. '10.2.0.0/16'. The Network Range used by the Kubernetes service
+    network_data_plane      = optional(string, "azure")        # e.g. 'azure'. (Optional) Specifies the data plane used for building the Kubernetes network. Possible values are azure and cilium. Defaults to azure. Disabling this forces a new resource to be created.
+    idle_timeout_in_minutes = optional(string, 30)             # e.g. 'idle_timeout_in_minutes'. (Optional) Desired outbound flow idle timeout in minutes for the cluster load balancer. Must be between 4 and 100 inclusive. Defaults to 30.
   })
   default = {
-    dns_service_ip      = "10.2.0.10"
-    network_policy      = "azure"
-    network_plugin      = "azure"
-    network_plugin_mode = null
-    outbound_type       = "loadBalancer"
-    service_cidr        = "10.2.0.0/16"
-    network_data_plane  = "azure"
+    dns_service_ip          = "10.2.0.10"
+    network_policy          = "azure"
+    network_plugin          = "azure"
+    network_plugin_mode     = null
+    outbound_type           = "loadBalancer"
+    service_cidr            = "10.2.0.0/16"
+    network_data_plane      = "azure"
+    idle_timeout_in_minutes = 30
   }
   description = "See variable description to understand how to use it, and see examples"
 }

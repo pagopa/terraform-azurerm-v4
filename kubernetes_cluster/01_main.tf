@@ -59,6 +59,8 @@ resource "azurerm_kubernetes_cluster" "this" {
     vnet_subnet_id         = var.vnet_subnet_id
     node_public_ip_enabled = false
 
+    temporary_name_for_rotation = "tmp${var.system_node_pool_name}"
+
     upgrade_settings {
       max_surge                = var.upgrade_settings_max_surge
       drain_timeout_in_minutes = var.system_node_pool_upgrade_settings_drain_timeout_in_minutes
@@ -69,6 +71,13 @@ resource "azurerm_kubernetes_cluster" "this" {
 
   automatic_upgrade_channel = var.automatic_channel_upgrade
   node_os_upgrade_channel   = var.node_os_upgrade_channel
+
+  dynamic "upgrade_override" {
+    for_each = var.force_upgrade_enabled != null ? [var.force_upgrade_enabled] : []
+    content {
+      force_upgrade_enabled = upgrade_override.value
+    }
+  }
 
   # managed identity type: https://docs.microsoft.com/en-us/azure/aks/use-managed-identity
   identity {
@@ -93,6 +102,7 @@ resource "azurerm_kubernetes_cluster" "this" {
       load_balancer_sku   = "standard"
       load_balancer_profile {
         outbound_ip_address_ids = var.outbound_ip_address_ids
+        idle_timeout_in_minutes = p.value.idle_timeout_in_minutes
       }
     }
   }
@@ -173,6 +183,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   lifecycle {
     ignore_changes = [
       default_node_pool[0].node_count,
+      network_profile[0].load_balancer_profile[0].idle_timeout_in_minutes,
     ]
   }
 
@@ -203,9 +214,10 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   max_count            = var.user_node_pool_node_count_max
 
   ### K8s node configuration
-  max_pods    = var.user_node_pool_max_pods
-  node_labels = var.user_node_pool_node_labels
-  node_taints = var.user_node_pool_node_taints
+  max_pods                    = var.user_node_pool_max_pods
+  node_labels                 = var.user_node_pool_node_labels
+  node_taints                 = var.user_node_pool_node_taints
+  temporary_name_for_rotation = "tmpnode"
 
   ### networking
   vnet_subnet_id         = var.network_profile.network_plugin_mode == "overlay" ? var.vnet_user_subnet_id : var.vnet_subnet_id
