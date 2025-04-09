@@ -268,6 +268,12 @@ variable "node_os_upgrade_channel" {
   default     = "None"
 }
 
+variable "force_upgrade_enabled" {
+  type        = string
+  description = "(Optional) If set to true, cluster will be forced to upgrade even if the latest version of the control plane and agents is not available."
+  default     = null
+}
+
 variable "network_profile" {
   type = object({
     dns_service_ip      = optional(string, "10.2.0.10")    # e.g. '10.2.0.10'. IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns)

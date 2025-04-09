@@ -70,6 +70,13 @@ resource "azurerm_kubernetes_cluster" "this" {
   automatic_upgrade_channel = var.automatic_channel_upgrade
   node_os_upgrade_channel   = var.node_os_upgrade_channel
 
+  dynamic "upgrade_override" {
+    for_each = var.force_upgrade_enabled != null ? [var.force_upgrade_enabled] : []
+    content {
+      force_upgrade_enabled = upgrade_override.value
+    }
+  }
+
   # managed identity type: https://docs.microsoft.com/en-us/azure/aks/use-managed-identity
   identity {
     type = "SystemAssigned"
