@@ -100,6 +100,7 @@ resource "azurerm_kubernetes_cluster" "this" {
       load_balancer_sku   = "standard"
       load_balancer_profile {
         outbound_ip_address_ids = var.outbound_ip_address_ids
+        idle_timeout_in_minutes = 0
       }
     }
   }
