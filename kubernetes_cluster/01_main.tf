@@ -214,9 +214,10 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   max_count            = var.user_node_pool_node_count_max
 
   ### K8s node configuration
-  max_pods    = var.user_node_pool_max_pods
-  node_labels = var.user_node_pool_node_labels
-  node_taints = var.user_node_pool_node_taints
+  max_pods                    = var.user_node_pool_max_pods
+  node_labels                 = var.user_node_pool_node_labels
+  node_taints                 = var.user_node_pool_node_taints
+  temporary_name_for_rotation = "tmpnode"
 
   ### networking
   vnet_subnet_id         = var.network_profile.network_plugin_mode == "overlay" ? var.vnet_user_subnet_id : var.vnet_subnet_id
