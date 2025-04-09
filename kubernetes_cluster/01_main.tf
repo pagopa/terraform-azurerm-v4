@@ -59,6 +59,8 @@ resource "azurerm_kubernetes_cluster" "this" {
     vnet_subnet_id         = var.vnet_subnet_id
     node_public_ip_enabled = false
 
+    temporary_name_for_rotation = "tempupgrade${var.system_node_pool_name}"
+
     upgrade_settings {
       max_surge                = var.upgrade_settings_max_surge
       drain_timeout_in_minutes = var.system_node_pool_upgrade_settings_drain_timeout_in_minutes
