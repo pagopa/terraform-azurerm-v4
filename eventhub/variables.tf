@@ -54,7 +54,7 @@ variable "maximum_throughput_units" {
 
 variable "network_rulesets" {
   type = list(object({
-    default_action = string #  (Required) The default action to take when a rule is not matched. Possible values are Allow and Deny.
+    default_action                = string                #  (Required) The default action to take when a rule is not matched. Possible values are Allow and Deny.
     public_network_access_enabled = optional(bool, false) # (Optional) Is public network access enabled for the EventHub Namespace? Defaults to false.
     virtual_network_rule = list(object({
       subnet_id                                       = string # (Required) The id of the subnet to match on.

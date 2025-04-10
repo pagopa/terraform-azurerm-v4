@@ -52,7 +52,6 @@ No modules.
 | [azurerm_eventhub_consumer_group.events](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_consumer_group) | resource |
 | [azurerm_eventhub_namespace.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_namespace) | resource |
 | [azurerm_monitor_metric_alert.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
-| [azurerm_private_dns_a_record.private_dns_a_record_eventhub](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_a_record) | resource |
 | [azurerm_private_endpoint.eventhub](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
 | [null_resource.b_series_not_ephemeral_system_check](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 
@@ -73,7 +72,7 @@ No modules.
 | <a name="input_metric_alerts_create"></a> [metric\_alerts\_create](#input\_metric\_alerts\_create) | Create metric alerts | `bool` | `true` | no |
 | <a name="input_minimum_tls_version"></a> [minimum\_tls\_version](#input\_minimum\_tls\_version) | (Optional) The minimum supported TLS version for this EventHub Namespace. Valid values are: 1.0, 1.1 and 1.2. The current default minimum TLS version is 1.2. | `string` | `"1.2"` | no |
 | <a name="input_name"></a> [name](#input\_name) | Eventhub namespace description. | `string` | n/a | yes |
-| <a name="input_network_rulesets"></a> [network\_rulesets](#input\_network\_rulesets) | n/a | <pre>list(object({<br/>    default_action = string #  (Required) The default action to take when a rule is not matched. Possible values are Allow and Deny.<br/>    virtual_network_rule = list(object({<br/>      subnet_id                                       = string # (Required) The id of the subnet to match on.<br/>      ignore_missing_virtual_network_service_endpoint = bool   # (Optional) Are missing virtual network service endpoints ignored?<br/>    }))<br/>    ip_rule = list(object({<br/>      ip_mask = string # (Required) The IP mask to match on.<br/>      action  = string # (Optional) The action to take when the rule is matched. Possible values are Allow. Defaults to Allow.<br/>    }))<br/>    trusted_service_access_enabled = bool #Whether Trusted Microsoft Services are allowed to bypass firewall.<br/>  }))</pre> | `[]` | no |
+| <a name="input_network_rulesets"></a> [network\_rulesets](#input\_network\_rulesets) | n/a | <pre>list(object({<br/>    default_action                = string                #  (Required) The default action to take when a rule is not matched. Possible values are Allow and Deny.<br/>    public_network_access_enabled = optional(bool, false) # (Optional) Is public network access enabled for the EventHub Namespace? Defaults to false.<br/>    virtual_network_rule = list(object({<br/>      subnet_id                                       = string # (Required) The id of the subnet to match on.<br/>      ignore_missing_virtual_network_service_endpoint = bool   # (Optional) Are missing virtual network service endpoints ignored?<br/>    }))<br/>    ip_rule = list(object({<br/>      ip_mask = string # (Required) The IP mask to match on.<br/>      action  = string # (Optional) The action to take when the rule is matched. Possible values are Allow. Defaults to Allow.<br/>    }))<br/>    trusted_service_access_enabled = optional(bool, false) #Whether Trusted Microsoft Services are allowed to bypass firewall.<br/>  }))</pre> | `[]` | no |
 | <a name="input_private_dns_zone_record_A_name"></a> [private\_dns\_zone\_record\_A\_name](#input\_private\_dns\_zone\_record\_A\_name) | Name of the A record in the private dns zone | `string` | `"eventhub"` | no |
 | <a name="input_private_dns_zones"></a> [private\_dns\_zones](#input\_private\_dns\_zones) | Private DNS Zones where the private endpoint will be created | <pre>object({<br/>    id                  = list(string)<br/>    name                = list(string)<br/>    resource_group_name = string<br/>  })</pre> | <pre>{<br/>  "id": [],<br/>  "name": [],<br/>  "resource_group_name": ""<br/>}</pre> | no |
 | <a name="input_private_endpoint_created"></a> [private\_endpoint\_created](#input\_private\_endpoint\_created) | Choose to allow the creation of the private endpoint | `bool` | n/a | yes |
@@ -83,7 +82,6 @@ No modules.
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Resource Group | `string` | n/a | yes |
 | <a name="input_sku"></a> [sku](#input\_sku) | (Required) Defines which tier to use. Valid options are Basic and Standard. | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | n/a | yes |
-| <a name="input_virtual_network_ids"></a> [virtual\_network\_ids](#input\_virtual\_network\_ids) | The IDs of the Virtual Network that should be linked to the DNS Zone. | `list(string)` | n/a | yes |
 
 ## Outputs
 
@@ -94,4 +92,5 @@ No modules.
 | <a name="output_keys"></a> [keys](#output\_keys) | Map of hubs with keys => primary\_key / secondary\_key mapping. |
 | <a name="output_name"></a> [name](#output\_name) | The name of this Event Hub |
 | <a name="output_namespace_id"></a> [namespace\_id](#output\_namespace\_id) | Id of Event Hub Namespace. |
+| <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | n/a |
 <!-- END_TF_DOCS -->

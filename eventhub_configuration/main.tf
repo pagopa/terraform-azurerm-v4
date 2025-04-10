@@ -26,7 +26,7 @@ resource "azurerm_eventhub" "events" {
   for_each = local.hubs
 
   name              = each.key
-  namespace_id    = data.azurerm_eventhub_namespace.evh_namespace.id
+  namespace_id      = data.azurerm_eventhub_namespace.evh_namespace.id
   partition_count   = each.value.partitions
   message_retention = each.value.message_retention
 }
@@ -37,13 +37,13 @@ resource "azurerm_eventhub" "events" {
 resource "azurerm_eventhub_consumer_group" "events" {
   for_each = local.consumers
 
-  name           = each.value.name
-  namespace_name = data.azurerm_eventhub_namespace.evh_namespace.name
+  name                = each.value.name
+  namespace_name      = data.azurerm_eventhub_namespace.evh_namespace.name
   resource_group_name = data.azurerm_eventhub_namespace.evh_namespace.resource_group_name
 
-  eventhub_name  = each.value.hub
+  eventhub_name = each.value.hub
 
-  user_metadata       = "terraform"
+  user_metadata = "terraform"
 
   depends_on = [azurerm_eventhub.events]
 }
@@ -54,11 +54,11 @@ resource "azurerm_eventhub_consumer_group" "events" {
 resource "azurerm_eventhub_authorization_rule" "events" {
   for_each = local.keys
 
-  name           = each.value.key.name
-  namespace_name = data.azurerm_eventhub_namespace.evh_namespace.name
+  name                = each.value.key.name
+  namespace_name      = data.azurerm_eventhub_namespace.evh_namespace.name
   resource_group_name = data.azurerm_eventhub_namespace.evh_namespace.resource_group_name
 
-  eventhub_name  = each.value.hub
+  eventhub_name = each.value.hub
 
   listen = each.value.key.listen
   send   = each.value.key.send

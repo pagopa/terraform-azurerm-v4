@@ -32,7 +32,7 @@ resource "azurerm_eventhub_namespace" "this" {
   dynamic "network_rulesets" {
     for_each = var.network_rulesets
     content {
-      default_action = network_rulesets.value["default_action"]
+      default_action                = network_rulesets.value["default_action"]
       public_network_access_enabled = network_rulesets.value["public_network_access_enabled"]
       # virtual_network_rule {} # optional one ore more
       dynamic "virtual_network_rule" {
