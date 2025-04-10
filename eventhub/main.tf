@@ -61,10 +61,10 @@ resource "azurerm_eventhub_namespace" "this" {
 resource "azurerm_eventhub" "events" {
   for_each = local.hubs
 
-  name                = each.key
+  name              = each.key
   namespace_id      = azurerm_eventhub_namespace.this.id
-  partition_count     = each.value.partitions
-  message_retention   = each.value.message_retention
+  partition_count   = each.value.partitions
+  message_retention = each.value.message_retention
 }
 
 resource "azurerm_eventhub_consumer_group" "events" {

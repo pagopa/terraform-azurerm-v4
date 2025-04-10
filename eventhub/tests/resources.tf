@@ -20,22 +20,22 @@ resource "azurerm_virtual_network" "this" {
 }
 
 module "private_endpoint_snet" {
-  source                                    = "../../subnet"
-  name                                      = "${local.project}-pe-snet"
-  address_prefixes                          = ["10.3.200.0/24"]
-  resource_group_name                       = azurerm_resource_group.vnet_eventhub_rg.name
-  virtual_network_name                      = azurerm_virtual_network.this.name
+  source                                        = "../../subnet"
+  name                                          = "${local.project}-pe-snet"
+  address_prefixes                              = ["10.3.200.0/24"]
+  resource_group_name                           = azurerm_resource_group.vnet_eventhub_rg.name
+  virtual_network_name                          = azurerm_virtual_network.this.name
   private_link_service_network_policies_enabled = true
 }
 
 ## Eventhub subnet
 module "eventhub_snet" {
-  source                                    = "../../subnet"
-  name                                      = "${local.project}-eventhub-snet"
-  address_prefixes                          = ["10.3.201.0/24"]
-  resource_group_name                       = azurerm_resource_group.vnet_eventhub_rg.name
-  virtual_network_name                      = azurerm_virtual_network.this.name
-  service_endpoints                         = ["Microsoft.EventHub"]
+  source                                        = "../../subnet"
+  name                                          = "${local.project}-eventhub-snet"
+  address_prefixes                              = ["10.3.201.0/24"]
+  resource_group_name                           = azurerm_resource_group.vnet_eventhub_rg.name
+  virtual_network_name                          = azurerm_virtual_network.this.name
+  service_endpoints                             = ["Microsoft.EventHub"]
   private_link_service_network_policies_enabled = true
 }
 
