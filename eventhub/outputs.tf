@@ -18,6 +18,10 @@ output "name" {
   value       = azurerm_eventhub_namespace.this.name
 }
 
+output "resource_group_name" {
+  value = azurerm_eventhub_namespace.this.resource_group_name
+}
+
 output "keys" {
   description = "Map of hubs with keys => primary_key / secondary_key mapping."
   sensitive   = true
