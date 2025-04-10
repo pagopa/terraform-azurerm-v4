@@ -14,8 +14,9 @@ see folder ../test for more info
 
 This fields that are deprecated:
 
-* zone_redundant: When you use a sku Standard+, automatically azure use the zone_redundant configuration under the hood
-* private_dns_zone: Removed the possibility to create a private dns zone, now you have to create it in a standalone module
+* `zone_redundant`: When you use a sku Standard+, automatically azure use the zone_redundant configuration under the hood
+* `private_dns_zone`: Removed the possibility to create a private dns zone, now you have to create it in a standalone module
+* `virtual_network_ids`: Removed the possibility to create a virtual network ids, now you have to create it in a standalone module
 
 ### Parameters
 

@@ -62,8 +62,6 @@ module "event_hub_complete" {
   auto_inflate_enabled = false
   sku                  = "Standard"
 
-  virtual_network_ids = [azurerm_virtual_network.this.id]
-
   internal_private_dns_zone_created             = true
   internal_private_dns_zone_resource_group_name = "dvopla-eventhub-private-dns-zone-rg"
 
@@ -111,8 +109,6 @@ module "event_hub_core_only" {
   auto_inflate_enabled = false
   sku                  = "Standard"
 
-  virtual_network_ids = [azurerm_virtual_network.this.id]
-
   private_endpoint_created = false
 
   metric_alerts_create = false
@@ -128,8 +124,6 @@ module "event_hub_core_network" {
   resource_group_name  = azurerm_resource_group.rg_eventhub.name
   auto_inflate_enabled = false
   sku                  = "Standard"
-
-  virtual_network_ids = [azurerm_virtual_network.this.id]
 
   private_endpoint_created             = true
   private_endpoint_subnet_id           = module.private_endpoint_snet.id
