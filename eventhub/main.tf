@@ -58,8 +58,7 @@ resource "azurerm_eventhub" "events" {
   for_each = local.hubs
 
   name                = each.key
-  namespace_name      = azurerm_eventhub_namespace.this.name
-  resource_group_name = var.resource_group_name
+  namespace_id      = azurerm_eventhub_namespace.this.id
   partition_count     = each.value.partitions
   message_retention   = each.value.message_retention
 }
