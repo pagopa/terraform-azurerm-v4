@@ -6,6 +6,9 @@ This module allow the creation of a EventHub
 
 See `tests` folder for example and how to use it
 
+# Migration v3 -> v4
+No breaking changes
+
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
