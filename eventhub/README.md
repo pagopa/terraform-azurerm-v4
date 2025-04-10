@@ -10,7 +10,12 @@ This module allow the creation of a EventHub
 
 see folder ../test for more info
 
-## Migration
+## Migration v3 -> v4
+
+This fields that are deprecated:
+
+* zone_redundant: When you use a sku Standard+, automatically azure use the zone_redundant configuration under the hood
+* private_dns_zone: Removed the possibility to create a private dns zone, now you have to create it in a standalone module
 
 ### Parameters
 
