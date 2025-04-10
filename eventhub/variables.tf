@@ -64,7 +64,7 @@ variable "network_rulesets" {
       ip_mask = string # (Required) The IP mask to match on.
       action  = string # (Optional) The action to take when the rule is matched. Possible values are Allow. Defaults to Allow.
     }))
-    trusted_service_access_enabled = bool #Whether Trusted Microsoft Services are allowed to bypass firewall.
+    trusted_service_access_enabled = optional(bool, false) #Whether Trusted Microsoft Services are allowed to bypass firewall.
   }))
   default = []
 }
