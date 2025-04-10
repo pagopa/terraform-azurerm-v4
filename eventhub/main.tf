@@ -120,15 +120,15 @@ resource "azurerm_private_endpoint" "eventhub" {
   }
 }
 
-resource "azurerm_private_dns_a_record" "private_dns_a_record_eventhub" {
-  count = (length(var.private_dns_zones.id) > 0 && var.private_dns_zone_record_A_name != null && var.private_endpoint_created) ? 1 : 0
-
-  name                = var.private_dns_zone_record_A_name
-  zone_name           = var.private_dns_zones.name[0]
-  resource_group_name = var.private_dns_zones.resource_group_name
-  ttl                 = 300
-  records             = can(azurerm_private_endpoint.eventhub[0].private_service_connection[*].private_ip_address) ? azurerm_private_endpoint.eventhub[0].private_service_connection[*].private_ip_address : null
-}
+# resource "azurerm_private_dns_a_record" "private_dns_a_record_eventhub" {
+#   count = (length(var.private_dns_zones.id) > 0 && var.private_dns_zone_record_A_name != null && var.private_endpoint_created) ? 1 : 0
+#
+#   name                = var.private_dns_zone_record_A_name
+#   zone_name           = var.private_dns_zones.name[0]
+#   resource_group_name = var.private_dns_zones.resource_group_name
+#   ttl                 = 300
+#   records             = can(azurerm_private_endpoint.eventhub[0].private_service_connection[*].private_ip_address) ? azurerm_private_endpoint.eventhub[0].private_service_connection[*].private_ip_address : null
+# }
 
 #
 # Alert
