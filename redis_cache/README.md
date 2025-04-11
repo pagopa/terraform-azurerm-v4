@@ -2,7 +2,7 @@
 
 This module allows the creation of a redis cache
 
-Availability Zone for sku Standard and Premium are choosed automatically by Azure. If you want to override the default zones choosed automatically, you can use the `custom_zones` variable.
+Availability Zone are choosed automatically by Azure. If you want to override the default zones choosed automatically, you can use the `custom_zones` variable.
 # https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-whats-new#cache-creation-with-zone-redundancy-by-default
 
 # Migration v3 -> v4

@@ -31,7 +31,7 @@ variable "enable_non_ssl_port" {
 }
 
 # https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-whats-new#cache-creation-with-zone-redundancy-by-default
-# By default Standard and Premium caches are created with zone redundancy enabled.
+# By default caches are created with zone redundancy enabled.
 variable "custom_zones" {
   type        = list(number)
   description = "(Optional/Premium Only) Specifies a list of Availability Zones in which this Redis Cache should be located. Changing this forces a new Redis Cache to be created."
