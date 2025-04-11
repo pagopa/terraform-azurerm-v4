@@ -39,9 +39,63 @@ resource "azurerm_private_dns_zone_virtual_network_link" "privatelink_redis_cach
 }
 
 #
-# REDIS
+# Basic
 #
-module "redis_cache" {
+module "basic_redis_cache" {
+  source = "../../redis_cache"
+
+  name                = "${local.project}-redis"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+
+  redis_version         = 6
+  capacity              = 1
+  enable_non_ssl_port   = false
+  family                = "C"
+  sku_name              = "Basic"
+  enable_authentication = true
+
+  private_endpoint = {
+    enabled              = true
+    virtual_network_id   = azurerm_virtual_network.vnet.id
+    subnet_id            = azurerm_subnet.private_endpoint_subnet.id
+    private_dns_zone_ids = [azurerm_private_dns_zone.privatelink_redis_cache_windows_net.id]
+  }
+
+  tags = var.tags
+}
+
+#
+# Standard
+#
+module "standard_redis_cache" {
+  source = "../../redis_cache"
+
+  name                = "${local.project}-redis"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+
+  redis_version         = 6
+  capacity              = 1
+  enable_non_ssl_port   = false
+  family                = "C"
+  sku_name              = "Standard"
+  enable_authentication = true
+
+  private_endpoint = {
+    enabled              = true
+    virtual_network_id   = azurerm_virtual_network.vnet.id
+    subnet_id            = azurerm_subnet.private_endpoint_subnet.id
+    private_dns_zone_ids = [azurerm_private_dns_zone.privatelink_redis_cache_windows_net.id]
+  }
+
+  tags = var.tags
+}
+
+#
+# Premium
+#
+module "premium_redis_cache" {
   source = "../../redis_cache"
 
   name                = "${local.project}-redis"
@@ -54,7 +108,7 @@ module "redis_cache" {
   family                = "P"
   sku_name              = "Premium"
   enable_authentication = true
-  zones                 = [1, 2, 3]
+  custom_zones          = [1, 2, 3] # Only if necessary
 
   private_endpoint = {
     enabled              = true
