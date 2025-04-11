@@ -35,3 +35,7 @@ output "port" {
 output "ssl_port" {
   value = azurerm_redis_cache.this.ssl_port
 }
+
+output "sku" {
+  value = var.sku_name
+}
