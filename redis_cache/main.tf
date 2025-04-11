@@ -1,5 +1,5 @@
 resource "null_resource" "basic_sku_dont_support_az" {
-  count = (var.sku_name == "Basic" && lenght(var.zones) > 0 ) ? "ERROR: AZ are not supported into sku Basic" : 0
+  count = (var.sku_name == "Basic" && length(var.zones) > 0 ) ? "ERROR: AZ are not supported into sku Basic" : 0
 }
 
 resource "azurerm_redis_cache" "this" {
