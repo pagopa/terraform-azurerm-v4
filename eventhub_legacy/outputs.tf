@@ -18,10 +18,6 @@ output "name" {
   value       = azurerm_eventhub_namespace.this.name
 }
 
-output "resource_group_name" {
-  value = azurerm_eventhub_namespace.this.resource_group_name
-}
-
 output "keys" {
   description = "Map of hubs with keys => primary_key / secondary_key mapping."
   sensitive   = true
@@ -31,5 +27,13 @@ output "keys" {
     secondary_key               = h.secondary_key
     secondary_connection_string = h.secondary_connection_string
     }
+  }
+}
+
+output "private_dns_zone" {
+  description = "ID of the private DNS zone which resolves the name of the Private Endpoint used to connect to EventHub"
+  value = {
+    id   = azurerm_private_dns_zone.eventhub[*].id
+    name = azurerm_private_dns_zone.eventhub[*].name
   }
 }

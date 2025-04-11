@@ -4,6 +4,7 @@ on:
   push:
     branches-ignore:
       - main
+  workflow_dispatch:
 
 jobs:
   static_analysis:
@@ -15,12 +16,12 @@ jobs:
 
       - name: 🔨 Get Modified Paths
         id: get-paths
-        uses: pagopa/eng-github-actions-iac-template/global/get-modifed-folders@4ce858514adbaf915f091b2315c5602992c29afa # v1.22.0
+        uses: pagopa/eng-github-actions-iac-template/global/get-modifed-folders@d3c6631dc7b57f6074f87f48eb79aead242e50f0 # v1.22.1
         with:
           start_folder: "/"
           default_end_folder_depth: 2
           include_patterns: "/"
-          ignore_patterns: ".github,.devops,.vscode"
+          ignore_patterns: ".github,.devops,.vscode,.scripts"
 
       - name: 👀 See folders downloaded
         if: env.dir_changes_detected == 'true'

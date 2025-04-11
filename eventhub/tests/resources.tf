@@ -20,23 +20,23 @@ resource "azurerm_virtual_network" "this" {
 }
 
 module "private_endpoint_snet" {
-  source                                    = "../../subnet"
-  name                                      = "${local.project}-pe-snet"
-  address_prefixes                          = ["10.3.200.0/24"]
-  resource_group_name                       = azurerm_resource_group.vnet_eventhub_rg.name
-  virtual_network_name                      = azurerm_virtual_network.this.name
-  private_endpoint_network_policies_enabled = true
+  source                                        = "../../subnet"
+  name                                          = "${local.project}-pe-snet"
+  address_prefixes                              = ["10.3.200.0/24"]
+  resource_group_name                           = azurerm_resource_group.vnet_eventhub_rg.name
+  virtual_network_name                          = azurerm_virtual_network.this.name
+  private_link_service_network_policies_enabled = true
 }
 
 ## Eventhub subnet
 module "eventhub_snet" {
-  source                                    = "../../subnet"
-  name                                      = "${local.project}-eventhub-snet"
-  address_prefixes                          = ["10.3.201.0/24"]
-  resource_group_name                       = azurerm_resource_group.vnet_eventhub_rg.name
-  virtual_network_name                      = azurerm_virtual_network.this.name
-  service_endpoints                         = ["Microsoft.EventHub"]
-  private_endpoint_network_policies_enabled = true
+  source                                        = "../../subnet"
+  name                                          = "${local.project}-eventhub-snet"
+  address_prefixes                              = ["10.3.201.0/24"]
+  resource_group_name                           = azurerm_resource_group.vnet_eventhub_rg.name
+  virtual_network_name                          = azurerm_virtual_network.this.name
+  service_endpoints                             = ["Microsoft.EventHub"]
+  private_link_service_network_policies_enabled = true
 }
 
 resource "azurerm_private_dns_zone" "external_zone" {
@@ -61,9 +61,6 @@ module "event_hub_complete" {
   resource_group_name  = azurerm_resource_group.rg_eventhub.name
   auto_inflate_enabled = false
   sku                  = "Standard"
-  zone_redundant       = true
-
-  virtual_network_ids = [azurerm_virtual_network.this.id]
 
   internal_private_dns_zone_created             = true
   internal_private_dns_zone_resource_group_name = "dvopla-eventhub-private-dns-zone-rg"
@@ -111,9 +108,6 @@ module "event_hub_core_only" {
   resource_group_name  = azurerm_resource_group.rg_eventhub.name
   auto_inflate_enabled = false
   sku                  = "Standard"
-  zone_redundant       = true
-
-  virtual_network_ids = [azurerm_virtual_network.this.id]
 
   private_endpoint_created = false
 
@@ -130,9 +124,6 @@ module "event_hub_core_network" {
   resource_group_name  = azurerm_resource_group.rg_eventhub.name
   auto_inflate_enabled = false
   sku                  = "Standard"
-  zone_redundant       = true
-
-  virtual_network_ids = [azurerm_virtual_network.this.id]
 
   private_endpoint_created             = true
   private_endpoint_subnet_id           = module.private_endpoint_snet.id

@@ -1,7 +1,3 @@
-resource "null_resource" "basic_sku_dont_support_private_endpoint" {
-  count = (var.sku == "Basic" && var.private_endpoint_created) ? "ERROR: Private endpoint are not supported into sku Basic" : 0
-}
-
 locals {
   consumers = { for hc in flatten([for h in var.eventhubs :
     [for c in h.consumers : {
@@ -18,10 +14,6 @@ locals {
   hubs = { for h in var.eventhubs : h.name => h }
 }
 
-#
-# Eventhub namespace
-# ℹ️ zone redundant is default for sku Standard and Premium
-#
 resource "azurerm_eventhub_namespace" "this" {
   name                          = var.name
   location                      = var.location
@@ -36,8 +28,7 @@ resource "azurerm_eventhub_namespace" "this" {
   dynamic "network_rulesets" {
     for_each = var.network_rulesets
     content {
-      default_action                = network_rulesets.value["default_action"]
-      public_network_access_enabled = network_rulesets.value["public_network_access_enabled"]
+      default_action = network_rulesets.value["default_action"]
       # virtual_network_rule {} # optional one ore more
       dynamic "virtual_network_rule" {
         for_each = network_rulesets.value["virtual_network_rule"]
@@ -66,10 +57,11 @@ resource "azurerm_eventhub_namespace" "this" {
 resource "azurerm_eventhub" "events" {
   for_each = local.hubs
 
-  name              = each.key
-  namespace_id      = azurerm_eventhub_namespace.this.id
-  partition_count   = each.value.partitions
-  message_retention = each.value.message_retention
+  name                = each.key
+  namespace_name      = azurerm_eventhub_namespace.this.name
+  resource_group_name = var.resource_group_name
+  partition_count     = each.value.partitions
+  message_retention   = each.value.message_retention
 }
 
 resource "azurerm_eventhub_consumer_group" "events" {
@@ -100,11 +92,11 @@ resource "azurerm_eventhub_authorization_rule" "events" {
 }
 
 #
-# 🌐 Network
+# Network
 #
 
 resource "azurerm_private_endpoint" "eventhub" {
-  count = var.private_endpoint_created ? 1 : 0
+  count = (var.sku != "Basic" && var.private_endpoint_created) ? 1 : 0
 
   name                = "${var.name}-private-endpoint"
   location            = var.location
@@ -114,7 +106,7 @@ resource "azurerm_private_endpoint" "eventhub" {
   private_dns_zone_group {
     name = "${var.name}-private-dns-zone-group"
     # One of the concatenated arrays is empty
-    private_dns_zone_ids = var.private_dns_zones.id
+    private_dns_zone_ids = concat(var.private_dns_zones.id, azurerm_private_dns_zone.eventhub[*].id)
   }
 
   private_service_connection {
@@ -125,15 +117,37 @@ resource "azurerm_private_endpoint" "eventhub" {
   }
 }
 
-# resource "azurerm_private_dns_a_record" "private_dns_a_record_eventhub" {
-#   count = (length(var.private_dns_zones.id) > 0 && var.private_dns_zone_record_A_name != null && var.private_endpoint_created) ? 1 : 0
+resource "azurerm_private_dns_a_record" "private_dns_a_record_eventhub" {
+  count = (var.sku != "Basic" && var.private_dns_zone_record_A_name != null && var.private_endpoint_created) ? 1 : 0
+
+  name                = var.private_dns_zone_record_A_name
+  zone_name           = length(var.private_dns_zones.id) > 0 ? var.private_dns_zones.name[0] : can(azurerm_private_dns_zone.eventhub[0].name)
+  resource_group_name = length(var.private_dns_zones.id) > 0 ? var.private_dns_zones.resource_group_name : var.internal_private_dns_zone_resource_group_name
+  ttl                 = 300
+  records             = can(azurerm_private_endpoint.eventhub[0].private_service_connection[*].private_ip_address) ? azurerm_private_endpoint.eventhub[0].private_service_connection[*].private_ip_address : null
+}
+
 #
-#   name                = var.private_dns_zone_record_A_name
-#   zone_name           = var.private_dns_zones.name[0]
-#   resource_group_name = var.private_dns_zones.resource_group_name
-#   ttl                 = 300
-#   records             = can(azurerm_private_endpoint.eventhub[0].private_service_connection[*].private_ip_address) ? azurerm_private_endpoint.eventhub[0].private_service_connection[*].private_ip_address : null
-# }
+# Private dns zone
+#
+# Create a Private DNS zone only if one isn't provided as input
+resource "azurerm_private_dns_zone" "eventhub" {
+  count = (var.sku != "Basic" && length(var.private_dns_zones.id) == 0 && var.internal_private_dns_zone_created) ? 1 : 0
+
+  name                = "privatelink.servicebus.windows.net"
+  resource_group_name = var.internal_private_dns_zone_resource_group_name
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "eventhub" {
+  count = (var.sku != "Basic" && length(var.private_dns_zones.id) == 0 && var.internal_private_dns_zone_created) ? length(var.virtual_network_ids) : 0
+
+  name                  = format("%s-private-dns-zone-link-%02d", var.name, count.index + 1)
+  resource_group_name   = var.resource_group_name
+  private_dns_zone_name = azurerm_private_dns_zone.eventhub[0].name
+  virtual_network_id    = var.virtual_network_ids[count.index]
+
+  tags = var.tags
+}
 
 #
 # Alert

@@ -12,6 +12,11 @@ variable "resource_group_name" {
   type = string
 }
 
+variable "virtual_network_ids" {
+  type        = list(string)
+  description = "The IDs of the Virtual Network that should be linked to the DNS Zone."
+}
+
 variable "auto_inflate_enabled" {
   type        = bool
   description = "Is Auto Inflate enabled for the EventHub Namespace?"
@@ -54,8 +59,7 @@ variable "maximum_throughput_units" {
 
 variable "network_rulesets" {
   type = list(object({
-    default_action                = string                #  (Required) The default action to take when a rule is not matched. Possible values are Allow and Deny.
-    public_network_access_enabled = optional(bool, false) # (Optional) Is public network access enabled for the EventHub Namespace? Defaults to false.
+    default_action = string #  (Required) The default action to take when a rule is not matched. Possible values are Allow and Deny.
     virtual_network_rule = list(object({
       subnet_id                                       = string # (Required) The id of the subnet to match on.
       ignore_missing_virtual_network_service_endpoint = bool   # (Optional) Are missing virtual network service endpoints ignored?
@@ -64,7 +68,7 @@ variable "network_rulesets" {
       ip_mask = string # (Required) The IP mask to match on.
       action  = string # (Optional) The action to take when the rule is matched. Possible values are Allow. Defaults to Allow.
     }))
-    trusted_service_access_enabled = optional(bool, false) #Whether Trusted Microsoft Services are allowed to bypass firewall.
+    trusted_service_access_enabled = bool #Whether Trusted Microsoft Services are allowed to bypass firewall.
   }))
   default = []
 }
