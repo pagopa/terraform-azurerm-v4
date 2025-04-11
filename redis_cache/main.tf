@@ -1,7 +1,3 @@
-resource "null_resource" "basic_sku_dont_support_az" {
-  count = (var.sku_name == "Basic" && length(var.zones) > 0 ) ? "ERROR: AZ are not supported into sku Basic" : 0
-}
-
 resource "azurerm_redis_cache" "this" {
   name                          = var.name
   location                      = var.location
@@ -18,7 +14,7 @@ resource "azurerm_redis_cache" "this" {
   subnet_id                     = var.subnet_id
   private_static_ip_address     = var.private_static_ip_address
   public_network_access_enabled = var.public_network_access_enabled
-  zones                         = var.zones
+  zones                         = var.sku_name == "Premium" ? var.zones : []
 
   redis_configuration {
     authentication_enabled        = var.enable_authentication
