@@ -1,4 +1,4 @@
-resource "null_resource" "b_series_not_ephemeral_system_check" {
+resource "null_resource" "basic_sku_dont_support_private_endpoint" {
   count = (var.sku == "Basic" && var.private_endpoint_created) ? "ERROR: Private endpoint are not supported into sku Basic" : 0
 }
 
@@ -18,6 +18,10 @@ locals {
   hubs = { for h in var.eventhubs : h.name => h }
 }
 
+#
+# Eventhub namespace
+# ℹ️ zone redundant is default for sku Standard and Premium
+#
 resource "azurerm_eventhub_namespace" "this" {
   name                          = var.name
   location                      = var.location
