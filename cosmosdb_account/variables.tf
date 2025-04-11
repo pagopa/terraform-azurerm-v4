@@ -34,7 +34,7 @@ variable "kind" {
 // CosmosDB specific variables
 variable "enable_free_tier" {
   type        = bool
-  default     = true
+  default     = false
   description = "Enable Free Tier pricing option for this Cosmos DB account. Defaults to false. Changing this forces a new resource to be created."
 }
 
