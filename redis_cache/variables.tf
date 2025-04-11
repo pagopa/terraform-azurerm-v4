@@ -33,6 +33,7 @@ variable "enable_non_ssl_port" {
 variable "zones" {
   type        = list(number)
   description = "Specifies a list of Availability Zones in which this Redis Cache should be located. Changing this forces a new Redis Cache to be created."
+  default = [1,2,3]
 }
 
 variable "subnet_id" {
