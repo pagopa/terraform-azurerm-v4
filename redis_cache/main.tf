@@ -14,7 +14,7 @@ resource "azurerm_redis_cache" "this" {
   subnet_id                     = var.subnet_id
   private_static_ip_address     = var.private_static_ip_address
   public_network_access_enabled = var.public_network_access_enabled
-  zones                         = var.sku_name == "Premium" ? var.zones : []
+  zones                         = var.custom_zones
 
   redis_configuration {
     authentication_enabled        = var.enable_authentication

@@ -30,15 +30,12 @@ variable "enable_non_ssl_port" {
   default     = false
 }
 
-variable "zones" {
+# https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-whats-new#cache-creation-with-zone-redundancy-by-default
+# By default Standard and Premium caches are created with zone redundancy enabled.
+variable "custom_zones" {
   type        = list(number)
-  description = "Specifies a list of Availability Zones in which this Redis Cache should be located. Changing this forces a new Redis Cache to be created."
-  default     = [1, 2, 3]
-
-  validation {
-    condition = !(contains(["Basic", "Standard"], var.sku_name) && length(var.zones) > 0)
-    error_message = "Availability Zones are only supported for Premium SKU or higher."
-  }
+  description = "(Optional/Premium Only) Specifies a list of Availability Zones in which this Redis Cache should be located. Changing this forces a new Redis Cache to be created."
+  default     = []
 }
 
 variable "subnet_id" {
