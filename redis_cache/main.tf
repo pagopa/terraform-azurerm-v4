@@ -1,15 +1,15 @@
 resource "azurerm_redis_cache" "this" {
-  name                          = var.name
-  location                      = var.location
-  resource_group_name           = var.resource_group_name
-  non_ssl_port_enabled          = var.enable_non_ssl_port
-  minimum_tls_version           = "1.2"
+  name                 = var.name
+  location             = var.location
+  resource_group_name  = var.resource_group_name
+  non_ssl_port_enabled = var.enable_non_ssl_port
+  minimum_tls_version  = "1.2"
 
-  capacity                      = var.capacity
-  family                        = var.family
-  sku_name                      = var.sku_name
-  redis_version                 = var.redis_version
-  shard_count                   = var.shard_count
+  capacity      = var.capacity
+  family        = var.family
+  sku_name      = var.sku_name
+  redis_version = var.redis_version
+  shard_count   = var.shard_count
 
   subnet_id                     = var.subnet_id
   private_static_ip_address     = var.private_static_ip_address
@@ -17,7 +17,7 @@ resource "azurerm_redis_cache" "this" {
   zones                         = var.custom_zones
 
   redis_configuration {
-    authentication_enabled        = var.enable_authentication
+    authentication_enabled = var.enable_authentication
 
     rdb_backup_enabled            = var.backup_configuration != null
     rdb_backup_frequency          = var.backup_configuration != null ? var.backup_configuration.frequency : null

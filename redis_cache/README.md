@@ -39,6 +39,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_backup_configuration"></a> [backup\_configuration](#input\_backup\_configuration) | n/a | <pre>object({<br/>    frequency                 = number<br/>    max_snapshot_count        = number<br/>    storage_connection_string = string<br/>  })</pre> | `null` | no |
 | <a name="input_capacity"></a> [capacity](#input\_capacity) | The size of the Redis cache to deploy | `number` | `1` | no |
+| <a name="input_custom_zones"></a> [custom\_zones](#input\_custom\_zones) | (Optional/Premium Only) Specifies a list of Availability Zones in which this Redis Cache should be located. Changing this forces a new Redis Cache to be created. | `list(number)` | `[]` | no |
 | <a name="input_data_persistence_authentication_method"></a> [data\_persistence\_authentication\_method](#input\_data\_persistence\_authentication\_method) | (Optional) Preferred auth method to communicate to storage account used for data persistence. Possible values are SAS and ManagedIdentity. Defaults to SAS. | `string` | `"SAS"` | no |
 | <a name="input_enable_authentication"></a> [enable\_authentication](#input\_enable\_authentication) | If set to false, the Redis instance will be accessible without authentication. Defaults to true. | `bool` | `true` | no |
 | <a name="input_enable_non_ssl_port"></a> [enable\_non\_ssl\_port](#input\_enable\_non\_ssl\_port) | Enable the non-SSL port (6379) - disabled by default. | `bool` | `false` | no |
@@ -55,7 +56,6 @@ No modules.
 | <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name) | The SKU of Redis to use | `string` | n/a | yes |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | The Subnet within which the Redis Cache should be deployed (Deprecated, use private\_endpoint) | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | n/a | yes |
-| <a name="input_zones"></a> [zones](#input\_zones) | Specifies a list of Availability Zones in which this Redis Cache should be located. Changing this forces a new Redis Cache to be created. | `list(number)` | n/a | yes |
 
 ## Outputs
 
@@ -66,8 +66,13 @@ No modules.
 | <a name="output_location"></a> [location](#output\_location) | n/a |
 | <a name="output_name"></a> [name](#output\_name) | n/a |
 | <a name="output_port"></a> [port](#output\_port) | n/a |
-| <a name="output_primary_access_key"></a> [primary\_access\_key](#output\_primary\_access\_key) | n/a |
+| <a name="output_primary_access_key"></a> [primary\_access\_key](#output\_primary\_access\_key) | Access Keys |
 | <a name="output_primary_connection_string"></a> [primary\_connection\_string](#output\_primary\_connection\_string) | n/a |
+| <a name="output_primary_connection_url"></a> [primary\_connection\_url](#output\_primary\_connection\_url) | n/a |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | n/a |
+| <a name="output_secondary_access_key"></a> [secondary\_access\_key](#output\_secondary\_access\_key) | n/a |
+| <a name="output_secondary_connection_string"></a> [secondary\_connection\_string](#output\_secondary\_connection\_string) | n/a |
+| <a name="output_secondary_connection_url"></a> [secondary\_connection\_url](#output\_secondary\_connection\_url) | n/a |
+| <a name="output_sku"></a> [sku](#output\_sku) | n/a |
 | <a name="output_ssl_port"></a> [ssl\_port](#output\_ssl\_port) | n/a |
 <!-- END_TF_DOCS -->

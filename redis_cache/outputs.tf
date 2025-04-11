@@ -44,7 +44,7 @@ output "primary_connection_string" {
 }
 
 output "primary_connection_url" {
-  value = "rediss://:${azurerm_redis_cache.this.primary_access_key}@${azurerm_redis_cache.this.hostname}:${azurerm_redis_cache.this.ssl_port}"
+  value     = "rediss://:${azurerm_redis_cache.this.primary_access_key}@${azurerm_redis_cache.this.hostname}:${azurerm_redis_cache.this.ssl_port}"
   sensitive = true
 }
 
@@ -59,6 +59,6 @@ output "secondary_connection_string" {
 }
 
 output "secondary_connection_url" {
-  value = "rediss://:${azurerm_redis_cache.this.secondary_access_key}@${azurerm_redis_cache.this.hostname}:${azurerm_redis_cache.this.ssl_port}"
+  value     = "rediss://:${azurerm_redis_cache.this.secondary_access_key}@${azurerm_redis_cache.this.hostname}:${azurerm_redis_cache.this.ssl_port}"
   sensitive = true
 }
