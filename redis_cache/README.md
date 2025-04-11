@@ -2,46 +2,16 @@
 
 This module allows the creation of a redis cache
 
+Availability Zone for sku Standard and Premium are choosed automatically by Azure. If you want to override the default zones choosed automatically, you can use the `custom_zones` variable.
+# https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-whats-new#cache-creation-with-zone-redundancy-by-default
+
+# Migration v3 -> v4
+
+* `zones`: was changed to `custom_zones` is Optional and now is valid only for premium and only if you want to override the default zones choosed automatically
+
 ## How to use
 
-```ts
-resource "azurerm_resource_group" "redis" {
-  name     = "${local.project}-redis-rg"
-  location = var.location
-  tags     = var.tags
-}
-
-## redisbase subnet
-module "redis_snet" {
-  source               = "git::https://github.com/pagopa/terraform-azurerm-v3.git//subnet?ref=v8.8.0"
-  name                 = "${local.project}-redis-snet"
-  address_prefixes     = var.cidr_subnet_redis
-  resource_group_name  = azurerm_resource_group.rg_vnet.name
-  virtual_network_name = module.vnet.name
-}
-
-module "redis" {
-  count                 = var.redis_enabled ? 1 : 0
-  source                = "git::https://github.com/pagopa/terraform-azurerm-v3.git//redis_cache?ref=v8.8.0"
-  name                  = "${local.project}-redis"
-  resource_group_name   = azurerm_resource_group.redis.name
-  location              = azurerm_resource_group.redis.location
-  capacity              = 1
-  enable_non_ssl_port   = false
-  family                = "P"
-  sku_name              = "Premium"
-  enable_authentication = true
-
-  private_endpoint = {
-    enabled              = true
-    virtual_network_id   = module.vnet.id
-    subnet_id            = module.redis_snet.id
-    private_dns_zone_ids = [azurerm_private_dns_zone.internal_devopslab[0].id]
-  }
-
-  tags = var.tags
-}
-```
+See test folder for examples
 
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->
