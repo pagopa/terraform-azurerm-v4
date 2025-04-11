@@ -1,21 +1,28 @@
+resource "null_resource" "basic_sku_dont_support_az" {
+  count = (var.sku_name == "Basic" && lenght(var.zones) > 0 ) ? "ERROR: AZ are not supported into sku Basic" : 0
+}
+
 resource "azurerm_redis_cache" "this" {
   name                          = var.name
   location                      = var.location
   resource_group_name           = var.resource_group_name
-  capacity                      = var.capacity
-  shard_count                   = var.shard_count
   non_ssl_port_enabled          = var.enable_non_ssl_port
   minimum_tls_version           = "1.2"
-  subnet_id                     = var.subnet_id
-  private_static_ip_address     = var.private_static_ip_address
+
+  capacity                      = var.capacity
   family                        = var.family
   sku_name                      = var.sku_name
-  public_network_access_enabled = var.public_network_access_enabled
   redis_version                 = var.redis_version
-  zones                         = var.sku_name == "Premium" ? var.zones : null
+  shard_count                   = var.shard_count
+
+  subnet_id                     = var.subnet_id
+  private_static_ip_address     = var.private_static_ip_address
+  public_network_access_enabled = var.public_network_access_enabled
+  zones                         = var.zones
 
   redis_configuration {
     authentication_enabled        = var.enable_authentication
+
     rdb_backup_enabled            = var.backup_configuration != null
     rdb_backup_frequency          = var.backup_configuration != null ? var.backup_configuration.frequency : null
     rdb_backup_max_snapshot_count = var.backup_configuration != null ? var.backup_configuration.max_snapshot_count : null
@@ -43,6 +50,9 @@ resource "azurerm_redis_cache" "this" {
   }
 }
 
+#
+# 🌐 Network
+#
 resource "azurerm_private_endpoint" "this" {
   count = var.private_endpoint.enabled ? 1 : 0
 
