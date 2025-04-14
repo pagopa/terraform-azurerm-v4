@@ -17,7 +17,7 @@ resource "azurerm_virtual_network" "this" {
 
   lifecycle {
     ignore_changes = [
-      "ddos_protection_plan"
+      ddos_protection_plan
     ]
   }
 }
