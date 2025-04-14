@@ -319,12 +319,6 @@ variable "addon_azure_key_vault_secrets_provider_enabled" {
   default     = false
 }
 
-variable "addon_azure_pod_identity_enabled" {
-  type        = bool
-  description = "Should the AAD pod-managed identities be enabled for this Node Pool? "
-  default     = false
-}
-
 variable "monitor_metrics" {
   type = object({
     annotations_allowed = optional(string, null)

@@ -6,6 +6,11 @@ Module that allows the creation of an AKS cluster.
 
 ![architecture](./docs/module-arch.drawio.png)
 
+## Migration v3 -> v4
+
+Deleted resources:
+* null_resource.enable_pod_identity
+
 ## Metrics Monitor/Alerts
 
 By default the modules have a default set of metric alerts.
@@ -258,13 +263,11 @@ variable "aks_addons" {
   type = object({
     azure_policy                     = bool,
     azure_key_vault_secrets_provider = bool,
-    pod_identity_enabled             = bool,
   })
 
   default = {
     azure_key_vault_secrets_provider = true
     azure_policy                     = true
-    pod_identity_enabled             = true
   }
 
   description = "Aks addons configuration"
@@ -337,7 +340,6 @@ aks_user_node_pool = {
 aks_addons = {
   azure_policy                     = true,
   azure_key_vault_secrets_provider = true,
-  pod_identity_enabled             = true,
 }
 
 ingress_replica_count = "2"
@@ -424,7 +426,6 @@ keda_helm_version        = "2.6.2"
 
     addon_azure_policy_enabled                     = var.aks_addons.azure_policy
     addon_azure_key_vault_secrets_provider_enabled = var.aks_addons.azure_key_vault_secrets_provider
-    addon_azure_pod_identity_enabled               = var.aks_addons.pod_identity_enabled
 
     default_metric_alerts = var.aks_metric_alerts_default
     custom_metric_alerts  = var.aks_metric_alerts_custom
@@ -550,7 +551,6 @@ No modules.
 | [azurerm_role_assignment.vnet_role](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [null_resource.b_series_not_ephemeral_system_check](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.b_series_not_ephemeral_user_check](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
-| [null_resource.enable_pod_identity](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.workload_identity_oidc_issuer_enabled_check](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 
 ## Inputs
@@ -560,7 +560,6 @@ No modules.
 | <a name="input_aad_admin_group_ids"></a> [aad\_admin\_group\_ids](#input\_aad\_admin\_group\_ids) | IDs of the Azure AD group for cluster-admin access | `list(string)` | n/a | yes |
 | <a name="input_action"></a> [action](#input\_action) | The ID of the Action Group and optional map of custom string properties to include with the post webhook operation. | <pre>set(object(<br/>    {<br/>      action_group_id    = string<br/>      webhook_properties = map(string)<br/>    }<br/>  ))</pre> | `[]` | no |
 | <a name="input_addon_azure_key_vault_secrets_provider_enabled"></a> [addon\_azure\_key\_vault\_secrets\_provider\_enabled](#input\_addon\_azure\_key\_vault\_secrets\_provider\_enabled) | Should the Azure Secrets Store CSI addon be enabled for this Node Pool? | `bool` | `false` | no |
-| <a name="input_addon_azure_pod_identity_enabled"></a> [addon\_azure\_pod\_identity\_enabled](#input\_addon\_azure\_pod\_identity\_enabled) | Should the AAD pod-managed identities be enabled for this Node Pool? | `bool` | `false` | no |
 | <a name="input_addon_azure_policy_enabled"></a> [addon\_azure\_policy\_enabled](#input\_addon\_azure\_policy\_enabled) | Should the Azure Policy addon be enabled for this Node Pool? | `bool` | `false` | no |
 | <a name="input_alerts_enabled"></a> [alerts\_enabled](#input\_alerts\_enabled) | Should Metrics Alert be enabled? | `bool` | `true` | no |
 | <a name="input_automatic_channel_upgrade"></a> [automatic\_channel\_upgrade](#input\_automatic\_channel\_upgrade) | (Optional) The upgrade channel for this Kubernetes Cluster. Possible values are patch, rapid, node-image and stable. Omitting this field sets this value to none. | `string` | `null` | no |
