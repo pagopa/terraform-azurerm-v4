@@ -6,6 +6,11 @@ Module that allows the creation of an AKS cluster.
 
 ![architecture](./docs/module-arch.drawio.png)
 
+## Migration v3 -> v4
+
+Deleted resources:
+* null_resource.enable_pod_identity
+
 ## Metrics Monitor/Alerts
 
 By default the modules have a default set of metric alerts.
@@ -258,13 +263,11 @@ variable "aks_addons" {
   type = object({
     azure_policy                     = bool,
     azure_key_vault_secrets_provider = bool,
-    pod_identity_enabled             = bool,
   })
 
   default = {
     azure_key_vault_secrets_provider = true
     azure_policy                     = true
-    pod_identity_enabled             = true
   }
 
   description = "Aks addons configuration"
@@ -337,7 +340,6 @@ aks_user_node_pool = {
 aks_addons = {
   azure_policy                     = true,
   azure_key_vault_secrets_provider = true,
-  pod_identity_enabled             = true,
 }
 
 ingress_replica_count = "2"
@@ -424,7 +426,6 @@ keda_helm_version        = "2.6.2"
 
     addon_azure_policy_enabled                     = var.aks_addons.azure_policy
     addon_azure_key_vault_secrets_provider_enabled = var.aks_addons.azure_key_vault_secrets_provider
-    addon_azure_pod_identity_enabled               = var.aks_addons.pod_identity_enabled
 
     default_metric_alerts = var.aks_metric_alerts_default
     custom_metric_alerts  = var.aks_metric_alerts_custom
