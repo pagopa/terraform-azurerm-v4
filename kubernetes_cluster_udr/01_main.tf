@@ -61,21 +61,6 @@ resource "azurerm_kubernetes_cluster" "this" {
   automatic_upgrade_channel = var.automatic_channel_upgrade
   node_os_upgrade_channel   = var.node_os_upgrade_channel
 
-  dynamic "maintenance_window_node_os" {
-    for_each = var.maintenance_windows_node_os.enabled ? [1] : []
-    content {
-      day_of_month = var.maintenance_windows_node_os.day_of_month
-      day_of_week  = var.maintenance_windows_node_os.day_of_week
-      duration     = var.maintenance_windows_node_os.duration
-      frequency    = var.maintenance_windows_node_os.frequency
-      interval     = var.maintenance_windows_node_os.interval
-      start_date   = var.maintenance_windows_node_os.start_date
-      start_time   = var.maintenance_windows_node_os.start_time
-      utc_offset   = var.maintenance_windows_node_os.utc_offset
-      week_index   = var.maintenance_windows_node_os.week_index
-    }
-  }
-
   api_server_access_profile {
     authorized_ip_ranges = var.api_server_authorized_ip_ranges
   }
