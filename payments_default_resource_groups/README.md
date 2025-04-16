@@ -8,7 +8,7 @@ This Terraform module manages Azure resource groups with predefined defaults and
   - Data resource group (`-data-rg`)
   - Security resource group (`-security-rg`)
   - Compute resource group (`-compute-rg`)
-  - Identity resource group (`-identity-rg`)
+  - CICD resource group (`-cicd-rg`)
 - Supports adding custom resource groups beyond the defaults
 - Consistent naming convention using prefix and environment
 - Flexible tagging system with base and additional tags
