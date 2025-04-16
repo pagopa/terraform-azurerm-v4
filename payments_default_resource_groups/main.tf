@@ -4,7 +4,7 @@ locals {
     data     = "${var.resource_group_prefix}-data-rg"
     security = "${var.resource_group_prefix}-security-rg"
     compute  = "${var.resource_group_prefix}-compute-rg"
-    identity = "${var.resource_group_prefix}-identity-rg"
+    cicd     = "${var.resource_group_prefix}-cicd-rg"
   }
 
   # Merge default and additional resource groups
