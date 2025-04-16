@@ -16,10 +16,3 @@ terraform {
     }
   }
 }
-
-provider "grafana" {
-  alias = "cloud"
-
-  url  = var.grafana_url
-  auth = var.grafana_api_key
-}
