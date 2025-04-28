@@ -234,3 +234,54 @@ variable "use_legacy_defender_version" {
   description = "(Optional) If true, applies the old pricing model. Very important - check the pricing model that is more convenient for your kind of usage"
   default     = true
 }
+
+# Private Endpoint
+
+
+variable "private_endpoint_enabled" {
+  type        = bool
+  description = "Enable private endpoint"
+  default     = false
+}
+
+variable "private_dns_zone_blob_ids" {
+  type        = list(string)
+  description = "Used only for private endpoints"
+  default     = []
+}
+
+variable "private_dns_zone_table_ids" {
+  type        = list(string)
+  description = "Used only for private endpoints"
+  default     = []
+}
+
+variable "private_dns_zone_queue_ids" {
+  type        = list(string)
+  description = "Used only for private endpoints"
+  default     = []
+}
+
+variable "private_dns_zone_file_ids" {
+  type        = list(string)
+  description = "Used only for private endpoints"
+  default     = []
+}
+
+variable "private_dns_zone_web_ids" {
+  type        = list(string)
+  description = "Used only for private endpoints"
+  default     = []
+}
+
+variable "private_dns_zone_dfs_ids" {
+  type        = list(string)
+  description = "Used only for private endpoints"
+  default     = []
+}
+
+variable "subnet_id" {
+  type        = string
+  description = "Used only for private endpoints"
+  default     = null
+}
