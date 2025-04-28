@@ -117,7 +117,7 @@ resource "azurerm_private_endpoint" "blob" {
 
   private_service_connection {
     name                           = "${var.name}-private-endpoint-blob"
-    private_connection_resource_id = azurerm_cosmosdb_account.this.id
+    private_connection_resource_id = azurerm_storage_account.this.id
     is_manual_connection           = false
     subresource_names              = ["blob"]
   }
@@ -141,7 +141,7 @@ resource "azurerm_private_endpoint" "table" {
 
   private_service_connection {
     name                           = "${var.name}-private-endpoint-table"
-    private_connection_resource_id = azurerm_cosmosdb_account.this.id
+    private_connection_resource_id = azurerm_storage_account.this.id
     is_manual_connection           = false
     subresource_names              = ["table"]
   }
@@ -165,7 +165,7 @@ resource "azurerm_private_endpoint" "queue" {
 
   private_service_connection {
     name                           = "${var.name}-private-endpoint-queue"
-    private_connection_resource_id = azurerm_cosmosdb_account.this.id
+    private_connection_resource_id = azurerm_storage_account.this.id
     is_manual_connection           = false
     subresource_names              = ["queue"]
   }
@@ -189,7 +189,7 @@ resource "azurerm_private_endpoint" "file" {
 
   private_service_connection {
     name                           = "${var.name}-private-endpoint-file"
-    private_connection_resource_id = azurerm_cosmosdb_account.this.id
+    private_connection_resource_id = azurerm_storage_account.this.id
     is_manual_connection           = false
     subresource_names              = ["file"]
   }
@@ -213,7 +213,7 @@ resource "azurerm_private_endpoint" "web" {
 
   private_service_connection {
     name                           = "${var.name}-private-endpoint-web"
-    private_connection_resource_id = azurerm_cosmosdb_account.this.id
+    private_connection_resource_id = azurerm_storage_account.this.id
     is_manual_connection           = false
     subresource_names              = ["web"]
   }
@@ -237,7 +237,7 @@ resource "azurerm_private_endpoint" "dfs" {
 
   private_service_connection {
     name                           = "${var.name}-private-endpoint-dfs"
-    private_connection_resource_id = azurerm_cosmosdb_account.this.id
+    private_connection_resource_id = azurerm_storage_account.this.id
     is_manual_connection           = false
     subresource_names              = ["dfs"]
   }
