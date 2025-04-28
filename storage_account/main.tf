@@ -104,6 +104,153 @@ resource "azurerm_storage_account" "this" {
   tags = var.tags
 }
 
+
+# Private endpoints
+
+resource "azurerm_private_endpoint" "blob" {
+  count = var.private_endpoint_enabled && length(var.private_dns_zone_blob_ids) > 0 ? 1 : 0
+
+  name                = "${var.name}-private-endpoint-blob"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.subnet_id
+
+  private_service_connection {
+    name                           = "${var.name}-private-endpoint-blob"
+    private_connection_resource_id = azurerm_cosmosdb_account.this.id
+    is_manual_connection           = false
+    subresource_names              = ["blob"]
+  }
+
+  dynamic "private_dns_zone_group" {
+    for_each = var.private_dns_zone_blob_ids != null ? ["dummy"] : []
+    content {
+      name                 = "private-dns-zone-group"
+      private_dns_zone_ids = var.private_dns_zone_blob_ids
+    }
+  }
+}
+
+resource "azurerm_private_endpoint" "table" {
+  count = var.private_endpoint_enabled && length(var.private_dns_zone_table_ids) > 0 ? 1 : 0
+
+  name                = "${var.name}-private-endpoint-table"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.subnet_id
+
+  private_service_connection {
+    name                           = "${var.name}-private-endpoint-table"
+    private_connection_resource_id = azurerm_cosmosdb_account.this.id
+    is_manual_connection           = false
+    subresource_names              = ["table"]
+  }
+
+  dynamic "private_dns_zone_group" {
+    for_each = var.private_dns_zone_table_ids != null ? ["dummy"] : []
+    content {
+      name                 = "private-dns-zone-group"
+      private_dns_zone_ids = var.private_dns_zone_table_ids
+    }
+  }
+}
+
+resource "azurerm_private_endpoint" "queue" {
+  count = var.private_endpoint_enabled && length(var.private_dns_zone_queue_ids) > 0 ? 1 : 0
+
+  name                = "${var.name}-private-endpoint-queue"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.subnet_id
+
+  private_service_connection {
+    name                           = "${var.name}-private-endpoint-queue"
+    private_connection_resource_id = azurerm_cosmosdb_account.this.id
+    is_manual_connection           = false
+    subresource_names              = ["queue"]
+  }
+
+  dynamic "private_dns_zone_group" {
+    for_each = var.private_dns_zone_queue_ids != null ? ["dummy"] : []
+    content {
+      name                 = "private-dns-zone-group"
+      private_dns_zone_ids = var.private_dns_zone_queue_ids
+    }
+  }
+}
+
+resource "azurerm_private_endpoint" "file" {
+  count = var.private_endpoint_enabled && length(var.private_dns_zone_file_ids) > 0 ? 1 : 0
+
+  name                = "${var.name}-private-endpoint-file"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.subnet_id
+
+  private_service_connection {
+    name                           = "${var.name}-private-endpoint-file"
+    private_connection_resource_id = azurerm_cosmosdb_account.this.id
+    is_manual_connection           = false
+    subresource_names              = ["file"]
+  }
+
+  dynamic "private_dns_zone_group" {
+    for_each = var.private_dns_zone_file_ids != null ? ["dummy"] : []
+    content {
+      name                 = "private-dns-zone-group"
+      private_dns_zone_ids = var.private_dns_zone_file_ids
+    }
+  }
+}
+
+resource "azurerm_private_endpoint" "web" {
+  count = var.private_endpoint_enabled && length(var.private_dns_zone_web_ids) > 0 ? 1 : 0
+
+  name                = "${var.name}-private-endpoint-web"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.subnet_id
+
+  private_service_connection {
+    name                           = "${var.name}-private-endpoint-web"
+    private_connection_resource_id = azurerm_cosmosdb_account.this.id
+    is_manual_connection           = false
+    subresource_names              = ["web"]
+  }
+
+  dynamic "private_dns_zone_group" {
+    for_each = var.private_dns_zone_web_ids != null ? ["dummy"] : []
+    content {
+      name                 = "private-dns-zone-group"
+      private_dns_zone_ids = var.private_dns_zone_web_ids
+    }
+  }
+}
+
+resource "azurerm_private_endpoint" "dfs" {
+  count = var.private_endpoint_enabled && length(var.private_dns_zone_dfs_ids) > 0 ? 1 : 0
+
+  name                = "${var.name}-private-endpoint-dfs"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.subnet_id
+
+  private_service_connection {
+    name                           = "${var.name}-private-endpoint-dfs"
+    private_connection_resource_id = azurerm_cosmosdb_account.this.id
+    is_manual_connection           = false
+    subresource_names              = ["dfs"]
+  }
+
+  dynamic "private_dns_zone_group" {
+    for_each = var.private_dns_zone_dfs_ids != null ? ["dummy"] : []
+    content {
+      name                 = "private-dns-zone-group"
+      private_dns_zone_ids = var.private_dns_zone_dfs_ids
+    }
+  }
+}
+
 # Enable advanced threat protection
 resource "azurerm_advanced_threat_protection" "this" {
   count = var.advanced_threat_protection == true && var.use_legacy_defender_version == true ? 1 : 0
