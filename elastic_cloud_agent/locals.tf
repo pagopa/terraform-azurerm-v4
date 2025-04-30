@@ -1,13 +1,9 @@
 locals {
-  logs_general_to_exclude_paths = distinct(flatten([
-    for instance_name in var.dedicated_log_instance_name : "'/var/log/containers/${instance_name}-*.log'"
-  ]))
 
   template_resolution_variables = {
     namespace                     = var.elastic_agent_kube_namespace
     dedicated_log_instance_name   = var.dedicated_log_instance_name
-    logs_general_to_exclude_paths = local.logs_general_to_exclude_paths
-    service_names               = concat(values(var.dedicated_log_instance_name))
+    service_names               = flatten(values(var.dedicated_log_instance_name))
     system_name            = var.system_integration_policy.name
     system_id              = var.system_integration_policy.id
     system_revision        = 1
