@@ -603,13 +603,15 @@ data:
         use_output: default
         package_policy_id: ${kubernetes_id}
         streams:
-          %{~ for instance_name in dedicated_log_instance_name ~}
-          - id: kubernetes-container-logs-${instance_name}-${kubernetes_id}
+          %{~ for ds_name, log_files in dedicated_log_instance_name ~}
+          - id: kubernetes-container-logs-${ds_name}-${kubernetes_id}
             data_stream:
               type: logs
-              dataset: ${instance_name}
+              dataset: ${ds_name}
             paths:
-              - /var/log/containers/${instance_name}-*.log
+              %{~ for log_file in log_files ~}
+              - /var/log/containers/${log_file}-*.log
+              %{~ endfor ~}
             prospector.scanner.symlinks: true
             parsers:
               - container:
@@ -933,11 +935,13 @@ data:
             - names:
                 - logs-*-*
               privileges: *ref_0
-            %{~ for instance_name in dedicated_log_instance_name ~}
             - names:
-                - logs-${instance_name}-${target_namespace}
-              privileges: *ref_0
+            %{~ for ds_name, log_files in dedicated_log_instance_name ~}
+                %{~ for log_file in log_files ~}
+                - logs-${log_file}-${target_namespace}
+                %{~ endfor ~}
             %{~ endfor ~}
+              privileges: *ref_0
         ${apm_id}:
           indices:
             - names:
