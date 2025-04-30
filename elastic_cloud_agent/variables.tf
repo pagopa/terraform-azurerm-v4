@@ -5,7 +5,7 @@ variable "elastic_agent_kube_namespace" {
 
 variable "dedicated_log_instance_name" {
   type        = map(list(string))
-  description = "Map of <datastream_name> - <namespace_or_pod> for which the logs will be collected by the elastic agent"
+  description = "Map of <elastic_datastream_name> - <namespace_or_pod_name> for which the logs will be collected by the elastic agent"
 }
 
 variable "tolerated_taints" {

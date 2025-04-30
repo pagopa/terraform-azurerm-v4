@@ -1,13 +1,13 @@
 locals {
 
   template_resolution_variables = {
-    namespace                     = var.elastic_agent_kube_namespace
-    dedicated_log_instance_name   = var.dedicated_log_instance_name
+    namespace                   = var.elastic_agent_kube_namespace
+    dedicated_log_instance_name = var.dedicated_log_instance_name
     service_names               = flatten(values(var.dedicated_log_instance_name))
-    system_name            = var.system_integration_policy.name
-    system_id              = var.system_integration_policy.id
-    system_revision        = 1
-    system_package_version = var.system_package_version
+    system_name                 = var.system_integration_policy.name
+    system_id                   = var.system_integration_policy.id
+    system_revision             = 1
+    system_package_version      = var.system_package_version
 
     kubernetes_name            = var.k8s_integration_policy.name
     kubernetes_id              = var.k8s_integration_policy.id
