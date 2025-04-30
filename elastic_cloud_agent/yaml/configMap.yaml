@@ -940,8 +940,8 @@ data:
                 %{~ for log_file in log_files ~}
                 - logs-${log_file}-${target_namespace}
                 %{~ endfor ~}
-              privileges: *ref_0
             %{~ endfor ~}
+              privileges: *ref_0
         ${apm_id}:
           indices:
             - names:
