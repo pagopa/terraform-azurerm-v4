@@ -43,8 +43,8 @@ variable "pip_sku" {
 }
 
 variable "pip_allocation_method" {
-  description = "Defines the allocation method for this IP address. Possible values are Static or Dynamic."
-  default     = "Dynamic"
+  description = "(Optional) Defines how the private IP address of the gateways virtual interface is assigned. The only valid value is Dynamic for Virtual Network Gateway (Static is not supported by the service yet). Defaults to Dynamic."
+  default     = "Dinamic"
 }
 
 variable "pip_id" {
@@ -100,11 +100,6 @@ variable "local_networks" {
 
 variable "log_analytics_workspace_id" {
   description = "Specifies the ID of a Log Analytics Workspace where Diagnostics Data should be sent."
-  default     = null
-}
-
-variable "log_storage_account_id" {
-  description = "Specifies the ID of a Storage Account where Logs should be sent."
   default     = null
 }
 
