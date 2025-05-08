@@ -65,15 +65,10 @@ module "monitoring_function" {
   location            = var.location
   prefix              = "${local.product}-${var.location_short}"
   resource_group_name = azurerm_resource_group.synthetic_rg.name
-  legacy              = var.legacy
 
   application_insight_name              = azurerm_application_insights.application_insights.name
   application_insight_rg_name           = azurerm_application_insights.application_insights.resource_group_name
   application_insights_action_group_ids = []
-
-  docker_settings = {
-    image_tag = "v1.7.0@sha256:08b88e12aa79b423a96a96274786b4d1ad5a2a4cf6c72fcd1a52b570ba034b18"
-  }
 
   job_settings = {
     cron_scheduling              = "*/5 * * * *"
@@ -87,7 +82,7 @@ module "monitoring_function" {
     table_private_dns_zone_id = null
   }
 
-  private_endpoint_subnet_id = var.use_private_endpoint ? azurerm_subnet.subnet.id : null
+  storage_private_endpoint_subnet_id = var.use_private_endpoint ? azurerm_subnet.subnet.id : null
 
   tags = var.tags
 

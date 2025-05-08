@@ -41,8 +41,6 @@ variable "location_short" {
   description = "One of wue, neu"
 }
 
-
-
 variable "tags" {
   type = map(any)
   default = {
@@ -73,7 +71,6 @@ variable "use_private_endpoint" {
   type        = bool
   description = "(Required) if true enables the usage of private endpoint"
 }
-
 
 ## Monitor
 variable "law_sku" {
