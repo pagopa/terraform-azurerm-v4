@@ -1,13 +1,11 @@
 resource "grafana_folder" "sythetic_monitoring" {
-  count    = var.enabled_sythetic_dashboard ? 1 : 0
-  provider = grafana.cloud
+  count = var.enabled_sythetic_dashboard ? 1 : 0
 
   title = "Syntetic Monitoring Dashboard"
 }
 
 resource "grafana_dashboard" "sythetic_monitoring" {
-  count    = var.enabled_sythetic_dashboard ? 1 : 0
-  provider = grafana.cloud
+  count = var.enabled_sythetic_dashboard ? 1 : 0
 
   folder = grafana_folder.sythetic_monitoring[0].uid
   config_json = templatefile("${path.module}/dashboards/synthetic_monitoring.tpl", {

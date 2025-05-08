@@ -9,7 +9,7 @@ variable "resource_group_name" {
 
 variable "prefix" {
   type        = string
-  description = "(Required) Prefix used in the Velero dedicated resource names"
+  description = "(Required) Prefix for dedicated resource names"
 }
 
 variable "location" {
@@ -64,7 +64,7 @@ variable "job_settings" {
   }
   validation {
     condition     = length(var.job_settings.availability_prefix) > 0
-    error_message = "availability_prefix must not be empty"
+    error_message = "Availability_prefix must not be empty"
   }
 }
 
@@ -145,18 +145,6 @@ variable "subscription_id" {
   type        = string
   description = "(Optional) Azure subscription id"
   default     = null
-}
-
-variable "grafana_url" {
-  type        = string
-  description = "(Optional) Grafana Managed url"
-  default     = "https://PLACEHOLDER.com"
-}
-
-variable "grafana_api_key" {
-  type        = string
-  description = "(Optional) Grafana Managed Service Account key"
-  default     = ""
 }
 
 variable "enabled_sythetic_dashboard" {
