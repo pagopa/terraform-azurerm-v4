@@ -282,7 +282,7 @@ resource "azurerm_application_gateway" "this" {
       "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
       "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
     ]
-    min_protocol_version = "TLSv1_2"
+    min_protocol_version = var.ssl_profiles[0].ssl_policy.min_protocol_version
   }
 
   dynamic "waf_configuration" {

@@ -235,7 +235,7 @@ resource "azurerm_linux_function_app" "this" {
   public_network_access_enabled = var.enable_function_app_public_network_access
 
   site_config {
-    minimum_tls_version               = "1.2"
+    minimum_tls_version               = var.minimum_tls_version
     ftps_state                        = "Disabled"
     http2_enabled                     = true
     always_on                         = var.always_on
