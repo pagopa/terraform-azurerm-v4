@@ -40,7 +40,7 @@ resource "azurerm_linux_web_app_slot" "this" {
       ruby_version        = var.ruby_version
     }
     app_command_line       = var.app_command_line
-    minimum_tls_version    = "1.2"
+    minimum_tls_version    = var.minimum_tls_version
     ftps_state             = var.ftps_state
     vnet_route_all_enabled = var.subnet_id == null ? false : true
 
