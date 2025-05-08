@@ -134,6 +134,12 @@ No modules.
 |------|------|
 | [azurerm_advanced_threat_protection.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/advanced_threat_protection) | resource |
 | [azurerm_monitor_metric_alert.storage_account_low_availability](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [azurerm_private_endpoint.blob](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
+| [azurerm_private_endpoint.dfs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
+| [azurerm_private_endpoint.file](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
+| [azurerm_private_endpoint.queue](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
+| [azurerm_private_endpoint.table](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
+| [azurerm_private_endpoint.web](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
 | [azurerm_security_center_storage_defender.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/security_center_storage_defender) | resource |
 | [azurerm_storage_account.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
 | [null_resource.immutability](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
@@ -171,8 +177,16 @@ No modules.
 | <a name="input_min_tls_version"></a> [min\_tls\_version](#input\_min\_tls\_version) | The minimum supported TLS version for the storage account. Possible values are TLS1\_0, TLS1\_1, and TLS1\_2 | `string` | `"TLS1_2"` | no |
 | <a name="input_name"></a> [name](#input\_name) | n/a | `string` | n/a | yes |
 | <a name="input_network_rules"></a> [network\_rules](#input\_network\_rules) | n/a | <pre>object({<br/>    default_action             = string       # Specifies the default action of allow or deny when no other rules match. Valid options are Deny or Allow<br/>    bypass                     = set(string)  # Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None<br/>    ip_rules                   = list(string) # List of public IP or IP ranges in CIDR Format. Only IPV4 addresses are allowed<br/>    virtual_network_subnet_ids = list(string) # A list of resource ids for subnets.<br/>  })</pre> | `null` | no |
+| <a name="input_private_dns_zone_blob_ids"></a> [private\_dns\_zone\_blob\_ids](#input\_private\_dns\_zone\_blob\_ids) | Used only for private endpoints | `list(string)` | `[]` | no |
+| <a name="input_private_dns_zone_dfs_ids"></a> [private\_dns\_zone\_dfs\_ids](#input\_private\_dns\_zone\_dfs\_ids) | Used only for private endpoints | `list(string)` | `[]` | no |
+| <a name="input_private_dns_zone_file_ids"></a> [private\_dns\_zone\_file\_ids](#input\_private\_dns\_zone\_file\_ids) | Used only for private endpoints | `list(string)` | `[]` | no |
+| <a name="input_private_dns_zone_queue_ids"></a> [private\_dns\_zone\_queue\_ids](#input\_private\_dns\_zone\_queue\_ids) | Used only for private endpoints | `list(string)` | `[]` | no |
+| <a name="input_private_dns_zone_table_ids"></a> [private\_dns\_zone\_table\_ids](#input\_private\_dns\_zone\_table\_ids) | Used only for private endpoints | `list(string)` | `[]` | no |
+| <a name="input_private_dns_zone_web_ids"></a> [private\_dns\_zone\_web\_ids](#input\_private\_dns\_zone\_web\_ids) | Used only for private endpoints | `list(string)` | `[]` | no |
+| <a name="input_private_endpoint_enabled"></a> [private\_endpoint\_enabled](#input\_private\_endpoint\_enabled) | Enable private endpoint | `bool` | `false` | no |
 | <a name="input_public_network_access_enabled"></a> [public\_network\_access\_enabled](#input\_public\_network\_access\_enabled) | Enable or Disable public access. It should always set to false unless there are special needs | `bool` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | n/a | `string` | n/a | yes |
+| <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Used only for private endpoints | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | n/a | yes |
 | <a name="input_use_legacy_defender_version"></a> [use\_legacy\_defender\_version](#input\_use\_legacy\_defender\_version) | (Optional) If true, applies the old pricing model. Very important - check the pricing model that is more convenient for your kind of usage | `bool` | `true` | no |
 
