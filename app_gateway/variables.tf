@@ -77,11 +77,11 @@ variable "ssl_profiles" {
     verify_client_cert_issuer_dn     = bool         # Should client certificate issuer DN be verified? Defaults to false
 
     ssl_policy = object({
-      disabled_protocols   = list(string) # A list of SSL Protocols which should be disabled on this Application Gateway. Possible values are TLSv1_0, TLSv1_1 and TLSv1_2.
-      policy_type          = string       # The Type of the Policy. Possible values are Predefined and Custom.
-      policy_name          = string       # The Name of the Policy e.g AppGwSslPolicy20170401S. Required if policy_type is set to Predefined. Possible values can change over time and are published here https://docs.microsoft.com/en-us/azure/application-gateway/application-gateway-ssl-policy-overview. Not compatible with disabled_protocols.
-      cipher_suites        = list(string) # A List of accepted cipher suites. see https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_gateway#cipher_suites for possible values
-      min_protocol_version = string       # The minimal TLS version. Possible values are TLSv1_0, TLSv1_1 and TLSv1_2.
+      disabled_protocols   = list(string)                # A list of SSL Protocols which should be disabled on this Application Gateway. Possible values are TLSv1_0, TLSv1_1 and TLSv1_2.
+      policy_type          = string                      # The Type of the Policy. Possible values are Predefined and Custom.
+      policy_name          = string                      # The Name of the Policy e.g AppGwSslPolicy20170401S. Required if policy_type is set to Predefined. Possible values can change over time and are published here https://docs.microsoft.com/en-us/azure/application-gateway/application-gateway-ssl-policy-overview. Not compatible with disabled_protocols.
+      cipher_suites        = list(string)                # A List of accepted cipher suites. see https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_gateway#cipher_suites for possible values
+      min_protocol_version = optional(string, "TLSv1_2") # The minimal TLS version. Possible values are TLSv1_0, TLSv1_1, TLSv1_2 and TLSv1_3.
     })
   }))
   default = []

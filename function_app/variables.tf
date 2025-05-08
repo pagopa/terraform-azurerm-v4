@@ -41,6 +41,12 @@ variable "runtime_version" {
   description = "The runtime version associated with the Function App. Version ~3 is required for Linux Function Apps."
 }
 
+variable "minimum_tls_version" {
+  default     = "1.3"
+  type        = string
+  description = "(Optional) The configures the minimum version of TLS required for SSL requests. Possible values include: 1.0, 1.1, 1.2 and 1.3."
+}
+
 variable "storage_account_info" {
   type = object({
     account_kind                      = string # Defines the Kind of account. Valid options are BlobStorage, BlockBlobStorage, FileStorage, Storage and StorageV2. Changing this forces a new resource to be created. Defaults to Storage.
