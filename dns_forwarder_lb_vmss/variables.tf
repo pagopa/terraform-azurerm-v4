@@ -20,7 +20,7 @@ variable "virtual_network_name" {
 
 variable "create_subnet_vmss" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "subnet_vmss_id" {
@@ -31,7 +31,7 @@ variable "subnet_vmss_id" {
 
 variable "create_subnet_lb" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "subnet_lb_id" {

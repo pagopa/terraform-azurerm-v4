@@ -3,6 +3,9 @@ locals {
   frontend_private_ip_address_lb = var.static_address_lb != null ? var.static_address_lb : cidrhost(var.address_prefixes_lb, 4)
 }
 
+#
+# Subnets (Deprecated) generate it outside of this module
+#
 module "subnet_vmss" {
   source = "../subnet"
   count  = var.create_subnet_vmss ? 1 : 0
@@ -28,6 +31,9 @@ locals {
   subnet_lb_id   = var.subnet_lb_id != null ? var.subnet_lb_id : module.subnet_load_balancer[0].id
 }
 
+#
+# NSG
+#
 resource "azurerm_network_security_group" "vmss" {
   count = var.create_vmss_nsg ? 1 : 0
 
@@ -80,6 +86,9 @@ resource "azurerm_subnet_network_security_group_association" "vmss" {
   network_security_group_id = azurerm_network_security_group.vmss[0].id
 }
 
+#
+# Load balancer
+#
 module "load_balancer" {
   source = "../load_balancer"
 
@@ -96,7 +105,7 @@ module "load_balancer" {
   frontend_subnet_id                     = local.subnet_lb_id
 
   lb_probe = {
-    "${local.prefix}" = {
+    (local.prefix) = {
       protocol     = "Tcp"
       port         = "53"
       request_path = ""
@@ -126,6 +135,9 @@ module "load_balancer" {
   }]
 }
 
+#
+# VM Scale Set
+#
 module "vmss" {
   source = "../vm_scale_set"
 
@@ -145,6 +157,9 @@ module "vmss" {
   tags                                   = var.tags
 }
 
+#
+# 🔑 Secrets
+#
 resource "random_password" "psw" {
   length           = 20
   special          = true
