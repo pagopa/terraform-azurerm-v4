@@ -34,7 +34,7 @@ module "vpn" {
     {
       address_space         = ["172.16.1.0/24"],
       vpn_client_protocols  = ["OpenVPN"],
-      aad_audience          = data.azuread_application.vpn_app.application_id
+      aad_audience          = data.azuread_application.vpn_app.client_id
       aad_issuer            = "https://sts.windows.net/${data.azurerm_subscription.current.tenant_id}/"
       aad_tenant            = "https://login.microsoftonline.com/${data.azurerm_subscription.current.tenant_id}"
       radius_server_address = null

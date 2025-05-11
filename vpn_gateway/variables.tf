@@ -44,7 +44,7 @@ variable "pip_sku" {
 
 variable "pip_allocation_method" {
   description = "(Optional) Defines how the private IP address of the gateways virtual interface is assigned. The only valid value is Dynamic for Virtual Network Gateway (Static is not supported by the service yet). Defaults to Dynamic."
-  default     = "Dinamic"
+  default     = "Dynamic"
 }
 
 variable "pip_id" {
