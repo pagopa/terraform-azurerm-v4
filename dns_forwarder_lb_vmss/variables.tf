@@ -18,10 +18,20 @@ variable "virtual_network_name" {
   description = "(Required) The name of the virtual network in which the resources (Vmss, LB) are located."
 }
 
+variable "create_subnet_vmss" {
+  type    = bool
+  default = true
+}
+
 variable "subnet_vmss_id" {
   type        = string
   description = "(Optional) The subnet id of virtual machine scale set."
   default     = null
+}
+
+variable "create_subnet_lb" {
+  type    = bool
+  default = true
 }
 
 variable "subnet_lb_id" {
