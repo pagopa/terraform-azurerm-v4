@@ -39,12 +39,26 @@ variable "sku" {
 variable "pip_sku" {
   type        = string
   description = "The SKU of the Public IP. Accepted values are Basic and Standard. Defaults to Basic."
-  default     = "Basic"
+  default     = "Standard"
+
+  validation {
+    condition = (
+      var.sku == "VpnGw1" ? var.pip_sku == "Standard" : true
+    )
+    error_message = "For VPN Gateway SKU 'VpnGw1' or higher, the public IP SKU must be 'Standard'. #https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-vpn-faq#migrating-a-basic-sku-public-ip-address-to-standard-sku"
+  }
 }
 
 variable "pip_allocation_method" {
-  description = "(Optional) Defines how the private IP address of the gateways virtual interface is assigned. The only valid value is Dynamic for Virtual Network Gateway (Static is not supported by the service yet). Defaults to Dynamic."
+  description = "Defines how the public IP address is allocated. Must be 'Static' for Standard SKU (required by VpnGw1+)."
   default     = "Dynamic"
+
+  validation {
+    condition = (
+      var.sku == "VpnGw1" ? var.pip_allocation_method == "Static" : true
+    )
+    error_message = "For VPN Gateway SKU 'VpnGw1' or higher, the public IP allocation method must be 'Static'."
+  }
 }
 
 variable "pip_id" {
