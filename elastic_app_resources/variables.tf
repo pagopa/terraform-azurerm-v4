@@ -93,6 +93,6 @@ variable "application_name" {
 
 
 variable "primary_shard_count" {
-  type = number
+  type        = number
   description = "Number of primary shard for the index templates"
 }

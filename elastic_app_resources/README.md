@@ -46,6 +46,7 @@ No modules.
 | <a name="input_library_index_custom_path"></a> [library\_index\_custom\_path](#input\_library\_index\_custom\_path) | Path to the library folder of @custom index components | `string` | n/a | yes |
 | <a name="input_library_index_package_path"></a> [library\_index\_package\_path](#input\_library\_index\_package\_path) | Path to the library folder of @package index components | `string` | n/a | yes |
 | <a name="input_library_ingest_pipeline_path"></a> [library\_ingest\_pipeline\_path](#input\_library\_ingest\_pipeline\_path) | Path to the library folder of ingestion pipelines | `string` | n/a | yes |
+| <a name="input_primary_shard_count"></a> [primary\_shard\_count](#input\_primary\_shard\_count) | Number of primary shard for the index templates | `number` | n/a | yes |
 | <a name="input_query_folder"></a> [query\_folder](#input\_query\_folder) | Path to the query containing folder for this application | `string` | n/a | yes |
 | <a name="input_space_id"></a> [space\_id](#input\_space\_id) | Kibana space identifier where to create the data views and dashboards for this application | `string` | n/a | yes |
 | <a name="input_target_env"></a> [target\_env](#input\_target\_env) | Name of the monitored target environment containing this application | `string` | n/a | yes |
