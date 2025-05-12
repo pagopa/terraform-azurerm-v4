@@ -10,6 +10,7 @@ locals {
     name      = "${k}-${local.application_id}"
     pipeline  = elasticstack_elasticsearch_ingest_pipeline.ingest_pipeline[k].name
     lifecycle = "${var.target_name}-${var.target_env}-${var.ilm_name}-ilm"
+    primary_shard_count = var.primary_shard_count
   })) }
 
   index_package_component = { for k, v in var.configuration.indexTemplate : k => jsondecode(templatefile("${var.library_index_package_path}/${v.packageComponent}.json", {
