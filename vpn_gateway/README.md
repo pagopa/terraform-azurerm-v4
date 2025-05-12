@@ -93,7 +93,7 @@ No modules.
 | <a name="input_location"></a> [location](#input\_location) | The Azure Region in which to create resource. | `any` | n/a | yes |
 | <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id) | Specifies the ID of a Log Analytics Workspace where Diagnostics Data should be sent. | `any` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of virtual gateway. | `any` | n/a | yes |
-| <a name="input_pip_allocation_method"></a> [pip\_allocation\_method](#input\_pip\_allocation\_method) | Defines how the public IP address is allocated. Must be 'Static' for Standard SKU (required by VpnGw1+). | `string` | `"Dynamic"` | no |
+| <a name="input_pip_allocation_method"></a> [pip\_allocation\_method](#input\_pip\_allocation\_method) | Defines how the public IP address is allocated. Must be 'Static' for Standard SKU (required by VpnGw1+). | `string` | `"Static"` | no |
 | <a name="input_pip_id"></a> [pip\_id](#input\_pip\_id) | External public ip | `string` | `null` | no |
 | <a name="input_pip_sku"></a> [pip\_sku](#input\_pip\_sku) | The SKU of the Public IP. Accepted values are Basic and Standard. Defaults to Basic. | `string` | `"Standard"` | no |
 | <a name="input_random_special"></a> [random\_special](#input\_random\_special) | (optional) allows special chars in random string | `bool` | `false` | no |
