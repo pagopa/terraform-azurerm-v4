@@ -1,21 +1,14 @@
-#
-# Locals
-#
-
 locals {
   prefix                         = "${var.name}-dns-forwarder"
   frontend_private_ip_address_lb = var.static_address_lb != null ? var.static_address_lb : cidrhost(var.address_prefixes_lb, 4)
-
-  subnet_vmss_id = var.subnet_vmss_id != null ? var.subnet_vmss_id : module.subnet_vmss[0].id
-  subnet_lb_id   = var.subnet_lb_id != null ? var.subnet_lb_id : module.subnet_load_balancer[0].id
 }
 
 #
-# Subnet virtual machine scale set
+# Subnets (Deprecated) generate it outside of this module
 #
 module "subnet_vmss" {
   source = "../subnet"
-  count  = var.subnet_vmss_id != null ? 0 : 1
+  count  = var.create_subnet_vmss ? 1 : 0
 
   name                 = "${local.prefix}-vmss-snet"
   resource_group_name  = var.resource_group_name
@@ -23,12 +16,9 @@ module "subnet_vmss" {
   address_prefixes     = [var.address_prefixes_vmss]
 }
 
-#
-# Subnet load balancer
-#
 module "subnet_load_balancer" {
   source = "../subnet"
-  count  = var.subnet_lb_id != null ? 0 : 1
+  count  = var.create_subnet_lb ? 1 : 0
 
   name                 = "${local.prefix}-lb-snet"
   resource_group_name  = var.resource_group_name
@@ -36,10 +26,14 @@ module "subnet_load_balancer" {
   address_prefixes     = [var.address_prefixes_lb]
 }
 
-#
-# Network security group - virtual machine scale set
-#
+locals {
+  subnet_vmss_id = var.subnet_vmss_id != null ? var.subnet_vmss_id : module.subnet_vmss[0].id
+  subnet_lb_id   = var.subnet_lb_id != null ? var.subnet_lb_id : module.subnet_load_balancer[0].id
+}
 
+#
+# NSG
+#
 resource "azurerm_network_security_group" "vmss" {
   count = var.create_vmss_nsg ? 1 : 0
 
@@ -48,7 +42,6 @@ resource "azurerm_network_security_group" "vmss" {
   resource_group_name = var.resource_group_name
   tags                = var.tags
 
-  # Inbound rule
   security_rule {
     name                       = "${local.prefix}-vmss-dns-load-balancer-rule"
     priority                   = 200
@@ -58,7 +51,7 @@ resource "azurerm_network_security_group" "vmss" {
     source_port_range          = "53"
     destination_port_range     = "53"
     source_address_prefix      = "AzureLoadBalancer"
-    destination_address_prefix = "168.63.129.16" # https://learn.microsoft.com/en-us/azure/virtual-network/what-is-ip-address-168-63-129-16
+    destination_address_prefix = "168.63.129.16"
   }
 
   security_rule {
@@ -112,7 +105,7 @@ module "load_balancer" {
   frontend_subnet_id                     = local.subnet_lb_id
 
   lb_probe = {
-    "${local.prefix}" = {
+    (local.prefix) = {
       protocol     = "Tcp"
       port         = "53"
       request_path = ""
@@ -143,7 +136,7 @@ module "load_balancer" {
 }
 
 #
-# Virtual machine scale set
+# VM Scale Set
 #
 module "vmss" {
   source = "../vm_scale_set"
@@ -161,21 +154,18 @@ module "vmss" {
   storage_sku                            = var.storage_sku
   scale_in_rule                          = var.scale_in_rule
   force_deletion_enabled                 = var.force_deletion_enabled
-
-  tags = var.tags
+  tags                                   = var.tags
 }
 
 #
-# Key vault - Password scale set
+# 🔑 Secrets
 #
-
 resource "random_password" "psw" {
   length           = 20
   special          = true
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
-#tfsec:ignore:azure-keyvault-ensure-secret-expiry
 resource "azurerm_key_vault_secret" "dns_forwarder_vmss_administrator_password" {
   name         = "${local.prefix}-vmss-administrator-password"
   value        = random_password.psw.result
@@ -184,7 +174,6 @@ resource "azurerm_key_vault_secret" "dns_forwarder_vmss_administrator_password" 
   tags         = var.tags
 }
 
-#tfsec:ignore:azure-keyvault-ensure-secret-expiry
 resource "azurerm_key_vault_secret" "dns_forwarder_vmss_administrator_username" {
   name         = "${local.prefix}-vmss-administrator-username"
   value        = "adminuser"

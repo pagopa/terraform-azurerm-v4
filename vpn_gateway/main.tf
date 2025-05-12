@@ -1,8 +1,6 @@
 #
-# Gateway
+# Public IP
 #
-
-
 resource "random_string" "dns" {
   length  = 6
   special = var.random_special
@@ -22,30 +20,9 @@ resource "azurerm_public_ip" "gw" {
   tags = var.tags
 }
 
-resource "azurerm_monitor_diagnostic_setting" "gw_pip" {
-  count                      = var.log_analytics_workspace_id != null && var.pip_id == null ? 1 : 0
-  name                       = "gw-pip-log-analytics"
-  target_resource_id         = azurerm_public_ip.gw[0].id
-  log_analytics_workspace_id = var.log_analytics_workspace_id
-
-  enabled_log {
-    category = "DDoSProtectionNotifications"
-  }
-
-  enabled_log {
-    category = "DDoSMitigationFlowLogs"
-  }
-
-  enabled_log {
-    category = "DDoSMitigationReports"
-  }
-
-  metric {
-    category = "AllMetrics"
-    enabled  = false
-  }
-}
-
+#
+# VPN
+#
 resource "azurerm_virtual_network_gateway" "gw" {
   name                = "${var.name}-gw"
   location            = var.location
@@ -98,39 +75,6 @@ resource "azurerm_virtual_network_gateway" "gw" {
   tags = var.tags
 }
 
-resource "azurerm_monitor_diagnostic_setting" "sec_gw_logs" {
-  count                      = var.sec_log_analytics_workspace_id != null ? 1 : 0
-  name                       = "LogSecurity"
-  target_resource_id         = azurerm_virtual_network_gateway.gw.id
-  log_analytics_workspace_id = var.sec_log_analytics_workspace_id
-  storage_account_id         = var.sec_storage_id
-
-  enabled_log {
-    category = "GatewayDiagnosticLog"
-  }
-
-  enabled_log {
-    category = "TunnelDiagnosticLog"
-  }
-
-  enabled_log {
-    category = "RouteDiagnosticLog"
-  }
-
-  enabled_log {
-    category = "IKEDiagnosticLog"
-  }
-
-  enabled_log {
-    category = "P2SDiagnosticLog"
-  }
-
-  metric {
-    category = "AllMetrics"
-    enabled  = false
-  }
-}
-
 resource "azurerm_local_network_gateway" "local" {
   count               = length(var.local_networks)
   name                = "${var.local_networks[count.index].name}-lng"
@@ -180,4 +124,64 @@ resource "azurerm_virtual_network_gateway_connection" "local" {
   }
 
   tags = var.tags
+}
+
+#
+# Monitor
+#
+resource "azurerm_monitor_diagnostic_setting" "gw_pip" {
+  count                      = var.log_analytics_workspace_id != null && var.pip_id == null ? 1 : 0
+  name                       = "gw-pip-log-analytics"
+  target_resource_id         = azurerm_public_ip.gw[0].id
+  log_analytics_workspace_id = var.log_analytics_workspace_id
+
+  enabled_log {
+    category = "DDoSProtectionNotifications"
+  }
+
+  enabled_log {
+    category = "DDoSMitigationFlowLogs"
+  }
+
+  enabled_log {
+    category = "DDoSMitigationReports"
+  }
+
+  metric {
+    category = "AllMetrics"
+    enabled  = false
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "sec_gw_logs" {
+  count                      = var.sec_log_analytics_workspace_id != null ? 1 : 0
+  name                       = "LogSecurity"
+  target_resource_id         = azurerm_virtual_network_gateway.gw.id
+  log_analytics_workspace_id = var.sec_log_analytics_workspace_id
+  storage_account_id         = var.sec_storage_id
+
+  enabled_log {
+    category = "GatewayDiagnosticLog"
+  }
+
+  enabled_log {
+    category = "TunnelDiagnosticLog"
+  }
+
+  enabled_log {
+    category = "RouteDiagnosticLog"
+  }
+
+  enabled_log {
+    category = "IKEDiagnosticLog"
+  }
+
+  enabled_log {
+    category = "P2SDiagnosticLog"
+  }
+
+  metric {
+    category = "AllMetrics"
+    enabled  = false
+  }
 }

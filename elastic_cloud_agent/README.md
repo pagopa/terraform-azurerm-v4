@@ -43,7 +43,7 @@ No modules.
 | <a name="input_apm_integration_policy"></a> [apm\_integration\_policy](#input\_apm\_integration\_policy) | Details of the 'apm' integration policy in elasticsearch | <pre>object({<br/>    name = string<br/>    id   = string<br/>  })</pre> | n/a | yes |
 | <a name="input_apm_package_version"></a> [apm\_package\_version](#input\_apm\_package\_version) | Version of the 'apm' integration package | `string` | n/a | yes |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | If true creates the namespace used by elastic-agent, expects it to be created otherwise | `bool` | `true` | no |
-| <a name="input_dedicated_log_instance_name"></a> [dedicated\_log\_instance\_name](#input\_dedicated\_log\_instance\_name) | List of namespaces or pod names for which the logs will be collected by the elastic agent | `list(string)` | n/a | yes |
+| <a name="input_dedicated_log_instance_name"></a> [dedicated\_log\_instance\_name](#input\_dedicated\_log\_instance\_name) | Map of <elastic\_datastream\_name> - <namespace\_or\_pod\_name> for which the logs will be collected by the elastic agent | `map(list(string))` | n/a | yes |
 | <a name="input_elastic_agent_kube_namespace"></a> [elastic\_agent\_kube\_namespace](#input\_elastic\_agent\_kube\_namespace) | Namespace where to install the elastic agent resources | `string` | n/a | yes |
 | <a name="input_elasticsearch_api_key"></a> [elasticsearch\_api\_key](#input\_elasticsearch\_api\_key) | Api key used by the elastic agent | `string` | n/a | yes |
 | <a name="input_elasticsearch_host"></a> [elasticsearch\_host](#input\_elasticsearch\_host) | Host where the elastic agent will send the collected logs/metrics | `string` | n/a | yes |
