@@ -42,7 +42,7 @@ module "subnet" {
   resource_group_name = var.resource_group_name
   virtual_network_name = var.virtual_network_name
 
-  address_prefixes = data.external.subnet_prefix.result.cidr
+  address_prefixes = [data.external.subnet_prefix.result.cidr]
 
 
   delegation = module.idh_loader.idh_config.delegation == null ? {
