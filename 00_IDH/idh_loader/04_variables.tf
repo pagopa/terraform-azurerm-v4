@@ -20,7 +20,7 @@ variable "idh_resource" {
 
   validation {
     condition     = can(lookup(local.local_data[var.idh_category], var.idh_resource))
-    error_message = "Specified idh resource not available in given category"
+    error_message = "Specified idh_resource not available in catalog for given prefix, env, idh_category"
   }
 }
 
@@ -30,6 +30,6 @@ variable "idh_category" {
 
   validation {
     condition     = can(lookup(local.local_data, var.idh_category))
-    error_message = "Specified idh category not available in catalog"
+    error_message = "Specified idh_category not available in catalog for given prefix and env"
   }
 }
