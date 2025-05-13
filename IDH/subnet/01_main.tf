@@ -41,8 +41,20 @@ module "subnet" {
   resource_group_name = var.resource_group_name
   virtual_network_name = var.virtual_network_name
 
-  address_prefixes = "" #todo
-  delegation = var.delegation #todo
+  address_prefixes = data.external.subnet_prefix.result.cidr
+
+
+  dynamic "delegation" {
+    for_each = module.idh_loader.idh_config.delegation == null ? [] : ["delegation"]
+    content {
+      name = "delegation"
+
+      service_delegation {
+        name    = module.idh_loader.idh_config.delegation.name
+        actions = module.idh_loader.idh_config.delegation.actions
+      }
+    }
+  }
 
   private_endpoint_network_policies = var.private_endpoint_network_policies
   private_link_service_network_policies_enabled = var.private_link_service_network_policies_enabled
