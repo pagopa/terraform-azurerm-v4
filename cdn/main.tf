@@ -1,5 +1,5 @@
 locals {
-  cdn_location = var.cdn_location != null ? var.cdn_location : var.location
+  cdn_location         = var.cdn_location != null ? var.cdn_location : var.location
   storage_account_name = var.storage_account_name != null ? replace(var.storage_account_name, "-", "") : replace("${var.prefix}-${var.name}-sa", "-", "")
 }
 

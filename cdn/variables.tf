@@ -56,9 +56,9 @@ variable "keyvault_id" {
 # Storage
 #
 variable "storage_account_name" {
-  type = string
+  type        = string
   description = "(Optional) The storage account name used by the CDN"
-  default = null
+  default     = null
 }
 
 variable "advanced_threat_protection_enabled" {
