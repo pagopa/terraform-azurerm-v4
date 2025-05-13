@@ -39,7 +39,8 @@ def find_next_available_cidr(used_cidrs: list[str], desired_subnet_size: str, st
 
 
 def main(query):
-
+  with open("test.txt", "a") as f:
+    f.write(query)
   used_cidrs = json.loads(query.used_cidrs)
 
 
