@@ -38,10 +38,8 @@ def find_next_available_cidr(used_cidrs: list[str], desired_subnet_size: str, st
     raise ValueError("Nessun CIDR disponibile trovato nel range specificato")
 
 
-def main():
-  data = sys.stdin.readlines()
-  print(data)
-  query = json.loads(data)
+def main(query):
+
   used_cidrs = json.loads(query.used_cidrs)
 
 
@@ -50,4 +48,6 @@ def main():
 
 
 if __name__ == "__main__":
-  main()
+  input = sys.stdin.read()
+  query = json.loads(input)
+  main(query)
