@@ -7,5 +7,5 @@ output "idh_resource" {
 }
 
 output "idh_config" {
-  value = local.local_data[var.idh_category][var.idh_resource]
+  value = local.local_data[var.idh_resource]
 }

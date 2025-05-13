@@ -1,7 +1,3 @@
-locals {
-  local_data = jsondecode(file("${path.module}/../idh/${var.prefix}/${var.env}/idh.json"))
-}
-
 module "idh_loader" {
   source = "../idh_loader"
 
