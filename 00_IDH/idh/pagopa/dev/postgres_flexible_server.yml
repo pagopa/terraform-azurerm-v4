@@ -1,0 +1,50 @@
+pgflex2:
+  enabled: true
+  sku_name: GP_Standard_D2ds_v4
+  db_version: '16'
+  storage_mb: '32768'
+  zone: '1'
+  standby_availability_zone: '2'
+  backup_retention_days: '7'
+  geo_redundant_backup_enabled: false
+  create_mode: Default
+  pgres_flex_private_endpoint_enabled: false
+  pgres_flex_ha_enabled: false
+  pgres_flex_pgbouncer_enabled: true
+  pgres_flex_diagnostic_settings_enabled: false
+  max_connections: '1700'
+  enable_private_dns_registration: true
+  enable_private_dns_registration_virtual_endpoint: false
+  public_network_access_enabled: true
+  private_endpoint_enabled: false
+  maintenance_window_config:
+    day_of_week: 3
+    start_hour: 2
+    start_minute: 0
+  pgbouncer_enabled: true
+  high_availability_enabled: false
+pgflex4:
+  enabled: true
+  sku_name: GP_Standard_D4ds_v4
+  db_version: '16'
+  storage_mb: '32768'
+  zone: '1'
+  standby_availability_zone: '2'
+  backup_retention_days: '7'
+  geo_redundant_backup_enabled: false
+  create_mode: Default
+  pgres_flex_private_endpoint_enabled: false
+  pgres_flex_ha_enabled: false
+  pgres_flex_pgbouncer_enabled: true
+  pgres_flex_diagnostic_settings_enabled: false
+  max_connections: '1700'
+  enable_private_dns_registration: true
+  enable_private_dns_registration_virtual_endpoint: false
+  public_network_access_enabled: true
+  private_endpoint_enabled: false
+  maintenance_window_config:
+    day_of_week: 3
+    start_hour: 2
+    start_minute: 0
+  pgbouncer_enabled: true
+  high_availability_enabled: false

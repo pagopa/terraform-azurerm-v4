@@ -19,7 +19,7 @@ variable "idh_resource" {
   description = "(Required) The IDH resource name to be created"
 
   validation {
-    condition     = can(lookup(local.local_data[var.idh_category], var.idh_resource))
+    condition     = can(lookup(local.local_data, var.idh_resource))
     error_message = "Specified idh_resource not available in catalog for given prefix, env, idh_category"
   }
 }
@@ -29,7 +29,8 @@ variable "idh_category" {
   description = "(Required) The IDH resource category to be created."
 
   validation {
-    condition     = can(lookup(local.local_data, var.idh_category))
+    condition     = can(keys(local.local_data))
     error_message = "Specified idh_category not available in catalog for given prefix and env"
   }
+
 }
