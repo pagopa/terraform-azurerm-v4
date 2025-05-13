@@ -1,29 +1,27 @@
 output "id" {
-  value = module.pgflex.id
+  value = module.subnet.id
+}
+
+output "subnet_id" {
+  value = module.subnet.id
 }
 
 output "name" {
-  value = module.pgflex.name
+  value = module.subnet.name
 }
 
-output "fqdn" {
-  value = module.pgflex.fqdn
+output "subnet_name" {
+  value = module.subnet.name
 }
 
-output "public_access_enabled" {
-  value = module.pgflex.public_access_enabled
+output "address_prefixes" {
+  value = module.subnet.address_prefixes
 }
 
-output "administrator_login" {
-  value = var.administrator_login
+output "virtual_network_name" {
+  value = module.subnet.virtual_network_name
 }
 
-output "administrator_password" {
-  value     = var.administrator_password
-  sensitive = true
-}
-
-output "connection_port" {
-  value     = module.idh_loader.idh_config.pgbouncer_enabled ? "6432" : "5432"
-  sensitive = false
+output "resource_group_name" {
+  value = module.subnet.resource_group_name
 }
