@@ -44,17 +44,14 @@ module "subnet" {
   address_prefixes = data.external.subnet_prefix.result.cidr
 
 
-  dynamic "delegation" {
-    for_each = module.idh_loader.idh_config.delegation == null ? [] : ["delegation"]
-    content {
-      name = "delegation"
-
-      service_delegation {
-        name    = module.idh_loader.idh_config.delegation.name
-        actions = module.idh_loader.idh_config.delegation.actions
-      }
+  delegation = module.idh_loader.idh_config.delegation == null ? {
+    name = "delegation"
+    service_delegation = {
+      name    = module.idh_loader.idh_config.delegation.name
+      actions = module.idh_loader.idh_config.delegation.actions
     }
-  }
+  } : null
+
 
   private_endpoint_network_policies = var.private_endpoint_network_policies
   private_link_service_network_policies_enabled = var.private_link_service_network_policies_enabled
