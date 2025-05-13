@@ -1,0 +1,6 @@
+postgres_flexible:
+  prefix_length: 28
+  delegation:
+    name: Microsoft.DBforPostgreSQL/flexibleServers
+    actions:
+      - Microsoft.Network/virtualNetworks/subnets/join/action
