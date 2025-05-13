@@ -1,6 +1,7 @@
 import ipaddress
 import json
-import argparse
+import sys
+
 
 
 def find_next_available_cidr(used_cidrs: list[str], desired_subnet_size: str, starting_cidr: str) -> str:
@@ -38,14 +39,9 @@ def find_next_available_cidr(used_cidrs: list[str], desired_subnet_size: str, st
 
 
 def main():
-  parser = argparse.ArgumentParser(
-    prog='sunet_finder',
-    description='Finds the first available CIDR not in conflict with existing ones')
+  data = sys.stdin.readlines()
 
-  parser.add_argument('query', type=str, help='JSON string containing the desired prefix and the already used CIDRs')
-  args = parser.parse_args()
-
-  query = json.loads(args.query)
+  query = json.loads(data)
   used_cidrs = json.loads(query.used_cidrs)
 
 
