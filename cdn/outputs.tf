@@ -7,6 +7,10 @@ output "id" {
   description = "Deprecated, use endpoint_id instead."
 }
 
+output "name" {
+  value = azurerm_cdn_endpoint.this.name
+}
+
 output "profile_id" {
   value = azurerm_cdn_profile.this.id
 }
@@ -23,6 +27,9 @@ output "fqdn" {
   value = var.create_dns_record ? var.dns_zone_name == var.hostname ? trimsuffix(azurerm_dns_a_record.apex_hostname[0].fqdn, ".") : trimsuffix(azurerm_dns_cname_record.hostname[0].fqdn, ".") : null
 }
 
+#
+# Storage Name
+#
 output "storage_id" {
   value = module.cdn_storage_account.id
 }
@@ -50,6 +57,10 @@ output "storage_primary_web_host" {
   value = module.cdn_storage_account.primary_web_host
 }
 
-output "name" {
-  value = azurerm_cdn_endpoint.this.name
+output "storage_name" {
+  value = module.cdn_storage_account.name
+}
+
+output "storage_resource_group_name" {
+  value = module.cdn_storage_account.resource_group_name
 }

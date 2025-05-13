@@ -1,5 +1,6 @@
 locals {
-  cdn_location = var.cdn_location != null ? var.cdn_location : var.location
+  cdn_location         = var.cdn_location != null ? var.cdn_location : var.location
+  storage_account_name = var.storage_account_name != null ? replace(var.storage_account_name, "-", "") : replace("${var.prefix}-${var.name}-sa", "-", "")
 }
 
 /**
@@ -9,7 +10,7 @@ module "cdn_storage_account" {
 
   source = "../storage_account"
 
-  name = replace("${var.prefix}-${var.name}-sa", "-", "")
+  name = local.storage_account_name
 
   account_kind                    = var.storage_account_kind
   account_tier                    = var.storage_account_tier
