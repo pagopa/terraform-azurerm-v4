@@ -40,7 +40,7 @@ def find_next_available_cidr(used_cidrs: list[str], desired_subnet_size: str, st
 
 def main():
   data = sys.stdin.readlines()
-
+  print(data)
   query = json.loads(data)
   used_cidrs = json.loads(query.used_cidrs)
 
