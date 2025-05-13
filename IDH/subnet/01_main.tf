@@ -24,7 +24,7 @@ data "azurerm_subnet" "subnet" {
 
 data "external" "subnet_prefix" {
   program = [
-    "python3", "subnet_finder.sh"
+    "python3", "${path.module}/subnet_finder.sh"
   ]
   query = {
     used_cidrs = jsonencode([for subnet_name in data.azurerm_virtual_network.vnet.subnets : data.azurerm_subnet.subnet[subnet_name].address_prefix])
