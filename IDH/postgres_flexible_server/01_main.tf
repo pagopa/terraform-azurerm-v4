@@ -110,7 +110,7 @@ resource "azurerm_postgresql_flexible_server_configuration" "shared_preoload_lib
 
 resource "azurerm_postgresql_flexible_server_configuration" "azure_extensions" {
   name      = "azure.extensions"
-  server_id = module.postgres_storico_flexible_server.id
+  server_id = module.pgflex.id
   value     = module.idh_loader.idh_config.server_parameters.azure_extensions
 }
 
