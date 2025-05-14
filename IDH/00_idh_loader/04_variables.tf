@@ -29,7 +29,7 @@ variable "idh_category" {
   description = "(Required) The IDH resource category to be created."
 
   validation {
-    condition     = can(file(local.file_path))
+    condition     = can(file("${path.module}/../00_idh/${var.prefix}/${var.env}/${var.idh_category}.yml"))
     error_message = "Specified idh_category not available in catalog for given prefix and env"
   }
 
