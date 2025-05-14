@@ -46,7 +46,7 @@ module "pgflex" {
   private_dns_zone_rg_name = var.private_dns_zone_rg_name
   private_dns_cname_record_ttl = var.private_dns_cname_record_ttl
 
-  pgbouncer_enabled = module.idh_loader.idh_config.pgbouncer_enabled
+  pgbouncer_enabled = module.idh_loader.idh_config.server_parameters.pgbouncer_enabled
 
   log_analytics_workspace_id = var.log_analytics_workspace_id
   diagnostic_setting_destination_storage_id = var.diagnostic_setting_destination_storage_id
