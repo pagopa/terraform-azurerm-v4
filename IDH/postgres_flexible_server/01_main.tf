@@ -55,3 +55,64 @@ module "pgflex" {
   tags = var.tags
 
 }
+
+#
+# PG bouncer params
+#
+
+# Message    : FATAL: unsupported startup parameter: extra_float_digits
+resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_ignore_startup_parameters" {
+  count     = module.idh_loader.idh_config.server_parameters.pgbouncer_enabled ? 1 : 0
+  name      = "pgbouncer.ignore_startup_parameters"
+  server_id = module.pgflex.id
+  value     = "extra_float_digits,search_path"
+}
+
+resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_min_pool_size" {
+  count     = module.idh_loader.idh_config.server_parameters.pgbouncer_enabled ? 1 : 0
+  name      = "pgbouncer.min_pool_size"
+  server_id = module.pgflex.id
+  value     = module.idh_loader.idh_config.server_parameters.pgbouncer_min_pool_size
+}
+resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_default_pool_size" {
+  count     = module.idh_loader.idh_config.server_parameters.pgbouncer_enabled ? 1 : 0
+  name      = "pgbouncer.default_pool_size"
+  server_id = module.pgflex.id
+  value     = module.idh_loader.idh_config.server_parameters.pgbouncer_default_pool_size
+}
+
+resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_max_client_conn" {
+  count     = module.idh_loader.idh_config.server_parameters.pgbouncer_enabled ? 1 : 0
+  name      = "pgbouncer.max_client_conn"
+  server_id = module.pgflex.id
+  value     = module.idh_loader.idh_config.server_parameters.pgbouncer_max_client_conn
+}
+
+
+
+resource "azurerm_postgresql_flexible_server_configuration" "max_worker_process" {
+  name      = "max_worker_processes"
+  server_id = module.pgflex.id
+  value     = module.idh_loader.idh_config.server_parameters.max_worker_processes
+}
+
+resource "azurerm_postgresql_flexible_server_configuration" "wal_level" {
+  name      = "wal_level"
+  server_id = module.pgflex.id
+  value     = module.idh_loader.idh_config.server_parameters.wal_level
+}
+
+resource "azurerm_postgresql_flexible_server_configuration" "shared_preoload_libraries" {
+  name      = "shared_preload_libraries"
+  server_id = module.pgflex.id
+  value     = module.idh_loader.idh_config.server_parameters.shared_preload_libraries
+}
+
+resource "azurerm_postgresql_flexible_server_configuration" "azure_extensions" {
+  name      = "azure.extensions"
+  server_id = module.postgres_storico_flexible_server.id
+  value     = module.idh_loader.idh_config.server_parameters.azure_extensions
+}
+
+
+

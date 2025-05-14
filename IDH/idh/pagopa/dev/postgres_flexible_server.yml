@@ -21,8 +21,16 @@ pgflex2:
     day_of_week: 3
     start_hour: 2
     start_minute: 0
-  pgbouncer_enabled: true
-  high_availability_enabled: false
+  server_parameters:
+    pgbouncer_enabled: true
+    high_availability_enabled: false
+    max_worker_processes: 16
+    pgbouncer_min_pool_size: 20
+    pgbouncer_default_pool_size: 30
+    pgbouncer_max_client_conn: 1000
+    wal_level: "LOGICAL"
+    shared_preload_libraries: "pg_cron,pg_stat_statements,pglogical"
+    azure_extensions: "pg_cron,dblink,pglogical,postgres_fdw"
 pgflex4:
   enabled: true
   sku_name: GP_Standard_D4ds_v4
@@ -48,3 +56,14 @@ pgflex4:
     start_minute: 0
   pgbouncer_enabled: true
   high_availability_enabled: false
+  server_parameters:
+    pgbouncer_enabled: true
+    high_availability_enabled: false
+    max_worker_processes: 16
+    pgbouncer_min_pool_size: 20
+    pgbouncer_default_pool_size: 30
+    pgbouncer_max_client_conn: 1000
+    wal_level: "LOGICAL"
+    shared_preload_libraries: "pg_cron,pg_stat_statements,pglogical"
+    azure_extensions: "pg_cron,dblink,pglogical,postgres_fdw"
+
