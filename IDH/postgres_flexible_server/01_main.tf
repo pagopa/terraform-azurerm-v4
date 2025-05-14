@@ -1,5 +1,5 @@
 module "idh_loader" {
-  source = "../idh_loader"
+  source = "../00_idh_loader"
 
   prefix        = var.prefix
   env           = var.env
@@ -130,7 +130,9 @@ resource "azurerm_postgresql_flexible_server_database" "database" {
   charset   = "UTF8"
 }
 
-
+#
+# Replica
+#
 
 module "replica" {
   source = "../../postgres_flexible_server_replica"
@@ -158,6 +160,13 @@ module "replica" {
   log_analytics_workspace_id = var.log_analytics_workspace_id
   zone                       = module.idh_loader.idh_config.zone
   tags                       = var.tags
+
+  lifecycle {
+    precondition {
+        condition = !module.idh_loader.idh_config.geo_replication_allowed ? var.geo_replication.enabled == false : true
+        error_message = "Geo replication is not allowed for this environment. Please set geo_replication.enabled to false."
+    }
+  }
 }
 
 
