@@ -22,7 +22,8 @@ data "azurerm_subnet" "subnet" {
 }
 
 
-data "external" "subnet_prefix" {
+
+data "external" "subnet_cidr" {
   program = [
     "python3", "${path.module}/subnet_finder.py"
   ]
@@ -32,8 +33,16 @@ data "external" "subnet_prefix" {
     starting_cidr = data.azurerm_virtual_network.vnet.address_space[0]
     desired_prefix = module.idh_loader.idh_config.prefix_length
   }
-
 }
+
+resource "terraform_data" "subnet_cidr" {
+  input = data.external.subnet_cidr.result.cidr
+
+  lifecycle {
+    ignore_changes = [input]
+  }
+}
+
 
 module "subnet" {
   source = "../../subnet"
@@ -42,7 +51,7 @@ module "subnet" {
   resource_group_name = var.resource_group_name
   virtual_network_name = var.virtual_network_name
 
-  address_prefixes = [data.external.subnet_prefix.result.cidr]
+  address_prefixes = [terraform_data.subnet_cidr.input]
 
 
   delegation = module.idh_loader.idh_config.delegation == null ? {
