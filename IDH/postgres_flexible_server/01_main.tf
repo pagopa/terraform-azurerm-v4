@@ -161,12 +161,6 @@ module "replica" {
   zone                       = module.idh_loader.idh_config.zone
   tags                       = var.tags
 
-  lifecycle {
-    precondition {
-        condition = !module.idh_loader.idh_config.geo_replication_allowed ? var.geo_replication.enabled == false : true
-        error_message = "Geo replication is not allowed for this environment. Please set geo_replication.enabled to false."
-    }
-  }
 }
 
 

@@ -246,4 +246,9 @@ variable "geo_replication" {
     private_dns_rg = ""
   }
   description = "(Optional) Map of geo replication settings"
+
+  validation {
+    condition = !module.idh_loader.idh_config.geo_replication_allowed ? var.geo_replication.enabled == false : true
+    error_message = "Geo replication is not allowed in this environment"
+  }
 }
