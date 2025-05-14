@@ -23,6 +23,7 @@ data "azurerm_subnet" "subnet" {
 
 
 
+# this data source generates a new cidr every time it is run
 data "external" "subnet_cidr" {
   program = [
     "python3", "${path.module}/subnet_finder.py"
@@ -35,16 +36,18 @@ data "external" "subnet_cidr" {
   }
 }
 
-
-
+# this resource is used to store the cidr used to create the subnet in the state file
+# and change it only when the vnet or the prefix length has changed
 resource "terraform_data" "subnet_cidr" {
   input = data.external.subnet_cidr.result.cidr
 
+  # use a new cidr only if the vnet or the prefix length has changed
   triggers_replace = [
     data.azurerm_virtual_network.vnet.address_space[0],
     module.idh_loader.idh_config.prefix_length
   ]
 
+  # ignore changes to the cidr value because it is calculated everyrun, even after the subnet has already been created
   lifecycle {
     ignore_changes = [input]
   }
