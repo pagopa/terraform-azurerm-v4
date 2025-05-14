@@ -41,6 +41,10 @@ module "synthetic_monitoring_storage_account" {
     enable_immutability_policy = false
     blob_restore_policy_days   = var.storage_account_settings.backup_retention_days
   }
+
+  private_endpoint_enabled   = var.storage_account_settings.private_endpoint_enabled
+  private_dns_zone_table_ids = [var.storage_account_settings.table_private_dns_zone_id]
+  subnet_id                  = var.storage_private_endpoint_subnet_id
 }
 
 resource "azurerm_storage_table" "table_storage" {
@@ -50,7 +54,10 @@ resource "azurerm_storage_table" "table_storage" {
 
 locals {
   decoded_configuration    = jsondecode(var.monitoring_configuration_encoded)
-  monitoring_configuration = { for c in local.decoded_configuration : "${c.appName}-${c.apiName}-${c.type}" => c if lookup(c, "enabled", true) }
+  monitoring_configuration = {
+    for c in local.decoded_configuration :
+    "${c.appName}-${c.apiName}-${c.type}-${lookup(c, "domain", "generic")}" => c if lookup(c, "enabled", true)
+  }
 }
 
 resource "azurerm_storage_table_entity" "monitoring_configuration" {
@@ -63,7 +70,10 @@ resource "azurerm_storage_table_entity" "monitoring_configuration" {
     "url"                 = each.value.url,
     "type"                = each.value.type,
     "checkCertificate"    = each.value.checkCertificate,
+    "enabled"             = each.value.enabled,
+    "alertEnabled"        = each.value.alertConfiguration.enabled,
     "method"              = each.value.method,
+    "domain"              = lookup(each.value, "domain", "generic"),
     "expectedCodes"       = jsonencode(each.value.expectedCodes),
     "durationLimit"       = lookup(each.value, "durationLimit", null) != null ? each.value.durationLimit : var.job_settings.default_duration_limit,
     "headers"             = lookup(each.value, "headers", null) != null ? jsonencode(each.value.headers) : null,
@@ -72,31 +82,6 @@ resource "azurerm_storage_table_entity" "monitoring_configuration" {
     "bodyCompareStrategy" = lookup(each.value, "bodyCompareStrategy", null) != null ? each.value.bodyCompareStrategy : null
     "expectedBody"        = lookup(each.value, "expectedBody", null) != null ? jsonencode(each.value.expectedBody) : null
   }
-}
-
-resource "azurerm_private_endpoint" "synthetic_monitoring_storage_private_endpoint" {
-  count = var.storage_account_settings.private_endpoint_enabled ? 1 : 0
-
-  name                = "${var.prefix}-syntheticmonitoringsa-private-endpoint"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  subnet_id           = var.storage_private_endpoint_subnet_id
-
-  private_dns_zone_group {
-    name = "${var.prefix}-synthetic-monitoring-private-dns-zone-group"
-    private_dns_zone_ids = [
-      var.storage_account_settings.table_private_dns_zone_id
-    ]
-  }
-
-  private_service_connection {
-    name                           = "${var.prefix}-synthetic-monitoring-private-service-connection"
-    private_connection_resource_id = module.synthetic_monitoring_storage_account.id
-    is_manual_connection           = false
-    subresource_names              = ["table"]
-  }
-
-  tags = var.tags
 }
 
 #
