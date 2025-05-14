@@ -61,7 +61,7 @@ module "subnet" {
   address_prefixes = [terraform_data.subnet_cidr.input]
 
 
-  delegation = module.idh_loader.idh_config.delegation == null ? {
+  delegation = lookup(module.idh_loader.idh_config, "delegation", null) == null ? {
     name = "delegation"
     service_delegation = {
       name    = module.idh_loader.idh_config.delegation.name
