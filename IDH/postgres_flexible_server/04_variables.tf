@@ -226,6 +226,7 @@ variable "databases" {
 
 variable "geo_replication" {
   type = object({
+    enabled = bool
     name = string
     subnet_id = string
     location = string
@@ -234,5 +235,14 @@ variable "geo_replication" {
     private_dns_zone_name = string
     private_dns_rg = string
   })
-  default = null
+  default = {
+    enabled = false
+    name = ""
+    subnet_id = ""
+    location = ""
+    private_dns_registration_ve = false
+    private_dns_name = ""
+    private_dns_zone_name = ""
+    private_dns_rg = ""
+  }
 }
