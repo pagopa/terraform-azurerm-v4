@@ -294,6 +294,12 @@ variable "auto_grow_enabled" {
   description = "(Optional) Is the storage auto grow for PostgreSQL Flexible Server enabled? Defaults to false"
 }
 
+variable "databases" {
+  type = list(string)
+  description = "(Optional) List of database names to be created"
+  default     = []
+}
+
 locals {
   metric_alerts = var.custom_metric_alerts != null ? var.custom_metric_alerts : var.default_metric_alerts
 }
