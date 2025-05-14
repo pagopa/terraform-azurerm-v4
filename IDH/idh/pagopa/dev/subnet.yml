@@ -4,3 +4,5 @@ postgres_flexible:
     name: Microsoft.DBforPostgreSQL/flexibleServers
     actions:
       - Microsoft.Network/virtualNetworks/subnets/join/action
+test:
+  prefix_length: 29
