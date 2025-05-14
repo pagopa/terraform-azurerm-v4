@@ -11,8 +11,28 @@ Parameters removed:
 * grafana_api_key
 * grafana_url
 
+Parameters renamed:
+* `private_endpoint_subnet_id` has been renamed to `storage_private_endpoint_subnet_id`
+  
+Provider:
 ⚠️ Provider `grafana` is now required to be defined in the root project, as the module creates a grafana dashboard and folder
 
+To use correctly you need to call like this:
+```hcl
+module "synthetic_monitoring_jobs" {
+  # source = "./.terraform/modules/__v4__/monitoring_function"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v4.git//monitoring_function?ref=fix-monitor-function"
+
+  providers = {
+    grafana = grafana.cloud
+  }
+  
+  # other parameters
+}
+```
+
+Private endpoint:
+⚠️ Private endpoint will be recreated to use the resource under storage account module
 
 ## How to use it
 
