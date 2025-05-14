@@ -35,12 +35,15 @@ data "external" "subnet_cidr" {
   }
 }
 
+
+
 resource "terraform_data" "subnet_cidr" {
   input = data.external.subnet_cidr.result.cidr
 
-  lifecycle {
-    ignore_changes = [input]
-  }
+  triggers_replace = [
+    data.azurerm_virtual_network.vnet.address_space[0],
+    module.idh_loader.idh_config.prefix_length
+  ]
 }
 
 

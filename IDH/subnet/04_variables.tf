@@ -63,3 +63,10 @@ variable "private_link_service_network_policies_enabled" {
   description = "(Optional) Enable or Disable network policies for the private link service on the subnet. Setting this to true will Enable the policy and setting this to false will Disable the policy. Defaults to true."
   default     = true
 }
+
+
+variable "force_recreate" {
+  type = bool
+  default = false
+  description = "(optional) Force recreate the subnet if set to true calculating a new cidr. Default is false."
+}
