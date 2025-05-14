@@ -52,7 +52,7 @@ resource "azurerm_linux_web_app" "cdc" {
       docker_registry_url = var.config.docker_registry_url
     }
 
-    minimum_tls_version    = "1.2"
+    minimum_tls_version    = var.minimum_tls_version
     ftps_state             = "Disabled"
     vnet_route_all_enabled = true
 
@@ -121,7 +121,7 @@ resource "azurerm_linux_web_app" "data_ti" {
       docker_registry_url = var.config.docker_registry_url
     }
 
-    minimum_tls_version    = "1.2"
+    minimum_tls_version    = var.minimum_tls_version
     ftps_state             = "Disabled"
     vnet_route_all_enabled = true
 

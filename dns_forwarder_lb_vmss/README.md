@@ -65,6 +65,8 @@ module "dns_forwarder" {
 | <a name="input_address_prefixes_lb"></a> [address\_prefixes\_lb](#input\_address\_prefixes\_lb) | (Optional) The address prefixes to use for load balancer subnet. | `string` | `"10.1.200.0/29"` | no |
 | <a name="input_address_prefixes_vmss"></a> [address\_prefixes\_vmss](#input\_address\_prefixes\_vmss) | (Optional) The address prefixes to use for the virtual machine scale set subnet. | `string` | `"10.1.200.8/29"` | no |
 | <a name="input_admin_password"></a> [admin\_password](#input\_admin\_password) | (Optional) The Password which should be used for the local-administrator on this Virtual Machine. Changing this forces a new resource to be created. will be stored in the raw state as plain-text | `string` | `null` | no |
+| <a name="input_create_subnet_lb"></a> [create\_subnet\_lb](#input\_create\_subnet\_lb) | n/a | `bool` | `false` | no |
+| <a name="input_create_subnet_vmss"></a> [create\_subnet\_vmss](#input\_create\_subnet\_vmss) | n/a | `bool` | `false` | no |
 | <a name="input_create_vmss_nsg"></a> [create\_vmss\_nsg](#input\_create\_vmss\_nsg) | (Optional) Boolean flag to create the network security group to virtual machine scale set. | `bool` | `true` | no |
 | <a name="input_force_deletion_enabled"></a> [force\_deletion\_enabled](#input\_force\_deletion\_enabled) | (Optional) Should the virtual machines chosen for removal be force deleted when the virtual machine scale set is being scaled-in? Possible values are true or false | `string` | `null` | no |
 | <a name="input_key_vault_id"></a> [key\_vault\_id](#input\_key\_vault\_id) | (Required) The ID of the Key Vault where the Secret should be created. | `string` | n/a | yes |

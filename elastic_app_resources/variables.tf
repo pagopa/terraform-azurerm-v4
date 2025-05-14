@@ -90,3 +90,9 @@ variable "application_name" {
   type        = string
   description = "Name of this application"
 }
+
+
+variable "primary_shard_count" {
+  type        = number
+  description = "Number of primary shard for the index templates"
+}

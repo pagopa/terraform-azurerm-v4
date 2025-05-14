@@ -39,12 +39,26 @@ variable "sku" {
 variable "pip_sku" {
   type        = string
   description = "The SKU of the Public IP. Accepted values are Basic and Standard. Defaults to Basic."
-  default     = "Basic"
+  default     = "Standard"
+
+  validation {
+    condition = (
+      var.sku == "VpnGw1" ? var.pip_sku == "Standard" : true
+    )
+    error_message = "For VPN Gateway SKU 'VpnGw1' or higher, the public IP SKU must be 'Standard'. #https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-vpn-faq#migrating-a-basic-sku-public-ip-address-to-standard-sku"
+  }
 }
 
 variable "pip_allocation_method" {
-  description = "Defines the allocation method for this IP address. Possible values are Static or Dynamic."
-  default     = "Dynamic"
+  description = "Defines how the public IP address is allocated. Must be 'Static' for Standard SKU (required by VpnGw1+)."
+  default     = "Static"
+
+  validation {
+    condition = (
+      var.sku == "VpnGw1" ? var.pip_allocation_method == "Static" : true
+    )
+    error_message = "For VPN Gateway SKU 'VpnGw1' or higher, the public IP allocation method must be 'Static'."
+  }
 }
 
 variable "pip_id" {
@@ -100,11 +114,6 @@ variable "local_networks" {
 
 variable "log_analytics_workspace_id" {
   description = "Specifies the ID of a Log Analytics Workspace where Diagnostics Data should be sent."
-  default     = null
-}
-
-variable "log_storage_account_id" {
-  description = "Specifies the ID of a Storage Account where Logs should be sent."
   default     = null
 }
 

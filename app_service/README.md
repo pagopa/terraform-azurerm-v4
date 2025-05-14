@@ -98,6 +98,7 @@ No modules.
 | <a name="input_java_server_version"></a> [java\_server\_version](#input\_java\_server\_version) | n/a | `string` | `null` | no |
 | <a name="input_java_version"></a> [java\_version](#input\_java\_version) | n/a | `string` | `null` | no |
 | <a name="input_location"></a> [location](#input\_location) | (Required) Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created. | `string` | `"westeurope"` | no |
+| <a name="input_minimum_tls_version"></a> [minimum\_tls\_version](#input\_minimum\_tls\_version) | (Optional) The configures the minimum version of TLS required for SSL requests. Possible values include: 1.0, 1.1, 1.2 and 1.3. | `string` | `"1.3"` | no |
 | <a name="input_name"></a> [name](#input\_name) | (Required) Specifies the name of the App Service. Changing this forces a new resource to be created. | `string` | n/a | yes |
 | <a name="input_node_version"></a> [node\_version](#input\_node\_version) | n/a | `string` | `null` | no |
 | <a name="input_php_version"></a> [php\_version](#input\_php\_version) | n/a | `string` | `null` | no |
