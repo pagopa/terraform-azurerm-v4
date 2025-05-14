@@ -3,6 +3,16 @@
 This module creates the required resources used by a container app job which, based on a scheduling defined by a cron expression, monitors the configured apis and certificates, exporting the metrics to application insight
 
 details on the function can be found [here](https://github.com/pagopa/azure-synthetic-monitoring)
+  
+### Migration v3 -> v4
+
+Parameters removed:
+
+* grafana_api_key
+* grafana_url
+
+⚠️ Provider `grafana` is now required to be defined in the root project, as the module creates a grafana dashboard and folder
+
 
 ## How to use it
 

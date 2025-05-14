@@ -56,7 +56,8 @@ locals {
   decoded_configuration    = jsondecode(var.monitoring_configuration_encoded)
   monitoring_configuration = {
     for c in local.decoded_configuration :
-    "${c.appName}-${c.apiName}-${c.type}-${lookup(c, "domain", "generic")}" => c if lookup(c, "enabled", true)
+    "${c.appName}-${c.apiName}-${c.type}${contains(keys(c), "domain") ? "-${c.domain}" : ""}" => c
+    if lookup(c, "enabled", true)
   }
 }
 
