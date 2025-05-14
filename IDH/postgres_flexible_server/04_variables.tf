@@ -245,4 +245,5 @@ variable "geo_replication" {
     private_dns_zone_name = ""
     private_dns_rg = ""
   }
+  description = "(Optional) Map of geo replication settings"
 }
