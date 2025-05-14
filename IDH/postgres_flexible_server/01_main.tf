@@ -52,6 +52,10 @@ module "pgflex" {
   diagnostic_setting_destination_storage_id = var.diagnostic_setting_destination_storage_id
   diagnostic_settings_enabled = var.diagnostic_settings_enabled
 
+  custom_metric_alerts = var.custom_metric_alerts
+  alerts_enabled = module.idh_loader.idh_config.alerts_enabled
+  alert_action =  module.idh_loader.idh_config.alerts_enabled ? var.alert_action : []
+
   tags = var.tags
 
 }
@@ -124,6 +128,54 @@ resource "azurerm_postgresql_flexible_server_database" "database" {
   server_id = module.pgflex.id
   collation = "en_US.utf8"
   charset   = "UTF8"
+}
+
+
+
+module "replica" {
+  source = "../../postgres_flexible_server_replica"
+  count  = var.geo_replication.enabled ? 1 : 0
+
+  name                = var.geo_replication.name
+  resource_group_name = var.resource_group_name
+  location            = var.geo_replication.location
+
+  private_dns_zone_id      = module.idh_loader.idh_config.private_endpoint_enabled ? var.private_dns_zone_id : null
+  delegated_subnet_id      = var.geo_replication.subnet_id
+  private_endpoint_enabled = module.idh_loader.idh_config.private_endpoint_enabled
+
+  sku_name = module.idh_loader.idh_config.sku_name
+
+  high_availability_enabled = false
+  pgbouncer_enabled         = module.idh_loader.idh_config.server_parameters.pgbouncer_enabled
+
+  storage_mb = module.idh_loader.idh_config.storage_mb
+
+  source_server_id = module.pgflex.id #NEWGPD-DB : DEPRECATED switch to new istance postgres_flexible_server_private_db
+
+  diagnostic_settings_enabled = false
+
+  log_analytics_workspace_id = var.log_analytics_workspace_id
+  zone                       = module.idh_loader.idh_config.zone
+  tags                       = var.tags
+}
+
+
+resource "azurerm_postgresql_flexible_server_virtual_endpoint" "virtual_endpoint" {
+  count  = var.geo_replication.enabled ? 1 : 0
+  name              = "${var.name}-ve"
+  source_server_id  = module.pgflex.id
+  replica_server_id = module.replica[0].id
+  type              = "ReadWrite"
+}
+
+resource "azurerm_private_dns_cname_record" "cname_record" {
+  count               = var.geo_replication.enabled && var.geo_replication.private_dns_registration_ve ? 1 : 0
+  name                = var.geo_replication.private_dns_name
+  zone_name           = var.geo_replication.private_dns_zone_name
+  resource_group_name = var.geo_replication.private_dns_rg
+  ttl                 = 300
+  record              = "${azurerm_postgresql_flexible_server_virtual_endpoint.virtual_endpoint[0].name}.writer.postgres.database.azure.com"
 }
 
 

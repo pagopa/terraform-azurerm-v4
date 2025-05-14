@@ -18,6 +18,7 @@ pgflex2:
   public_network_access_enabled: true
   private_endpoint_enabled: false
   high_availability_enabled: false
+  alerts_enabled: false
   maintenance_window_config:
     day_of_week: 3
     start_hour: 2
@@ -50,6 +51,7 @@ pgflex4:
   enable_private_dns_registration_virtual_endpoint: false
   public_network_access_enabled: true
   private_endpoint_enabled: false
+  alerts_enabled: false
   maintenance_window_config:
     day_of_week: 3
     start_hour: 2

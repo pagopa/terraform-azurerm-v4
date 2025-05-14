@@ -300,6 +300,16 @@ variable "databases" {
   default     = []
 }
 
-locals {
-  metric_alerts = var.custom_metric_alerts != null ? var.custom_metric_alerts : var.default_metric_alerts
+variable "geo_replication" {
+  type = object({
+    enabled = bool
+    name = string
+    subnet_id = string
+    location = string
+    private_dns_registration_ve = bool
+    private_dns_name = string
+    private_dns_zone_name = string
+    private_dns_rg = string
+  })
+  default = null
 }
