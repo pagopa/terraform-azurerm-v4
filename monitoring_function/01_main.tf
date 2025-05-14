@@ -52,6 +52,9 @@ resource "azurerm_storage_table" "table_storage" {
   storage_account_name = module.synthetic_monitoring_storage_account.name
 }
 
+#
+# Apis configuration
+#
 locals {
   decoded_configuration    = jsondecode(var.monitoring_configuration_encoded)
   monitoring_configuration = {
@@ -175,7 +178,7 @@ locals {
 resource "azurerm_monitor_metric_alert" "alert" {
   for_each = local.monitoring_configuration
 
-  name                = "availability-${each.value.appName}-${each.value.apiName}-${each.value.type}"
+  name                = "availability-${each.value.appName}-${each.value.apiName}-${each.value.type}${contains(keys(c), "domain") ? "-${c.domain}" : ""}"
   resource_group_name = var.resource_group_name
   scopes              = [data.azurerm_application_insights.app_insight.id]
   description         = "Availability of ${each.value.appName} ${each.value.apiName} from ${each.value.type} degraded"
