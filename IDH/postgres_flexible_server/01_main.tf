@@ -134,7 +134,7 @@ resource "azurerm_postgresql_flexible_server_database" "database" {
 
 module "replica" {
   source = "../../postgres_flexible_server_replica"
-  count  = var.geo_replication.enabled ? 1 : 0
+  count  = var.geo_replication != null ? 1 : 0
 
   name                = var.geo_replication.name
   resource_group_name = var.resource_group_name
@@ -162,7 +162,7 @@ module "replica" {
 
 
 resource "azurerm_postgresql_flexible_server_virtual_endpoint" "virtual_endpoint" {
-  count  = var.geo_replication.enabled ? 1 : 0
+  count  = var.geo_replication  != null ? 1 : 0
   name              = "${var.name}-ve"
   source_server_id  = module.pgflex.id
   replica_server_id = module.replica[0].id
@@ -170,7 +170,7 @@ resource "azurerm_postgresql_flexible_server_virtual_endpoint" "virtual_endpoint
 }
 
 resource "azurerm_private_dns_cname_record" "cname_record" {
-  count               = var.geo_replication.enabled && var.geo_replication.private_dns_registration_ve ? 1 : 0
+  count               = var.geo_replication != null && var.geo_replication.private_dns_registration_ve ? 1 : 0
   name                = var.geo_replication.private_dns_name
   zone_name           = var.geo_replication.private_dns_zone_name
   resource_group_name = var.geo_replication.private_dns_rg

@@ -226,7 +226,6 @@ variable "databases" {
 
 variable "geo_replication" {
   type = object({
-    enabled = bool
     name = string
     subnet_id = string
     location = string
