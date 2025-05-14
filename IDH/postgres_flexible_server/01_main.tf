@@ -119,7 +119,7 @@ resource "azurerm_postgresql_flexible_server_configuration" "azure_extensions" {
 # Databases
 #
 resource "azurerm_postgresql_flexible_server_database" "database" {
-  for_each  = var.databases
+  for_each  = toset(var.databases)
   name      = each.value
   server_id = module.pgflex.id
   collation = "en_US.utf8"
