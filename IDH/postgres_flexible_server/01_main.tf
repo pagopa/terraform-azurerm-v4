@@ -174,10 +174,10 @@ resource "azurerm_postgresql_flexible_server_virtual_endpoint" "virtual_endpoint
 
 resource "azurerm_private_dns_cname_record" "cname_record" {
   count               = var.geo_replication.enabled  && var.geo_replication.private_dns_registration_ve && module.idh_loader.idh_config.geo_replication_allowed ? 1 : 0
-  name                = var.geo_replication.private_dns_name
-  zone_name           = var.geo_replication.private_dns_zone_name
-  resource_group_name = var.geo_replication.private_dns_rg
-  ttl                 = 300
+  name                = var.private_dns_record_cname
+  zone_name           = var.private_dns_zone_name
+  resource_group_name = var.private_dns_zone_rg_name
+  ttl                 = var.private_dns_cname_record_ttl
   record              = "${azurerm_postgresql_flexible_server_virtual_endpoint.virtual_endpoint[0].name}.writer.postgres.database.azure.com"
 }
 

@@ -186,24 +186,44 @@ variable "private_dns_registration" {
   type        = bool
   default     = false
   description = "(Optional) If true, creates a cname record for the newly created postgreSQL db fqdn into the provided private dns zone"
+
+  validation {
+    condition = var.private_dns_registration ? !(module.idh_loader.idh_config.geo_replication_allowed && var.geo_replication.enabled && var.geo_replication.private_dns_registration_ve) : true
+    error_message = "private_dns_registration must be false if geo_replication.private_dns_registration_ve is true"
+  }
 }
 
 variable "private_dns_zone_name" {
   type        = string
   default     = null
   description = "(Optional) if 'private_dns_registration' is true, defines the private dns zone name in which the server fqdn should be registered"
+
+  validation {
+    condition = var.private_dns_registration ? var.private_dns_zone_name != null : true
+    error_message = "private_dns_zone_name must be defined when private_dns_registration is true"
+  }
 }
 
 variable "private_dns_zone_rg_name" {
   type        = string
   default     = null
   description = "(Optional) if 'private_dns_registration' is true, defines the private dns zone resource group name of the dns zone in which the server fqdn should be registered"
+
+  validation {
+    condition = var.private_dns_registration ? var.private_dns_zone_rg_name != null : true
+    error_message = "private_dns_zone_rg_name must be defined when private_dns_registration is true"
+  }
 }
 
 variable "private_dns_record_cname" {
   type        = string
   default     = null
   description = "(Optional) if 'private_dns_registration' is true, defines the private dns CNAME used to register this server FQDN"
+
+  validation {
+    condition = var.private_dns_registration ? var.private_dns_record_cname != null : true
+    error_message = "private_dns_record_cname must be defined when private_dns_registration is true"
+  }
 }
 
 variable "private_dns_cname_record_ttl" {
@@ -231,9 +251,6 @@ variable "geo_replication" {
     subnet_id = string
     location = string
     private_dns_registration_ve = bool
-    private_dns_name = optional(string, "")
-    private_dns_zone_name = optional(string, "")
-    private_dns_rg = optional(string, "")
   })
   default = {
     enabled = false
@@ -241,9 +258,6 @@ variable "geo_replication" {
     subnet_id = ""
     location = ""
     private_dns_registration_ve = false
-    private_dns_name = ""
-    private_dns_zone_name = ""
-    private_dns_rg = ""
   }
   description = "(Optional) Map of geo replication settings"
 
