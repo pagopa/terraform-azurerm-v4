@@ -266,8 +266,4 @@ variable "geo_replication" {
     error_message = "Geo replication is not allowed in '${var.env}' environment for '${var.idh_resource}'"
   }
 
-  validation {
-    condition = var.geo_replication.private_dns_registration_ve ? (var.geo_replication.private_dns_name != "" && var.geo_replication.private_dns_zone_name != "" && var.geo_replication.private_dns_rg != "") : true
-    error_message = "private_dns_name, private_dns_zone_name, private_dns_rg must be defined when private_dns_registration_ve is true"
-  }
 }
