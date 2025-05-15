@@ -64,6 +64,10 @@ locals {
   }
 }
 
+output "output_monitoring_configuration" {
+  value = local.monitoring_configuration
+}
+
 resource "azurerm_storage_table_entity" "monitoring_configuration" {
   for_each         = local.monitoring_configuration
   storage_table_id = azurerm_storage_table.table_storage.id
