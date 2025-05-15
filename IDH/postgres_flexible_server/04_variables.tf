@@ -50,23 +50,6 @@ variable "delegated_subnet_id" {
   description = "(Optional) The ID of the virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated."
 }
 
-variable "public_network_access_enabled" {
-  type        = bool
-  default     = false
-  description = "(Optional) Specifies whether this PostgreSQL Flexible Server is publicly accessible."
-}
-
-#
-# ♊️ High Availability
-#
-
-
-variable "standby_availability_zone" {
-  type        = number
-  default     = null
-  description = "(Optional) Specifies the Availability Zone in which the standby Flexible Server should be located."
-}
-
 
 
 #
@@ -94,18 +77,6 @@ variable "administrator_login" {
 variable "administrator_password" {
   type        = string
   description = "Flexible PostgreSql server administrator_password"
-}
-
-#
-# Backup
-#
-
-
-
-variable "zone" {
-  type        = number
-  description = "(Optional) Specifies the Availability Zone in which the PostgreSQL Flexible Server should be located."
-  default     = null
 }
 
 variable "primary_user_assigned_identity_id" {
@@ -188,7 +159,7 @@ variable "private_dns_registration" {
   description = "(Optional) If true, creates a cname record for the newly created postgreSQL db fqdn into the provided private dns zone"
 
   validation {
-    condition = var.private_dns_registration ? !(module.idh_loader.idh_config.geo_replication_allowed && var.geo_replication.enabled && var.geo_replication.private_dns_registration_ve) : true
+    condition     = var.private_dns_registration ? !(module.idh_loader.idh_config.geo_replication_allowed && var.geo_replication.enabled && var.geo_replication.private_dns_registration_ve) : true
     error_message = "private_dns_registration must be false if geo_replication.private_dns_registration_ve is true"
   }
 }
@@ -199,7 +170,7 @@ variable "private_dns_zone_name" {
   description = "(Optional) if 'private_dns_registration' is true, defines the private dns zone name in which the server fqdn should be registered"
 
   validation {
-    condition = var.private_dns_registration ? var.private_dns_zone_name != null : true
+    condition     = var.private_dns_registration ? var.private_dns_zone_name != null : true
     error_message = "private_dns_zone_name must be defined when private_dns_registration is true"
   }
 }
@@ -210,7 +181,7 @@ variable "private_dns_zone_rg_name" {
   description = "(Optional) if 'private_dns_registration' is true, defines the private dns zone resource group name of the dns zone in which the server fqdn should be registered"
 
   validation {
-    condition = var.private_dns_registration ? var.private_dns_zone_rg_name != null : true
+    condition     = var.private_dns_registration ? var.private_dns_zone_rg_name != null : true
     error_message = "private_dns_zone_rg_name must be defined when private_dns_registration is true"
   }
 }
@@ -221,7 +192,7 @@ variable "private_dns_record_cname" {
   description = "(Optional) if 'private_dns_registration' is true, defines the private dns CNAME used to register this server FQDN"
 
   validation {
-    condition = var.private_dns_registration ? var.private_dns_record_cname != null : true
+    condition     = var.private_dns_registration ? var.private_dns_record_cname != null : true
     error_message = "private_dns_record_cname must be defined when private_dns_registration is true"
   }
 }
@@ -239,30 +210,30 @@ variable "auto_grow_enabled" {
 }
 
 variable "databases" {
-  type = list(string)
+  type        = list(string)
   description = "(Optional) List of database names to be created"
   default     = []
 }
 
 variable "geo_replication" {
   type = object({
-    enabled = bool
-    name = string
-    subnet_id = string
-    location = string
+    enabled                     = bool
+    name                        = string
+    subnet_id                   = string
+    location                    = string
     private_dns_registration_ve = bool
   })
   default = {
-    enabled = false
-    name = ""
-    subnet_id = ""
-    location = ""
+    enabled                     = false
+    name                        = ""
+    subnet_id                   = ""
+    location                    = ""
     private_dns_registration_ve = false
   }
   description = "(Optional) Map of geo replication settings"
 
   validation {
-    condition = !module.idh_loader.idh_config.geo_replication_allowed ? var.geo_replication.enabled == false : true
+    condition     = !module.idh_loader.idh_config.geo_replication_allowed ? var.geo_replication.enabled == false : true
     error_message = "Geo replication is not allowed in '${var.env}' environment for '${var.idh_resource}'"
   }
 

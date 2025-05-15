@@ -33,19 +33,6 @@ variable "virtual_network_name" {
   type = string
 }
 
-
-variable "delegation" {
-  type = object({
-    name = string #(Required) A name for this delegation.
-    service_delegation = object({
-      name    = string       #(Required) The name of service to delegate to. Possible values are https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet#service_delegation
-      actions = list(string) #(Optional) A list of Actions which should be delegated. Here the list: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet#actions
-    })
-  })
-
-  default = null
-}
-
 variable "service_endpoints" {
   type        = list(string)
   default     = []
