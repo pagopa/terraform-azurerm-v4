@@ -59,7 +59,7 @@ locals {
   decoded_configuration    = jsondecode(var.monitoring_configuration_encoded)
   monitoring_configuration = {
     for c in local.decoded_configuration :
-    "${c.appName}-${c.apiName}-${c.type}${contains(keys(c), "domain") ? "-${c.domain}" : ""}" => c
+    "${contains(keys(c), "domain") ? "${c.domain}-" : ""}${c.appName}-${c.apiName}-${c.type}" => c
     if lookup(c, "enabled", true)
   }
 }
@@ -185,7 +185,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
   # name                = "availability-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName}-${each.value.apiName}-${each.value.type}"
   name = format(
     "availability-%s%s-%s-%s",
-    contains(keys(each.value), "domain") ? "${each.value.domain}-" : "",
+    contains(keys(each.value), "domain") ? "${each.value.domain}-" : "alx",
     each.value.appName,
     each.value.apiName,
     each.value.type
@@ -195,7 +195,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
   # description         = "Availability of ${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName} ${each.value.apiName} from ${each.value.type} degraded"
   description = format(
     "Availability of %s%s %s from %s degraded",
-    contains(keys(each.value), "domain") ? "${each.value.domain}-" : "",
+    contains(keys(each.value), "domain") ? "${each.value.domain}-" : "desc",
     each.value.appName,
     each.value.apiName,
     each.value.type
@@ -215,14 +215,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
       name     = "availabilityResult/name"
       operator = "Include"
       values = [
-        format(
-          "%s-%s%s-%s",
-          var.job_settings.availability_prefix,
-          contains(keys(each.value), "domain") ? "${each.value.domain}-" : "",
-          each.value.appName,
-          each.value.apiName
-        )
-        # "${var.job_settings.availability_prefix}-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName}-${each.value.apiName}"
+        "${var.job_settings.availability_prefix}-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : "-x-"}${each.value.appName}-${each.value.apiName}"
       ]
     }
     dimension {
