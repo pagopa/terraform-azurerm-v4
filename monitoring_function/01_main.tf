@@ -182,24 +182,11 @@ locals {
 resource "azurerm_monitor_metric_alert" "alert" {
   for_each = local.monitoring_configuration
 
-  # name                = "availability-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName}-${each.value.apiName}-${each.value.type}"
-  name = format(
-    "availability-%s%s-%s-%s",
-    contains(keys(each.value), "domain") ? "${each.value.domain}-" : "alx",
-    each.value.appName,
-    each.value.apiName,
-    each.value.type
-  )
+  name                = "availability-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName}-${each.value.apiName}-${each.value.type}"
   resource_group_name = var.resource_group_name
+
   scopes              = [data.azurerm_application_insights.app_insight.id]
-  # description         = "Availability of ${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName} ${each.value.apiName} from ${each.value.type} degraded"
-  description = format(
-    "Availability of %s%s %s from %s degraded",
-    contains(keys(each.value), "domain") ? "${each.value.domain}-" : "desc",
-    each.value.appName,
-    each.value.apiName,
-    each.value.type
-  )
+  description         = "Availability of ${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName} ${each.value.apiName} from ${each.value.type} degraded"
   severity            = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "severity", local.default_alert_configuration.severity)
   frequency           = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "frequency", local.default_alert_configuration.frequency)
   auto_mitigate       = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "auto_mitigate", local.default_alert_configuration.auto_mitigate)
@@ -215,7 +202,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
       name     = "availabilityResult/name"
       operator = "Include"
       values = [
-        "${var.job_settings.availability_prefix}-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : "-x-"}${each.value.appName}-${each.value.apiName}"
+        "${var.job_settings.availability_prefix}-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName}-${each.value.apiName}"
       ]
     }
     dimension {
@@ -233,6 +220,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
     }
   }
 
+  depends_on          = [azurerm_container_app_job.monitoring_terraform_app_job]
 }
 
 #
