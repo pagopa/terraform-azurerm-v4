@@ -249,7 +249,7 @@ variable "geo_replication" {
 
   validation {
     condition = !module.idh_loader.idh_config.geo_replication_allowed ? var.geo_replication.enabled == false : true
-    error_message = "Geo replication is not allowed in this environment for this idh_resource"
+    error_message = "Geo replication is not allowed in ${var.env} environment for this idh_resource"
   }
 
   validation {
