@@ -231,9 +231,9 @@ variable "geo_replication" {
     subnet_id = string
     location = string
     private_dns_registration_ve = bool
-    private_dns_name = string
-    private_dns_zone_name = string
-    private_dns_rg = string
+    private_dns_name = optional(string, "")
+    private_dns_zone_name = optional(string, "")
+    private_dns_rg = optional(string, "")
   })
   default = {
     enabled = false
@@ -250,5 +250,11 @@ variable "geo_replication" {
   validation {
     condition = !module.idh_loader.idh_config.geo_replication_allowed ? var.geo_replication.enabled == false : true
     error_message = "Geo replication is not allowed in this environment for this idh_resource"
+  }
+
+  validation {
+    condition = var.geo_replication.private_dns_registration_ve ?
+      (var.geo_replication.private_dns_name != "" && var.geo_replication.private_dns_zone_name != "" && var.geo_replication.private_dns_rg != "") : true
+    error_message = "private_dns_name, private_dns_zone_name, private_dns_rg must be defined when private_dns_registration_ve is true"
   }
 }
