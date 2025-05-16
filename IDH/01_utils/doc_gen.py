@@ -63,7 +63,7 @@ def doc_generate():
             # appiattisce il dizionario e wrappa con Default per restituire "-" se la chiave non esiste
             # usa "_" come separatore per evitare conflitti con la dot notation (non utilizzabile in modo safe)
             d = Default(flatten_dict(config['idh_resources'][resource_name], '', "_"))
-            l.write(f"|{config['platform']}|{config['environment']}|{resource_name}| {desc_string.format_map(d)} |\n")
+            l.write(f"|{config['platform']}|{config['environment']}|{resource_name}| {desc_string.rstrip().format_map(d)} |\n")
 
 
 
