@@ -30,17 +30,17 @@ output "connection_port" {
 
 
 output "replica_id" {
-  value = module.replica.id
+  value = module.replica[0].id
 }
 
 output "replica_name" {
-  value = module.replica.name
+  value = module.replica[0].name
 }
 
 output "replica_fqdn" {
-  value = module.replica.fqdn
+  value = module.replica[0].fqdn
 }
 
 output "virtual_endpoint_name" {
-  value = azurerm_postgresql_flexible_server_virtual_endpoint.virtual_endpoint.name
+  value = azurerm_postgresql_flexible_server_virtual_endpoint.virtual_endpoint[0].name
 }
