@@ -9,7 +9,6 @@ pgflex2:
   create_mode: Default
   max_connections: '859'
   enable_private_dns_registration: true
-  enable_private_dns_registration_virtual_endpoint: false
   public_network_access_enabled: true
   private_endpoint_enabled: false
   high_availability_enabled: false
@@ -39,7 +38,6 @@ pgflex4:
   create_mode: Default
   max_connections: '1718'
   enable_private_dns_registration: true
-  enable_private_dns_registration_virtual_endpoint: false
   public_network_access_enabled: true
   private_endpoint_enabled: false
   alerts_enabled: false
@@ -51,7 +49,6 @@ pgflex4:
   high_availability_enabled: false
   server_parameters:
     pgbouncer_enabled: true
-    high_availability_enabled: false
     max_worker_processes: 16
     pgbouncer_min_pool_size: 20
     pgbouncer_default_pool_size: 30
