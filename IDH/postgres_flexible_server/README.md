@@ -2,6 +2,9 @@
 
 Module that allows the creation of a postgres flexible based on a library of server configuration
 
+## IDH resources available
+
+[Here's](./LIBRARY.md) the list of `idh_resource` available for this module
 
 ## Metrics
 
@@ -102,14 +105,10 @@ variable "pgflex_public_metric_alerts" {
 
   private_dns_zone_id           = var.env_short != "d" ? data.azurerm_private_dns_zone.postgres[0].id : null
   delegated_subnet_id           = module.postgres_flexible_snet.id
-  public_network_access_enabled = var.pgres_flex_params.public_network_access_enabled
 
   administrator_login    = data.azurerm_key_vault_secret.pgres_flex_admin_login.value
   administrator_password = data.azurerm_key_vault_secret.pgres_flex_admin_pwd.value
 
-  zone                         = var.pgres_flex_params.zone
-
-  standby_availability_zone = var.pgres_flex_params.standby_zone
 
   diagnostic_settings_enabled = var.pgres_flex_params.pgres_flex_diagnostic_settings_enabled
   log_analytics_workspace_id  = data.azurerm_log_analytics_workspace.log_analytics.id
@@ -147,7 +146,7 @@ variable "pgflex_public_metric_alerts" {
     location = "westeurope"
     private_dns_registration_ve = true
   }
-
+    
 }
 
 ```
