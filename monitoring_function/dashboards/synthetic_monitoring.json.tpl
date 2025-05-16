@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 195,
+  "id": 15,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -95,7 +95,7 @@
         "maxVizHeight": 300,
         "minVizHeight": 0,
         "minVizWidth": 8,
-        "namePlacement": "left",
+        "namePlacement": "top",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -108,7 +108,7 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "11.2.2+security-01",
+      "pluginVersion": "11.2.8+security-01",
       "targets": [
         {
           "azureLogAnalytics": {
@@ -363,7 +363,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.2.2+security-01",
+      "pluginVersion": "11.2.8+security-01",
       "targets": [
         {
           "azureLogAnalytics": {
@@ -413,8 +413,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent",
-                "value": null
+                "color": "transparent"
               }
             ]
           }
@@ -432,8 +431,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-red",
-                      "value": null
+                      "color": "dark-red"
                     },
                     {
                       "color": "semi-dark-red",
@@ -443,7 +441,6 @@
                       "color": "semi-dark-green",
                       "value": 1
                     }
-
                   ]
                 }
               },
@@ -494,8 +491,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "red",
-                      "value": null
+                      "color": "red"
                     },
                     {
                       "color": "yellow",
@@ -600,7 +596,7 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {
