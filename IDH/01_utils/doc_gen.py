@@ -61,9 +61,9 @@ def doc_generate():
         for config in config_files[module]:
           for resource_name in config['idh_resources'].keys():
             # appiattisce il dizionario e wrappa con Default per restituire "-" se la chiave non esiste
-            # usa "|" come separatore per evitare conflitti con la dot notation (non utilizzabile in modo safe)
-            d = Default(flatten_dict(config['idh_resources'][resource_name], '', "|"))
-            l.write(f"|{config['platform']}|{config['environment']}|{resource_name}| {desc_string.format_map(d)}|\n")
+            # usa "_" come separatore per evitare conflitti con la dot notation (non utilizzabile in modo safe)
+            d = Default(flatten_dict(config['idh_resources'][resource_name], '', "_"))
+            l.write(f"|{config['platform']}|{config['environment']}|{resource_name}| {desc_string.format_map(d)} |\n")
 
 
 
