@@ -23,7 +23,7 @@
   "liveNow": false,
   "panels": [
     {
-      "collapsed": true,
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -50,6 +50,7 @@
     },
     {
       "datasource": {
+        "default": false,
         "type": "grafana-azure-monitor-datasource",
         "uid": "azure-monitor-oob"
       },
@@ -83,16 +84,19 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 12,
+        "h": 11,
         "w": 24,
         "x": 0,
         "y": 2
       },
       "id": 2,
       "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
+        "displayMode": "lcd",
+        "maxVizHeight": 300,
+        "minVizHeight": 0,
+        "minVizWidth": 8,
+        "namePlacement": "left",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -100,17 +104,15 @@
           "fields": "",
           "values": true
         },
-        "showThresholdLabels": true,
-        "showThresholdMarkers": true,
+        "showUnfilled": true,
         "sizing": "auto",
-        "text": {
-          "titleSize": 11
-        }
+        "valueMode": "color"
       },
-      "pluginVersion": "10.4.15",
+      "pluginVersion": "11.2.2+security-01",
       "targets": [
         {
           "azureLogAnalytics": {
+            "dashboardTime": false,
             "query": "customEvents\n| project Domain = tostring(customDimensions.domain), Expire = tostring(unixtime_milliseconds_todatetime(tolong(customMeasurements.targetExpirationTimestamp))), DayToExpire = toint(customMeasurements.targetExpireInDays), Status = toint(customMeasurements.targetStatus), TLSVersion = customMeasurements.targetTlsVersion, checkssl = customDimensions.checkCert, Duration = customMeasurements.duration, timestamp\n| where checkssl == \"true\"\n| summarize arg_max(timestamp, *) by Domain\n| project Domain, DayToExpire\n",
             "resources": [
               "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/Microsoft.Insights/components/${application_insights_name}"
@@ -130,11 +132,42 @@
         }
       ],
       "title": "DAY by Gauge",
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "Domain"
+              }
+            ]
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "filters": [
+              {
+                "config": {
+                  "id": "isNull",
+                  "options": {}
+                },
+                "fieldName": "DayToExpire"
+              }
+            ],
+            "match": "any",
+            "type": "exclude"
+          }
+        }
+      ],
       "transparent": true,
-      "type": "gauge"
+      "type": "bargauge"
     },
     {
       "datasource": {
+        "default": false,
         "type": "grafana-azure-monitor-datasource",
         "uid": "azure-monitor-oob"
       },
@@ -173,7 +206,7 @@
         "h": 16,
         "w": 16,
         "x": 0,
-        "y": 14
+        "y": 13
       },
       "id": 6,
       "options": {
@@ -215,17 +248,17 @@
             ],
             "metricName": "availabilityResults/availabilityPercentage",
             "metricNamespace": "microsoft.insights/components",
-            "region": "West Europe",
+            "region": "${location_display_name}",
             "resources": [
               {
-                "metricNamespace": "Microsoft.Insights/components",
-                "region": "West Europe",
+                "metricNamespace": "microsoft.insights/components",
+                "region": "${location_display_name}",
                 "resourceGroup": "${resource_group_name}",
                 "resourceName": "${application_insights_name}",
                 "subscription": "${subscription_id}"
               }
             ],
-            "timeGrain": "PT5M",
+            "timeGrain": "auto",
             "top": "100"
           },
           "datasource": {
@@ -242,6 +275,7 @@
     },
     {
       "datasource": {
+        "default": false,
         "type": "grafana-azure-monitor-datasource",
         "uid": "azure-monitor-oob"
       },
@@ -312,7 +346,7 @@
         "h": 16,
         "w": 8,
         "x": 16,
-        "y": 14
+        "y": 13
       },
       "id": 1,
       "options": {
@@ -329,14 +363,16 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "10.4.15",
+      "pluginVersion": "11.2.2+security-01",
       "targets": [
         {
           "azureLogAnalytics": {
-            "query": "customEvents\n| project Domain = tostring(customDimensions.domain), Expire = unixtime_milliseconds_todatetime(tolong(customMeasurements.targetExpirationTimestamp)), DayToExpire = toint(customMeasurements.targetExpireInDays), Status = toint(customMeasurements.certSuccess), TLSVersion = customMeasurements.targetTlsVersion, checkssl = customDimensions.checkCert, Duration = customMeasurements.duration, timestamp\n| where checkssl == \"true\"\n| summarize arg_max(timestamp, *) by Domain\n| project Domain, format_datetime(Expire,'dd-MM-yy'), TLSVersion",
+            "dashboardTime": false,
+            "query": "customEvents\n| project Domain = tostring(customDimensions.domain), Expire = unixtime_milliseconds_todatetime(tolong(customMeasurements.targetExpirationTimestamp)), DayToExpire = toint(customMeasurements.targetExpireInDays), Status = toint(customMeasurements.certSuccess), TLS = customMeasurements.targetTlsVersion, checkssl = customDimensions.checkCert, Duration = customMeasurements.duration, timestamp\n| where checkssl == \"true\"\n| summarize arg_max(timestamp, *) by Domain\n| project Domain, format_datetime(Expire,'dd-MM-yy'), TLS",
             "resources": [
               "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/Microsoft.Insights/components/${application_insights_name}"
-            ]
+            ],
+            "resultFormat": "logs"
           },
           "azureMonitor": {
             "allowedTimeGrainsMs": [],
@@ -355,6 +391,7 @@
     },
     {
       "datasource": {
+        "default": false,
         "type": "grafana-azure-monitor-datasource",
         "uid": "azure-monitor-oob"
       },
@@ -376,7 +413,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent"
+                "color": "transparent",
+                "value": null
               }
             ]
           }
@@ -394,18 +432,42 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-red"
+                      "color": "dark-red",
+                      "value": null
                     },
                     {
-                      "color": "transparent",
+                      "color": "semi-dark-red",
+                      "value": 0
+                    },
+                    {
+                      "color": "semi-dark-green",
                       "value": 1
                     }
+
                   ]
                 }
               },
               {
                 "id": "custom.width",
                 "value": 112
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "index": 0,
+                        "text": "KO"
+                      },
+                      "1": {
+                        "index": 1,
+                        "text": "OK"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
               }
             ]
           },
@@ -432,7 +494,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "red"
+                      "color": "red",
+                      "value": null
                     },
                     {
                       "color": "yellow",
@@ -459,7 +522,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 1214
+                "value": 910
               }
             ]
           },
@@ -481,11 +544,11 @@
         "h": 15,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 29
       },
       "id": 4,
       "options": {
-        "cellHeight": "md",
+        "cellHeight": "sm",
         "footer": {
           "countRows": false,
           "enablePagination": true,
@@ -496,16 +559,23 @@
           "show": false
         },
         "showHeader": true,
-        "sortBy": []
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Status"
+          }
+        ]
       },
-      "pluginVersion": "9.5.15",
+      "pluginVersion": "11.2.2+security-01",
       "targets": [
         {
           "azureLogAnalytics": {
-            "query": "customEvents\n| project Name = tostring(name), Domain = tostring(customDimensions.endpoint), Expire = unixtime_milliseconds_todatetime(tolong(customMeasurements.targetExpirationTimestamp)), DayToExpire = toint(customMeasurements.targetExpireInDays), Status = toint(customMeasurements.targetStatus), TLSVersion = customMeasurements.targetTlsVersion, checkssl = customDimensions.checkCert, Duration = customMeasurements.duration, timestamp\n| summarize arg_max(timestamp, *) by Domain\n| project Name, Domain,  Status, Duration\n",
+            "dashboardTime": false,
+            "query": "customEvents\n| project Name = tostring(name), Domain = tostring(customDimensions.endpoint), Expire = unixtime_milliseconds_todatetime(tolong(customMeasurements.targetExpirationTimestamp)), DayToExpire = toint(customMeasurements.targetExpireInDays), Status = toint(customMeasurements.targetStatus), TLSVersion = customMeasurements.targetTlsVersion, checkssl = customDimensions.checkCert, Duration = customMeasurements.duration, timestamp\n| summarize arg_max(timestamp, *) by Domain\n| project Name, Domain, Duration, Status \n",
             "resources": [
               "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/Microsoft.Insights/components/${application_insights_name}"
-            ]
+            ],
+            "resultFormat": "logs"
           },
           "azureMonitor": {
             "allowedTimeGrainsMs": [],
@@ -548,8 +618,7 @@
     ]
   },
   "timezone": "",
-  "title": "EndPoint Monitoring",
+  "title": "SYNTETIC Monitoring Platform Dashboard",
   "uid": "fd990b23-14ba-4ed1-a43e-506de880fbc3",
-  "version": 30,
   "weekStart": ""
 }
