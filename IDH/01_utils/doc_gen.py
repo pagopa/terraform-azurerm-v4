@@ -5,15 +5,22 @@ from collections.abc import MutableMapping
 
 
 def flatten_dict(d: MutableMapping, parent_key: str = '',
-                 sep: str = '.') -> MutableMapping:
-  items = []
-  for k, v in d.items():
-    new_key = parent_key + sep + k if parent_key else k
-    if isinstance(v, MutableMapping):
-      items.extend(flatten_dict(v, new_key, sep=sep).items())
-    else:
-      items.append((new_key, v))
-  return dict(items)
+               sep: str = '.') -> MutableMapping:
+    # Inizializza una lista vuota per memorizzare le coppie chiave-valore appiattite
+    items = []
+    # Itera su tutte le coppie chiave-valore del dizionario
+    for k, v in d.items():
+        # Costruisce la nuova chiave combinando la chiave genitore con quella corrente
+        new_key = parent_key + sep + k if parent_key else k
+        # Se il valore è un altro dizionario (MutableMapping)
+        if isinstance(v, MutableMapping):
+            # Chiamata ricorsiva per appiattire il sotto-dizionario
+            items.extend(flatten_dict(v, new_key, sep=sep).items())
+        else:
+            # Se il valore non è un dizionario, aggiunge la coppia chiave-valore
+            items.append((new_key, v))
+    # Converte la lista di tuple in un dizionario e lo restituisce
+    return dict(items)
 
 class Default(dict):
   def __missing__(self, key):
@@ -43,6 +50,7 @@ def doc_generate():
             }
             config_files[Path(file).stem].append(a)
 
+  # genera la documentazione
   for module in config_files.keys():
     with open(f"./IDH/{module}/LIBRARY.md", "w") as l:
       with open(f'./IDH/{module}/resource_description.info') as desc:
@@ -52,6 +60,8 @@ def doc_generate():
         l.write("|------|---------|----|---|\n")
         for config in config_files[module]:
           for resource_name in config['idh_resources'].keys():
+            # appiattisce il dizionario e wrappa con Default per restituire "-" se la chiave non esiste
+            # usa "|" come separatore per evitare conflitti con la dot notation (non utilizzabile in modo safe)
             d = Default(flatten_dict(config['idh_resources'][resource_name], '', "|"))
             l.write(f"|{config['platform']}|{config['environment']}|{resource_name}| {desc_string.format_map(d)}|\n")
 
