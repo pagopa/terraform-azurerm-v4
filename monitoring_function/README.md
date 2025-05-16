@@ -229,7 +229,6 @@ module "monitoring_function" {
 | [azurerm_container_app_job.monitoring_terraform_app_job](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app_job) | resource |
 | [azurerm_monitor_metric_alert.alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_monitor_metric_alert.self_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
-| [azurerm_private_endpoint.synthetic_monitoring_storage_private_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
 | [azurerm_storage_table.table_storage](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_table) | resource |
 | [azurerm_storage_table_entity.monitoring_configuration](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_table_entity) | resource |
 | [grafana_dashboard.sythetic_monitoring](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/dashboard) | resource |
@@ -249,6 +248,7 @@ module "monitoring_function" {
 | <a name="input_enabled_sythetic_dashboard"></a> [enabled\_sythetic\_dashboard](#input\_enabled\_sythetic\_dashboard) | (Optional) Enabled sythetic dashboard on grafana | `bool` | `false` | no |
 | <a name="input_job_settings"></a> [job\_settings](#input\_job\_settings) | n/a | <pre>object({<br/>    container_app_environment_id = string                          #(Required) If defined, the id of the container app environment tu be used to run the monitoring job. If provided, skips the creation of a dedicated subnet<br/>    cert_validity_range_days     = optional(number, 7)             #(Optional) Number of days before the expiration date of a certificate over which the check is considered success<br/>    execution_timeout_seconds    = optional(number, 300)           #(Optional) Job execution timeout, in seconds<br/>    cron_scheduling              = optional(string, "*/5 * * * *") #(Optional) Cron expression defining the execution scheduling of the monitoring function<br/>    cpu_requirement              = optional(number, 0.25)          #(Optional) Decimal; cpu requirement<br/>    memory_requirement           = optional(string, "0.5Gi")       #(Optional) Memory requirement<br/>    http_client_timeout          = optional(number, 30000)         #(Optional) Default http client response timeout, in milliseconds<br/>    default_duration_limit       = optional(number, 10000)         #(Optional) Duration limit applied if none is given in the monitoring configuration. in milliseconds<br/>    availability_prefix          = optional(string, "synthetic")   #(Optional) Prefix used for prefixing availability test names<br/>  })</pre> | <pre>{<br/>  "availability_prefix": "synthetic",<br/>  "cert_validity_range_days": 7,<br/>  "container_app_environment_id": null,<br/>  "cpu_requirement": 0.25,<br/>  "cron_scheduling": "*/5 * * * *",<br/>  "default_duration_limit": 10000,<br/>  "execution_timeout_seconds": 300,<br/>  "http_client_timeout": 30000,<br/>  "memory_requirement": "0.5Gi"<br/>}</pre> | no |
 | <a name="input_location"></a> [location](#input\_location) | (Required) Resource location | `string` | n/a | yes |
+| <a name="input_location_display_name"></a> [location\_display\_name](#input\_location\_display\_name) | (Required) Region location display name, like 'Italy North' | `string` | n/a | yes |
 | <a name="input_monitoring_configuration_encoded"></a> [monitoring\_configuration\_encoded](#input\_monitoring\_configuration\_encoded) | (Required) monitoring configuration provided in JSON string format (use jsonencode) | `string` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | (Required) Prefix for dedicated resource names | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (Required) Name of the resource group in which the function and its related components are created | `string` | n/a | yes |
@@ -260,5 +260,7 @@ module "monitoring_function" {
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_output_monitoring_configuration"></a> [output\_monitoring\_configuration](#output\_output\_monitoring\_configuration) | n/a |
 <!-- END_TF_DOCS -->

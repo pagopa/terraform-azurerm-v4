@@ -56,7 +56,7 @@ resource "azurerm_storage_table" "table_storage" {
 # Apis configuration
 #
 locals {
-  decoded_configuration    = jsondecode(var.monitoring_configuration_encoded)
+  decoded_configuration = jsondecode(var.monitoring_configuration_encoded)
   monitoring_configuration = {
     for c in local.decoded_configuration :
     "${contains(keys(c), "domain") ? "${c.domain}-" : ""}${c.appName}-${c.apiName}-${c.type}" => c
@@ -185,12 +185,12 @@ resource "azurerm_monitor_metric_alert" "alert" {
   name                = "availability-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName}-${each.value.apiName}-${each.value.type}"
   resource_group_name = var.resource_group_name
 
-  scopes              = [data.azurerm_application_insights.app_insight.id]
-  description         = "Availability of ${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName} ${each.value.apiName} from ${each.value.type} degraded"
-  severity            = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "severity", local.default_alert_configuration.severity)
-  frequency           = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "frequency", local.default_alert_configuration.frequency)
-  auto_mitigate       = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "auto_mitigate", local.default_alert_configuration.auto_mitigate)
-  enabled             = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "enabled", local.default_alert_configuration.enabled)
+  scopes        = [data.azurerm_application_insights.app_insight.id]
+  description   = "Availability of ${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName} ${each.value.apiName} from ${each.value.type} degraded"
+  severity      = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "severity", local.default_alert_configuration.severity)
+  frequency     = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "frequency", local.default_alert_configuration.frequency)
+  auto_mitigate = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "auto_mitigate", local.default_alert_configuration.auto_mitigate)
+  enabled       = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "enabled", local.default_alert_configuration.enabled)
 
   criteria {
     aggregation      = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "aggregation", local.default_alert_configuration.aggregation)
@@ -220,7 +220,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
     }
   }
 
-  depends_on          = [azurerm_container_app_job.monitoring_terraform_app_job]
+  depends_on = [azurerm_container_app_job.monitoring_terraform_app_job]
 }
 
 #
