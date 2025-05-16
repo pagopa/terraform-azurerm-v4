@@ -79,6 +79,18 @@ variable "administrator_password" {
   description = "Flexible PostgreSql server administrator_password"
 }
 
+variable "db_version" {
+  type        = string
+  description = "(Optional) PostgreSQL version"
+  default     = null
+}
+
+variable "storage_mb" {
+  type        = number
+  description = "(Optional) The size of the storage in MB. Changing this forces a new PostgreSQL Flexible Server to be created."
+  default     = null
+}
+
 variable "primary_user_assigned_identity_id" {
   type        = string
   description = "Manages a User Assigned Identity"
@@ -113,12 +125,6 @@ variable "custom_metric_alerts" {
   }))
 }
 
-
-variable "alerts_enabled" {
-  type        = bool
-  default     = true
-  description = "Should Metrics Alert be enabled?"
-}
 
 variable "alert_action" {
   description = "The ID of the Action Group and optional map of custom string properties to include with the post webhook operation."

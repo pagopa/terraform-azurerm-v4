@@ -13,7 +13,7 @@ module "pgflex" {
 
   administrator_login       = var.administrator_login
   administrator_password    = var.administrator_password
-  db_version                = module.idh_loader.idh_config.db_version
+  db_version                = var.db_version != null ? var.db_version : module.idh_loader.idh_config.db_version
   high_availability_enabled = module.idh_loader.idh_config.high_availability_enabled
   standby_availability_zone = module.idh_loader.idh_config.standby_availability_zone
   location                  = var.location
@@ -21,7 +21,7 @@ module "pgflex" {
   private_endpoint_enabled  = module.idh_loader.idh_config.private_endpoint_enabled
   resource_group_name       = var.resource_group_name
   sku_name                  = module.idh_loader.idh_config.sku_name
-  storage_mb                = module.idh_loader.idh_config.storage_mb
+  storage_mb                = var.storage_mb != null ? var.storage_mb : module.idh_loader.idh_config.storage_mb
 
   backup_retention_days        = module.idh_loader.idh_config.backup_retention_days
   geo_redundant_backup_enabled = module.idh_loader.idh_config.geo_redundant_backup_enabled

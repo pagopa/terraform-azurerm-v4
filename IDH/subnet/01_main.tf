@@ -72,9 +72,9 @@ module "subnet" {
     }
   } : null
 
+  private_link_service_network_policies_enabled = module.idh_loader.idh_config.private_link_service_network_policies_enabled
+  private_endpoint_network_policies             = module.idh_loader.idh_config.private_endpoint_network_policies
 
-  private_endpoint_network_policies             = var.private_endpoint_network_policies
-  private_link_service_network_policies_enabled = var.private_link_service_network_policies_enabled
   service_endpoints                             = var.service_endpoints
 
 }
