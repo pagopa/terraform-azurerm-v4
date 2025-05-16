@@ -413,7 +413,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent"
+                "color": "transparent",
+                "value": null
               }
             ]
           }
@@ -431,7 +432,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-red"
+                      "color": "dark-red",
+                      "value": null
                     },
                     {
                       "color": "semi-dark-red",
@@ -491,7 +493,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "red"
+                      "color": "red",
+                      "value": null
                     },
                     {
                       "color": "yellow",
@@ -562,7 +565,7 @@
           }
         ]
       },
-      "pluginVersion": "11.2.2+security-01",
+      "pluginVersion": "11.2.8+security-01",
       "targets": [
         {
           "azureLogAnalytics": {
@@ -596,7 +599,7 @@
     "list": []
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {
