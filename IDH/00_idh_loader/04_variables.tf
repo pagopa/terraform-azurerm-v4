@@ -1,5 +1,5 @@
 variable "prefix" {
-  type = string
+  type        = string
   description = "(Required) The prefix used to identify the catalog to be used"
   validation {
     condition = (
@@ -10,7 +10,7 @@ variable "prefix" {
 }
 
 variable "env" {
-  type = string
+  type        = string
   description = "(Required) The environment used to identify the catalog to be used"
 }
 

@@ -5,10 +5,10 @@ postgres_flexible:
     actions:
       - Microsoft.Network/virtualNetworks/subnets/join/action
 app_service:
-    prefix_length: 27
-    delegation:
-        name: Microsoft.Web/serverFarms
-        actions:
-        - Microsoft.Network/virtualNetworks/subnets/action
+  prefix_length: 27
+  delegation:
+    name: Microsoft.Web/serverFarms
+    actions:
+    - Microsoft.Network/virtualNetworks/subnets/action
 private_endpoint:
     prefix_length: 26

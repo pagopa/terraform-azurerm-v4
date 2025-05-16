@@ -1,10 +1,10 @@
 module "idh_loader" {
   source = "../00_idh_loader"
 
-  prefix        = var.prefix
-  env           = var.env
-  idh_resource  = var.idh_resource
-  idh_category  = "subnet"
+  prefix       = var.prefix
+  env          = var.env
+  idh_resource = var.idh_resource
+  idh_category = "subnet"
 }
 
 
@@ -30,8 +30,8 @@ data "external" "subnet_cidr" {
   ]
 
   query = {
-    used_cidrs = jsonencode([for subnet_name in data.azurerm_virtual_network.vnet.subnets : data.azurerm_subnet.subnet[subnet_name].address_prefix])
-    starting_cidr = data.azurerm_virtual_network.vnet.address_space[0]
+    used_cidrs     = jsonencode([for subnet_name in data.azurerm_virtual_network.vnet.subnets : data.azurerm_subnet.subnet[subnet_name].address_prefix])
+    starting_cidr  = data.azurerm_virtual_network.vnet.address_space[0]
     desired_prefix = module.idh_loader.idh_config.prefix_length
   }
 }
@@ -57,8 +57,8 @@ resource "terraform_data" "subnet_cidr" {
 module "subnet" {
   source = "../../subnet"
 
-  name = var.name
-  resource_group_name = var.resource_group_name
+  name                 = var.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = var.virtual_network_name
 
   address_prefixes = [terraform_data.subnet_cidr.input]
@@ -73,8 +73,8 @@ module "subnet" {
   } : null
 
 
-  private_endpoint_network_policies = var.private_endpoint_network_policies
+  private_endpoint_network_policies             = var.private_endpoint_network_policies
   private_link_service_network_policies_enabled = var.private_link_service_network_policies_enabled
-  service_endpoints = var.service_endpoints
+  service_endpoints                             = var.service_endpoints
 
 }
