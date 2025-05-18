@@ -16,6 +16,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get clean
 rm -rf /var/lib/apt/lists/*
 apt-get -y update
+apt-get -y update
 sleep 3
 apt-get -y --allow-unauthenticated install zip unzip ca-certificates curl wget apt-transport-https lsb-release gnupg jq
 
