@@ -40,3 +40,4 @@ You can then access your `yml`content using the following syntax: `module.idh_lo
 
 [Here's](./LIBRARY.md) the list of `idh_resource` available for this module
 ```
+

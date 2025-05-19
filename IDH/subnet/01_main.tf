@@ -75,6 +75,6 @@ module "subnet" {
   private_link_service_network_policies_enabled = module.idh_loader.idh_config.private_link_service_network_policies_enabled
   private_endpoint_network_policies             = module.idh_loader.idh_config.private_endpoint_network_policies
 
-  service_endpoints                             = var.service_endpoints
+  service_endpoints = var.service_endpoints
 
 }
