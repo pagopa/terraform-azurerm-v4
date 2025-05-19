@@ -3,6 +3,19 @@
 <!--- Write this PR as you were contributing to a public OSS project, where nobody knows you and you have to earn their trust. -->
 <!--- This will improve our projects in the long run! Thanks. -->
 
+### ⚠️ Attention
+
+The module you changed is also referenced in the IDH folder?
+
+- [ ] Yes
+- [ ] No
+
+If so, please make sure to update the IDH module as well.
+
+- [ ] I have updated the IDH module
+
+
+
 ### List of changes
 
 <!--- Describe your changes in detail -->

@@ -7,6 +7,8 @@
 *.tfsec
 tfplan
 
+.venv
+
 # Crash log files
 crash.log
 

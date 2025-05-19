@@ -17,3 +17,9 @@ repos:
       #     - >
       #       --args=--format table
       #       --skip-dirs="**/.terraform"
+  - repo: local
+    hooks:
+      - id: generate-idh-docs
+        name: Generate IDH Docs
+        entry: IDH/01_utils/generate-idh-docs.sh
+        language: script
