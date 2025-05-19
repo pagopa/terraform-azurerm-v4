@@ -17,6 +17,12 @@ variable "location" {
   description = "(Required) Resource location"
 }
 
+variable "location_display_name" {
+  type        = string
+  description = "(Required) Region location display name, like 'Italy North'"
+}
+
+
 variable "storage_account_settings" {
   type = object({
     tier                       = optional(string, "Standard")  #(Optional) Tier used for the backup storage account

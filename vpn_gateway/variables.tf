@@ -51,7 +51,7 @@ variable "pip_sku" {
 
 variable "pip_allocation_method" {
   description = "Defines how the public IP address is allocated. Must be 'Static' for Standard SKU (required by VpnGw1+)."
-  default     = "Dynamic"
+  default     = "Static"
 
   validation {
     condition = (

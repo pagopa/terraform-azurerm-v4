@@ -41,6 +41,10 @@ module "synthetic_monitoring_storage_account" {
     enable_immutability_policy = false
     blob_restore_policy_days   = var.storage_account_settings.backup_retention_days
   }
+
+  private_endpoint_enabled   = var.storage_account_settings.private_endpoint_enabled
+  private_dns_zone_table_ids = [var.storage_account_settings.table_private_dns_zone_id]
+  subnet_id                  = var.storage_private_endpoint_subnet_id
 }
 
 resource "azurerm_storage_table" "table_storage" {
@@ -48,9 +52,20 @@ resource "azurerm_storage_table" "table_storage" {
   storage_account_name = module.synthetic_monitoring_storage_account.name
 }
 
+#
+# Apis configuration
+#
 locals {
-  decoded_configuration    = jsondecode(var.monitoring_configuration_encoded)
-  monitoring_configuration = { for c in local.decoded_configuration : "${c.appName}-${c.apiName}-${c.type}" => c if lookup(c, "enabled", true) }
+  decoded_configuration = jsondecode(var.monitoring_configuration_encoded)
+  monitoring_configuration = {
+    for c in local.decoded_configuration :
+    "${contains(keys(c), "domain") ? "${c.domain}-" : ""}${c.appName}-${c.apiName}-${c.type}" => c
+    if lookup(c, "enabled", true)
+  }
+}
+
+output "output_monitoring_configuration" {
+  value = local.monitoring_configuration
 }
 
 resource "azurerm_storage_table_entity" "monitoring_configuration" {
@@ -63,7 +78,10 @@ resource "azurerm_storage_table_entity" "monitoring_configuration" {
     "url"                 = each.value.url,
     "type"                = each.value.type,
     "checkCertificate"    = each.value.checkCertificate,
+    "enabled"             = each.value.enabled,
+    "alertEnabled"        = each.value.alertConfiguration.enabled,
     "method"              = each.value.method,
+    "domain"              = lookup(each.value, "domain", "-"),
     "expectedCodes"       = jsonencode(each.value.expectedCodes),
     "durationLimit"       = lookup(each.value, "durationLimit", null) != null ? each.value.durationLimit : var.job_settings.default_duration_limit,
     "headers"             = lookup(each.value, "headers", null) != null ? jsonencode(each.value.headers) : null,
@@ -72,31 +90,6 @@ resource "azurerm_storage_table_entity" "monitoring_configuration" {
     "bodyCompareStrategy" = lookup(each.value, "bodyCompareStrategy", null) != null ? each.value.bodyCompareStrategy : null
     "expectedBody"        = lookup(each.value, "expectedBody", null) != null ? jsonencode(each.value.expectedBody) : null
   }
-}
-
-resource "azurerm_private_endpoint" "synthetic_monitoring_storage_private_endpoint" {
-  count = var.storage_account_settings.private_endpoint_enabled ? 1 : 0
-
-  name                = "${var.prefix}-syntheticmonitoringsa-private-endpoint"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  subnet_id           = var.storage_private_endpoint_subnet_id
-
-  private_dns_zone_group {
-    name = "${var.prefix}-synthetic-monitoring-private-dns-zone-group"
-    private_dns_zone_ids = [
-      var.storage_account_settings.table_private_dns_zone_id
-    ]
-  }
-
-  private_service_connection {
-    name                           = "${var.prefix}-synthetic-monitoring-private-service-connection"
-    private_connection_resource_id = module.synthetic_monitoring_storage_account.id
-    is_manual_connection           = false
-    subresource_names              = ["table"]
-  }
-
-  tags = var.tags
 }
 
 #
@@ -189,14 +182,15 @@ locals {
 resource "azurerm_monitor_metric_alert" "alert" {
   for_each = local.monitoring_configuration
 
-  name                = "availability-${each.value.appName}-${each.value.apiName}-${each.value.type}"
+  name                = "availability-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName}-${each.value.apiName}-${each.value.type}"
   resource_group_name = var.resource_group_name
-  scopes              = [data.azurerm_application_insights.app_insight.id]
-  description         = "Availability of ${each.value.appName} ${each.value.apiName} from ${each.value.type} degraded"
-  severity            = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "severity", local.default_alert_configuration.severity)
-  frequency           = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "frequency", local.default_alert_configuration.frequency)
-  auto_mitigate       = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "auto_mitigate", local.default_alert_configuration.auto_mitigate)
-  enabled             = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "enabled", local.default_alert_configuration.enabled)
+
+  scopes        = [data.azurerm_application_insights.app_insight.id]
+  description   = "Availability of ${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName} ${each.value.apiName} from ${each.value.type} degraded"
+  severity      = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "severity", local.default_alert_configuration.severity)
+  frequency     = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "frequency", local.default_alert_configuration.frequency)
+  auto_mitigate = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "auto_mitigate", local.default_alert_configuration.auto_mitigate)
+  enabled       = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "enabled", local.default_alert_configuration.enabled)
 
   criteria {
     aggregation      = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "aggregation", local.default_alert_configuration.aggregation)
@@ -208,7 +202,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
       name     = "availabilityResult/name"
       operator = "Include"
       values = [
-        "${var.job_settings.availability_prefix}-${each.value.appName}-${each.value.apiName}"
+        "${var.job_settings.availability_prefix}-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName}-${each.value.apiName}"
       ]
     }
     dimension {
@@ -226,6 +220,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
     }
   }
 
+  depends_on = [azurerm_container_app_job.monitoring_terraform_app_job]
 }
 
 #
