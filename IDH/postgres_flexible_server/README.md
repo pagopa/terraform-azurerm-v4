@@ -1,6 +1,9 @@
 # Postgres Flexible Server
 
-Module that allows the creation of a postgres flexible based on a library of server configuration
+Module that allows the creation of a postgres flexible based on a library of server configuration.
+Also handles:
+- Database creation
+- Geo-replication and private DNS registration
 
 ## IDH resources available
 

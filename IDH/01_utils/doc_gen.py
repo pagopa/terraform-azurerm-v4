@@ -50,20 +50,25 @@ def doc_generate():
             }
             config_files[Path(file).stem].append(a)
 
-  # genera la documentazione
-  for module in config_files.keys():
-    with open(f"./IDH/{module}/LIBRARY.md", "w") as l:
-      with open(f'./IDH/{module}/resource_description.info') as desc:
-        desc_string = desc.read()
-        l.write(f"# IDH {module} resources\n")
-        l.write("|Platform| Environment| Name | Description | \n")
-        l.write("|------|---------|----|---|\n")
-        for config in config_files[module]:
-          for resource_name in config['idh_resources'].keys():
-            # appiattisce il dizionario e wrappa con Default per restituire "-" se la chiave non esiste
-            # usa "_" come separatore per evitare conflitti con la dot notation (non utilizzabile in modo safe)
-            d = Default(flatten_dict(config['idh_resources'][resource_name], '', "_"))
-            l.write(f"|{config['platform']}|{config['environment']}|{resource_name}| {desc_string.rstrip().format_map(d)} |\n")
+  with open(f"./IDH/LIBRARY.md", "w") as idh_lib:
+    idh_lib.write(f"# IDH available modules\n")
+    idh_lib.write("|Module| Doc | \n")
+    idh_lib.write("|------|---------|\n")
+    # genera la documentazione
+    for module in config_files.keys():
+      idh_lib.write(f"|{module}|[README]({module}/README.md)|\n")
+      with open(f"./IDH/{module}/LIBRARY.md", "w") as module_lib:
+        with open(f'./IDH/{module}/resource_description.info') as desc:
+          desc_string = desc.read()
+          module_lib.write(f"# IDH {module} resources\n")
+          module_lib.write("|Platform| Environment| Name | Description | \n")
+          module_lib.write("|------|---------|----|---|\n")
+          for config in config_files[module]:
+            for resource_name in config['idh_resources'].keys():
+              # appiattisce il dizionario e wrappa con Default per restituire "-" se la chiave non esiste
+              # usa "_" come separatore per evitare conflitti con la dot notation (non utilizzabile in modo safe)
+              d = Default(flatten_dict(config['idh_resources'][resource_name], '', "_"))
+              module_lib.write(f"|{config['platform']}|{config['environment']}|{resource_name}| {desc_string.rstrip().format_map(d)} |\n")
 
 
 
