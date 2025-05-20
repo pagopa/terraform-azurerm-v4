@@ -22,7 +22,7 @@ jobs:
         with:
           start_folder: "/"
           default_end_folder_depth: 1
-          include_patterns: "/,.scripts"
+          include_patterns: "/"
           ignore_patterns: ".github,.devops,.vscode,.gitignore,.terraform-version"
           include_folders: ".scripts,.utils"
 
