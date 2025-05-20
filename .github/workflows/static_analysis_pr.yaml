@@ -23,7 +23,7 @@ jobs:
           start_folder: "/"
           include_patterns: "/"
           ignore_patterns: ".github,.devops,.vscode,.gitignore,.terraform-version"
-          include_folders: ".scripts,.utils"
+          include_folders: ".scripts,.utils,IDH/00_idh"
           stopper_folders: "env,tests"
 
       - name: 👀 See folders downloaded
