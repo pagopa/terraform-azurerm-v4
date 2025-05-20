@@ -18,7 +18,7 @@ jobs:
 
       - name: 🔨 Get Modified Paths
         id: get-paths
-        uses: pagopa/eng-github-actions-iac-template/global/get-modifed-folders@v84db073e6ae48f141ffce4c52d16a67ef5c4662d
+        uses: pagopa/eng-github-actions-iac-template/global/get-modifed-folders@84db073e6ae48f141ffce4c52d16a67ef5c4662d
         with:
           start_folder: "/"
           default_end_folder_depth: 2
