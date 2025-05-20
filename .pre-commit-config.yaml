@@ -22,4 +22,5 @@ repos:
       - id: generate-idh-docs
         name: Generate IDH Docs
         entry: .scripts/generate-idh-docs.sh
-        language: script
+        language: python
+        types: [python]
