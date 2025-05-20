@@ -59,6 +59,7 @@ def doc_generate():
     str_idh_lib = str_idh_lib + "|------|---------|\n"
     # genera la documentazione
     for module in config_files.keys():
+      print(f"analyzing module {module}")
       str_idh_lib = str_idh_lib + f"|{module}|[README]({module}/README.md)|\n"
       with open(f"./IDH/{module}/LIBRARY.md", "w+") as module_lib:
         saved_module_lib = module_lib.read()
