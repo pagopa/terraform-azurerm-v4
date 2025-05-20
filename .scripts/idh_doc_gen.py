@@ -29,6 +29,7 @@ class Default(dict):
 def doc_generate():
   rootdir = f"./IDH/00_idh"
   config_files = {}
+  print(f"os walk: {os.walk(rootdir)}")
   for root, _, files in os.walk(rootdir):
     print(f"analyzing {root} {files}")
     for file in files:
