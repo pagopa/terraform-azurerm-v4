@@ -61,6 +61,7 @@ def doc_generate():
       print(f"analyzing module {module}")
       str_idh_lib = str_idh_lib + f"|{module}|[README]({module}/README.md)|\n"
       if not os.path.exists(f"./IDH/{module}"):
+        print(f"module {module} not found, skipping")
         continue
       with open(f"./IDH/{module}/LIBRARY.md", "w+") as module_lib:
         saved_module_lib = module_lib.read()
@@ -79,6 +80,9 @@ def doc_generate():
 
         if str_module_lib != saved_module_lib:
           print(f"updating module {module} lib to file")
+          print(f"old: '{saved_module_lib}'")
+          print(f"new: '{str_module_lib}'")
+
           module_lib.write(str_module_lib)
 
     if str_idh_lib != saved_idh_lib:
