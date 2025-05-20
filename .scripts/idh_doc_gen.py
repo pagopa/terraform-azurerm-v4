@@ -49,25 +49,39 @@ def doc_generate():
               'idh_resources': yaml_content
             }
             config_files[Path(file).stem].append(a)
-  with open(f"./IDH/LIBRARY.md", "w") as idh_lib:
-    idh_lib.write(f"# IDH available modules\n")
-    idh_lib.write("|Module| Doc | \n")
-    idh_lib.write("|------|---------|\n")
+
+  str_idh_lib = ""
+
+  with open(f"./IDH/LIBRARY.md", "w+") as idh_lib:
+    saved_idh_lib = idh_lib.read()
+    str_idh_lib = str_idh_lib + f"# IDH available modules\n"
+    str_idh_lib = str_idh_lib + "|Module| Doc | \n"
+    str_idh_lib = str_idh_lib + "|------|---------|\n"
     # genera la documentazione
     for module in config_files.keys():
-      idh_lib.write(f"|{module}|[README]({module}/README.md)|\n")
-      with open(f"./IDH/{module}/LIBRARY.md", "w") as module_lib:
+      str_idh_lib = str_idh_lib + f"|{module}|[README]({module}/README.md)|\n"
+      with open(f"./IDH/{module}/LIBRARY.md", "w+") as module_lib:
+        saved_module_lib = module_lib.read()
+        str_module_lib = ""
         with open(f'./IDH/{module}/resource_description.info') as desc:
           desc_string = desc.read()
-          module_lib.write(f"# IDH {module} resources\n")
-          module_lib.write("|Platform| Environment| Name | Description | \n")
-          module_lib.write("|------|---------|----|---|\n")
+          str_module_lib = str_module_lib + f"# IDH {module} resources\n"
+          str_module_lib = str_module_lib + "|Platform| Environment| Name | Description | \n"
+          str_module_lib = str_module_lib + "|------|---------|----|---|\n"
           for config in config_files[module]:
             for resource_name in config['idh_resources'].keys():
               # appiattisce il dizionario e wrappa con Default per restituire "-" se la chiave non esiste
               # usa "_" come separatore per evitare conflitti con la dot notation (non utilizzabile in modo safe)
               d = Default(flatten_dict(config['idh_resources'][resource_name], '', "_"))
-              module_lib.write(f"|{config['platform']}|{config['environment']}|{resource_name}| {desc_string.rstrip().format_map(d)} |\n")
+              str_module_lib = str_module_lib + f"|{config['platform']}|{config['environment']}|{resource_name}| {desc_string.rstrip().format_map(d)} |\n"
+
+        if str_module_lib != saved_module_lib:
+          print(f"updating module {module} lib to file")
+          module_lib.write(str_module_lib)
+
+    if str_idh_lib != saved_idh_lib:
+      print(f"updating idh lib to file")
+      idh_lib.write(str_idh_lib)
 
 
 
