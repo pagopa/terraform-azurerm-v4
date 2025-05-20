@@ -24,14 +24,13 @@ jobs:
           default_end_folder_depth: 1
           include_patterns: "/,.scripts"
           ignore_patterns: ".github,.devops,.vscode,.gitignore,.terraform-version"
+          include_folders: ".scripts,.utils"
 
       - name: 👀 See folders downloaded
         if: env.dir_changes_detected == 'true'
         id: see
         shell: bash
         run: |
-          ls -la
-          du -h -d 3 .
           tree -R -d -a .
 
       - name: run_init
