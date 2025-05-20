@@ -58,11 +58,13 @@ def doc_generate():
     str_idh_lib = str_idh_lib + "|------|---------|\n"
     # genera la documentazione
     for module in config_files.keys():
-      print(f"analyzing module {module}")
       str_idh_lib = str_idh_lib + f"|{module}|[README]({module}/README.md)|\n"
       if not os.path.exists(f"./IDH/{module}"):
-        print(f"module {module} not found, skipping")
+        print(f"folder {module} not found, skipping")
         continue
+
+      if not os.path.exists(f"./IDH/{module}/LIBRARY.md"):
+        print("perchè non esiste il file?")
       with open(f"./IDH/{module}/LIBRARY.md", "w+") as module_lib:
         saved_module_lib = module_lib.read()
         str_module_lib = ""
