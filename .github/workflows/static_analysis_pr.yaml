@@ -1,5 +1,7 @@
 name: 🛃 Static Analysis PR
 
+permissions:
+  contents: read
 on:
   push:
     branches-ignore:
