@@ -25,7 +25,7 @@ jobs:
           include_patterns: "/"
           ignore_patterns: ".github,.devops,.vscode,.gitignore,.terraform-version"
           include_folders: ".scripts,.utils"
-          stopper_folders: "IDH"
+          stopper_folders: "env,tests"
 
       - name: 👀 See folders downloaded
         if: env.dir_changes_detected == 'true'
