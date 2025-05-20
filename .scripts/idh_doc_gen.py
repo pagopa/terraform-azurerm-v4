@@ -3,6 +3,11 @@ import os
 from pathlib import Path
 from collections.abc import MutableMapping
 
+DEBUG = False
+
+def print_debug(msg):
+  if DEBUG:
+    print(msg)
 
 def flatten_dict(d: MutableMapping, parent_key: str = '',
                sep: str = '.') -> MutableMapping:
@@ -58,7 +63,7 @@ def doc_generate():
       saved_idh_lib = idh_lib.read()
   except:
     saved_idh_lib = ""
-    print("idh lib not found, creating new one")
+    print_debug("idh lib not found, creating new one")
 
   str_idh_lib = str_idh_lib + f"# IDH available modules\n"
   str_idh_lib = str_idh_lib + "|Module| Doc | \n"
@@ -68,7 +73,7 @@ def doc_generate():
     print(f"processing module {module}")
     str_idh_lib = str_idh_lib + f"|{module}|[README]({module}/README.md)|\n"
     if not os.path.exists(f"./IDH/{module}"):
-      print(f"folder {module} not found, skipping")
+      print_debug(f"folder {module} not found, skipping doc generation")
       continue
 
     str_module_lib = ""
@@ -91,16 +96,16 @@ def doc_generate():
       except:
         saved_module_lib = ""
       if str_module_lib != saved_module_lib:
-        print(f"updating module {module} lib to file")
-        print(f"old: '{saved_module_lib}'")
-        print(f"new: '{str_module_lib}'")
+        print_debug(f"updating module {module} lib to file")
+        print_debug(f"old: '{saved_module_lib}'")
+        print_debug(f"new: '{str_module_lib}'")
         with open(f"./IDH/{module}/LIBRARY.md", "w") as module_lib:
           module_lib.write(str_module_lib)
 
   if str_idh_lib != saved_idh_lib:
-    print(f"updating idh lib to file")
-    print(f"old: '{saved_idh_lib}'")
-    print(f"new: '{str_idh_lib}'")
+    print_debug(f"updating idh lib to file")
+    print_debug(f"old: '{saved_idh_lib}'")
+    print_debug(f"new: '{str_idh_lib}'")
     with open("./IDH/LIBRARY.md", "w") as idh_lib:
       idh_lib.write(str_idh_lib)
 
