@@ -52,44 +52,49 @@ def doc_generate():
 
 
   str_idh_lib = ""
-  with open(f"./IDH/LIBRARY.md", "w+") as idh_lib:
-    saved_idh_lib = idh_lib.read()
-    str_idh_lib = str_idh_lib + f"# IDH available modules\n"
-    str_idh_lib = str_idh_lib + "|Module| Doc | \n"
-    str_idh_lib = str_idh_lib + "|------|---------|\n"
-    # genera la documentazione
-    for module in sorted(config_files.keys()):
-      str_idh_lib = str_idh_lib + f"|{module}|[README]({module}/README.md)|\n"
-      if not os.path.exists(f"./IDH/{module}"):
-        print(f"folder {module} not found, skipping")
-        continue
+  saved_idh_lib = ""
+  try:
+    with open("./IDH/LIBRARY.md", "r") as idh_lib:
+      saved_idh_lib = idh_lib.read()
+  except:
+    saved_idh_lib = ""
+    print("idh lib not found, creating new one")
+
+  str_idh_lib = str_idh_lib + f"# IDH available modules\n"
+  str_idh_lib = str_idh_lib + "|Module| Doc | \n"
+  str_idh_lib = str_idh_lib + "|------|---------|\n"
+  # genera la documentazione
+  for module in sorted(config_files.keys()):
+    str_idh_lib = str_idh_lib + f"|{module}|[README]({module}/README.md)|\n"
+    if not os.path.exists(f"./IDH/{module}"):
+      print(f"folder {module} not found, skipping")
+      continue
+
+    str_module_lib = ""
+    with open(f'./IDH/{module}/resource_description.info') as desc:
+      desc_string = desc.read()
+      str_module_lib = str_module_lib + f"# IDH {module} resources\n"
+      str_module_lib = str_module_lib + "|Platform| Environment| Name | Description | \n"
+      str_module_lib = str_module_lib + "|------|---------|----|---|\n"
+      for config in config_files[module]:
+        for resource_name in sorted(config['idh_resources'].keys()):
+          # appiattisce il dizionario e wrappa con Default per restituire "-" se la chiave non esiste
+          # usa "_" come separatore per evitare conflitti con la dot notation (non utilizzabile in modo safe)
+          d = Default(flatten_dict(config['idh_resources'][resource_name], '', "_"))
+          str_module_lib = str_module_lib + f"|{config['platform']}|{config['environment']}|{resource_name}| {desc_string.rstrip().format_map(d)} |\n"
 
       saved_module_lib = ""
-      with open(f"./IDH/{module}/LIBRARY.md", "r") as module_lib:
-        saved_module_lib = module_lib.read()
-      with open(f"./IDH/{module}/LIBRARY.md", "w") as module_lib:
-        str_module_lib = ""
-        with open(f'./IDH/{module}/resource_description.info') as desc:
-          desc_string = desc.read()
-          str_module_lib = str_module_lib + f"# IDH {module} resources\n"
-          str_module_lib = str_module_lib + "|Platform| Environment| Name | Description | \n"
-          str_module_lib = str_module_lib + "|------|---------|----|---|\n"
-          for config in config_files[module]:
-            for resource_name in sorted(config['idh_resources'].keys()):
-              # appiattisce il dizionario e wrappa con Default per restituire "-" se la chiave non esiste
-              # usa "_" come separatore per evitare conflitti con la dot notation (non utilizzabile in modo safe)
-              d = Default(flatten_dict(config['idh_resources'][resource_name], '', "_"))
-              str_module_lib = str_module_lib + f"|{config['platform']}|{config['environment']}|{resource_name}| {desc_string.rstrip().format_map(d)} |\n"
-
-        if str_module_lib != saved_module_lib:
-          print(f"updating module {module} lib to file")
-          print(f"old: '{saved_module_lib}'")
-          print(f"new: '{str_module_lib}'")
-
+      try:
+        with open(f"./IDH/{module}/LIBRARY.md", "r") as r_module_lib:
+          saved_module_lib = r_module_lib.read()
+      except:
+        saved_module_lib = ""
+      if str_module_lib != saved_module_lib:
+        with open(f"./IDH/{module}/LIBRARY.md", "w") as module_lib:
           module_lib.write(str_module_lib)
 
-    if str_idh_lib != saved_idh_lib:
-      print(f"updating idh lib to file")
+  if str_idh_lib != saved_idh_lib:
+    with open("./IDH/LIBRARY.md", "w") as idh_lib:
       idh_lib.write(str_idh_lib)
 
 
