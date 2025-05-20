@@ -32,6 +32,7 @@ jobs:
         run: |
           ls -la
           du -h -d 3 .
+          tree -R .
 
       - name: run_init
         if: env.dir_changes_detected == 'true'
