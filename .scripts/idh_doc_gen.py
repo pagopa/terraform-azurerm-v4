@@ -43,12 +43,13 @@ def doc_generate():
           if yaml_content:
             if config_files.get(Path(file).stem) is None:
               config_files[Path(file).stem] = []
-            a = {
+            config = {
               'platform': platform,
               'environment': environment,
               'idh_resources': yaml_content
             }
-            config_files[Path(file).stem].append(a)
+            config_files[Path(file).stem].append(config)
+
 
   str_idh_lib = ""
   with open(f"./IDH/LIBRARY.md", "w+") as idh_lib:
@@ -57,7 +58,7 @@ def doc_generate():
     str_idh_lib = str_idh_lib + "|Module| Doc | \n"
     str_idh_lib = str_idh_lib + "|------|---------|\n"
     # genera la documentazione
-    for module in config_files.keys():
+    for module in sorted(config_files.keys()):
       str_idh_lib = str_idh_lib + f"|{module}|[README]({module}/README.md)|\n"
       if not os.path.exists(f"./IDH/{module}"):
         print(f"folder {module} not found, skipping")
@@ -74,7 +75,7 @@ def doc_generate():
           str_module_lib = str_module_lib + "|Platform| Environment| Name | Description | \n"
           str_module_lib = str_module_lib + "|------|---------|----|---|\n"
           for config in config_files[module]:
-            for resource_name in config['idh_resources'].keys():
+            for resource_name in sorted(config['idh_resources'].keys()):
               # appiattisce il dizionario e wrappa con Default per restituire "-" se la chiave non esiste
               # usa "_" come separatore per evitare conflitti con la dot notation (non utilizzabile in modo safe)
               d = Default(flatten_dict(config['idh_resources'][resource_name], '', "_"))
