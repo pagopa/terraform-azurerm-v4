@@ -52,7 +52,7 @@ def doc_generate():
             config_files[Path(file).stem].append(a)
 
   str_idh_lib = ""
-
+  print(f"config_files: {config_files}")
   with open(f"./IDH/LIBRARY.md", "w+") as idh_lib:
     saved_idh_lib = idh_lib.read()
     str_idh_lib = str_idh_lib + f"# IDH available modules\n"
