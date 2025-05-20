@@ -27,6 +27,7 @@ class Default(dict):
     return "-"
 
 def doc_generate():
+  print("in doc_generate")
   rootdir = f"./IDH/00_idh"
   config_files = {}
   for root, _, files in os.walk(rootdir):
@@ -49,7 +50,7 @@ def doc_generate():
               'idh_resources': yaml_content
             }
             config_files[Path(file).stem].append(a)
-
+  print("in doc_generate - scrittura library")
   with open(f"./IDH/LIBRARY.md", "w") as idh_lib:
     idh_lib.write(f"# IDH available modules\n")
     idh_lib.write("|Module| Doc | \n")
@@ -73,4 +74,5 @@ def doc_generate():
 
 
 if __name__ == "__main__":
+  print("nel main")
   doc_generate()
