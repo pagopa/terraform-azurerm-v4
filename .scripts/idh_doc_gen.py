@@ -77,10 +77,12 @@ def doc_generate():
 
         if str_module_lib != saved_module_lib:
           print(f"updating module {module} lib to file")
+          print(f"module lib: {str_module_lib}")
           module_lib.write(str_module_lib)
 
     if str_idh_lib != saved_idh_lib:
       print(f"updating idh lib to file")
+      print(f"idh lib: {str_idh_lib}")
       idh_lib.write(str_idh_lib)
 
 
