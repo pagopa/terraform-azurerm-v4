@@ -63,10 +63,10 @@ def doc_generate():
         print(f"folder {module} not found, skipping")
         continue
 
+      saved_module_lib = ""
       with open(f"./IDH/{module}/LIBRARY.md", "r") as module_lib:
-        print(f"{module_lib.read()}")
-      with open(f"./IDH/{module}/LIBRARY.md", "w+") as module_lib:
         saved_module_lib = module_lib.read()
+      with open(f"./IDH/{module}/LIBRARY.md", "w") as module_lib:
         str_module_lib = ""
         with open(f'./IDH/{module}/resource_description.info') as desc:
           desc_string = desc.read()
