@@ -21,7 +21,7 @@ jobs:
         uses: pagopa/eng-github-actions-iac-template/global/get-modifed-folders@d3c6631dc7b57f6074f87f48eb79aead242e50f0 # v1.22.1
         with:
           start_folder: "/"
-          default_end_folder_depth: 4
+          default_end_folder_depth: 1
           include_patterns: "/"
           ignore_patterns: ".github,.devops,.vscode,.scripts,.gitignore,.terraform-version"
 
