@@ -30,6 +30,7 @@ def doc_generate():
   rootdir = f"./IDH/00_idh"
   config_files = {}
   for root, _, files in os.walk(rootdir):
+    print(f"analyzing {root} {files}")
     for file in files:
       if file.endswith('.yml'):
         file_path = os.path.join(root, file)
