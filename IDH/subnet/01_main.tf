@@ -54,6 +54,8 @@ resource "terraform_data" "subnet_cidr" {
 }
 
 
+
+
 module "subnet" {
   source = "../../subnet"
 
