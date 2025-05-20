@@ -7,4 +7,4 @@ echo "BELLO"
 python3 .scripts/idh_doc_gen.py
 echo "MA NON BALLA"
 deactivate
-rm -rf .venv
+#rm -rf .venv
