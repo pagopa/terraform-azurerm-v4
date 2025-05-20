@@ -51,7 +51,6 @@ def doc_generate():
             config_files[Path(file).stem].append(a)
 
   str_idh_lib = ""
-  print(f"config_files: {config_files}")
   with open(f"./IDH/LIBRARY.md", "w+") as idh_lib:
     saved_idh_lib = idh_lib.read()
     str_idh_lib = str_idh_lib + f"# IDH available modules\n"
@@ -61,6 +60,8 @@ def doc_generate():
     for module in config_files.keys():
       print(f"analyzing module {module}")
       str_idh_lib = str_idh_lib + f"|{module}|[README]({module}/README.md)|\n"
+      if not os.path.exists(f"./IDH/{module}"):
+        continue
       with open(f"./IDH/{module}/LIBRARY.md", "w+") as module_lib:
         saved_module_lib = module_lib.read()
         str_module_lib = ""
@@ -78,12 +79,10 @@ def doc_generate():
 
         if str_module_lib != saved_module_lib:
           print(f"updating module {module} lib to file")
-          print(f"module lib: {str_module_lib}")
           module_lib.write(str_module_lib)
 
     if str_idh_lib != saved_idh_lib:
       print(f"updating idh lib to file")
-      print(f"idh lib: {str_idh_lib}")
       idh_lib.write(str_idh_lib)
 
 
