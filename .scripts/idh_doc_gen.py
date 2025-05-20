@@ -63,8 +63,8 @@ def doc_generate():
         print(f"folder {module} not found, skipping")
         continue
 
-      if not os.path.exists(f"./IDH/{module}/LIBRARY.md"):
-        print("perchè non esiste il file?")
+      with open(f"./IDH/{module}/LIBRARY.md", "r") as module_lib:
+        print(f"{module_lib.read()}")
       with open(f"./IDH/{module}/LIBRARY.md", "w+") as module_lib:
         saved_module_lib = module_lib.read()
         str_module_lib = ""
