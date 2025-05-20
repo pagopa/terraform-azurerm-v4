@@ -77,7 +77,7 @@ def doc_generate():
       str_module_lib = str_module_lib + f"# IDH {module} resources\n"
       str_module_lib = str_module_lib + "|Platform| Environment| Name | Description | \n"
       str_module_lib = str_module_lib + "|------|---------|----|---|\n"
-      for config in config_files[module]:
+      for config in sorted(config_files[module], key=lambda x: (x['platform'], x['environment'])):
         for resource_name in sorted(config['idh_resources'].keys()):
           # appiattisce il dizionario e wrappa con Default per restituire "-" se la chiave non esiste
           # usa "_" come separatore per evitare conflitti con la dot notation (non utilizzabile in modo safe)
