@@ -1,0 +1,51 @@
+name: 🛃 Static Analysis PR
+
+permissions:
+  contents: read
+on:
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
+
+jobs:
+  static_analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: |
+          rm -rf *
+
+      - name: 🔨 Get Modified Paths
+        id: get-paths
+        uses: pagopa/eng-github-actions-iac-template/global/get-modifed-folders@b3e5b1dad2221b898dd90b2f75d3d59e93087e08 #1.22.2
+        with:
+          start_folder: "/"
+          include_patterns: "/"
+          ignore_patterns: ".github,.devops,.vscode,.gitignore,.terraform-version"
+          include_folders: ".scripts,.utils,IDH/00_idh"
+          stopper_folders: "env,tests,docs,helm,packer,logs-generic,yaml,dashboard,dashboards,templates,rules"
+
+      - name: 👀 See folders downloaded
+        if: env.dir_changes_detected == 'true'
+        id: see
+        shell: bash
+        run: |
+          tree -R -d -a .
+
+      - name: run_init
+        if: env.dir_changes_detected == 'true'
+        run: |
+          bash .utils/terraform_run_all.sh init docker
+
+      - name: show_version
+        if: env.dir_changes_detected == 'true'
+        run: |
+          TAG="v1.96.2@sha256:01f870b7689b5a09c1a370914fcddcac42c4b6478c9d369e1d2590dd0a66ffd0"
+          docker run --rm --entrypoint cat ghcr.io/antonbabenko/pre-commit-terraform:$TAG /usr/bin/tools_versions_info
+
+      - name: run_test
+        if: env.dir_changes_detected == 'true'
+        run: |
+          TAG="v1.96.2@sha256:01f870b7689b5a09c1a370914fcddcac42c4b6478c9d369e1d2590dd0a66ffd0"
+          docker run -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
