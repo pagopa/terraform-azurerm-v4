@@ -1,0 +1,18 @@
+name:
+  account_kind: StorageV2
+  account_tier: Standard
+  account_replication_type: "LRS"
+  access_tier: "Hot"
+  advanced_threat_protection: false
+  public_network_access_enabled: true
+  private_endpoint_enabled: false
+  blob_versioning_enabled: true
+  allow_nested_items_to_be_public: false
+  enable_low_availability_alert: false
+  blob_change_feed_enabled: false
+  backup_retention_days: 0
+  backup_allowed: false
+  blob_last_access_time_enabled: false
+  cross_tenant_replication_enabled: false
+  is_hns_enabled: false
+  min_tls_version: TLS1_2
