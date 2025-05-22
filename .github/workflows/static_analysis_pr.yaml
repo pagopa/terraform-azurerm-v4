@@ -18,7 +18,7 @@ jobs:
 
       - name: 🔨 Get Modified Paths
         id: get-paths
-        uses: pagopa/eng-github-actions-iac-template/global/get-modifed-folders@fix-inspected-sub-dependecies-for-not-modified-directory #1.22.2
+        uses: pagopa/eng-github-actions-iac-template/global/get-modifed-folders@f10814b649ecd6e5d97c489084d2a107e2f1b2ee #1.22.3
         with:
           start_folder: "/"
           include_patterns: "/"
