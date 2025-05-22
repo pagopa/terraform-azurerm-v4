@@ -16,6 +16,7 @@ locals {
     "ZRS" = 1
     "GZRS" = 2
   }
+  allowed_replication_types_string = join(",", keys(local.allowed_replication_types))
 }
 
 module "storage_account" {
