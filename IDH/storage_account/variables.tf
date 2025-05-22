@@ -136,7 +136,7 @@ variable "point_in_time_restore_enabled" {
 
 variable "replication_type" {
   type = string
-  default = module.idh_loader.idh_config.min_account_replication_type
+  default = null
   description = "(Optional) storage account replication type. Default is the minimum replication type for the environment."
 
   validation {
