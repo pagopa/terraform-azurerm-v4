@@ -1,11 +1,11 @@
 basic:
   account_kind: StorageV2
   account_tier: Standard
-  min_account_replication_type: "LRS"
+  min_account_replication_type: "ZRS"
   access_tier: "Hot"
   advanced_threat_protection: false
-  public_network_access_enabled: true
-  private_endpoint_enabled: false
+  public_network_access_enabled: false
+  private_endpoint_enabled: true
   blob_versioning_enabled: true
   allow_nested_items_to_be_public: false
   enable_low_availability_alert: false

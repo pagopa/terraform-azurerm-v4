@@ -134,6 +134,16 @@ variable "point_in_time_restore_enabled" {
   }
 }
 
+variable "replication_type" {
+  type = string
+  default = module.idh_loader.idh_config.min_account_replication_type
+  description = "(Optional) storage account replication type. Default is the minimum replication type for the environment."
+
+  validation {
+    condition = local.allowed_replication_types[var.replication_type] >= local.allowed_replication_types[module.idh_loader.idh_config.min_account_replication_type]
+    error_message = "The replication type '${var.replication_type}' is not allowed in '${var.env}' environment for '${var.idh_resource}'. The minimum replication type is '${module.idh_loader.idh_config.min_account_replication_type}'. Valid values are ${keys(local.allowed_replication_types)}"
+  }
+}
 
 # -------------------
 # Alerts variables

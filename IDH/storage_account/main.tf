@@ -7,6 +7,17 @@ module "idh_loader" {
   idh_category = "storage_account"
 }
 
+locals {
+
+  # maps the replication type to a security livel (higher is better)
+  # used to check if the minimum requirement is fulfilled
+  allowed_replication_types = {
+    "LSR" = 0
+    "ZRS" = 1
+    "GZRS" = 2
+  }
+}
+
 module "storage_account" {
   source = "../../storage_account"
 
