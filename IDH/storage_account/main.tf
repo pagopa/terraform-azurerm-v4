@@ -28,7 +28,7 @@ module "storage_account" {
 
   account_kind                  = module.idh_loader.idh_config.account_kind
   account_tier                  = module.idh_loader.idh_config.account_tier
-  account_replication_type      = var.replication_type != null ? var.replication_type : module.idh_loader.idh_config.account_replication_type
+  account_replication_type      = var.replication_type != null ? var.replication_type : module.idh_loader.idh_config.min_account_replication_type
   advanced_threat_protection    = module.idh_loader.idh_config.advanced_threat_protection
   public_network_access_enabled = module.idh_loader.idh_config.public_network_access_enabled
 
