@@ -10,7 +10,7 @@ module "idh_loader" {
 module "storage_account" {
   source = "../../storage_account"
 
-  name                = var.name
+  name                = replace(var.name, "-", "")
   location            = var.location
   resource_group_name = var.resource_group_name
 
