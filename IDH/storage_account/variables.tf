@@ -102,25 +102,6 @@ variable "custom_domain" {
 # -------------------
 # Immutability Policy
 # -------------------
-
-variable "blob_storage_policy" {
-  type = object({
-    enable_immutability_policy = bool
-    blob_restore_policy_days   = number
-  })
-  description = "Handle immutability policy for stored elements"
-  default = {
-    enable_immutability_policy = false
-    blob_restore_policy_days   = 0
-  }
-
-  # https://learn.microsoft.com/en-us/azure/storage/blobs/point-in-time-restore-overview#limitations-and-known-issues
-  validation {
-    condition     = (var.blob_storage_policy.enable_immutability_policy == true && var.blob_storage_policy.blob_restore_policy_days == 0) || var.blob_storage_policy.enable_immutability_policy == false
-    error_message = "Immutability policy doesn't support Point-in-Time restore"
-  }
-}
-
 variable "immutability_policy" {
   type = object({
     enabled                       = bool
