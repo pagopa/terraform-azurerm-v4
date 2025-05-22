@@ -26,7 +26,7 @@ module "storage_account" {
   tags                            = var.tags
 
   # it needs to be higher than the other retention policies
-  blob_delete_retention_days           = module.idh_loader.idh_config.point_in_time_retention_days + 1
+  blob_delete_retention_days           = var.point_in_time_restore_enabled ? module.idh_loader.idh_config.point_in_time_retention_days + 1 : 0
   blob_change_feed_enabled             = var.point_in_time_restore_enabled && module.idh_loader.idh_config.point_in_time_restore_allowed
   blob_change_feed_retention_in_days   = var.point_in_time_restore_enabled && module.idh_loader.idh_config.point_in_time_restore_allowed ? module.idh_loader.idh_config.point_in_time_retention_days + 1 : null
   blob_container_delete_retention_days = module.idh_loader.idh_config.point_in_time_retention_days
