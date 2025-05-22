@@ -10,8 +10,8 @@ name:
   allow_nested_items_to_be_public: false
   enable_low_availability_alert: false
   blob_change_feed_enabled: false
-  backup_retention_days: 0
-  backup_allowed: false
+  point_in_time_retention_days: 0
+  point_in_time_restore_allowed: false
   blob_last_access_time_enabled: false
   cross_tenant_replication_enabled: false
   is_hns_enabled: false

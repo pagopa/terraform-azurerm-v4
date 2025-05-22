@@ -26,13 +26,14 @@ module "storage_account" {
   tags                            = var.tags
 
   # it needs to be higher than the other retention policies
-  blob_delete_retention_days           = module.idh_loader.idh_config.backup_retention_days + 1
+  blob_delete_retention_days           = module.idh_loader.idh_config.point_in_time_retention_days + 1
   blob_change_feed_enabled             = module.idh_loader.idh_config.blob_change_feed_enabled
-  blob_change_feed_retention_in_days   = var.backup_enabled && module.idh_loader.idh_config.backup_allowed ? module.idh_loader.idh_config.backup_retention_days + 1 : null
-  blob_container_delete_retention_days = module.idh_loader.idh_config.backup_retention_days
+  blob_change_feed_retention_in_days   = var.point_in_time_restore_enabled && module.idh_loader.idh_config.point_in_time_restore_allowed ? module.idh_loader.idh_config.point_in_time_retention_days + 1 : null
+  blob_container_delete_retention_days = module.idh_loader.idh_config.point_in_time_retention_days
+
   blob_storage_policy = {
-    enable_immutability_policy = false
-    blob_restore_policy_days   = module.idh_loader.idh_config.backup_retention_days
+    enable_immutability_policy = var.immutability_policy.enabled
+    blob_restore_policy_days   = module.idh_loader.idh_config.point_in_time_retention_days
   }
 
   private_endpoint_enabled         = module.idh_loader.idh_config.private_endpoint_enabled
@@ -55,9 +56,12 @@ module "storage_account" {
   use_legacy_defender_version = false
   error_404_document          = var.error_404_document
   index_document              = var.index_document
-  immutability_policy_props   = var.immutability_policy_props
-  is_sftp_enabled             = var.is_sftp_enabled
-  low_availability_threshold  = var.low_availability_threshold
-  network_rules               = var.network_rules
-  subnet_id                   = var.subnet_id
+  immutability_policy_props = {
+    allow_protected_append_writes = var.immutability_policy.allow_protected_append_writes
+    period_since_creation_in_days = var.immutability_policy.period_since_creation_in_days
+  }
+  is_sftp_enabled            = var.is_sftp_enabled
+  low_availability_threshold = var.low_availability_threshold
+  network_rules              = var.network_rules
+  subnet_id                  = var.private_endpoint_subnet_id
 }

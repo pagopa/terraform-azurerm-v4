@@ -17,7 +17,6 @@ variable "idh_resource" {
   description = "(Required) The name od IDH resource key to be created."
 }
 
-
 variable "location" {
   type = string
 }
@@ -36,97 +35,10 @@ variable "resource_group_name" {
   type = string
 }
 
-variable "account_kind" {
-  type        = string
-  default     = "StorageV2"
-  description = "(Optional) Defines the Kind of account. Valid options are BlobStorage, BlockBlobStorage, FileStorage, Storage and StorageV2. Changing this forces a new resource to be created."
-}
-
-variable "account_tier" {
-  type        = string
-  description = "Defines the Tier to use for this storage account. Valid options are Standard and Premium. For BlockBlobStorage and FileStorage accounts only Premium is valid. Changing this forces a new resource to be created."
-}
-
-variable "access_tier" {
-  type        = string
-  default     = null
-  description = "(Optional) Defines the access tier for BlobStorage, FileStorage and StorageV2 accounts. Valid options are Hot and Cool, defaults to Hot"
-}
-
-variable "account_replication_type" {
-  type        = string
-  description = "Defines the type of replication to use for this storage account. Valid options are LRS, GRS, RAGRS, ZRS, GZRS and RAGZRS. Changing this forces a new resource to be created when types LRS, GRS and RAGRS are changed to ZRS, GZRS or RAGZRS and vice versa"
-}
-
-variable "blob_delete_retention_days" {
-  description = "Retention days for deleted blob. Valid value is between 1 and 365 (set to 0 to disable)."
-  type        = number
-  default     = 0
-}
-
-variable "blob_container_delete_retention_days" {
-  description = "Retention days for deleted container. Valid value is between 1 and 365 (set to 0 to disable)."
-  type        = number
-  default     = 0
-}
-
-variable "min_tls_version" {
-  type        = string
-  default     = "TLS1_2"
-  description = "The minimum supported TLS version for the storage account. Possible values are TLS1_0, TLS1_1, and TLS1_2"
-}
-
-variable "is_hns_enabled" {
-  type        = bool
-  default     = false
-  description = "Enable Hierarchical Namespace enabled (Azure Data Lake Storage Gen 2). Changing this forces a new resource to be created."
-}
-
 variable "is_sftp_enabled" {
   type        = bool
   default     = false
   description = "Enable SFTP"
-}
-
-variable "allow_nested_items_to_be_public" {
-  description = "Allow or disallow public access to all blobs or containers in the storage account."
-  type        = bool
-  default     = false
-}
-
-variable "public_network_access_enabled" {
-  description = "Enable or Disable public access. It should always set to false unless there are special needs"
-  type        = bool
-}
-
-variable "blob_versioning_enabled" {
-  description = "Controls whether blob object versioning is enabled."
-  type        = bool
-  default     = false
-}
-
-variable "blob_change_feed_enabled" {
-  description = "(Optional) Is the blob service properties for change feed events enabled? Default to false."
-  type        = bool
-  default     = false
-}
-
-variable "blob_last_access_time_enabled" {
-  description = "(Optional) Is the blob service properties for trace last access time. Default to false."
-  type        = bool
-  default     = false
-}
-
-variable "blob_change_feed_retention_in_days" {
-  description = "(Optional) The duration of change feed events retention in days. The possible values are between 1 and 146000 days (400 years). Setting this to null (or omit this in the configuration file) indicates an infinite retention of the change feed."
-  type        = number
-  default     = null
-}
-
-variable "cross_tenant_replication_enabled" {
-  description = "(Optional) Should cross Tenant replication be enabled? Defaults to false."
-  type        = bool
-  default     = false
 }
 
 variable "enable_identity" {
@@ -209,15 +121,35 @@ variable "blob_storage_policy" {
   }
 }
 
-variable "immutability_policy_props" {
+variable "immutability_policy" {
   type = object({
-    allow_protected_append_writes = bool
-    period_since_creation_in_days = number
+    enabled                       = bool
+    allow_protected_append_writes = optional(bool, false)
+    period_since_creation_in_days = optional(number, 730)
   })
   description = "Properties to setup the immutability policy. The resource can be created only with \"Disabled\" and \"Unlocked\" state. Change to \"Locked\" state doens't update the resource for a bug of the current module."
   default = {
+    enabled                       = false
     allow_protected_append_writes = false
     period_since_creation_in_days = 730
+  }
+
+  # https://learn.microsoft.com/en-us/azure/storage/blobs/point-in-time-restore-overview#limitations-and-known-issues
+  validation {
+    condition     = var.immutability_policy.enabled ? !var.point_in_time_restore_enabled : true
+    error_message = "Point in Time restore must be disabled when using immutability policy"
+  }
+}
+
+
+variable "point_in_time_restore_enabled" {
+  type        = bool
+  description = "Enables point in time restore"
+  default     = false
+
+  validation {
+    condition     = !module.idh_loader.idh_config.point_in_time_restore_allowed ? !var.point_in_time_restore_enabled : true
+    error_message = "Point in Time restore is not allowed in '${var.env}' environment for '${var.idh_resource}'"
   }
 }
 
@@ -226,11 +158,6 @@ variable "immutability_policy_props" {
 # Alerts variables
 # -------------------
 
-variable "enable_low_availability_alert" {
-  type        = bool
-  description = "Enable the Low Availability alert. Default is true"
-  default     = true
-}
 
 variable "low_availability_threshold" {
   type        = number
@@ -249,30 +176,10 @@ variable "action" {
   default = []
 }
 
-# -------------------
-# Threat Protection
-# -------------------
-
-variable "advanced_threat_protection" {
-  type        = bool
-  default     = false
-  description = "Should Advanced Threat Protection be enabled on this resource?"
-}
-
-variable "use_legacy_defender_version" {
-  type        = bool
-  description = "(Optional) If true, applies the old pricing model. Very important - check the pricing model that is more convenient for your kind of usage"
-  default     = true
-}
 
 # Private Endpoint
 
 
-variable "private_endpoint_enabled" {
-  type        = bool
-  description = "Enable private endpoint"
-  default     = false
-}
 
 variable "private_dns_zone_blob_ids" {
   type        = list(string)
@@ -310,15 +217,8 @@ variable "private_dns_zone_dfs_ids" {
   default     = []
 }
 
-variable "subnet_id" {
+variable "private_endpoint_subnet_id" {
   type        = string
   description = "Used only for private endpoints"
   default     = null
-}
-
-
-variable "backup_enabled" {
-  type        = bool
-  description = "Enable backup on the storage account"
-  default     = false
 }
