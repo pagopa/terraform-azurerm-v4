@@ -47,7 +47,7 @@ module "cosmosdb_account" {
     retention_in_hours  = try(module.idh_loader.idh_config.backup_periodic_enabled.retention_in_hours, null)
     storage_redundancy  = try(module.idh_loader.idh_config.backup_periodic_enabled.storage_redundancy, null)
   } : null
-  enable_automatic_failover = var.enable_automatic_failover
+  enable_automatic_failover = module.idh_loader.idh_config.enable_automatic_failover
 
   # 7. Advanced Options
 

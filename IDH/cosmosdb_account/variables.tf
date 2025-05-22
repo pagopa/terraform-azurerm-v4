@@ -79,26 +79,6 @@ variable "domain" {
   }
 }
 
-variable "offer_type" {
-  type        = string
-  description = "The CosmosDB account offer type. Currently can only be set to 'Standard'."
-  default     = "Standard"
-  validation {
-    condition     = var.offer_type == "Standard"
-    error_message = "The only valid value for 'offer_type' is 'Standard'."
-  }
-}
-
-variable "enable_free_tier" {
-  type        = bool
-  default     = false
-  description = "Enable Free Tier pricing option for this Cosmos DB account. Defaults to false. Changing this forces a new resource to be created."
-  validation {
-    condition     = var.enable_free_tier == true || var.enable_free_tier == false
-    error_message = "Enable Free Tier must be a boolean value."
-  }
-}
-
 variable "enable_automatic_failover" {
   type        = bool
   default     = true
@@ -106,69 +86,6 @@ variable "enable_automatic_failover" {
   validation {
     condition     = var.enable_automatic_failover == true || var.enable_automatic_failover == false
     error_message = "Enable automatic failover must be a boolean value."
-  }
-}
-
-variable "burst_capacity_enabled" {
-  type        = bool
-  description = "(Optional) Enable burst capacity for this Cosmos DB account. Defaults to false."
-  default     = false
-  validation {
-    condition     = var.burst_capacity_enabled == true || var.burst_capacity_enabled == false
-    error_message = "Burst capacity enabled must be a boolean value."
-  }
-}
-
-#########################################
-# Consistency, Capabilities and Backup
-#########################################
-
-variable "consistency_policy" {
-  type = object({
-    consistency_level       = string
-    max_interval_in_seconds = number
-    max_staleness_prefix    = number
-  })
-  default = {
-    consistency_level       = "BoundedStaleness"
-    max_interval_in_seconds = 5
-    max_staleness_prefix    = 100
-  }
-  description = "Specifies a consistency_policy resource, used to define the consistency policy for this CosmosDB account."
-  validation {
-    condition     = contains(["BoundedStaleness", "Strong", "Session", "Eventual", "ConsistentPrefix"], var.consistency_policy.consistency_level)
-    error_message = "Consistency level must be one of: BoundedStaleness, Strong, Session, Eventual, ConsistentPrefix."
-  }
-}
-
-variable "capabilities" {
-  type        = list(string)
-  description = "The capabilities which should be enabled for this Cosmos DB account."
-  default     = []
-  validation {
-    condition     = var.capabilities != null
-    error_message = "Capabilities must be a list, even if empty."
-  }
-}
-
-
-variable "enable_provisioned_throughput_exceeded_alert" {
-  type        = bool
-  description = "Enable the Provisioned Throughput Exceeded alert. Default is true"
-  default     = true
-  validation {
-    condition     = var.enable_provisioned_throughput_exceeded_alert == true || var.enable_provisioned_throughput_exceeded_alert == false
-    error_message = "Enable provisioned throughput exceeded alert must be a boolean value."
-  }
-}
-
-variable "provisioned_throughput_exceeded_threshold" {
-  type        = number
-  description = "The Provisioned Throughput Exceeded threshold. If metric average is over this value, the alert will be triggered. Default is 0, we want to act as soon as possible."
-  default     = 0
-  validation {
-    condition     = var.provisioned_throughput_exceeded_threshold >= 0
-    error_message = "Provisioned throughput exceeded threshold must be a non-negative number."
   }
 }
 
@@ -202,16 +119,6 @@ variable "additional_geo_locations" {
 #########################################
 # Security and Networking Settings
 #########################################
-
-variable "minimal_tls_version" {
-  type        = string
-  description = "(Optional) Specifies the minimal TLS version for the CosmosDB account. Allowed values: Tls, Tls11, Tls12."
-  default     = "Tls12"
-  validation {
-    condition     = contains(["Tls12"], var.minimal_tls_version)
-    error_message = "The value for 'minimal_tls_version' must the minimal required: Tls12."
-  }
-}
 
 variable "key_vault_key_id" {
   type        = string
