@@ -1,0 +1,1 @@
+Server Version: {server_version}, Offer Type: {offer_type}, geo redundant: {main_geo_location_zone_redundant}, Alarm Enable: {enable_provisioned_throughput_exceeded_alert}, Consistency policy: `{consistency_policy_consistency_level}`,`{consistency_policy_max_interval_in_seconds}`,`{consistency_policy_max_staleness_prefix}`
