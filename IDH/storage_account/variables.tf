@@ -141,7 +141,7 @@ variable "replication_type" {
 
   validation {
     condition = try(local.allowed_replication_types[var.replication_type], -1) >= lookup(local.allowed_replication_types, module.idh_loader.idh_config.min_account_replication_type, 0)
-    error_message = "The replication type '${var.replication_type}' is not allowed in '${var.env}' environment for '${var.idh_resource}'. The minimum replication type is '${module.idh_loader.idh_config.min_account_replication_type}'. Valid values are ${local.allowed_replication_types_string}"
+    error_message = "The replication type '${var.replication_type}' is not allowed in '${var.env}' environment for idh resource '${var.idh_resource}'. The minimum replication type is '${module.idh_loader.idh_config.min_account_replication_type}'. Valid values are ${local.allowed_replication_types_string}. prova: ${lookup(local.allowed_replication_types, module.idh_loader.idh_config.min_account_replication_type, 0)}"
   }
 }
 
