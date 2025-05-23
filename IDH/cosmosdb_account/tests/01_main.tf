@@ -14,10 +14,10 @@ module "cosmos_idh_test" {
   location                   = var.location
   name                       = "test-idh-${each.value}-${random_string.test.result}"
   main_geo_location_location = var.location
-  additional_geo_locations = [{
+  additional_geo_locations = each.value == "prod" ? [{
     location          = "australiaeast"
     failover_priority = 2
     zone_redundant    = true
-  }]
+  }] : []
   tags = {}
 }

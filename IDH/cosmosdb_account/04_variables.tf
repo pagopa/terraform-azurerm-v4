@@ -114,6 +114,10 @@ variable "additional_geo_locations" {
     condition     = var.additional_geo_locations != null
     error_message = "Additional geo locations must be a list, even if empty."
   }
+  validation {
+    condition     = !module.idh_loader.idh_config.additional_geo_replication_allowed ? length(var.additional_geo_locations) == 0 : true
+    error_message = "Additional geo replication is not allowed in '${var.env}' environment for '${var.idh_resource}'"
+  }
 }
 
 #########################################
