@@ -23,7 +23,7 @@ module "cosmosdb_account" {
   # 3. Geo-location and Zone Settings
   main_geo_location_location       = var.main_geo_location_location
   main_geo_location_zone_redundant = module.idh_loader.idh_config.main_geo_location_zone_redundant
-  additional_geo_locations         = var.additional_geo_locations
+  additional_geo_locations         = module.idh_loader.idh_config.geo_replication_allowed ? var.additional_geo_locations : []
 
   # 4. Security and Networking
   is_virtual_network_filter_enabled  = module.idh_loader.idh_config.is_virtual_network_filter_enabled

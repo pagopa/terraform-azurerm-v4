@@ -4,14 +4,20 @@ resource "azurerm_resource_group" "cosmos_idh_test_rg" {
 }
 
 module "cosmos_idh_test" {
+  for_each                   = toset(var.env)
   source                     = "./.."
   prefix                     = "pagopa"
   domain                     = "test"
   resource_group_name        = azurerm_resource_group.cosmos_idh_test_rg.name
-  env                        = var.env
+  env                        = each.value
   idh_resource               = "cosmos_mongo6"
   location                   = var.location
-  name                       = "test-idh-${var.env}-${random_string.test.result}"
+  name                       = "test-idh-${each.value}-${random_string.test.result}"
   main_geo_location_location = var.location
-  tags                       = {}
+  additional_geo_locations = [{
+    location          = "australiaeast"
+    failover_priority = 2
+    zone_redundant    = true
+  }]
+  tags = {}
 }

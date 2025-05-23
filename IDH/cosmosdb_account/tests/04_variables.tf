@@ -5,5 +5,5 @@ variable "location" {
 
 variable "env" {
   description = "Environment"
-  default     = "dev"
+  default     = ["dev", "uat", "prod"]
 }
