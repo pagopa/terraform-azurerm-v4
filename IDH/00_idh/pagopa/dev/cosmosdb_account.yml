@@ -1,5 +1,4 @@
 cosmos_sql4:
-  enabled: true
   kind: GlobalDocumentDB
   capabilities:
   - EnableServerless
@@ -13,9 +12,7 @@ cosmos_sql4:
   enable_free_tier: false
   burst_capacity_enabled: false
   enable_automatic_failover: false
-  enable_automatic_failover: false
   minimal_tls_version: Tls12
-  additional_geo_locations: []
   private_endpoint_enabled: false
   public_network_access_enabled: true
   is_virtual_network_filter_enabled: false
@@ -29,7 +26,6 @@ cosmos_sql4:
   enable_provisioned_throughput_exceeded_alert: false
   provisioned_throughput_exceeded_threshold: 0
 cosmos_sql6:
-  enabled: true
   kind: GlobalDocumentDB
   capabilities:
   - EnableServerless
@@ -44,7 +40,6 @@ cosmos_sql6:
   burst_capacity_enabled: false
   enable_automatic_failover: false
   minimal_tls_version: Tls12
-  additional_geo_locations: []
   private_endpoint_enabled: false
   public_network_access_enabled: true
   is_virtual_network_filter_enabled: false
@@ -58,7 +53,6 @@ cosmos_sql6:
   enable_provisioned_throughput_exceeded_alert: false
   provisioned_throughput_exceeded_threshold: 0
 cosmos_mongo4:
-  enabled: true
   kind: MongoDB
   capabilities:
   - EnableMongo
@@ -74,7 +68,6 @@ cosmos_mongo4:
   burst_capacity_enabled: false
   enable_automatic_failover: false
   minimal_tls_version: Tls12
-  additional_geo_locations: []
   private_endpoint_enabled: false
   public_network_access_enabled: true
   is_virtual_network_filter_enabled: false
@@ -88,7 +81,6 @@ cosmos_mongo4:
   enable_provisioned_throughput_exceeded_alert: false
   provisioned_throughput_exceeded_threshold: 0
 cosmos_mongo6:
-  enabled: true
   kind: MongoDB
   capabilities:
   - EnableMongo
@@ -104,7 +96,6 @@ cosmos_mongo6:
   burst_capacity_enabled: false
   enable_automatic_failover: false
   minimal_tls_version: Tls12
-  additional_geo_locations: []
   private_endpoint_enabled: false
   public_network_access_enabled: true
   is_virtual_network_filter_enabled: false
