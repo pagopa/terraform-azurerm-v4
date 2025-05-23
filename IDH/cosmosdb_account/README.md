@@ -20,7 +20,7 @@ module "cosmos_idh_mongo" {
   
   main_geo_location_location = "my-replication-location"
   
-  prefix                     = "myprefix" # Es. pagoap
+  prefix                     = "myprefix" # Es. pagoapa
   env                        = "myenv" # Es. dev
   idh_resource               = "cosmos_mongo6" 
 }
@@ -39,7 +39,7 @@ module "cosmos_idh_sql" {
   
   main_geo_location_location = "my-replication-location"
   
-  prefix                     = "myprefix" # Es. pagoap
+  prefix                     = "myprefix" # Es. pagoapa
   env                        = "myenv" # Es. dev
   idh_resource               = "cosmos_sql6" 
 }
