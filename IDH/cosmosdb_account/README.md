@@ -2,134 +2,48 @@
 
 This module allow the setup of a cosmos db account
 
-## Architecture
+## IDH resources available
 
-![This is an image](./docs/module-arch.drawio.png)
+[Here's](./LIBRARY.md) the list of `idh_resource` available for this module
 
-## How to use
+## How to use it
 
 ### CosmosDB Mongo version
 
 ```ts
-module "cosmos_mongo" {
-  source   = "git::https://github.com/pagopa/terraform-azurerm-v3.git//cosmosdb_account?ref=v8.8.0"
-  name     = "${local.project}-cosmos-mongo"
-  location = var.location
-  domain   = var.domain
-
-  resource_group_name  = azurerm_resource_group.cosmos_mongo_rg[0].name
-  offer_type           = "Standard"
-  kind                 = "MongoDB"
-  capabilities         = ["EnableMongo"]
-  mongo_server_version = "4.0"
-
-  main_geo_location_zone_redundant = false
-
-  enable_free_tier          = false
-  enable_automatic_failover = true
-
-  consistency_policy = {
-    consistency_level       = "Strong"
-    max_interval_in_seconds = null
-    max_staleness_prefix    = null
-  }
-
-  main_geo_location_location = "northeurope"
-
-  additional_geo_locations = [
-    {
-      location          = "westeurope"
-      failover_priority = 1
-      zone_redundant    = false
-    }
-  ]
-
-  backup_continuous_enabled = true
-
-  is_virtual_network_filter_enabled = true
-
-  ip_range = ""
-
-  allowed_virtual_network_subnet_ids = [
-    module.private_endpoints_snet.id
-  ]
-
-  # private endpoint
-  private_endpoint_name    = "${local.project}-cosmos-mongo-sql-endpoint"
-  private_endpoint_enabled = true
-  subnet_id                = module.private_endpoints_snet.id
-  private_dns_zone_ids     = [data.azurerm_private_dns_zone.internal.id]
-
-  tags = var.tags
-
+module "cosmos_idh_mongo" {
+  source                     = ""./.terraform/modules/__v4__/IDH/cosmosdb_account"
+  domain                     = "mydomain"
+  name                       = "my-cosmos-db-account-name"
+  resource_group_name        = "my-cosmos-db-account-resource-group"
+  location                   = var.location
+  
+  main_geo_location_location = "my-replication-location"
+  
+  prefix                     = "myprefix" # Es. pagoap
+  env                        = "myenv" # Es. dev
+  idh_resource               = "cosmos_mongo6" 
 }
+
 ```
 
 ### CosmosDB SQL version
 
 ```ts
-module "cosmos_core" {
-  source   = "git::https://github.com/pagopa/terraform-azurerm-v3.git//cosmosdb_account?ref=v8.8.0"
-  name     = "${local.project}-cosmos-core"
-  location = var.location
-  domain   = var.domain
-
-  resource_group_name = azurerm_resource_group.cosmos_rg[0].name
-  offer_type          = "Standard"
-  kind                = "GlobalDocumentDB"
-
-  main_geo_location_zone_redundant = false
-
-  enable_free_tier          = false
-  enable_automatic_failover = true
-
-  consistency_policy = {
-    consistency_level       = "Strong"
-    max_interval_in_seconds = null
-    max_staleness_prefix    = null
-  }
-
-  main_geo_location_location = "northeurope"
-
-  additional_geo_locations = [
-    {
-      location          = "westeurope"
-      failover_priority = 1
-      zone_redundant    = false
-    }
-  ]
-
-  backup_continuous_enabled = true
-
-  is_virtual_network_filter_enabled = true
-
-  ip_range = ""
-
-  allowed_virtual_network_subnet_ids = [
-    module.private_endpoints_snet.id
-  ]
-
-  # private endpoint
-  private_endpoint_name    = "${local.project}-cosmos-core-sql-endpoint"
-  private_endpoint_enabled = true
-  subnet_id                = module.private_endpoints_snet.id
-  private_dns_zone_ids     = [data.azurerm_private_dns_zone.internal.id]
-
-  tags = var.tags
-
+module "cosmos_idh_sql" {
+  source                     = ""./.terraform/modules/__v4__/IDH/cosmosdb_account"
+  domain                     = "mydomain"
+  name                       = "my-cosmos-db-account-name"
+  resource_group_name        = "my-cosmos-db-account-resource-group"
+  location                   = var.location
+  
+  main_geo_location_location = "my-replication-location"
+  
+  prefix                     = "myprefix" # Es. pagoap
+  env                        = "myenv" # Es. dev
+  idh_resource               = "cosmos_sql6" 
 }
 ```
-
-
-## Migration from v2
-
-1️⃣ Arguments changed:
-
-* The field `capabilities` will no longer accept the value `EnableAnalyticalStorage`.
-* `primary_master_key` -> `primary_key`.
-* `secondary_master_key` -> `secondary_key`.
-* `primary_readonly_master_key` -> `primary_readonly_key`.
-* `secondary_readonly_master_key` -> `secondary_readonly_key`.
 
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->
