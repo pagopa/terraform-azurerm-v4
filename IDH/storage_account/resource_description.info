@@ -1,0 +1,1 @@
+Kind: {account_kind}, tier: {account_tier}, replication: {account_replication_type}, access tier: {access_tier}, public: {public_network_access_enabled}, backup allowed: {backup_allowed}
