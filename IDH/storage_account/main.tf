@@ -19,10 +19,6 @@ locals {
   allowed_replication_types_string = join(",", keys(local.allowed_replication_types))
 }
 
-output "prova" {
-  value = module.idh_loader.idh_config.point_in_time_retention_days
-}
-
 module "storage_account" {
   source = "../../storage_account"
 
@@ -49,7 +45,7 @@ module "storage_account" {
 
   blob_storage_policy = {
     enable_immutability_policy = var.immutability_policy.enabled
-    blob_restore_policy_days   = module.idh_loader.idh_config.point_in_time_retention_days
+    blob_restore_policy_days   = var.point_in_time_restore_enabled ? module.idh_loader.idh_config.point_in_time_retention_days : 0
   }
 
   private_endpoint_enabled         = module.idh_loader.idh_config.private_endpoint_enabled
