@@ -118,8 +118,8 @@ variable "immutability_policy" {
 
   # https://learn.microsoft.com/en-us/azure/storage/blobs/point-in-time-restore-overview#limitations-and-known-issues
   validation {
-    condition     = var.immutability_policy.enabled ? !var.point_in_time_restore_enabled : true
-    error_message = "Point in Time restore must be disabled when using immutability policy"
+    condition     = var.immutability_policy.enabled ? !module.idh_loader.point_in_time_restore_enabled : true
+    error_message = "Point in Time restore must be disabled when using immutability policy. use another idh_resource"
   }
 }
 
