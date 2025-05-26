@@ -1,5 +1,6 @@
 variable "prefix" {
   type = string
+  description = "(Required) prefix used to identify the platform for which the resource will be created"
   validation {
     condition = (
       length(var.prefix) <= 6
@@ -10,6 +11,7 @@ variable "prefix" {
 
 variable "env" {
   type = string
+  description = "(Required) Environment for which the resource will be created"
 }
 
 variable "name" {

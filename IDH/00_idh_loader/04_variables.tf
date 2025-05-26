@@ -13,7 +13,7 @@ variable "env" {
   type        = string
   description = "(Required) The environment used to identify the catalog to be used"
   validation {
-    condition = contains(["dev", "uat", "prod"], var.env)
+    condition = contains(local.envs, var.env)
     error_message = "env must be one of dev, uat, prod"
   }
 }

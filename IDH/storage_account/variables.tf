@@ -1,5 +1,6 @@
 variable "prefix" {
   type = string
+  description = "(Required) prefix used to identify the platform for which the resource will be created"
   validation {
     condition = (
       length(var.prefix) <= 6
@@ -10,6 +11,7 @@ variable "prefix" {
 
 variable "env" {
   type = string
+  description = "(Required) Environment for which the resource will be created"
 }
 
 variable "idh_resource" {
@@ -19,10 +21,12 @@ variable "idh_resource" {
 
 variable "location" {
   type = string
+  description = "(Required) region where the storage account will be created"
 }
 
 variable "name" {
   type = string
+  description = "(Required) storage account name. Dashes and underscore will be removed. Max 24 chars"
 }
 
 variable "domain" {
@@ -33,6 +37,7 @@ variable "domain" {
 
 variable "resource_group_name" {
   type = string
+  description = "(Required) Resource group name where to save the storage account"
 }
 
 variable "is_sftp_enabled" {
@@ -46,10 +51,6 @@ variable "enable_identity" {
   type        = bool
   default     = false
 }
-
-# Note: If specifying network_rules,
-# one of either ip_rules or virtual_network_subnet_ids must be specified
-# and default_action must be set to Deny.
 
 variable "network_rules" {
   type = object({
