@@ -124,17 +124,6 @@ variable "immutability_policy" {
 }
 
 
-variable "point_in_time_restore_enabled" {
-  type        = bool
-  description = "Enables point in time restore"
-  default     = false
-
-  validation {
-    condition     = !module.idh_loader.idh_config.point_in_time_restore_allowed ? !var.point_in_time_restore_enabled : true
-    error_message = "Point in Time restore is not allowed in '${var.env}' environment for '${var.idh_resource}'"
-  }
-}
-
 variable "replication_type" {
   type = string
   default = null
