@@ -53,6 +53,7 @@ module "storage_account" {
   blob_last_access_time_enabled    = module.idh_loader.idh_config.blob_last_access_time_enabled
   cross_tenant_replication_enabled = module.idh_loader.idh_config.cross_tenant_replication_enabled
   is_hns_enabled                   = module.idh_loader.idh_config.is_hns_enabled
+  is_sftp_enabled                  = module.idh_loader.idh_config.is_sftp_enabled
   min_tls_version                  = module.idh_loader.idh_config.min_tls_version
 
   private_dns_zone_table_ids  = var.private_dns_zone_table_ids
@@ -72,7 +73,6 @@ module "storage_account" {
     allow_protected_append_writes = var.immutability_policy.allow_protected_append_writes
     period_since_creation_in_days = var.immutability_policy.period_since_creation_in_days
   }
-  is_sftp_enabled            = var.is_sftp_enabled
   low_availability_threshold = var.low_availability_threshold
   network_rules              = var.network_rules
   subnet_id                  = var.private_endpoint_subnet_id

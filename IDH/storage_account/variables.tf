@@ -40,12 +40,6 @@ variable "resource_group_name" {
   description = "(Required) Resource group name where to save the storage account"
 }
 
-variable "is_sftp_enabled" {
-  type        = bool
-  default     = false
-  description = "Enable SFTP"
-}
-
 variable "enable_identity" {
   description = "(Optional) If true, set the identity as SystemAssigned"
   type        = bool

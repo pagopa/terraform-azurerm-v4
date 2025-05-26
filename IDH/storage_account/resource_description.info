@@ -1,1 +1,1 @@
-Kind: {account_kind}, tier: {account_tier}, min replication: {min_account_replication_type}, access tier: {access_tier}, public: {public_network_access_enabled}, PiT restore: {point_in_time_restore_enabled}, PiT Retention: {point_in_time_retention_days}
+Kind: {account_kind}, tier: {account_tier}, min replication: {min_account_replication_type}, access tier: {access_tier}, public: {public_network_access_enabled}, PiT restore: {point_in_time_restore_enabled}, PiT Retention: {point_in_time_retention_days}, sftp: {is_sftp_enabled}
