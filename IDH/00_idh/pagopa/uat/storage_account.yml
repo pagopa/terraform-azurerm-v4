@@ -4,7 +4,7 @@ basic:
   min_account_replication_type: "ZRS"
   access_tier: "Hot"
   advanced_threat_protection: false
-  public_network_access_enabled: false
+  public_network_access_enabled: true
   private_endpoint_enabled: true
   blob_versioning_enabled: true
   allow_nested_items_to_be_public: false
@@ -22,7 +22,7 @@ sftp:
   min_account_replication_type: "ZRS"
   access_tier: "Hot"
   advanced_threat_protection: false
-  public_network_access_enabled: false
+  public_network_access_enabled: true
   private_endpoint_enabled: true
   blob_versioning_enabled: true
   allow_nested_items_to_be_public: false
