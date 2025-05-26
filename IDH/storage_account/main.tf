@@ -12,8 +12,8 @@ locals {
   # maps the replication type to a security livel (higher is better)
   # used to check if the minimum requirement is fulfilled
   allowed_replication_types = {
-    "LSR" = 0
-    "ZRS" = 1
+    "LSR"  = 0
+    "ZRS"  = 1
     "GZRS" = 2
   }
   allowed_replication_types_string = join(",", keys(local.allowed_replication_types))

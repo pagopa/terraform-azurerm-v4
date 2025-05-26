@@ -1,5 +1,5 @@
 variable "prefix" {
-  type = string
+  type        = string
   description = "(Required) prefix used to identify the platform for which the resource will be created"
   validation {
     condition = (
@@ -10,7 +10,7 @@ variable "prefix" {
 }
 
 variable "env" {
-  type = string
+  type        = string
   description = "(Required) Environment for which the resource will be created"
 }
 
