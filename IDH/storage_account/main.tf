@@ -19,6 +19,10 @@ locals {
   allowed_replication_types_string = join(",", keys(local.allowed_replication_types))
 }
 
+output "prova" {
+  value = module.idh_loader.idh_config.point_in_time_retention_days
+}
+
 module "storage_account" {
   source = "../../storage_account"
 
