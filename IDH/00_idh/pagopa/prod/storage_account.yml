@@ -3,7 +3,7 @@ basic:
   account_tier: Standard
   min_account_replication_type: "ZRS"
   access_tier: "Hot"
-  advanced_threat_protection: false
+  advanced_threat_protection: true
   public_network_access_enabled: false
   private_endpoint_enabled: true
   blob_versioning_enabled: true
@@ -20,7 +20,7 @@ backup7:
   account_tier: Standard
   min_account_replication_type: "ZRS"
   access_tier: "Hot"
-  advanced_threat_protection: false
+  advanced_threat_protection: true
   public_network_access_enabled: false
   private_endpoint_enabled: true
   blob_versioning_enabled: true
@@ -37,7 +37,7 @@ backup30:
   account_tier: Standard
   min_account_replication_type: "ZRS"
   access_tier: "Hot"
-  advanced_threat_protection: false
+  advanced_threat_protection: true
   public_network_access_enabled: false
   private_endpoint_enabled: true
   blob_versioning_enabled: true
