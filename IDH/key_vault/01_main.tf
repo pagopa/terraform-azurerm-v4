@@ -20,7 +20,7 @@ module "key_vault" {
   terraform_cloud_object_id      = var.terraform_cloud_object_id
 
   enable_rbac_authorization     = module.idh_loader.idh_config.enable_rbac_authorization
-  lock_enable                   = module.idh_loader.idh_config.lock_enable
+  lock_enable                   = module.idh_loader.idh_config.lock_enabled
   public_network_access_enabled = module.idh_loader.idh_config.public_network_access_enabled
   soft_delete_retention_days    = module.idh_loader.idh_config.soft_delete_retention_days
   sku_name                      = module.idh_loader.idh_config.sku_name
