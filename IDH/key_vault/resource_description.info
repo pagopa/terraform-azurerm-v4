@@ -1,0 +1,1 @@
+Sku: {sku_name}, public_network_access_enabled: {public_network_access_enabled}, soft_delete_retention_days: {soft_delete_retention_days}, enable_rbac_authorization: {enable_rbac_authorization}
