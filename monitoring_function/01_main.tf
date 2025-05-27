@@ -80,7 +80,7 @@ resource "azurerm_storage_table_entity" "monitoring_configuration" {
     "checkCertificate"    = each.value.checkCertificate,
     "alertEnabled"        = each.value.alertConfiguration.enabled,
     "method"              = each.value.method,
-    "domain"              = lookup(each.value, "domain", "-"),
+    "domain"              = lookup(each.value, "domain", ""),
     "expectedCodes"       = jsonencode(each.value.expectedCodes),
     "durationLimit"       = lookup(each.value, "durationLimit", null) != null ? each.value.durationLimit : var.job_settings.default_duration_limit,
     "headers"             = lookup(each.value, "headers", null) != null ? jsonencode(each.value.headers) : null,
