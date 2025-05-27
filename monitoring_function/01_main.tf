@@ -72,7 +72,7 @@ resource "azurerm_storage_table_entity" "monitoring_configuration" {
   for_each         = local.monitoring_configuration
   storage_table_id = azurerm_storage_table.table_storage.id
 
-  partition_key = "${each.value.appName}-${each.value.apiName}"
+  partition_key = "${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName}-${each.value.apiName}"
   row_key       = each.value.type
   entity = {
     "url"                 = each.value.url,
