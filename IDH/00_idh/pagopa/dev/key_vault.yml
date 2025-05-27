@@ -3,3 +3,4 @@ standard:
   public_network_access_enabled: true
   soft_delete_retention_days: 90
   sku_name: standard
+  lock_enabled: false
