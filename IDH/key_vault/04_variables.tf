@@ -32,8 +32,7 @@ variable "resource_group_name" {
 }
 
 variable "tenant_id" {
-  type    = string
-  default = null
+  type = string
 }
 
 variable "terraform_cloud_object_id" {
