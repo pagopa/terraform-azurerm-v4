@@ -78,7 +78,6 @@ resource "azurerm_storage_table_entity" "monitoring_configuration" {
     "url"                 = each.value.url,
     "type"                = each.value.type,
     "checkCertificate"    = each.value.checkCertificate,
-    "enabled"             = each.value.enabled,
     "alertEnabled"        = each.value.alertConfiguration.enabled,
     "method"              = each.value.method,
     "domain"              = lookup(each.value, "domain", "-"),
