@@ -7,8 +7,6 @@ module "idh_loader" {
   idh_category = "key_vault"
 }
 
-
-
 module "key_vault" {
   source = "../../key_vault"
 
