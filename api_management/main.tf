@@ -155,6 +155,7 @@ resource "azurerm_monitor_autoscale_setting" "this" {
       }
     }
   }
+  tags = var.tags
 }
 
 #
@@ -300,6 +301,7 @@ resource "azurerm_monitor_metric_alert" "this" {
 
     }
   }
+  tags = var.tags
 }
 
 #
@@ -312,6 +314,7 @@ resource "azurerm_api_management_redis_cache" "this" {
   api_management_id = azurerm_api_management.this.id
   connection_string = var.redis_connection_string
   redis_cache_id    = var.redis_cache_id
+
 }
 
 # Already apply forcing redis_connection_string on apim_module

@@ -201,6 +201,7 @@ resource "azurerm_monitor_metric_alert" "function_app_health_check" {
       webhook_properties = action.value["webhook_properties"]
     }
   }
+  tags = var.tags
 }
 
 resource "azurerm_service_plan" "this" {

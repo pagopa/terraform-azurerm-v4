@@ -37,6 +37,8 @@ module "container_app_job" {
   replica_retry_limit         = var.replica_retry_limit
   replica_timeout_in_seconds  = var.replica_timeout_in_seconds
   runner_labels               = var.runner_labels
+
+  tags = var.tags
 }
 
 

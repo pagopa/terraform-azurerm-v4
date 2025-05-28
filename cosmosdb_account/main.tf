@@ -108,6 +108,7 @@ resource "azurerm_private_endpoint" "sql" {
       private_dns_zone_ids = var.private_dns_zone_sql_ids
     }
   }
+  tags = var.tags
 }
 
 resource "azurerm_private_endpoint" "mongo" {
@@ -132,6 +133,7 @@ resource "azurerm_private_endpoint" "mongo" {
       private_dns_zone_ids = var.private_dns_zone_mongo_ids
     }
   }
+  tags = var.tags
 }
 
 resource "azurerm_private_endpoint" "cassandra" {
@@ -156,6 +158,7 @@ resource "azurerm_private_endpoint" "cassandra" {
       private_dns_zone_ids = var.private_dns_zone_cassandra_ids
     }
   }
+  tags = var.tags
 }
 
 resource "azurerm_private_endpoint" "table" {
@@ -180,6 +183,7 @@ resource "azurerm_private_endpoint" "table" {
       private_dns_zone_ids = var.private_dns_zone_table_ids
     }
   }
+  tags = var.tags
 }
 
 # -----------------------------------------------
