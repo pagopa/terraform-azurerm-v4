@@ -70,7 +70,7 @@ def doc_generate():
   str_idh_lib = str_idh_lib + "|------|---------|\n"
   # genera la documentazione
   for module in sorted(config_files.keys()):
-    print(f"processing module {module}")
+    print_debug(f"processing module {module}")
     str_idh_lib = str_idh_lib + f"|{module}|[README]({module}/README.md)|\n"
     if not os.path.exists(f"./IDH/{module}"):
       print_debug(f"folder {module} not found, skipping doc generation")

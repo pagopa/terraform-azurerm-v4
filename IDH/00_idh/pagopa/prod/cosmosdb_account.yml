@@ -1,0 +1,102 @@
+cosmos_sql4:
+  kind: GlobalDocumentDB
+  capabilities:
+  - EnableServerless
+  offer_type: Standard
+  consistency_policy:
+    consistency_level: BoundedStaleness
+    max_interval_in_seconds: '300'
+    max_staleness_prefix: '100000'
+  server_version: '4.0'
+  main_geo_location_zone_redundant: true
+  additional_geo_replication_allowed: true
+  enable_free_tier: false
+  burst_capacity_enabled: false
+  enable_automatic_failover: true
+  minimal_tls_version: Tls12
+  private_endpoint_enabled: true
+  public_network_access_enabled: false
+  is_virtual_network_filter_enabled: false
+  backup_continuous_enabled: true
+  backup_periodic_enabled: {}
+  events_ttl: '2629800'
+  max_throughput: '1000'
+  enable_provisioned_throughput_exceeded_alert: true
+  provisioned_throughput_exceeded_threshold: 0
+cosmos_sql6:
+  kind: GlobalDocumentDB
+  capabilities:
+  - EnableServerless
+  offer_type: Standard
+  consistency_policy:
+    consistency_level: BoundedStaleness
+    max_interval_in_seconds: '300'
+    max_staleness_prefix: '100000'
+  server_version: '6.0'
+  main_geo_location_zone_redundant: true
+  additional_geo_replication_allowed: true
+  enable_free_tier: false
+  burst_capacity_enabled: false
+  enable_automatic_failover: true
+  minimal_tls_version: Tls12
+  private_endpoint_enabled: true
+  public_network_access_enabled: false
+  is_virtual_network_filter_enabled: false
+  backup_continuous_enabled: true
+  backup_periodic_enabled: {}
+  events_ttl: '2629800'
+  max_throughput: '1000'
+  enable_provisioned_throughput_exceeded_alert: true
+  provisioned_throughput_exceeded_threshold: 0
+cosmos_mongo4:
+  kind: MongoDB
+  capabilities:
+  - EnableMongo
+  - DisableRateLimitingResponses
+  offer_type: Standard
+  consistency_policy:
+    consistency_level: BoundedStaleness
+    max_interval_in_seconds: '300'
+    max_staleness_prefix: '100000'
+  server_version: '6.0'
+  main_geo_location_zone_redundant: true
+  additional_geo_replication_allowed: true
+  enable_free_tier: false
+  burst_capacity_enabled: false
+  enable_automatic_failover: true
+  minimal_tls_version: Tls12
+  private_endpoint_enabled: true
+  public_network_access_enabled: false
+  is_virtual_network_filter_enabled: false
+  backup_continuous_enabled: true
+  backup_periodic_enabled: {}
+  events_ttl: '2629800'
+  max_throughput: '1000'
+  enable_provisioned_throughput_exceeded_alert: true
+  provisioned_throughput_exceeded_threshold: 0
+cosmos_mongo6:
+  kind: MongoDB
+  capabilities:
+  - EnableMongo
+  - DisableRateLimitingResponses
+  offer_type: Standard
+  consistency_policy:
+    consistency_level: BoundedStaleness
+    max_interval_in_seconds: '300'
+    max_staleness_prefix: '100000'
+  server_version: '6.0'
+  main_geo_location_zone_redundant: true
+  additional_geo_replication_allowed: true
+  enable_free_tier: false
+  burst_capacity_enabled: false
+  enable_automatic_failover: true
+  minimal_tls_version: Tls12
+  private_endpoint_enabled: true
+  public_network_access_enabled: false
+  is_virtual_network_filter_enabled: false
+  backup_continuous_enabled: true
+  backup_periodic_enabled: {}
+  events_ttl: '2629800'
+  max_throughput: '1000'
+  enable_provisioned_throughput_exceeded_alert: true
+  provisioned_throughput_exceeded_threshold: 0
