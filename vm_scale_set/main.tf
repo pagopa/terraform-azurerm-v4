@@ -28,7 +28,7 @@ resource "azurerm_ssh_public_key" "public_key" {
   resource_group_name = var.resource_group_name
   location            = var.location
   public_key          = tls_private_key.private_key[0].public_key_openssh
-  tags = var.tags
+  tags                = var.tags
 }
 
 #

@@ -15,7 +15,7 @@ resource "azurerm_ssh_public_key" "this_public_key" {
   resource_group_name = var.resource_group_name
   location            = var.location
   public_key          = tls_private_key.this_key.public_key_openssh
-  tags = var.tags
+  tags                = var.tags
 }
 
 # create scale set

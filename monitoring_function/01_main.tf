@@ -220,7 +220,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
   }
 
   depends_on = [azurerm_container_app_job.monitoring_terraform_app_job]
-  tags = var.tags
+  tags       = var.tags
 }
 
 #
