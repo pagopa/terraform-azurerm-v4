@@ -63,5 +63,5 @@ resource "azurerm_network_watcher_flow_log" "network_watcher_flow_log" {
     workspace_resource_id = data.azurerm_log_analytics_workspace.analytics_workspace.id
     interval_in_minutes   = var.flow_logs.traffic_analytics_law_interval_minutes
   }
-
+  tags = var.tags
 }

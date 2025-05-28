@@ -129,6 +129,7 @@ resource "azurerm_private_endpoint" "blob" {
       private_dns_zone_ids = var.private_dns_zone_blob_ids
     }
   }
+  tags = var.tags
 }
 
 resource "azurerm_private_endpoint" "table" {
@@ -153,6 +154,7 @@ resource "azurerm_private_endpoint" "table" {
       private_dns_zone_ids = var.private_dns_zone_table_ids
     }
   }
+  tags = var.tags
 }
 
 resource "azurerm_private_endpoint" "queue" {
@@ -177,6 +179,7 @@ resource "azurerm_private_endpoint" "queue" {
       private_dns_zone_ids = var.private_dns_zone_queue_ids
     }
   }
+  tags = var.tags
 }
 
 resource "azurerm_private_endpoint" "file" {
@@ -201,6 +204,7 @@ resource "azurerm_private_endpoint" "file" {
       private_dns_zone_ids = var.private_dns_zone_file_ids
     }
   }
+  tags = var.tags
 }
 
 resource "azurerm_private_endpoint" "web" {
@@ -225,6 +229,7 @@ resource "azurerm_private_endpoint" "web" {
       private_dns_zone_ids = var.private_dns_zone_web_ids
     }
   }
+  tags = var.tags
 }
 
 resource "azurerm_private_endpoint" "dfs" {
@@ -249,6 +254,7 @@ resource "azurerm_private_endpoint" "dfs" {
       private_dns_zone_ids = var.private_dns_zone_dfs_ids
     }
   }
+  tags = var.tags
 }
 
 # Enable advanced threat protection

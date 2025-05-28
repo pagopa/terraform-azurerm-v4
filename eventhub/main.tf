@@ -123,6 +123,7 @@ resource "azurerm_private_endpoint" "eventhub" {
     is_manual_connection           = false
     subresource_names              = ["namespace"]
   }
+  tags = var.tags
 }
 
 # resource "azurerm_private_dns_a_record" "private_dns_a_record_eventhub" {
@@ -176,4 +177,5 @@ resource "azurerm_monitor_metric_alert" "this" {
       }
     }
   }
+  tags = var.tags
 }

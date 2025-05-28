@@ -15,6 +15,7 @@ resource "azurerm_ssh_public_key" "this_public_key" {
   resource_group_name = var.resource_group_name
   location            = var.location
   public_key          = tls_private_key.this_key.public_key_openssh
+  tags                = var.tags
 }
 
 # create scale set
@@ -67,6 +68,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "this" {
       tags["__AzureDevOpsElasticPoolTimeStamp"],
     ]
   }
+  tags = var.tags
 }
 
 resource "azurerm_monitor_autoscale_setting" "this" {
@@ -84,4 +86,5 @@ resource "azurerm_monitor_autoscale_setting" "this" {
       minimum = var.capacity_minimum_count
     }
   }
+  tags = var.tags
 }

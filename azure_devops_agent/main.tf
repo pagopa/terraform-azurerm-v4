@@ -10,6 +10,7 @@ resource "azurerm_ssh_public_key" "this_public_key" {
   resource_group_name = var.resource_group_name
   location            = var.location
   public_key          = tls_private_key.this_key.public_key_openssh
+  tags                = var.tags
 }
 
 #build the image id
@@ -90,6 +91,6 @@ resource "azurerm_linux_virtual_machine_scale_set" "this" {
       instances
     ]
   }
-
+  tags = var.tags
 }
 
