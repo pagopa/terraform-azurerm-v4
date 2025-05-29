@@ -1,0 +1,1 @@
+Sku: {sku_name}, version: {version}, capacity: {capacity}, public: {public_network_access_enabled}, private endpoint: {private_endpoint_enabled}, zones: {zones}, alert enabled: {alert_enabled}

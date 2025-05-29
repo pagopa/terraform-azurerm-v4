@@ -44,6 +44,7 @@ See test folder for examples
 | <a name="input_idh_resource"></a> [idh\_resource](#input\_idh\_resource) | (Required) The name od IDH resource key to be created. | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | The location of the resource group. | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | The name of the Redis instance. | `string` | n/a | yes |
+| <a name="input_patch_schedules"></a> [patch\_schedules](#input\_patch\_schedules) | (Optional) List of day-time where Azure can start the maintenance activity | <pre>list(object({<br/>    day_of_week    = string<br/>    start_hour_utc = number<br/>  }))</pre> | `null` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | (Required) prefix used to identify the platform for which the resource will be created | `string` | n/a | yes |
 | <a name="input_private_endpoint"></a> [private\_endpoint](#input\_private\_endpoint) | (Optional) Enable private endpoint with required params | <pre>object({<br/>    subnet_id            = string<br/>    private_dns_zone_ids = list(string)<br/>  })</pre> | `null` | no |
 | <a name="input_private_static_ip_address"></a> [private\_static\_ip\_address](#input\_private\_static\_ip\_address) | The Static IP Address to assign to the Redis Cache when hosted inside the Virtual Network | `string` | `null` | no |

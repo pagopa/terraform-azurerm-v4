@@ -40,7 +40,7 @@ variable "subnet_id" {
 
   validation {
     condition     = !module.idh_loader.idh_config.subnet_integration ? var.subnet_id == null : true
-    error_message = "subnet_integration is disabled for ${var.idh_resource} on ${var.env}. this variable must be null"
+    error_message = "subnet_integration is disabled for resource '${var.idh_resource}' on env '${var.env}'. This variable must be null"
   }
 }
 
@@ -54,7 +54,7 @@ variable "private_endpoint" {
 
   validation {
     condition     = module.idh_loader.idh_config.private_endpoint_enabled ? var.private_endpoint != null : true
-    error_message = "private_endpoint must be defined for ${var.idh_resource} on env ${var.env}"
+    error_message = "private_endpoint must be defined for resource '${var.idh_resource}' on env '${var.env}'"
   }
 
   validation {
@@ -70,7 +70,7 @@ variable "private_static_ip_address" {
 
   validation {
     condition     = !module.idh_loader.idh_config.subnet_integration ? var.private_static_ip_address == null : true
-    error_message = "subnet_integration is disabled for ${var.idh_resource} on ${var.env}. this variable must be null"
+    error_message = "subnet_integration is disabled for resource '${var.idh_resource}' on env '${var.env}'. This variable must be null"
   }
 }
 
@@ -83,4 +83,13 @@ variable "alert_action_group_ids" {
   type        = list(string)
   default     = []
   description = "(Optional) List of action group ids to be used in alerts"
+}
+
+variable "patch_schedules" {
+  type = list(object({
+    day_of_week    = string
+    start_hour_utc = number
+  }))
+  default     = null
+  description = "(Optional) List of day-time where Azure can start the maintenance activity"
 }

@@ -44,7 +44,7 @@ output "primary_connection_string" {
 }
 
 output "primary_connection_url" {
-  value     = "rediss://:${module.redis.primary_access_key}@${module.redis.hostname}:${module.redis.ssl_port}"
+  value     = "redis://:${module.redis.primary_access_key}@${module.redis.hostname}:${module.redis.ssl_port}"
   sensitive = true
 }
 
@@ -59,6 +59,6 @@ output "secondary_connection_string" {
 }
 
 output "secondary_connection_url" {
-  value     = "rediss://:${module.redis.secondary_access_key}@${module.redis.hostname}:${module.redis.ssl_port}"
+  value     = "redis://:${module.redis.secondary_access_key}@${module.redis.hostname}:${module.redis.ssl_port}"
   sensitive = true
 }

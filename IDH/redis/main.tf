@@ -40,7 +40,7 @@ module "redis" {
     private_dns_zone_ids = module.idh_loader.idh_config.private_endpoint_enabled ? var.private_endpoint.private_dns_zone_ids : []
   }
 
-  patch_schedules = module.idh_loader.idh_config.patch_schedule
+  patch_schedules = coalesce(var.patch_schedules, module.idh_loader.idh_config.patch_schedule)
 
   tags = var.tags
 }
@@ -69,10 +69,10 @@ resource "azurerm_monitor_metric_alert" "redis_cache_used_memory_exceeded" {
   # https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/metrics-supported#microsoftdocumentdbdatabaseaccounts
   criteria {
     metric_namespace       = "Microsoft.Cache/redis"
-    metric_name            = "usedmemory"
+    metric_name            = "usedmemorypercentage"
     aggregation            = "Maximum"
     operator               = "GreaterThan"
-    threshold              = "200000000"
+    threshold              = "90"
     skip_metric_validation = false
   }
 
