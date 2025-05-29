@@ -51,7 +51,7 @@ module "redis" {
 # -----------------------------------------------
 
 resource "azurerm_monitor_metric_alert" "redis_cache_used_memory_exceeded" {
-  count = module.idh_loader.idh_config.alert_enabled
+  count = module.idh_loader.idh_config.alert_enabled ? 1 : 0
 
   name                = "[${module.redis.name}] Used Memory close to the threshold"
   resource_group_name = var.resource_group_name
