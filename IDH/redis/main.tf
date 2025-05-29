@@ -80,7 +80,7 @@ resource "azurerm_monitor_metric_alert" "redis_cache_used_memory_exceeded" {
     for_each = toset(var.alert_action_group_ids)
     iterator = ag_id
     content {
-      action_group_id = ag_id
+      action_group_id = ag_id.value
     }
   }
 
