@@ -1,0 +1,22 @@
+# key_vault_access_policy for uat environment
+key_vault_access_policy:
+  admin:
+    key_permissions: [Get, List, Update, Create, Import, Delete, Encrypt, Decrypt, Backup, Purge, Recover, Restore, Sign, UnwrapKey, Update, Verify, WrapKey, Release, Rotate, GetRotationPolicy, SetRotationPolicy]
+    secret_permissions: [Get, List, Set, Delete, Backup, Purge, Recover, Restore]
+    storage_permissions: []
+    certificate_permissions: [Get, List, Update, Create, Import, Delete, Restore, Purge, Recover, Backup, ManageContacts, ManageIssuers, GetIssuers, ListIssuers, SetIssuers, DeleteIssuers]
+  developer:
+    key_permissions: [Get, List]
+    secret_permissions: [Get, List]
+    storage_permissions: []
+    certificate_permissions: [Get, List]
+  external:
+    key_permissions: [Get, List]
+    secret_permissions: [Get, List]
+    storage_permissions: []
+    certificate_permissions: [Get, List]
+  reader:
+    key_permissions: [Get, List]
+    secret_permissions: [Get, List]
+    storage_permissions: []
+    certificate_permissions: [Get, List]
