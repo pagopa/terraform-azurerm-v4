@@ -1,3 +1,19 @@
+variable "prefix" {
+  description = "Prefix used to identify the platform for which the resource will be created"
+  type        = string
+}
+
+variable "idh_resource" {
+  description = "The name of the IDH resource key to be created."
+  type        = string
+}
+
+variable "tags" {
+  description = "Tags to apply to resources."
+  type        = map(string)
+  default     = {}
+}
+
 variable "permission_type" {
   description = "La tipologia di permesso: admin, developer, external"
   type        = string
