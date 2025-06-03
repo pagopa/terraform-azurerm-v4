@@ -1,17 +1,27 @@
-# Redis cache
+# EventHub
 
-This module allows the creation of a redis cache
+This module allows the creation of a event hub namespace, as well as the creation of a private endpoint for the event hub namespace.
 
-Availability Zone are choosed automatically by Azure. If you want to override the default zones choosed automatically, you can use the `custom_zones` variable.
-# https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-whats-new#cache-creation-with-zone-redundancy-by-default
+## IDH resources available
+[Here's](./LIBRARY.md) the list of `idh_resource` available for this module
 
-# Migration v3 -> v4
-
-* `zones`: was changed to `custom_zones` is Optional and now is valid only for premium and only if you want to override the default zones choosed automatically
 
 ## How to use
 
-See test folder for examples
+```hcl
+module "evh" {
+  source = "./.terraform/modules/__v4__/IDH/event_hub"
+
+  env = var.env
+  idh_resource = "standard"
+  location = var.location
+  name = "myeventhub"
+  prefix = var.prefix
+  resource_group_name = azurerm_resource_group.evh_rg.name
+  tags = var.tags
+
+}
+```
 
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->
@@ -49,7 +59,6 @@ See test folder for examples
 | <a name="input_network_rulesets"></a> [network\_rulesets](#input\_network\_rulesets) | n/a | <pre>list(object({<br/>    default_action                = string                #  (Required) The default action to take when a rule is not matched. Possible values are Allow and Deny.<br/>    public_network_access_enabled = optional(bool, false) # (Optional) Is public network access enabled for the EventHub Namespace? Defaults to false.<br/>    virtual_network_rule = list(object({<br/>      subnet_id                                       = string # (Required) The id of the subnet to match on.<br/>      ignore_missing_virtual_network_service_endpoint = bool   # (Optional) Are missing virtual network service endpoints ignored?<br/>    }))<br/>    ip_rule = list(object({<br/>      ip_mask = string # (Required) The IP mask to match on.<br/>      action  = string # (Optional) The action to take when the rule is matched. Possible values are Allow. Defaults to Allow.<br/>    }))<br/>    trusted_service_access_enabled = optional(bool, false) #Whether Trusted Microsoft Services are allowed to bypass firewall.<br/>  }))</pre> | `[]` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | (Required) prefix used to identify the platform for which the resource will be created | `string` | n/a | yes |
 | <a name="input_private_dns_zones_ids"></a> [private\_dns\_zones\_ids](#input\_private\_dns\_zones\_ids) | Private DNS Zones where the private endpoint will be created | `list(string)` | `[]` | no |
-| <a name="input_private_endpoint_created"></a> [private\_endpoint\_created](#input\_private\_endpoint\_created) | Choose to allow the creation of the private endpoint | `bool` | n/a | yes |
 | <a name="input_private_endpoint_resource_group_name"></a> [private\_endpoint\_resource\_group\_name](#input\_private\_endpoint\_resource\_group\_name) | Name of the resource group where the private endpoint will be created | `string` | `null` | no |
 | <a name="input_private_endpoint_subnet_id"></a> [private\_endpoint\_subnet\_id](#input\_private\_endpoint\_subnet\_id) | The id of the subnet that will be used for the private endpoint. | `string` | `null` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Resource Group | `string` | n/a | yes |

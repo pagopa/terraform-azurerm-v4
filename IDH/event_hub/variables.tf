@@ -83,11 +83,6 @@ variable "private_dns_zones_ids" {
 }
 
 
-variable "private_endpoint_created" {
-  description = "Choose to allow the creation of the private endpoint"
-  type        = bool
-}
-
 variable "private_endpoint_resource_group_name" {
   description = "Name of the resource group where the private endpoint will be created"
   type        = string
