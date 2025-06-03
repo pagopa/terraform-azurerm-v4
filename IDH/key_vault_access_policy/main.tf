@@ -2,8 +2,8 @@ module "idh_loader" {
   source       = "../00_idh_loader"
   prefix       = var.prefix
   env          = var.env
-  idh_resource = var.idh_resource
-  idh_category = "key_vault_access_policy"
+  idh_resource = var.permission_tier
+  idh_category = basename(path.module) ## folder name
 }
 
 resource "azurerm_key_vault_access_policy" "this" {
