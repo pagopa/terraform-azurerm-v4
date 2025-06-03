@@ -2,6 +2,7 @@
 |Module| Doc | 
 |------|---------|
 |cosmosdb_account|[README](cosmosdb_account/README.md)|
+|event_hub|[README](event_hub/README.md)|
 |key_vault|[README](key_vault/README.md)|
 |key_vault_access_policy|[README](key_vault_access_policy/README.md)|
 |postgres_flexible_server|[README](postgres_flexible_server/README.md)|

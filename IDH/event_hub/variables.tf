@@ -1,3 +1,24 @@
+variable "prefix" {
+  type        = string
+  description = "(Required) prefix used to identify the platform for which the resource will be created"
+  validation {
+    condition = (
+      length(var.prefix) <= 6
+    )
+    error_message = "Max length is 6 chars."
+  }
+}
+
+variable "env" {
+  type        = string
+  description = "(Required) Environment for which the resource will be created"
+}
+
+variable "idh_resource" {
+  type        = string
+  description = "(Required) The name of IDH resource key to be created."
+}
+
 variable "name" {
   type        = string
   description = "Eventhub namespace description."
@@ -12,11 +33,6 @@ variable "resource_group_name" {
   type = string
 }
 
-variable "auto_inflate_enabled" {
-  type        = bool
-  description = "Is Auto Inflate enabled for the EventHub Namespace?"
-  default     = false
-}
 
 variable "eventhubs" {
   description = "A list of event hubs to add to namespace."
@@ -35,22 +51,8 @@ variable "eventhubs" {
   default = []
 }
 
-variable "sku" {
-  type        = string
-  description = "(Required) Defines which tier to use. Valid options are Basic and Standard."
-}
 
-variable "capacity" {
-  type        = number
-  description = "Specifies the Capacity / Throughput Units for a Standard SKU namespace."
-  default     = null
-}
 
-variable "maximum_throughput_units" {
-  type        = number
-  description = "Specifies the maximum number of throughput units when Auto Inflate is Enabled"
-  default     = null
-}
 
 variable "network_rulesets" {
   type = list(object({
@@ -69,17 +71,6 @@ variable "network_rulesets" {
   default = []
 }
 
-variable "minimum_tls_version" {
-  type        = string
-  default     = "1.2"
-  description = "(Optional) The minimum supported TLS version for this EventHub Namespace. Valid values are: 1.0, 1.1 and 1.2. The current default minimum TLS version is 1.2."
-}
-
-variable "public_network_access_enabled" {
-  type        = bool
-  default     = false
-  description = "(Optional) Is public network access enabled for the EventHub Namespace? Defaults to true."
-}
 
 #
 # Private endpoint
@@ -122,11 +113,6 @@ variable "action" {
   default = []
 }
 
-variable "alerts_enabled" {
-  type        = bool
-  default     = true
-  description = "Should Metrics Alert be enabled?"
-}
 
 variable "tags" {
   type = map(any)
@@ -135,11 +121,6 @@ variable "tags" {
 #
 # Alerts
 #
-variable "metric_alerts_create" {
-  type        = bool
-  description = "Create metric alerts"
-  default     = true
-}
 
 variable "metric_alerts" {
   default = {}
