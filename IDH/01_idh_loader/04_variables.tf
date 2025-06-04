@@ -1,9 +1,9 @@
-variable "prefix" {
+variable "product_name" {
   type        = string
-  description = "(Required) The prefix used to identify the catalog to be used"
+  description = "(Required) The product_name used to identify the catalog to be used"
   validation {
     condition = (
-      length(var.prefix) <= 6
+      length(var.product_name) <= 6
     )
     error_message = "Max length is 6 chars."
   }
@@ -24,7 +24,7 @@ variable "idh_resource" {
 
   validation {
     condition     = can(lookup(local.local_data, var.idh_resource))
-    error_message = "Specified idh_resource '${var.idh_resource}' not available in catalog for given prefix: '${var.prefix}', env: '${var.env}', idh_category: '${var.idh_category}'"
+    error_message = "Specified idh_resource '${var.idh_resource}' not available in catalog for given product_name: '${var.product_name}', env: '${var.env}', idh_category: '${var.idh_category}'"
   }
 }
 
@@ -33,8 +33,8 @@ variable "idh_category" {
   description = "(Required) The IDH resource category to be created."
 
   validation {
-    condition     = can(file("${path.module}/../00_product_configs/${var.prefix}/${var.env}/${var.idh_category}.yml"))
-    error_message = "Specified idh_category '${var.idh_category}' not available in catalog for given prefix: '${var.prefix}' and env: '${var.env}'"
+    condition     = can(file("${path.module}/../00_product_configs/${var.product_name}/${var.env}/${var.idh_category}.yml"))
+    error_message = "Specified idh_category '${var.idh_category}' not available in catalog for given product_name: '${var.product_name}' and env: '${var.env}'"
   }
 
 }
