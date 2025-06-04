@@ -2,7 +2,7 @@ module "idh_loader" {
   source       = "../01_idh_loader"
   product_name       = var.prefix
   env          = var.env
-  idh_resource = var.permission_tier
+  idh_resource_tier = var.permission_tier
   idh_category = basename(path.module) ## folder name
 }
 
