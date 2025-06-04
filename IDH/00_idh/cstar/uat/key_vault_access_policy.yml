@@ -5,10 +5,10 @@ admin:
   storage_permissions: []
   certificate_permissions: [Get, List, Update, Create, Import, Delete, Restore, Purge, Recover, Backup, ManageContacts, ManageIssuers, GetIssuers, ListIssuers, SetIssuers, DeleteIssuers]
 developer:
-  key_permissions: [Get, List]
-  secret_permissions: [Get, List]
+  key_permissions: [Get, List, Update, Create, Import, Delete, Encrypt, Decrypt, Rotate, GetRotationPolicy]
+  secret_permissions: [Get, List, Set, Delete]
   storage_permissions: []
-  certificate_permissions: [Get, List]
+  certificate_permissions: [Get, List, Update, Create, Import, Delete, Restore, Purge, Recover]
 external:
   key_permissions: [Get, List]
   secret_permissions: [Get, List]
