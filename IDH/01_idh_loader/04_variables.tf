@@ -18,13 +18,13 @@ variable "env" {
   }
 }
 
-variable "idh_resource" {
+variable "idh_resource_tier" {
   type        = string
-  description = "(Required) The IDH resource name to be created"
+  description = "(Required) The IDH resource tier name choosen for the resource to be created."
 
   validation {
-    condition     = can(lookup(local.local_data, var.idh_resource))
-    error_message = "Specified idh_resource '${var.idh_resource}' not available in catalog for given product_name: '${var.product_name}', env: '${var.env}', idh_category: '${var.idh_category}'"
+    condition     = can(lookup(local.local_data, var.idh_resource_tier))
+    error_message = "Specified idh_resource_tier '${var.idh_resource_tier}' not available in catalog for given product_name: '${var.product_name}', env: '${var.env}', idh_category: '${var.idh_category}'"
   }
 }
 
