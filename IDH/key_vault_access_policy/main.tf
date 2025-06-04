@@ -3,7 +3,7 @@ module "idh_loader" {
   product_name       = var.prefix
   env          = var.env
   idh_resource_tier = var.permission_tier
-  idh_category = basename(path.module) ## folder name
+  idh_resource_type = basename(path.module) ## folder name
 }
 
 resource "azurerm_key_vault_access_policy" "this" {

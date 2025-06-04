@@ -4,7 +4,7 @@ module "idh_loader" {
   product_name       = var.prefix
   env          = var.env
   idh_resource_tier = var.idh_resource
-  idh_category = "storage_account"
+  idh_resource_type = "storage_account"
 }
 
 locals {

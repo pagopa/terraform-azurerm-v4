@@ -4,7 +4,7 @@ module "idh_loader" {
   product_name       = var.prefix
   env          = var.env
   idh_resource_tier = var.idh_resource
-  idh_category = "key_vault"
+  idh_resource_type = "key_vault"
 }
 
 module "key_vault" {
