@@ -2,11 +2,11 @@
 # General Variables
 #########################################
 
-variable "prefix" {
+variable "product_name" {
   type = string
   validation {
-    condition     = length(var.prefix) > 0 && length(var.prefix) <= 6 && can(regex("^[a-zA-Z0-9]+$", var.prefix))
-    error_message = "The prefix must be 1 to 6 alphanumeric characters."
+    condition     = length(var.product_name) > 0 && length(var.product_name) <= 6 && can(regex("^[a-zA-Z0-9]+$", var.product_name))
+    error_message = "The product_name must be 1 to 6 alphanumeric characters."
   }
 }
 

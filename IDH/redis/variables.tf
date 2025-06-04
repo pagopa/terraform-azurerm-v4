@@ -1,9 +1,9 @@
-variable "prefix" {
+variable "product_name" {
   type        = string
-  description = "(Required) prefix used to identify the platform for which the resource will be created"
+  description = "(Required) product_name used to identify the platform for which the resource will be created"
   validation {
     condition = (
-      length(var.prefix) <= 6
+      length(var.product_name) <= 6
     )
     error_message = "Max length is 6 chars."
   }

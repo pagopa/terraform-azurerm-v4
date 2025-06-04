@@ -9,7 +9,7 @@ To use this module, include it in your Terraform configuration as follows:
 ```hcl
 module "key_vault_access_policy" {
   source         = "<path-to-this-module>"
-  prefix         = "cstar"
+  product_name         = "cstar"
   tags           = { environment = "dev" }
   permission_tier = "admin" # or developer, external
   env            = "dev" # or prod, uat, etc.
@@ -21,7 +21,7 @@ module "key_vault_access_policy" {
 
 ### Input Variables
 
-- `prefix` (string, required): Prefix used to identify the platform for which the resource will be created.
+- `product_name` (string, required): product_name used to identify the platform for which the resource will be created.
 - `idh_resource` (string, required): The name of the IDH resource key to be created.
 - `tags` (map(string), optional): Tags to apply to resources. Default is `{}`.
 - `permission_type` (string, required): The type of permission: `admin`, `developer`, or `external`.

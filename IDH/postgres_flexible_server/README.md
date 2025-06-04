@@ -40,7 +40,7 @@ Also handles:
     private_link_service_network_policies_enabled = true
   
     idh_resource = "postgres_flexible"
-    prefix = var.prefix
+    product_name = var.product_name
     env = var.env
 
   }
@@ -61,7 +61,7 @@ Also handles:
   resource_group_name = azurerm_resource_group.db_rg.name
 
   idh_resource = "pgflex2"
-  prefix = var.prefix
+  product_name = var.product_name
   env = var.env
 
   private_dns_zone_id           = var.env_short != "d" ? data.azurerm_private_dns_zone.postgres[0].id : null
@@ -169,7 +169,7 @@ Also handles:
 | <a name="input_location"></a> [location](#input\_location) | (Required) The Azure Region where the PostgreSQL Flexible Server should exist. | `string` | n/a | yes |
 | <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id) | (Optional) Specifies the ID of a Log Analytics Workspace where Diagnostics Data should be sent. | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | (Required) The name which should be used for this PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created. | `string` | n/a | yes |
-| <a name="input_prefix"></a> [prefix](#input\_prefix) | (Required) prefix used to identify the platform for which the resource will be created | `string` | n/a | yes |
+| <a name="input_prefix"></a> [product_name](#input\_product_name) | (Required) product_name used to identify the platform for which the resource will be created | `string` | n/a | yes |
 | <a name="input_primary_user_assigned_identity_id"></a> [primary\_user\_assigned\_identity\_id](#input\_primary\_user\_assigned\_identity\_id) | Manages a User Assigned Identity | `string` | `null` | no |
 | <a name="input_private_dns_cname_record_ttl"></a> [private\_dns\_cname\_record\_ttl](#input\_private\_dns\_cname\_record\_ttl) | (Optional) if 'private\_dns\_registration' is true, defines the record TTL | `number` | `300` | no |
 | <a name="input_private_dns_record_cname"></a> [private\_dns\_record\_cname](#input\_private\_dns\_record\_cname) | (Optional) if 'private\_dns\_registration' is true, defines the private dns CNAME used to register this server FQDN | `string` | `null` | no |

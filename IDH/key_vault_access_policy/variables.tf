@@ -1,5 +1,5 @@
-variable "prefix" {
-  description = "Prefix used to identify the platform or workload associated with the resource"
+variable "product_name" {
+  description = "product_name used to identify the platform or workload associated with the resource"
   type        = string
 }
 

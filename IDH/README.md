@@ -26,7 +26,7 @@ This list is going to grow as we add more modules to the library, if you don't f
 module "idh_loader" {
   source = "../01_idh_loader"
 
-  prefix       = var.prefix
+  product_name       = var.product_name
   env          = var.env
   idh_resource = var.idh_resource
   idh_category = "<module_name>"

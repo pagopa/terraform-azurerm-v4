@@ -1,7 +1,7 @@
 module "idh_loader" {
   source = "../01_idh_loader"
 
-  product_name       = var.prefix
+  product_name       = var.product_name
   env          = var.env
   idh_resource_tier = var.idh_resource
   idh_resource_type = "subnet"
@@ -37,11 +37,11 @@ data "external" "subnet_cidr" {
 }
 
 # this resource is used to store the cidr used to create the subnet in the state file
-# and change it only when the vnet or the prefix length has changed
+# and change it only when the vnet or the product_name length has changed
 resource "terraform_data" "subnet_cidr" {
   input = data.external.subnet_cidr.result.cidr
 
-  # use a new cidr only if the vnet or the prefix length has changed
+  # use a new cidr only if the vnet or the product_name length has changed
   triggers_replace = [
     data.azurerm_virtual_network.vnet.address_space[0],
     module.idh_loader.idh_config.prefix_length

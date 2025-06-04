@@ -14,7 +14,7 @@ module "keyvault" {
   source = "./.terraform/modules/__v4__/IDH/key_vault"
 
   idh_resource = "standard"
-  prefix = var.prefix
+  product_name = var.product_name
   env = var.env
 
   name                = "${local.product}-test-kv"
@@ -55,7 +55,7 @@ No resources.
 | <a name="input_idh_resource"></a> [idh\_resource](#input\_idh\_resource) | (Required) The name od IDH resource key to be created. | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | n/a | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | n/a | `string` | n/a | yes |
-| <a name="input_prefix"></a> [prefix](#input\_prefix) | (Required) prefix used to identify the platform for which the resource will be created | `string` | n/a | yes |
+| <a name="input_prefix"></a> [product_name](#input\_product_name) | (Required) product_name used to identify the platform for which the resource will be created | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | n/a | `string` | n/a | yes |
 | <a name="input_sec_log_analytics_workspace_id"></a> [sec\_log\_analytics\_workspace\_id](#input\_sec\_log\_analytics\_workspace\_id) | Log analytics workspace security (it should be in a different subscription). | `string` | `null` | no |
 | <a name="input_sec_storage_id"></a> [sec\_storage\_id](#input\_sec\_storage\_id) | Storage Account security (it should be in a different subscription). | `string` | `null` | no |
