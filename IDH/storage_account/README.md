@@ -27,7 +27,7 @@ In terraform output you can get the resource group name.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../00_idh_loader | n/a |
+| <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 | <a name="module_storage_account"></a> [storage\_account](#module\_storage\_account) | ../../storage_account | n/a |
 
 ## Resources

@@ -40,7 +40,7 @@ module "keyvault" {
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../00_idh_loader | n/a |
+| <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 | <a name="module_key_vault"></a> [key\_vault](#module\_key\_vault) | ../../key_vault | n/a |
 
 ## Resources

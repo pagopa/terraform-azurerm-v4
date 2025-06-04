@@ -24,7 +24,7 @@ This list is going to grow as we add more modules to the library, if you don't f
 
 ```hcl
 module "idh_loader" {
-  source = "../00_idh_loader"
+  source = "../01_idh_loader"
 
   prefix       = var.prefix
   env          = var.env

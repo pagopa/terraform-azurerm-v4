@@ -127,7 +127,7 @@ Also handles:
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../00_idh_loader | n/a |
+| <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 | <a name="module_pgflex"></a> [pgflex](#module\_pgflex) | ../../postgres_flexible_server | n/a |
 | <a name="module_replica"></a> [replica](#module\_replica) | ../../postgres_flexible_server_replica | n/a |
 

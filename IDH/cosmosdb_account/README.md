@@ -59,7 +59,7 @@ module "cosmos_idh_sql" {
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_cosmosdb_account"></a> [cosmosdb\_account](#module\_cosmosdb\_account) | ../../cosmosdb_account | n/a |
-| <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../00_idh_loader | n/a |
+| <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 
 ## Resources
 

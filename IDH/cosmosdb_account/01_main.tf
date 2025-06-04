@@ -1,5 +1,5 @@
 module "idh_loader" {
-  source       = "../00_idh_loader"
+  source       = "../01_idh_loader"
   prefix       = var.prefix
   env          = var.env
   idh_resource = var.idh_resource
