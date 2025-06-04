@@ -6,7 +6,7 @@ resource "azurerm_resource_group" "cosmos_idh_test_rg" {
 module "cosmos_idh_test" {
   for_each                   = toset(var.env)
   source                     = "./.."
-  product_name                     = "pagopa"
+  product_name               = "pagopa"
   domain                     = "test"
   resource_group_name        = azurerm_resource_group.cosmos_idh_test_rg.name
   env                        = each.value

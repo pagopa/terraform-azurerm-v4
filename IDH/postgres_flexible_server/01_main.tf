@@ -1,8 +1,8 @@
 module "idh_loader" {
   source = "../01_idh_loader"
 
-  product_name       = var.product_name
-  env          = var.env
+  product_name      = var.product_name
+  env               = var.env
   idh_resource_tier = var.idh_resource
   idh_resource_type = "postgres_flexible_server"
 }
