@@ -1,5 +1,5 @@
 output "idh_category" {
-  value = var.idh_category
+  value = var.idh_resource_type
 }
 
 output "idh_resource" {

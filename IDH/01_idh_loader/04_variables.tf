@@ -24,17 +24,17 @@ variable "idh_resource_tier" {
 
   validation {
     condition     = can(lookup(local.local_data, var.idh_resource_tier))
-    error_message = "Specified idh_resource_tier '${var.idh_resource_tier}' not available in catalog for given product_name: '${var.product_name}', env: '${var.env}', idh_category: '${var.idh_category}'"
+    error_message = "Specified idh_resource_tier '${var.idh_resource_tier}' not available in catalog for given product_name: '${var.product_name}', env: '${var.env}', idh_resource_type: '${var.idh_resource_type}'"
   }
 }
 
-variable "idh_category" {
+variable "idh_resource_type" {
   type        = string
   description = "(Required) The IDH resource category to be created."
 
   validation {
-    condition     = can(file("${path.module}/../00_product_configs/${var.product_name}/${var.env}/${var.idh_category}.yml"))
-    error_message = "Specified idh_category '${var.idh_category}' not available in catalog for given product_name: '${var.product_name}' and env: '${var.env}'"
+    condition     = can(file("${path.module}/../00_product_configs/${var.product_name}/${var.env}/${var.idh_resource_type}.yml"))
+    error_message = "Specified idh_resource_type '${var.idh_resource_type}' not available in catalog for given product_name: '${var.product_name}' and env: '${var.env}'"
   }
 
 }
