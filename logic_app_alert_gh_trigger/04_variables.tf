@@ -1,7 +1,6 @@
 variable "name" {
   type        = string
   description = "(Required) The name of the Logic App Workflow."
-  default     = "test"
 }
 
 variable "env" {
@@ -13,13 +12,11 @@ variable "env" {
 variable "resource_group_name" {
   type        = string
   description = "(Required) The name of the resource group in which to create the Logic App Workflow."
-  default     = "test-rg-devopslab-ffppa"
 }
 
 variable "location" {
   type        = string
   description = "(Required) The location where the Logic App Workflow should be created."
-  default     = "westeurope"
 }
 
 variable "tags" {
