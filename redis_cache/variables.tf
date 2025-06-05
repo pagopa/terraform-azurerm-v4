@@ -51,7 +51,6 @@ variable "subnet_id" {
 variable "private_endpoint" {
   type = object({
     enabled              = bool
-    virtual_network_id   = string
     subnet_id            = string
     private_dns_zone_ids = list(string)
   })
