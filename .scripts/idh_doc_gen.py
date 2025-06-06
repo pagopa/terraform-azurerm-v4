@@ -6,7 +6,7 @@ from collections.abc import MutableMapping
 from typing import Dict, List, Any, Optional
 
 # Configuration
-DEBUG = True
+DEBUG = False
 IDH_PRODUCT_CONFIG_FOLDER = "00_product_configs"
 BASE_DIR = "./IDH"
 
