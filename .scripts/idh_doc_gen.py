@@ -11,7 +11,7 @@ IDH_PRODUCT_CONFIG_FOLDER = "00_product_configs"
 
 def print_debug(msg: str, data: Any = None) -> None:
     if DEBUG:
-        prefix = "[🐛 DEBUG]"
+        prefix = "[DEBUG]"
         print(f"{prefix} {msg}", data if data is not None else "")
 
 def flatten_dict(d: MutableMapping, parent_key: str = '', sep: str = '.') -> Dict[str, Any]:
