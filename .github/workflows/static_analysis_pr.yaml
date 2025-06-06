@@ -32,7 +32,6 @@ jobs:
         shell: bash
         run: |
           python3 -V
-          ## sh .scripts/generate-idh-docs.sh
           tree -R -d -a .
 
       - name: run_init
