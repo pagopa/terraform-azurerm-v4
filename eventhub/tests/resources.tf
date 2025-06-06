@@ -62,8 +62,6 @@ module "event_hub_complete" {
   auto_inflate_enabled = false
   sku                  = "Standard"
 
-  internal_private_dns_zone_created             = true
-  internal_private_dns_zone_resource_group_name = "dvopla-eventhub-private-dns-zone-rg"
 
   private_endpoint_created             = true
   private_endpoint_resource_group_name = "dvopla-d-azdoa-rg"
