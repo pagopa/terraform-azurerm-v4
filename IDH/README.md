@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD029 MD032 -->
 
 
-<p align="center"><img src="logo.png" alt="logo" width="200"/></p>
+<p align="center"><img src="logo.png" alt="logo" width="400"/></p>
 
 # IDH - Infrastructure Design Handbook
 This is a set of modules aimed to simplify and standardize the usage of terraform modules, providing a catalog of resources that can be created for each environment.
