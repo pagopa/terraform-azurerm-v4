@@ -12,8 +12,9 @@ resource "azurerm_application_gateway" "this" {
   firewall_policy_id  = var.firewall_policy_id
 
   sku {
-    name = var.sku_name
-    tier = var.sku_tier
+    name     = var.sku_name
+    tier     = var.sku_tier
+    capacity = var.sku_capacity
   }
 
   gateway_ip_configuration {
@@ -308,9 +309,12 @@ resource "azurerm_application_gateway" "this" {
     }
   }
 
-  autoscale_configuration {
-    min_capacity = var.app_gateway_min_capacity
-    max_capacity = var.app_gateway_max_capacity
+  dynamic "autoscale_configuration" {
+    for_each = var.app_gateway_autoscale ? ["dummy"] : []
+    content {
+      min_capacity = var.app_gateway_min_capacity
+      max_capacity = var.app_gateway_max_capacity
+    }
   }
 
   tags = var.tags
