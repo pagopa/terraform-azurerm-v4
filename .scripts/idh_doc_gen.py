@@ -7,8 +7,8 @@ from typing import Dict, List, Any, Optional
 
 # Configuration
 DEBUG = False
-IDH_PRODUCT_CONFIG_FOLDER = "00_product_configs"
 BASE_DIR = "./IDH"
+IDH_PRODUCT_CONFIG_FOLDER = "00_product_configs"
 
 def print_debug(msg: str, data: Any = None) -> None:
     """print_debug debug message if DEBUG is enabled."""
