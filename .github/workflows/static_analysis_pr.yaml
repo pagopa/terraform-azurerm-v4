@@ -32,6 +32,8 @@ jobs:
         shell: bash
         run: |
           tree -R -d -a .
+          python3 -V
+          sh .scripts/generate-idh-docs.sh   
 
       - name: run_init
         if: env.dir_changes_detected == 'true'
