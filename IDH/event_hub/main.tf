@@ -1,10 +1,10 @@
 module "idh_loader" {
-  source = "../00_idh_loader"
+  source = "../01_idh_loader"
 
-  prefix       = var.prefix
-  env          = var.env
-  idh_resource = var.idh_resource
-  idh_category = "event_hub"
+  product_name      = var.product_name
+  env               = var.env
+  idh_resource_tier = var.idh_resource_tier
+  idh_resource_type = "event_hub"
 }
 
 resource "terraform_data" "validation" {

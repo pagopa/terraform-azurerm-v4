@@ -21,15 +21,15 @@ This list is going to grow as we add more modules to the library, if you don't f
 ### How to add a new module
 
 1. Create a new folder in the `IDH` folder with the `<module_name>` name
-2. Create a new file named `<module_name>.yml` in the `00_idh` folder for each platform/env you want to support
+2. Create a new file named `<module_name>.yml` in the `00_product_configs` folder for each platform/env you want to support
 3. Configure the module and the content of the `<module_name>.yml` accordingly, making sure to configure the structural values in the `yml`file and leaving what can/needs to be configured to the input variables
    - In your module use the following resource to read the `yml` file
 
 ```hcl
 module "idh_loader" {
-  source = "../00_idh_loader"
+  source = "../01_idh_loader"
 
-  prefix       = var.prefix
+  product_name       = var.product_name
   env          = var.env
   idh_resource = var.idh_resource
   idh_category = "<module_name>"

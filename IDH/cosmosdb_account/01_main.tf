@@ -1,9 +1,9 @@
 module "idh_loader" {
-  source       = "../00_idh_loader"
-  prefix       = var.prefix
-  env          = var.env
-  idh_resource = var.idh_resource
-  idh_category = "cosmosdb_account"
+  source            = "../01_idh_loader"
+  product_name      = var.product_name
+  env               = var.env
+  idh_resource_tier = var.idh_resource
+  idh_resource_type = "cosmosdb_account"
 }
 
 module "cosmosdb_account" {
