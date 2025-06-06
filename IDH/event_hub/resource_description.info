@@ -1,0 +1,1 @@
+Sku: {sku}, capacity: {capacity}, auto_inflate: {auto_inflate_enabled}, public: {public_network_access_enabled}, private endpoint: {private_endpoint_enabled}, alerts enabled: {alerts_enabled}

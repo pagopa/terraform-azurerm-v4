@@ -1,6 +1,9 @@
 <!-- markdownlint-disable MD029 MD032 -->
-# IDH - Infrastructure Design Handbook
 
+
+<p align="center"><img src="logo.png" alt="logo" width="500"/></p>
+
+# IDH - Infrastructure Design Handbook
 This is a set of modules aimed to simplify and standardize the usage of terraform modules, providing a catalog of resources that can be created for each environment.
 
 This means that most of the core variables usually required by the v4 modules are already set, and the user only needs to provide the specific variables for each module, thus avoiding common misconfigurations like:
