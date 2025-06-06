@@ -53,6 +53,7 @@ jobs:
           docker run -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
 
       - name: 🔍 Show modified files and diff
+        if: always()
         run: |
           echo "🧾 Modified files:"
           git diff --name-only || true
