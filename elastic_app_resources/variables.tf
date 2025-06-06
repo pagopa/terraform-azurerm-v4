@@ -96,3 +96,15 @@ variable "primary_shard_count" {
   type        = number
   description = "Number of primary shard for the index templates"
 }
+
+variable "shard_max_per_node" {
+  type        = number
+  description = "Maximum number of shards (primary + replica) to allocate on a single node for a given index"
+}
+
+
+variable "custom_index_component_parameters" {
+  type = map(string)
+  description = "Additional parameters to be used in the index component templates. The key is the parameter name, the value is the parameter value"
+  default = {}
+}
