@@ -36,7 +36,8 @@ resource "azurerm_logic_app_action_http" "this" {
   }
   body = <<SCHEMA
 {
-  "event_type": "${var.event_type}"
+  "event_type": "${var.event_type}",
+  "client_payload": "${var.workflow_inputs}"
 }
 SCHEMA
   uri  = "https://api.github.com/repos/${var.github.org}/${var.github.repository}/dispatches"

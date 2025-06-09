@@ -59,6 +59,12 @@ variable "event_type" {
   default     = "azure-alert"
 }
 
+variable "workflow_inputs" {
+  type        = map(string)
+  default     = {}
+  description = "(Optional) Add workflow inputs to send at the job as input params."
+}
+
 
 variable "create_identity" {
   type        = bool
