@@ -130,8 +130,8 @@ def doc_generate() -> None:
 
         module_docs = [
             f"# 📚 IDH {module} Resources\n",
-            "| 🖥️ Platform | 🌍 Environment | 🔤 Name | 📝 Description |",
-            "|-------------|---------------|---------|----------------|"
+            "| 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |",
+            "|-------------|----------------|---------|----------------|"
         ]
 
         for config in sorted(config_files[module], key=lambda x: (x['platform'], x['environment'])):
