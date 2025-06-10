@@ -2,6 +2,12 @@
 
 | 🖥️ Platform | 🌍 Environment | 🔤 Name | 📝 Description |
 |-------------|---------------|---------|----------------|
+| dvopla | dev |  aks_overlay | Prefix length: 24, delegation: - |
+| dvopla | dev |  app_service | Prefix length: 27, delegation: Microsoft.Web/serverFarms |
+| dvopla | dev |  container_app_environment | Prefix length: 23, delegation: - |
+| dvopla | dev |  gateway | Prefix length: 24, delegation: - |
+| dvopla | dev |  postgres_flexible | Prefix length: 28, delegation: Microsoft.DBforPostgreSQL/flexibleServers |
+| dvopla | dev |  private_endpoint | Prefix length: 26, delegation: - |
 | pagopa | dev |  aks_overlay | Prefix length: 24, delegation: - |
 | pagopa | dev |  app_service | Prefix length: 27, delegation: Microsoft.Web/serverFarms |
 | pagopa | dev |  container_app_environment | Prefix length: 23, delegation: - |

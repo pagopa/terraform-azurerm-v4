@@ -41,7 +41,7 @@ See test folder for examples
 |------|-------------|------|---------|:--------:|
 | <a name="input_alert_action_group_ids"></a> [alert\_action\_group\_ids](#input\_alert\_action\_group\_ids) | (Optional) List of action group ids to be used in alerts | `list(string)` | `[]` | no |
 | <a name="input_env"></a> [env](#input\_env) | (Required) Environment for which the resource will be created | `string` | n/a | yes |
-| <a name="input_idh_resource"></a> [idh\_resource](#input\_idh\_resource) | (Required) The name od IDH resource key to be created. | `string` | n/a | yes |
+| <a name="input_idh_resource_tier"></a> [idh\_resource\_tier](#input\_idh\_resource\_tier) | (Required) The name od IDH resource key to be created. | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | The location of the resource group. | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | The name of the Redis instance. | `string` | n/a | yes |
 | <a name="input_patch_schedules"></a> [patch\_schedules](#input\_patch\_schedules) | (Optional) List of day-time where Azure can start the maintenance activity | <pre>list(object({<br/>    day_of_week    = string<br/>    start_hour_utc = number<br/>  }))</pre> | `null` | no |
