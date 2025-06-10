@@ -48,11 +48,11 @@ variable "tags" {
 # IDH Resources
 #########################################
 
-variable "idh_resource" {
+variable "idh_resource_tier" {
   type        = string
   description = "(Required) The name of IDH resource key to be created."
   validation {
-    condition     = length(var.idh_resource) > 0
+    condition     = length(var.idh_resource_tier) > 0
     error_message = "IDH resource key name cannot be empty."
   }
 }
@@ -116,7 +116,7 @@ variable "additional_geo_locations" {
   }
   validation {
     condition     = !module.idh_loader.idh_resource_configuration.additional_geo_replication_allowed ? length(var.additional_geo_locations) == 0 : true
-    error_message = "Additional geo replication is not allowed in '${var.env}' environment for '${var.idh_resource}'"
+    error_message = "Additional geo replication is not allowed in '${var.env}' environment for '${var.idh_resource_tier}'"
   }
 }
 

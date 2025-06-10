@@ -14,7 +14,7 @@ variable "env" {
   description = "(Required) Environment for which the resource will be created"
 }
 
-variable "idh_resource" {
+variable "idh_resource_tier" {
   type        = string
   description = "(Required) The name od IDH resource key to be created."
 }
@@ -40,7 +40,7 @@ variable "subnet_id" {
 
   validation {
     condition     = !module.idh_loader.idh_resource_configuration.subnet_integration ? var.subnet_id == null : true
-    error_message = "subnet_integration is disabled for resource '${var.idh_resource}' on env '${var.env}'. This variable must be null"
+    error_message = "subnet_integration is disabled for resource '${var.idh_resource_tier}' on env '${var.env}'. This variable must be null"
   }
 }
 
@@ -54,7 +54,7 @@ variable "private_endpoint" {
 
   validation {
     condition     = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_endpoint != null : true
-    error_message = "private_endpoint must be defined for resource '${var.idh_resource}' on env '${var.env}'"
+    error_message = "private_endpoint must be defined for resource '${var.idh_resource_tier}' on env '${var.env}'"
   }
 
   validation {
@@ -70,7 +70,7 @@ variable "private_static_ip_address" {
 
   validation {
     condition     = !module.idh_loader.idh_resource_configuration.subnet_integration ? var.private_static_ip_address == null : true
-    error_message = "subnet_integration is disabled for resource '${var.idh_resource}' on env '${var.env}'. This variable must be null"
+    error_message = "subnet_integration is disabled for resource '${var.idh_resource_tier}' on env '${var.env}'. This variable must be null"
   }
 }
 

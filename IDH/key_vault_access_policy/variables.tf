@@ -3,7 +3,7 @@ variable "product_name" {
   type        = string
 }
 
-variable "permission_tier" {
+variable "idh_resource_tier" {
   description = "Permission tier to apply: admin, developer, external"
   type        = string
 }

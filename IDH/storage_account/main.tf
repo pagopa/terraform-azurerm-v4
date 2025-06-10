@@ -3,7 +3,7 @@ module "idh_loader" {
 
   product_name      = var.product_name
   env               = var.env
-  idh_resource_tier = var.idh_resource
+  idh_resource_tier = var.idh_resource_tier
   idh_resource_type = "storage_account"
 }
 

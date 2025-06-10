@@ -2,10 +2,13 @@ module "idh_loader" {
   source            = "../01_idh_loader"
   product_name      = var.product_name
   env               = var.env
-  idh_resource_tier = var.idh_resource
+  idh_resource_tier = var.idh_resource_tier
   idh_resource_type = "cosmosdb_account"
 }
 
+# -------------------------------------------------------------------
+# CosmosDB Account
+# -------------------------------------------------------------------
 module "cosmosdb_account" {
   source = "../../cosmosdb_account"
 

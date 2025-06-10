@@ -3,7 +3,7 @@ module "idh_loader" {
 
   product_name      = var.product_name
   env               = var.env
-  idh_resource_tier = var.idh_resource
+  idh_resource_tier = var.idh_resource_tier
   idh_resource_type = "subnet"
 }
 
@@ -53,9 +53,9 @@ resource "terraform_data" "subnet_cidr" {
   }
 }
 
-
-
-
+#
+# Subnet
+#
 module "subnet" {
   source = "../../subnet"
 
@@ -64,7 +64,6 @@ module "subnet" {
   virtual_network_name = var.virtual_network_name
 
   address_prefixes = [terraform_data.subnet_cidr.input]
-
 
   delegation = lookup(module.idh_loader.idh_resource_configuration, "delegation", null) != null ? {
     name = "delegation"
@@ -78,5 +77,4 @@ module "subnet" {
   private_endpoint_network_policies             = module.idh_loader.idh_resource_configuration.private_endpoint_network_policies
 
   service_endpoints = var.service_endpoints
-
 }

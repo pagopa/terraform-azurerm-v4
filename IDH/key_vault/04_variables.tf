@@ -14,7 +14,7 @@ variable "env" {
   description = "(Required) Environment for which the resource will be created"
 }
 
-variable "idh_resource" {
+variable "idh_resource_tier" {
   type        = string
   description = "(Required) The name od IDH resource key to be created."
 }

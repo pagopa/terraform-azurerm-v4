@@ -30,7 +30,7 @@ variable "resource_group_name" {
 }
 
 
-variable "idh_resource" {
+variable "idh_resource_tier" {
   type        = string
   description = "(Required) The name od IDH resource key to be created."
 }
@@ -242,7 +242,7 @@ variable "geo_replication" {
 
   validation {
     condition     = !module.idh_loader.idh_resource_configuration.geo_replication_allowed ? var.geo_replication.enabled == false : true
-    error_message = "Geo replication is not allowed in '${var.env}' environment for '${var.idh_resource}'"
+    error_message = "Geo replication is not allowed in '${var.env}' environment for '${var.idh_resource_tier}'"
   }
 
 }
