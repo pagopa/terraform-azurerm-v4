@@ -6,11 +6,27 @@ In terraform output you can get the resource group name.
 
 ## IDH resources available
 
-[Here's](./LIBRARY.md) the list of `idh_resource` available for this module
+[Here's](./LIBRARY.md) the list of `idh_resource_tier` available for this module
 
 
 ## How to use it
+     
+```hcl
+module "storage_account" {
+  count  = local.idh_enabled ? 1 : 0
+  source = "./.terraform/modules/__v4__/IDH/storage_account"
 
+  name = replace("${local.project}-idh-sa", "-", "")
+
+  product_name        = "dvopla"
+  env                 = "dev"
+  idh_resource_tier   = "basic"
+  domain              = var.domain
+  location            = var.location
+  resource_group_name = azurerm_resource_group.idh_rg.name
+  tags                = {}
+}
+```
 
 
 <!-- markdownlint-disable -->

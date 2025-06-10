@@ -3,7 +3,7 @@
 This module allow the creation of keyvault
 
 ## IDH resources available
-[Here's](./LIBRARY.md) the list of `idh_resource` available for this module
+[Here's](./LIBRARY.md) the list of `idh_resources` available for this module
 
 
 
@@ -13,7 +13,7 @@ This module allow the creation of keyvault
 module "keyvault" {
   source = "./.terraform/modules/__v4__/IDH/key_vault"
 
-  idh_resource = "standard"
+  idh_resource_tier = "standard"
   product_name = var.product_name
   env = var.env
 

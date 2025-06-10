@@ -3,7 +3,7 @@
 This module allows the creation of a event hub namespace, as well as the creation of a private endpoint for the event hub namespace.
 
 ## IDH resources available
-[Here's](./LIBRARY.md) the list of `idh_resource` available for this module
+[Here's](./LIBRARY.md) the list of `idh_resources` available for this module
 
 
 ## How to use
@@ -13,8 +13,9 @@ module "evh" {
   source = "./.terraform/modules/__v4__/IDH/event_hub"
 
   env = var.env
-  idh_resource = "standard"
+  idh_resource_tier = "standard"
   location = var.location
+  
   name = "myeventhub"
   prefix = var.prefix
   resource_group_name = azurerm_resource_group.evh_rg.name

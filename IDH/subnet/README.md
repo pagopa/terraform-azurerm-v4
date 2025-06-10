@@ -3,7 +3,7 @@
 This module allow the creation of subnet
 
 ## IDH resources available
-[Here's](./LIBRARY.md) the list of `idh_resource` available for this module
+[Here's](./LIBRARY.md) the list of `idh_resources` available for this module
 
 
 
@@ -17,7 +17,7 @@ module "postgres_flexible_snet" {
   virtual_network_name                          = data.azurerm_virtual_network.vnet.name
   service_endpoints                             = ["Microsoft.Storage"]
 
-  idh_resource = "postgres_flexible"
+  idh_resource_tier = "postgres_flexible"
   product_name = var.product_name
   env = var.env
 

@@ -7,7 +7,7 @@ Also handles:
 
 ## IDH resources available
 
-[Here's](./LIBRARY.md) the list of `idh_resource` available for this module
+[Here's](./LIBRARY.md) the list of `idh_resources` available for this module
 
 
 ## How to use it
@@ -39,7 +39,7 @@ Also handles:
     service_endpoints                             = ["Microsoft.Storage"]
     private_link_service_network_policies_enabled = true
   
-    idh_resource = "postgres_flexible"
+    idh_resource_tier = "postgres_flexible"
     product_name = var.product_name
     env = var.env
 
@@ -60,7 +60,7 @@ Also handles:
   location            = azurerm_resource_group.db_rg.location
   resource_group_name = azurerm_resource_group.db_rg.name
 
-  idh_resource = "pgflex2"
+  idh_resource_tier = "pgflex2"
   product_name = var.product_name
   env = var.env
 

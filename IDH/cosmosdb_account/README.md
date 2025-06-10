@@ -4,13 +4,13 @@ This module allow the setup of a cosmos db account
 
 ## IDH resources available
 
-[Here's](./LIBRARY.md) the list of `idh_resource` available for this module
+[Here's](./LIBRARY.md) the list of `idh_resources` available for this module
 
 ## How to use it
 
 ### CosmosDB Mongo version
 
-```ts
+```hcl
 module "cosmos_idh_mongo" {
   source                     = ""./.terraform/modules/__v4__/IDH/cosmosdb_account"
   domain                     = "mydomain"
@@ -22,16 +22,16 @@ module "cosmos_idh_mongo" {
   
   product_name                     = "myprefix" # Es. pagoapa
   env                        = "myenv" # Es. dev
-  idh_resource               = "cosmos_mongo6" 
+  idh_resource_tier               = "cosmos_mongo6" 
 }
 
 ```
 
 ### CosmosDB SQL version
 
-```ts
+```hcl
 module "cosmos_idh_sql" {
-  source                     = ""./.terraform/modules/__v4__/IDH/cosmosdb_account"
+  source                     = "./.terraform/modules/__v4__/IDH/cosmosdb_account"
   domain                     = "mydomain"
   name                       = "my-cosmos-db-account-name"
   resource_group_name        = "my-cosmos-db-account-resource-group"
@@ -41,7 +41,7 @@ module "cosmos_idh_sql" {
   
   product_name                     = "myprefix" # Es. pagoapa
   env                        = "myenv" # Es. dev
-  idh_resource               = "cosmos_sql6" 
+  idh_resource_tier               = "cosmos_sql6" 
 }
 ```
 

@@ -30,13 +30,14 @@ module "idh_loader" {
   source = "../01_idh_loader"
 
   product_name       = var.product_name
+  
   env          = var.env
-  idh_resource = var.idh_resource
-  idh_category = "<module_name>"
+  idh_resource_tier = var.idh_resource_tier
+  idh_resource_type = "<module_name>"
 }
 ```
 
-You can then access your `yml`content using the following syntax: `module.idh_loader.idh_config.<my_property>`
+You can then access your `yml`content using the following syntax: `module.idh_loader.idh_resource_configuration.<my_property>`
 
 4. Create a file named `resource_description.info` in the `<module_name>` folder, this file is going to be used to generate the documentation for the module.
    - **NB:** Here you can use placeholder valued from your `yml`file with the following syntax: `{yaml_property_name}`. Use the `_` separator to navigate the `yml` structure (dot-notation like)
@@ -46,5 +47,5 @@ You can then access your `yml`content using the following syntax: `module.idh_lo
 ```markdown
 ## IDH resources available
 
-[Here's](./LIBRARY.md) the list of `idh_resource` available for this module
+[Here's](./LIBRARY.md) the list of `idh_resource_tier` available for this module
 ```
