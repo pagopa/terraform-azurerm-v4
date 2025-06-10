@@ -1,7 +1,7 @@
 # 📚 IDH storage_account Resources
 
-| 🖥️ Platform | 🌍 Environment | 🔤 Name | 📝 Description |
-|-------------|---------------|---------|----------------|
+| 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |
+|-------------|----------------|---------|----------------|
 | dvopla | dev |  basic | Kind: StorageV2, tier: Standard, min replication: LRS, access tier: Hot, public: True, PiT restore: False, PiT Retention: 0, sftp: False |
 | dvopla | dev |  sftp | Kind: StorageV2, tier: Standard, min replication: LRS, access tier: Hot, public: True, PiT restore: False, PiT Retention: 0, sftp: True |
 | pagopa | dev |  basic | Kind: StorageV2, tier: Standard, min replication: LRS, access tier: Hot, public: True, PiT restore: False, PiT Retention: 0, sftp: False |

@@ -1,7 +1,7 @@
 # 📚 IDH subnet Resources
 
-| 🖥️ Platform | 🌍 Environment | 🔤 Name | 📝 Description |
-|-------------|---------------|---------|----------------|
+| 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |
+|-------------|----------------|---------|----------------|
 | dvopla | dev |  aks_overlay | Prefix length: 24, delegation: - |
 | dvopla | dev |  app_service | Prefix length: 27, delegation: Microsoft.Web/serverFarms |
 | dvopla | dev |  container_app_environment | Prefix length: 23, delegation: - |
