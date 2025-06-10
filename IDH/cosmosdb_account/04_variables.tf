@@ -2,11 +2,11 @@
 # General Variables
 #########################################
 
-variable "prefix" {
+variable "product_name" {
   type = string
   validation {
-    condition     = length(var.prefix) > 0 && length(var.prefix) <= 6 && can(regex("^[a-zA-Z0-9]+$", var.prefix))
-    error_message = "The prefix must be 1 to 6 alphanumeric characters."
+    condition     = length(var.product_name) > 0 && length(var.product_name) <= 6 && can(regex("^[a-zA-Z0-9]+$", var.product_name))
+    error_message = "The product_name must be 1 to 6 alphanumeric characters."
   }
 }
 
@@ -48,11 +48,11 @@ variable "tags" {
 # IDH Resources
 #########################################
 
-variable "idh_resource" {
+variable "idh_resource_tier" {
   type        = string
   description = "(Required) The name of IDH resource key to be created."
   validation {
-    condition     = length(var.idh_resource) > 0
+    condition     = length(var.idh_resource_tier) > 0
     error_message = "IDH resource key name cannot be empty."
   }
 }
@@ -115,8 +115,8 @@ variable "additional_geo_locations" {
     error_message = "Additional geo locations must be a list, even if empty."
   }
   validation {
-    condition     = !module.idh_loader.idh_config.additional_geo_replication_allowed ? length(var.additional_geo_locations) == 0 : true
-    error_message = "Additional geo replication is not allowed in '${var.env}' environment for '${var.idh_resource}'"
+    condition     = !module.idh_loader.idh_resource_configuration.additional_geo_replication_allowed ? length(var.additional_geo_locations) == 0 : true
+    error_message = "Additional geo replication is not allowed in '${var.env}' environment for '${var.idh_resource_tier}'"
   }
 }
 

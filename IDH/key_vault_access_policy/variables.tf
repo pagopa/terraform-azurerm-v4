@@ -1,9 +1,9 @@
-variable "prefix" {
-  description = "Prefix used to identify the platform or workload associated with the resource"
+variable "product_name" {
+  description = "product_name used to identify the platform or workload associated with the resource"
   type        = string
 }
 
-variable "permission_tier" {
+variable "idh_resource_tier" {
   description = "Permission tier to apply: admin, developer, external"
   type        = string
 }

@@ -1,1 +1,1 @@
-Key Vault Access Policy for {permission_type} on {key_vault_id}, tenant: {tenant_id}, object: {object_id}, key: {key_permissions}, secret: {secret_permissions}, storage: {storage_permissions}, certificate: {certificate_permissions}
+key: {key_permissions}, secret: {secret_permissions}, storage: {storage_permissions}, certificate: {certificate_permissions}

@@ -1,9 +1,9 @@
-variable "prefix" {
+variable "product_name" {
   type        = string
-  description = "(Required) prefix used to identify the platform for which the resource will be created"
+  description = "(Required) product_name used to identify the platform for which the resource will be created"
   validation {
     condition = (
-      length(var.prefix) <= 6
+      length(var.product_name) <= 6
     )
     error_message = "Max length is 6 chars."
   }
@@ -14,7 +14,7 @@ variable "env" {
   description = "(Required) Environment for which the resource will be created"
 }
 
-variable "idh_resource" {
+variable "idh_resource_tier" {
   type        = string
   description = "(Required) The name od IDH resource key to be created."
 }
@@ -39,8 +39,8 @@ variable "subnet_id" {
   default     = null
 
   validation {
-    condition     = !module.idh_loader.idh_config.subnet_integration ? var.subnet_id == null : true
-    error_message = "subnet_integration is disabled for resource '${var.idh_resource}' on env '${var.env}'. This variable must be null"
+    condition     = !module.idh_loader.idh_resource_configuration.subnet_integration ? var.subnet_id == null : true
+    error_message = "subnet_integration is disabled for resource '${var.idh_resource_tier}' on env '${var.env}'. This variable must be null"
   }
 }
 
@@ -53,8 +53,8 @@ variable "private_endpoint" {
   default     = null
 
   validation {
-    condition     = module.idh_loader.idh_config.private_endpoint_enabled ? var.private_endpoint != null : true
-    error_message = "private_endpoint must be defined for resource '${var.idh_resource}' on env '${var.env}'"
+    condition     = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_endpoint != null : true
+    error_message = "private_endpoint must be defined for resource '${var.idh_resource_tier}' on env '${var.env}'"
   }
 
   validation {
@@ -69,8 +69,8 @@ variable "private_static_ip_address" {
   default     = null
 
   validation {
-    condition     = !module.idh_loader.idh_config.subnet_integration ? var.private_static_ip_address == null : true
-    error_message = "subnet_integration is disabled for resource '${var.idh_resource}' on env '${var.env}'. This variable must be null"
+    condition     = !module.idh_loader.idh_resource_configuration.subnet_integration ? var.private_static_ip_address == null : true
+    error_message = "subnet_integration is disabled for resource '${var.idh_resource_tier}' on env '${var.env}'. This variable must be null"
   }
 }
 

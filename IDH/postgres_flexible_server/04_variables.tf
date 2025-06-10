@@ -1,9 +1,9 @@
-variable "prefix" {
+variable "product_name" {
   type        = string
-  description = "(Required) prefix used to identify the platform for which the resource will be created"
+  description = "(Required) product_name used to identify the platform for which the resource will be created"
   validation {
     condition = (
-      length(var.prefix) <= 6
+      length(var.product_name) <= 6
     )
     error_message = "Max length is 6 chars."
   }
@@ -30,7 +30,7 @@ variable "resource_group_name" {
 }
 
 
-variable "idh_resource" {
+variable "idh_resource_tier" {
   type        = string
   description = "(Required) The name od IDH resource key to be created."
 }
@@ -167,7 +167,7 @@ variable "private_dns_registration" {
   description = "(Optional) If true, creates a cname record for the newly created postgreSQL db fqdn into the provided private dns zone"
 
   validation {
-    condition     = var.private_dns_registration ? !(module.idh_loader.idh_config.geo_replication_allowed && var.geo_replication.enabled && var.geo_replication.private_dns_registration_ve) : true
+    condition     = var.private_dns_registration ? !(module.idh_loader.idh_resource_configuration.geo_replication_allowed && var.geo_replication.enabled && var.geo_replication.private_dns_registration_ve) : true
     error_message = "private_dns_registration must be false if geo_replication.private_dns_registration_ve is true"
   }
 }
@@ -241,8 +241,8 @@ variable "geo_replication" {
   description = "(Optional) Map of geo replication settings"
 
   validation {
-    condition     = !module.idh_loader.idh_config.geo_replication_allowed ? var.geo_replication.enabled == false : true
-    error_message = "Geo replication is not allowed in '${var.env}' environment for '${var.idh_resource}'"
+    condition     = !module.idh_loader.idh_resource_configuration.geo_replication_allowed ? var.geo_replication.enabled == false : true
+    error_message = "Geo replication is not allowed in '${var.env}' environment for '${var.idh_resource_tier}'"
   }
 
 }
