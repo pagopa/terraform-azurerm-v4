@@ -3,7 +3,7 @@
 This module allows the creation of a event hub namespace, as well as the creation of a private endpoint for the event hub namespace.
 
 ## IDH resources available
-[Here's](./LIBRARY.md) the list of `idh_resources` available for this module
+[Here's](./LIBRARY.md) the list of `idh_resources_tiers` available for this module
 
 
 ## How to use

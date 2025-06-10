@@ -4,7 +4,7 @@ This module allow the setup of a cosmos db account
 
 ## IDH resources available
 
-[Here's](./LIBRARY.md) the list of `idh_resources` available for this module
+[Here's](./LIBRARY.md) the list of `idh_resources_tiers` available for this module
 
 ## How to use it
 
