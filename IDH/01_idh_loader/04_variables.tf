@@ -23,7 +23,7 @@ variable "idh_resource_tier" {
   description = "(Required) The IDH resource tier name choosen for the resource to be created."
 
   validation {
-    condition     = can(lookup(local.local_data, var.idh_resource_tier))
+    condition     = can(lookup(local.tiers_configurations, var.idh_resource_tier))
     error_message = "Specified idh_resource_tier '${var.idh_resource_tier}' not available in catalog for given product_name: '${var.product_name}', env: '${var.env}', idh_resource_type: '${var.idh_resource_type}'"
   }
 }
