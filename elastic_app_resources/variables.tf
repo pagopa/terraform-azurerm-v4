@@ -92,7 +92,13 @@ variable "application_name" {
 }
 
 
-variable "primary_shard_count" {
-  type        = number
-  description = "Number of primary shard for the index templates"
+variable "custom_index_component_parameters" {
+  type = map(string)
+  description = "Additional parameters to be used in the index component templates. The key is the parameter name, the value is the parameter value"
+  default = {}
+
+  validation {
+    condition = alltrue([for k in keys(var.custom_index_component_parameters): !contains(["name", "pipeline", "lifecycle"], k)])
+    error_message = "Parameters 'name', 'pipeline' and 'lifecycle' are reserved and cannot be used in custom_index_component_parameters."
+  }
 }
