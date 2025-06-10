@@ -124,8 +124,8 @@ variable "replication_type" {
   description = "(Optional) storage account replication type. Default is the minimum replication type for the environment."
 
   validation {
-    condition     = var.replication_type != null ? try(local.allowed_replication_types[var.replication_type], -1) >= lookup(local.allowed_replication_types, module.idh_loader.idh_config.min_account_replication_type, 0) : true
-    error_message = "The replication type '${coalesce(var.replication_type, module.idh_loader.idh_config.min_account_replication_type)}' is not allowed in '${var.env}' environment for idh resource '${var.idh_resource}'. The minimum replication type is '${module.idh_loader.idh_config.min_account_replication_type}'. Valid values are ${local.allowed_replication_types_string}"
+    condition     = var.replication_type != null ? try(local.allowed_replication_types[var.replication_type], -1) >= lookup(local.allowed_replication_types, module.idh_loader.idh_resource_configuration.min_account_replication_type, 0) : true
+    error_message = "The replication type '${coalesce(var.replication_type, module.idh_loader.idh_resource_configuration.min_account_replication_type)}' is not allowed in '${var.env}' environment for idh resource '${var.idh_resource}'. The minimum replication type is '${module.idh_loader.idh_resource_configuration.min_account_replication_type}'. Valid values are ${local.allowed_replication_types_string}"
   }
 }
 

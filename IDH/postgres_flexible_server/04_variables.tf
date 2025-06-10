@@ -167,7 +167,7 @@ variable "private_dns_registration" {
   description = "(Optional) If true, creates a cname record for the newly created postgreSQL db fqdn into the provided private dns zone"
 
   validation {
-    condition     = var.private_dns_registration ? !(module.idh_loader.idh_config.geo_replication_allowed && var.geo_replication.enabled && var.geo_replication.private_dns_registration_ve) : true
+    condition     = var.private_dns_registration ? !(module.idh_loader.idh_resource_configuration.geo_replication_allowed && var.geo_replication.enabled && var.geo_replication.private_dns_registration_ve) : true
     error_message = "private_dns_registration must be false if geo_replication.private_dns_registration_ve is true"
   }
 }
@@ -241,7 +241,7 @@ variable "geo_replication" {
   description = "(Optional) Map of geo replication settings"
 
   validation {
-    condition     = !module.idh_loader.idh_config.geo_replication_allowed ? var.geo_replication.enabled == false : true
+    condition     = !module.idh_loader.idh_resource_configuration.geo_replication_allowed ? var.geo_replication.enabled == false : true
     error_message = "Geo replication is not allowed in '${var.env}' environment for '${var.idh_resource}'"
   }
 

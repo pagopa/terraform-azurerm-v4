@@ -16,46 +16,46 @@ module "cosmosdb_account" {
   domain              = var.domain
 
   # 2. Core Settings from Loader
-  kind                 = module.idh_loader.idh_config.kind
-  offer_type           = module.idh_loader.idh_config.offer_type
-  mongo_server_version = module.idh_loader.idh_config.server_version
+  kind                 = module.idh_loader.idh_resource_configuration.kind
+  offer_type           = module.idh_loader.idh_resource_configuration.offer_type
+  mongo_server_version = module.idh_loader.idh_resource_configuration.server_version
 
   # 3. Geo-location and Zone Settings
   main_geo_location_location       = var.main_geo_location_location
-  main_geo_location_zone_redundant = module.idh_loader.idh_config.main_geo_location_zone_redundant
-  additional_geo_locations         = module.idh_loader.idh_config.additional_geo_replication_allowed ? var.additional_geo_locations : []
+  main_geo_location_zone_redundant = module.idh_loader.idh_resource_configuration.main_geo_location_zone_redundant
+  additional_geo_locations         = module.idh_loader.idh_resource_configuration.additional_geo_replication_allowed ? var.additional_geo_locations : []
 
   # 4. Security and Networking
-  is_virtual_network_filter_enabled  = module.idh_loader.idh_config.is_virtual_network_filter_enabled
-  public_network_access_enabled      = module.idh_loader.idh_config.public_network_access_enabled
+  is_virtual_network_filter_enabled  = module.idh_loader.idh_resource_configuration.is_virtual_network_filter_enabled
+  public_network_access_enabled      = module.idh_loader.idh_resource_configuration.public_network_access_enabled
   allowed_virtual_network_subnet_ids = var.allowed_virtual_network_subnet_ids
-  minimal_tls_version                = module.idh_loader.idh_config.minimal_tls_version
+  minimal_tls_version                = module.idh_loader.idh_resource_configuration.minimal_tls_version
   key_vault_key_id                   = var.key_vault_key_id
 
   # 5. Consistency and Capabilities
   consistency_policy = {
-    consistency_level       = module.idh_loader.idh_config.consistency_policy.consistency_level
-    max_interval_in_seconds = module.idh_loader.idh_config.consistency_policy.max_interval_in_seconds
-    max_staleness_prefix    = module.idh_loader.idh_config.consistency_policy.max_staleness_prefix
+    consistency_level       = module.idh_loader.idh_resource_configuration.consistency_policy.consistency_level
+    max_interval_in_seconds = module.idh_loader.idh_resource_configuration.consistency_policy.max_interval_in_seconds
+    max_staleness_prefix    = module.idh_loader.idh_resource_configuration.consistency_policy.max_staleness_prefix
   }
-  capabilities = module.idh_loader.idh_config.capabilities
+  capabilities = module.idh_loader.idh_resource_configuration.capabilities
 
   # 6. Backup and Failover
-  backup_continuous_enabled = module.idh_loader.idh_config.backup_continuous_enabled
-  backup_periodic_enabled = length(keys(module.idh_loader.idh_config.backup_periodic_enabled)) > 0 && !module.idh_loader.idh_config.backup_continuous_enabled ? {
-    interval_in_minutes = try(module.idh_loader.idh_config.backup_periodic_enabled.interval_in_minutes, null)
-    retention_in_hours  = try(module.idh_loader.idh_config.backup_periodic_enabled.retention_in_hours, null)
-    storage_redundancy  = try(module.idh_loader.idh_config.backup_periodic_enabled.storage_redundancy, null)
+  backup_continuous_enabled = module.idh_loader.idh_resource_configuration.backup_continuous_enabled
+  backup_periodic_enabled = length(keys(module.idh_loader.idh_resource_configuration.backup_periodic_enabled)) > 0 && !module.idh_loader.idh_resource_configuration.backup_continuous_enabled ? {
+    interval_in_minutes = try(module.idh_loader.idh_resource_configuration.backup_periodic_enabled.interval_in_minutes, null)
+    retention_in_hours  = try(module.idh_loader.idh_resource_configuration.backup_periodic_enabled.retention_in_hours, null)
+    storage_redundancy  = try(module.idh_loader.idh_resource_configuration.backup_periodic_enabled.storage_redundancy, null)
   } : null
-  enable_automatic_failover = module.idh_loader.idh_config.enable_automatic_failover
+  enable_automatic_failover = module.idh_loader.idh_resource_configuration.enable_automatic_failover
 
   # 7. Advanced Options
 
   ## Throughput and scalability
-  burst_capacity_enabled                       = module.idh_loader.idh_config.burst_capacity_enabled
-  enable_free_tier                             = module.idh_loader.idh_config.enable_free_tier
-  enable_provisioned_throughput_exceeded_alert = module.idh_loader.idh_config.enable_provisioned_throughput_exceeded_alert
-  provisioned_throughput_exceeded_threshold    = module.idh_loader.idh_config.provisioned_throughput_exceeded_threshold
+  burst_capacity_enabled                       = module.idh_loader.idh_resource_configuration.burst_capacity_enabled
+  enable_free_tier                             = module.idh_loader.idh_resource_configuration.enable_free_tier
+  enable_provisioned_throughput_exceeded_alert = module.idh_loader.idh_resource_configuration.enable_provisioned_throughput_exceeded_alert
+  provisioned_throughput_exceeded_threshold    = module.idh_loader.idh_resource_configuration.provisioned_throughput_exceeded_threshold
 
   ## IP and subnet configuration
   ip_range  = var.ip_range

@@ -13,34 +13,34 @@ module "redis" {
   name                          = var.name
   resource_group_name           = var.resource_group_name
   location                      = var.location
-  capacity                      = module.idh_loader.idh_config.capacity
-  enable_non_ssl_port           = module.idh_loader.idh_config.enable_non_ssl_port
-  family                        = module.idh_loader.idh_config.family
-  sku_name                      = module.idh_loader.idh_config.sku_name
-  enable_authentication         = module.idh_loader.idh_config.enable_authentication
-  redis_version                 = module.idh_loader.idh_config.version
-  public_network_access_enabled = module.idh_loader.idh_config.public_network_access_enabled
-  custom_zones                  = module.idh_loader.idh_config.zones
-  shard_count                   = lookup(module.idh_loader.idh_config, "shard_count", null)
+  capacity                      = module.idh_loader.idh_resource_configuration.capacity
+  enable_non_ssl_port           = module.idh_loader.idh_resource_configuration.enable_non_ssl_port
+  family                        = module.idh_loader.idh_resource_configuration.family
+  sku_name                      = module.idh_loader.idh_resource_configuration.sku_name
+  enable_authentication         = module.idh_loader.idh_resource_configuration.enable_authentication
+  redis_version                 = module.idh_loader.idh_resource_configuration.version
+  public_network_access_enabled = module.idh_loader.idh_resource_configuration.public_network_access_enabled
+  custom_zones                  = module.idh_loader.idh_resource_configuration.zones
+  shard_count                   = lookup(module.idh_loader.idh_resource_configuration, "shard_count", null)
 
-  backup_configuration = lookup(module.idh_loader.idh_config, "backup_configuration", null) != null ? {
-    frequency                 = module.idh_loader.idh_config.backup_configuration.frequency
-    max_snapshot_count        = module.idh_loader.idh_config.backup_configuration.max_snapshot_count
-    storage_connection_string = module.idh_loader.idh_config.backup_configuration.storage_connection_string
+  backup_configuration = lookup(module.idh_loader.idh_resource_configuration, "backup_configuration", null) != null ? {
+    frequency                 = module.idh_loader.idh_resource_configuration.backup_configuration.frequency
+    max_snapshot_count        = module.idh_loader.idh_resource_configuration.backup_configuration.max_snapshot_count
+    storage_connection_string = module.idh_loader.idh_resource_configuration.backup_configuration.storage_connection_string
   } : null
-  data_persistence_authentication_method = module.idh_loader.idh_config.data_persistence_authentication_method
+  data_persistence_authentication_method = module.idh_loader.idh_resource_configuration.data_persistence_authentication_method
 
-  private_static_ip_address = module.idh_loader.idh_config.subnet_integration ? var.private_static_ip_address : null
-  subnet_id                 = module.idh_loader.idh_config.subnet_integration ? var.subnet_id : null
+  private_static_ip_address = module.idh_loader.idh_resource_configuration.subnet_integration ? var.private_static_ip_address : null
+  subnet_id                 = module.idh_loader.idh_resource_configuration.subnet_integration ? var.subnet_id : null
 
 
   private_endpoint = {
-    enabled              = module.idh_loader.idh_config.private_endpoint_enabled
-    subnet_id            = module.idh_loader.idh_config.private_endpoint_enabled ? var.private_endpoint.subnet_id : ""
-    private_dns_zone_ids = module.idh_loader.idh_config.private_endpoint_enabled ? var.private_endpoint.private_dns_zone_ids : []
+    enabled              = module.idh_loader.idh_resource_configuration.private_endpoint_enabled
+    subnet_id            = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_endpoint.subnet_id : ""
+    private_dns_zone_ids = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_endpoint.private_dns_zone_ids : []
   }
 
-  patch_schedules = coalesce(var.patch_schedules, module.idh_loader.idh_config.patch_schedule)
+  patch_schedules = coalesce(var.patch_schedules, module.idh_loader.idh_resource_configuration.patch_schedule)
 
   tags = var.tags
 }
@@ -51,7 +51,7 @@ module "redis" {
 # -----------------------------------------------
 
 resource "azurerm_monitor_metric_alert" "redis_cache_used_memory_exceeded" {
-  count = module.idh_loader.idh_config.alert_enabled ? 1 : 0
+  count = module.idh_loader.idh_resource_configuration.alert_enabled ? 1 : 0
 
   name                = "[${module.redis.name}] Used Memory close to the threshold"
   resource_group_name = var.resource_group_name

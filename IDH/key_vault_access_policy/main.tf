@@ -11,8 +11,8 @@ resource "azurerm_key_vault_access_policy" "this" {
   tenant_id    = var.tenant_id
   object_id    = var.object_id
 
-  key_permissions         = module.idh_loader.idh_config.key_permissions
-  secret_permissions      = module.idh_loader.idh_config.secret_permissions
-  storage_permissions     = module.idh_loader.idh_config.storage_permissions
-  certificate_permissions = module.idh_loader.idh_config.certificate_permissions
+  key_permissions         = module.idh_loader.idh_resource_configuration.key_permissions
+  secret_permissions      = module.idh_loader.idh_resource_configuration.secret_permissions
+  storage_permissions     = module.idh_loader.idh_resource_configuration.storage_permissions
+  certificate_permissions = module.idh_loader.idh_resource_configuration.certificate_permissions
 }

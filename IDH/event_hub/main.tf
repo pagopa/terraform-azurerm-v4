@@ -12,7 +12,7 @@ resource "terraform_data" "validation" {
 
   lifecycle {
     precondition {
-      condition     = !module.idh_loader.idh_config.auto_inflate_enabled ? lookup(module.idh_loader.idh_config, "maximum_throughput_units", null) == null : true
+      condition     = !module.idh_loader.idh_resource_configuration.auto_inflate_enabled ? lookup(module.idh_loader.idh_resource_configuration, "maximum_throughput_units", null) == null : true
       error_message = "maximum_throughput_units must not be defined when auto_inflate_enabled is true"
     }
 
@@ -28,15 +28,15 @@ module "event_hub" {
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  capacity                      = module.idh_loader.idh_config.capacity
-  auto_inflate_enabled          = module.idh_loader.idh_config.auto_inflate_enabled
-  maximum_throughput_units      = module.idh_loader.idh_config.auto_inflate_enabled ? module.idh_loader.idh_config.maximum_throughput_units : null
-  sku                           = module.idh_loader.idh_config.sku
-  private_endpoint_created      = module.idh_loader.idh_config.private_endpoint_enabled
-  public_network_access_enabled = module.idh_loader.idh_config.public_network_access_enabled
-  metric_alerts_create          = module.idh_loader.idh_config.create_metric_alerts
-  minimum_tls_version           = module.idh_loader.idh_config.minimum_tls_version
-  alerts_enabled                = module.idh_loader.idh_config.alerts_enabled
+  capacity                      = module.idh_loader.idh_resource_configuration.capacity
+  auto_inflate_enabled          = module.idh_loader.idh_resource_configuration.auto_inflate_enabled
+  maximum_throughput_units      = module.idh_loader.idh_resource_configuration.auto_inflate_enabled ? module.idh_loader.idh_resource_configuration.maximum_throughput_units : null
+  sku                           = module.idh_loader.idh_resource_configuration.sku
+  private_endpoint_created      = module.idh_loader.idh_resource_configuration.private_endpoint_enabled
+  public_network_access_enabled = module.idh_loader.idh_resource_configuration.public_network_access_enabled
+  metric_alerts_create          = module.idh_loader.idh_resource_configuration.create_metric_alerts
+  minimum_tls_version           = module.idh_loader.idh_resource_configuration.minimum_tls_version
+  alerts_enabled                = module.idh_loader.idh_resource_configuration.alerts_enabled
 
   network_rulesets                     = var.network_rulesets
   private_endpoint_resource_group_name = var.private_endpoint_resource_group_name
