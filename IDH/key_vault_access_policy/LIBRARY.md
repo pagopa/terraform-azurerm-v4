@@ -1,7 +1,7 @@
 # 📚 IDH key_vault_access_policy Resources
 
 | 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |
-|-------------|----------------|---------|----------------|
+|:-------------:|:----------------:|:---------:|:----------------|
 | cstar | dev |  admin | key: ['Get', 'List', 'Update', 'Create', 'Import', 'Delete', 'Encrypt', 'Decrypt', 'Backup', 'Purge', 'Recover', 'Restore', 'Sign', 'UnwrapKey', 'Update', 'Verify', 'WrapKey', 'Release', 'Rotate', 'GetRotationPolicy', 'SetRotationPolicy'], secret: ['Get', 'List', 'Set', 'Delete', 'Backup', 'Purge', 'Recover', 'Restore'], storage: [], certificate: ['Get', 'List', 'Update', 'Create', 'Import', 'Delete', 'Restore', 'Purge', 'Recover', 'Backup', 'ManageContacts', 'ManageIssuers', 'GetIssuers', 'ListIssuers', 'SetIssuers', 'DeleteIssuers'] |
 | cstar | dev |  developer | key: ['Get', 'List', 'Update', 'Create', 'Import', 'Delete', 'Encrypt', 'Decrypt', 'Rotate', 'GetRotationPolicy'], secret: ['Get', 'List', 'Set', 'Delete'], storage: [], certificate: ['Get', 'List', 'Update', 'Create', 'Import', 'Delete', 'Restore', 'Purge', 'Recover'] |
 | cstar | dev |  external | key: ['Get', 'List', 'Update', 'Create', 'Import', 'Delete', 'Encrypt', 'Decrypt', 'Rotate', 'GetRotationPolicy'], secret: ['Get', 'List', 'Set', 'Delete'], storage: [], certificate: ['Get', 'List', 'Update', 'Create', 'Import', 'Delete', 'Restore', 'Purge', 'Recover'] |
