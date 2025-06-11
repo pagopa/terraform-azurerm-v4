@@ -131,11 +131,20 @@ def doc_generate() -> None:
         module_docs = [
             f"# 📚 IDH {module} Resources\n",
             "| 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |",
-            "|-------------|----------------|---------|----------------|"
+            "|:-------------:|:----------------:|:---------:|:----------------|"
         ]
 
+        last_platform = None
         for config in sorted(config_files[module], key=lambda x: (x['platform'], x['environment'])):
             print_debug(f"🔁 Internal processing for platform={config['platform']} env={config['environment']}")
+            if last_platform is None:
+                last_platform = config['platform']
+            if  config['platform'] != last_platform:
+                # add a platform separator
+                module_docs.append(
+                    f"|---   |---   | ---   |---  |"
+                )
+                last_platform = config['platform']
             for resource_name in sorted(config['idh_resources'].keys()):
                 resource_data = config['idh_resources'][resource_name]
                 flat_data = flatten_dict(resource_data, '', "_")
@@ -143,6 +152,7 @@ def doc_generate() -> None:
                 module_docs.append(
                     f"| {config['platform']} | {config['environment']} |  {resource_name} | {description} |"
                 )
+
 
         module_lib_file = os.path.join(module_path, "LIBRARY.md")
         with open(module_lib_file, 'w') as f:
