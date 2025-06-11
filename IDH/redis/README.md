@@ -1,17 +1,32 @@
 # Redis cache
 
-This module allows the creation of a redis cache
 
-Availability Zone are choosed automatically by Azure. If you want to override the default zones choosed automatically, you can use the `custom_zones` variable.
-# https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-whats-new#cache-creation-with-zone-redundancy-by-default
 
-# Migration v3 -> v4
+Module that allows the creation of a redis cache instance and the related alerts
 
-* `zones`: was changed to `custom_zones` is Optional and now is valid only for premium and only if you want to override the default zones choosed automatically
+## IDH resources available
 
-## How to use
+[Here's](./LIBRARY.md) the list of `idh_resource_tier` available for this module
 
-See test folder for examples
+## How to use it
+
+```hcl
+module "redis" {
+  source = "./.terraform/modules/__v4__/IDH/redis"
+
+  env = "dev"
+  idh_resource_tier = "basic"
+  product_name = "pagopa"
+
+  location = var.location
+  name = "myredis"
+  resource_group_name = azurerm_resource_group.storage_rg.name
+  tags = var.tags
+  alert_action_group_ids = [data.azurerm_monitor_action_group.email.id]
+
+
+}
+```
 
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->
