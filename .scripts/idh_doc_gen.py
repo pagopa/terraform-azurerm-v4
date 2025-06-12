@@ -55,6 +55,12 @@ def load_yaml_file(file_path: str) -> Optional[Dict]:
         print_debug(f"❌ Error reading {file_path}: {e}")
         return None
 
+def append_platform_header(module_docs: List[str], platform: str) -> None:
+      module_docs.append(f"## {platform}")
+      module_docs.append("| 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |")
+      module_docs.append("|:-------------:|:----------------:|:---------:|:----------------|")
+      print_debug(f"Added platform header for {platform}")
+
 def doc_generate() -> None:
     print_debug("🚀 Starting documentation generation")
 
@@ -128,23 +134,24 @@ def doc_generate() -> None:
         except:
             continue
 
-        module_docs = [
-            f"# 📚 IDH {module} Resources\n",
-            "| 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |",
-            "|:-------------:|:----------------:|:---------:|:----------------|"
-        ]
+        module_docs = [f"# 📚 IDH {module} Resources\n"]
 
         last_platform = None
+        last_environment = None
         for config in sorted(config_files[module], key=lambda x: (x['platform'], x['environment'])):
             print_debug(f"🔁 Internal processing for platform={config['platform']} env={config['environment']}")
             if last_platform is None:
+                # first entry, set the last_platform
+                append_platform_header(module_docs, config['platform'])
                 last_platform = config['platform']
+            if last_environment is None:
+                last_environment = config['environment']
             if  config['platform'] != last_platform:
                 # add a platform separator
-                module_docs.append(
-                    f"|---   |---   | ---   |---  |"
-                )
+                append_platform_header(module_docs, config['platform'])
                 last_platform = config['platform']
+            if config['environment'] != last_environment:
+                module_docs.append("|---|---|---|---|")
             for resource_name in sorted(config['idh_resources'].keys()):
                 resource_data = config['idh_resources'][resource_name]
                 flat_data = flatten_dict(resource_data, '', "_")
