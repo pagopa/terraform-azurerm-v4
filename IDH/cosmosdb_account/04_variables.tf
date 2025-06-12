@@ -171,44 +171,27 @@ variable "subnet_id" {
 variable "private_endpoint_config" {
   description = "Configuration for private endpoint and DNS zones for CosmosDB"
   type = object({
-    subnet_id                         = string
-    private_dns_zone_sql_ids          = list(string)
-    private_dns_zone_table_ids        = list(string)
-    private_dns_zone_mongo_ids        = list(string)
-    private_dns_zone_cassandra_ids    = list(string)
+    private_dns_zone_sql_ids          = optional(list(string), [])
+    private_dns_zone_table_ids        = optional(list(string), [])
+    private_dns_zone_mongo_ids        = optional(list(string), [])
+    private_dns_zone_cassandra_ids    = optional(list(string), [])
     enabled                           = bool
-    name_sql                          = string
-    service_connection_name_sql       = string
-    name_mongo                        = string
-    service_connection_name_mongo     = string
-    name_cassandra                    = string
-    service_connection_name_cassandra = string
-    name_table                        = string
+    name_sql                          = optional(string, "")
+    service_connection_name_sql       = optional(string, "")
+    name_mongo                        = optional(string, "")
+    service_connection_name_mongo     = optional(string, "")
+    name_cassandra                    = optional(string, "")
+    service_connection_name_cassandra = optional(string, "")
+    name_table                        = optional(string, "")
   })
-  default = {
-    subnet_id                         = null
-    private_dns_zone_sql_ids          = []
-    private_dns_zone_table_ids        = []
-    private_dns_zone_mongo_ids        = []
-    private_dns_zone_cassandra_ids    = []
-    enabled                           = true
-    name_sql                          = null
-    service_connection_name_sql       = null
-    name_mongo                        = null
-    service_connection_name_mongo     = null
-    name_cassandra                    = null
-    service_connection_name_cassandra = null
-    name_table                        = null
-  }
   validation {
     condition = (
-      (var.private_endpoint_config.subnet_id == null || can(regex("^/subscriptions/.+/resourceGroups/.+/providers/Microsoft.Network/virtualNetworks/.+/subnets/.+$", var.private_endpoint_config.subnet_id))) &&
       var.private_endpoint_config.private_dns_zone_sql_ids != null &&
       var.private_endpoint_config.private_dns_zone_table_ids != null &&
       var.private_endpoint_config.private_dns_zone_mongo_ids != null &&
       var.private_endpoint_config.private_dns_zone_cassandra_ids != null &&
       (var.private_endpoint_config.enabled == true || var.private_endpoint_config.enabled == false)
     )
-    error_message = "private_endpoint_config subnet_id must be null or a valid Azure subnet resource ID; all private_dns_zone_* fields must be lists; enabled must be boolean."
+    error_message = "All private_dns_zone_* fields must be lists; enabled must be boolean."
   }
 }
