@@ -9,8 +9,44 @@ basic:
   blob_versioning_enabled: true
   allow_nested_items_to_be_public: false
   enable_low_availability_alert: true
-  point_in_time_retention_days: 0
-  point_in_time_restore_enabled: false
+  point_in_time_retention_days: 7
+  point_in_time_restore_enabled: true
+  blob_last_access_time_enabled: false
+  cross_tenant_replication_enabled: false
+  is_hns_enabled: false
+  is_sftp_enabled: false
+  min_tls_version: TLS1_2
+backup7:
+  account_kind: StorageV2
+  account_tier: Standard
+  min_account_replication_type: "ZRS"
+  access_tier: "Hot"
+  advanced_threat_protection: true
+  public_network_access_enabled: false
+  private_endpoint_enabled: true
+  blob_versioning_enabled: true
+  allow_nested_items_to_be_public: false
+  enable_low_availability_alert: true
+  point_in_time_retention_days: 7
+  point_in_time_restore_enabled: true
+  blob_last_access_time_enabled: false
+  cross_tenant_replication_enabled: false
+  is_hns_enabled: false
+  is_sftp_enabled: false
+  min_tls_version: TLS1_2
+backup30:
+  account_kind: StorageV2
+  account_tier: Standard
+  min_account_replication_type: "ZRS"
+  access_tier: "Hot"
+  advanced_threat_protection: true
+  public_network_access_enabled: false
+  private_endpoint_enabled: true
+  blob_versioning_enabled: true
+  allow_nested_items_to_be_public: false
+  enable_low_availability_alert: true
+  point_in_time_retention_days: 30
+  point_in_time_restore_enabled: true
   blob_last_access_time_enabled: false
   cross_tenant_replication_enabled: false
   is_hns_enabled: false
