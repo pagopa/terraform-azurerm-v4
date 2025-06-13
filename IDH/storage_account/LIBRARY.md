@@ -5,6 +5,8 @@
 |:-------------:|:----------------:|:---------:|:----------------|
 | cstar | dev |  basic | Kind: StorageV2, tier: Standard, min replication: LRS, access tier: Hot, public: False, PiT restore: False, PiT Retention: 0, sftp: False |
 |---|---|---|---|
+| cstar | prod |  backup30 | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: False, PiT restore: True, PiT Retention: 30, sftp: False |
+| cstar | prod |  backup7 | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: False, PiT restore: True, PiT Retention: 7, sftp: False |
 | cstar | prod |  basic | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: False, PiT restore: True, PiT Retention: 7, sftp: False |
 |---|---|---|---|
 | cstar | uat |  basic | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: False, PiT restore: False, PiT Retention: 0, sftp: False |
