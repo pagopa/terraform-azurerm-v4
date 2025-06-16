@@ -1,0 +1,40 @@
+standard_public:
+  capacity: 5
+  auto_inflate_enabled: true
+  sku: "Standard"
+  maximum_throughput_units: 5
+  public_network_access_enabled: true
+  alerts_enabled: true
+  private_endpoint_enabled: false
+  create_metric_alerts: true
+  minimum_tls_version: "1.2"
+standard_private:
+  capacity: 5
+  auto_inflate_enabled: true
+  sku: "Standard"
+  maximum_throughput_units: 5
+  public_network_access_enabled: false
+  alerts_enabled: true
+  private_endpoint_enabled: true
+  create_metric_alerts: true
+  minimum_tls_version: "1.2"
+heavy_load_public:
+  capacity: 5
+  auto_inflate_enabled: true
+  sku: "Standard"
+  maximum_throughput_units: 10
+  public_network_access_enabled: true
+  alerts_enabled: true
+  private_endpoint_enabled: false
+  create_metric_alerts: true
+  minimum_tls_version: "1.2"
+heavy_load_private:
+  capacity: 5
+  auto_inflate_enabled: true
+  sku: "Standard"
+  maximum_throughput_units: 10
+  public_network_access_enabled: false
+  alerts_enabled: true
+  private_endpoint_enabled: true
+  create_metric_alerts: true
+  minimum_tls_version: "1.2"

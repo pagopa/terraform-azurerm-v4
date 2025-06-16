@@ -1,0 +1,32 @@
+postgres_flexible:
+  prefix_length: 28
+  private_endpoint_network_policies: Disabled
+  private_link_service_network_policies_enabled: true
+  delegation:
+    name: Microsoft.DBforPostgreSQL/flexibleServers
+    actions:
+      - Microsoft.Network/virtualNetworks/subnets/join/action
+app_service:
+  prefix_length: 27
+  private_endpoint_network_policies: Disabled
+  private_link_service_network_policies_enabled: true
+  delegation:
+    name: Microsoft.Web/serverFarms
+    actions:
+    - Microsoft.Network/virtualNetworks/subnets/action
+private_endpoint:
+  prefix_length: 28
+  private_endpoint_network_policies: Disabled
+  private_link_service_network_policies_enabled: true
+container_app_environment:
+  prefix_length: 24
+  private_endpoint_network_policies: Disabled
+  private_link_service_network_policies_enabled: true
+aks_overlay:
+  prefix_length: 24
+  private_endpoint_network_policies: Disabled
+  private_link_service_network_policies_enabled: true
+gateway:
+  prefix_length: 24
+  private_endpoint_network_policies: Disabled
+  private_link_service_network_policies_enabled: true
