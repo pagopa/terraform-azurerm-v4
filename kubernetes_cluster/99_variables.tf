@@ -269,9 +269,9 @@ variable "node_os_upgrade_channel" {
 }
 
 variable "force_upgrade_enabled" {
-  type        = string
+  type        = bool
   description = "(Optional) If set to true, cluster will be forced to upgrade even if the latest version of the control plane and agents is not available."
-  default     = null
+  default     = false
 }
 
 variable "network_profile" {
