@@ -87,11 +87,9 @@ resource "azurerm_kubernetes_cluster" "this" {
     }
   }
 
-  dynamic "upgrade_override" {
-    for_each = var.force_upgrade_enabled != null ? [var.force_upgrade_enabled] : []
-    content {
-      force_upgrade_enabled = upgrade_override.value
-    }
+  upgrade_override {
+    force_upgrade_enabled = var.force_upgrade_enabled
+    effective_until       = timeadd(timestamp(), "336h")
   }
 
   # managed identity type: https://docs.microsoft.com/en-us/azure/aks/use-managed-identity
@@ -199,6 +197,7 @@ resource "azurerm_kubernetes_cluster" "this" {
     ignore_changes = [
       default_node_pool[0].node_count,
       network_profile[0].load_balancer_profile[0].idle_timeout_in_minutes,
+      upgrade_override[0]
     ]
   }
 
