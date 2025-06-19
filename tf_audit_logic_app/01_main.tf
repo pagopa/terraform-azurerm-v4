@@ -82,146 +82,144 @@ resource "azurerm_logic_app_action_custom" "get_entities" {
 }
 
 resource "azurerm_logic_app_action_custom" "elaborate_entity" {
-  name         = "ElaborateEntityAction"
+  name         = "ForEachEntity"
   logic_app_id = azurerm_logic_app_workflow.workflow.id
 
   body = <<BODY
   {
-      "ForEachEntity": {
-      "foreach": "@body('${azurerm_logic_app_action_custom.get_entities.name}')?['value']",
-      "actions": {
-          "CheckSkipPolicy": {
-              "actions": {
-                  "NotifySlackSkipPolicy": {
-                      "type": "Http",
-                      "inputs": {
-                          "uri": "${var.slack_webhook_url}",
-                          "method": "POST",
-                          "headers": {
-                              "Content-Type": "application/json"
-                          },
-                          "body": {
-                              "text": "Eseguito apply in prod con skip policy",
-                              "blocks": [
-                                  {
-                                      "type": "section",
-                                      "fields": [
-                                          {
-                                              "type": "mrkdwn",
-                                              "text": ":warning: qualcosa"
-                                          }
-                                      ]
-                                  }
-                              ]
-                          }
-                      },
-                      "runtimeConfiguration": {
-                          "contentTransfer": {
-                              "transferMode": "Chunked"
-                          }
-                      }
-                  },
-                  "UpdateEntitySkipPolicy": {
-                      "runAfter": {
-                          "NotifySlackSkipPolicy": [
-                              "Succeeded"
-                          ]
-                      },
-                      "type": "ApiConnection",
-                      "inputs": {
-                          "host": {
-                              "connection": {
-                                  "name": "@parameters('$connections')['azuretables']['connectionId']"
-                              }
-                          },
-                          "method": "patch",
-                          "body": {
-                              "Watched": true
-                          },
-                          "headers": {
-                              "If-Match": "*"
-                          },
-                          "path": "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('prodapply')}/entities/etag(PartitionKey='@{encodeURIComponent(items('ForEachEntity')['partitionKey'])}',RowKey='@{encodeURIComponent(items('ForEachEntity')['rowKey'])}')"
-                      }
-                  }
-              },
-              "else": {
-                  "actions": {
-                      "UpdateEntity": {
-                          "runAfter": {
-                              "NotifySlack": [
-                                  "Succeeded"
-                              ]
-                          },
-                          "type": "ApiConnection",
-                          "inputs": {
-                              "host": {
-                                  "connection": {
-                                      "name": "@parameters('$connections')['azuretables']['connectionId']"
-                                  }
-                              },
-                              "method": "patch",
-                              "body": {
-                                  "Watched": true
-                              },
-                              "headers": {
-                                  "If-Match": "*"
-                              },
-                              "path": "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('prodapply')}/entities/etag(PartitionKey='@{encodeURIComponent(items('For_each')['partitionKey'])}',RowKey='@{encodeURIComponent(items('For_each')['rowKey'])}')"
-                          }
-                      },
-                      "NotifySlack": {
-                          "type": "Http",
-                          "inputs": {
-                              "uri": "${var.slack_webhook_url}",
-                              "method": "POST",
-                              "headers": {
-                                  "Content-Type": "application/json"
-                              },
-                              "body": {
-                                  "text": "Eseguito apply in prod. policy valide",
-                                  "blocks": [
-                                      {
-                                          "type": "section",
-                                          "fields": [
-                                              {
-                                                  "type": "mrkdwn",
-                                                  "text": ":warning: qualcosa"
-                                              }
-                                          ]
-                                      }
-                                  ]
-                              }
-                          },
-                          "runtimeConfiguration": {
-                              "contentTransfer": {
-                                  "transferMode": "Chunked"
-                              }
-                          }
-                      }
-                  }
-              },
-              "expression": {
-                  "and": [
-                      {
-                          "equals": [
-                              "@items('ForEachEntity')['SkipPolicy']",
-                              true
-                          ]
-                      }
-                  ]
-              },
-              "type": "If"
-          }
-      },
-      "runAfter": {
-          "${azurerm_logic_app_action_custom.get_entities.name}": [
-              "Succeeded"
-          ]
-      },
-      "type": "Foreach"
-  }
-  }
+        "foreach": "@body('${azurerm_logic_app_action_custom.get_entities.name}')?['value']",
+        "actions": {
+            "CheckSkipPolicy": {
+                "actions": {
+                    "NotifySlackSkipPolicy": {
+                        "type": "Http",
+                        "inputs": {
+                            "uri": "${var.slack_webhook_url}",
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json"
+                            },
+                            "body": {
+                                "text": "Eseguito apply in prod con skip policy",
+                                "blocks": [
+                                    {
+                                        "type": "section",
+                                        "fields": [
+                                            {
+                                                "type": "mrkdwn",
+                                                "text": ":warning: qualcosa"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        "runtimeConfiguration": {
+                            "contentTransfer": {
+                                "transferMode": "Chunked"
+                            }
+                        }
+                    },
+                    "UpdateEntitySkipPolicy": {
+                        "runAfter": {
+                            "NotifySlackSkipPolicy": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection",
+                        "inputs": {
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['azuretables']['connectionId']"
+                                }
+                            },
+                            "method": "patch",
+                            "body": {
+                                "Watched": true
+                            },
+                            "headers": {
+                                "If-Match": "*"
+                            },
+                            "path": "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('prodapply')}/entities/etag(PartitionKey='@{encodeURIComponent(items('ForEachEntity')['partitionKey'])}',RowKey='@{encodeURIComponent(items('ForEachEntity')['rowKey'])}')"
+                        }
+                    }
+                },
+                "else": {
+                    "actions": {
+                        "UpdateEntity": {
+                            "runAfter": {
+                                "NotifySlack": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuretables']['connectionId']"
+                                    }
+                                },
+                                "method": "patch",
+                                "body": {
+                                    "Watched": true
+                                },
+                                "headers": {
+                                    "If-Match": "*"
+                                },
+                                "path": "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('prodapply')}/entities/etag(PartitionKey='@{encodeURIComponent(items('For_each')['partitionKey'])}',RowKey='@{encodeURIComponent(items('For_each')['rowKey'])}')"
+                            }
+                        },
+                        "NotifySlack": {
+                            "type": "Http",
+                            "inputs": {
+                                "uri": "${var.slack_webhook_url}",
+                                "method": "POST",
+                                "headers": {
+                                    "Content-Type": "application/json"
+                                },
+                                "body": {
+                                    "text": "Eseguito apply in prod. policy valide",
+                                    "blocks": [
+                                        {
+                                            "type": "section",
+                                            "fields": [
+                                                {
+                                                    "type": "mrkdwn",
+                                                    "text": ":warning: qualcosa"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "contentTransfer": {
+                                    "transferMode": "Chunked"
+                                }
+                            }
+                        }
+                    }
+                },
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@items('ForEachEntity')['SkipPolicy']",
+                                true
+                            ]
+                        }
+                    ]
+                },
+                "type": "If"
+            }
+        },
+        "runAfter": {
+            "${azurerm_logic_app_action_custom.get_entities.name}": [
+                "Succeeded"
+            ]
+        },
+        "type": "Foreach"
+}
   BODY
 }
 
