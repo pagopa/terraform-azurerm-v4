@@ -11,14 +11,14 @@ resource "azurerm_logic_app_workflow" "workflow" {
   workflow_parameters = {
         "$connections": jsonencode({
             "type": "Object",
-            # "value": {
-            #     "azuretables": {
-            #         #fixme
-            #         "id": "/subscriptions/ac17914c-79bf-48fa-831e-1359ef74c1d5/providers/Microsoft.Web/locations/italynorth/managedApis/azuretables",
-            #         "connectionId": "/subscriptions/ac17914c-79bf-48fa-831e-1359ef74c1d5/resourceGroups/d-marco-test/providers/Microsoft.Web/connections/azuretables",
-            #         "connectionName": "azuretables"
-            #     }
-            # }
+            "defaultValue": {
+                "azuretables": {
+                    #fixme
+                    "id": "/subscriptions/ac17914c-79bf-48fa-831e-1359ef74c1d5/providers/Microsoft.Web/locations/italynorth/managedApis/azuretables",
+                    "connectionId": "/subscriptions/ac17914c-79bf-48fa-831e-1359ef74c1d5/resourceGroups/d-marco-test/providers/Microsoft.Web/connections/azuretables",
+                    "connectionName": "azuretables"
+                }
+            }
         })
   }
 
@@ -67,7 +67,7 @@ resource "azurerm_logic_app_action_custom" "get_entities" {
     "inputs": {
         "host": {
             "connection": {
-                "name": "${azurerm_api_connection.storage_account_api_connection.name}"
+                "name": "@parameters('$connections')['azuretables']['connectionId']"
             }
         },
         "method": "get",
@@ -131,7 +131,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                       "inputs": {
                           "host": {
                               "connection": {
-                                  "name": "${azurerm_api_connection.storage_account_api_connection.id}"
+                                  "name": "@parameters('$connections')['azuretables']['connectionId']"
                               }
                           },
                           "method": "patch",
@@ -157,7 +157,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                           "inputs": {
                               "host": {
                                   "connection": {
-                                      "name": "${azurerm_api_connection.storage_account_api_connection.id}"
+                                      "name": "@parameters('$connections')['azuretables']['connectionId']"
                                   }
                               },
                               "method": "patch",
