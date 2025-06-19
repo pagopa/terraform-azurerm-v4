@@ -39,7 +39,7 @@ resource "azurerm_api_connection" "storage_account_api_connection" {
 
   parameter_values = {
     account_name = var.storage_account_settings.name
-    AccessKey  = var.storage_account_settings.access_key
+    access_key  = var.storage_account_settings.access_key
   }
 
   tags = var.tags
