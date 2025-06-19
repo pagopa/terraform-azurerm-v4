@@ -1,30 +1,3 @@
-
-
-resource "azurerm_logic_app_workflow" "workflow" {
-  name                = "${var.prefix}-terraform-audit"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  identity {
-    type = "SystemAssigned"
-  }
-
-  workflow_parameters = {
-        "$connections": jsonencode({
-            "type": "Object",
-            "defaultValue": {
-                "azuretables": {
-                    #fixme
-                    "id": azurerm_api_connection.storage_account_api_connection.managed_api_id,
-                    "connectionId": azurerm_api_connection.storage_account_api_connection.id,
-                    "connectionName": azurerm_api_connection.storage_account_api_connection.name
-                }
-            }
-        })
-  }
-
-  tags = var.tags
-}
-
 data "azurerm_managed_api" "storage_table" {
   name     = "azuretables"
   location = var.location
@@ -33,7 +6,6 @@ data "azurerm_managed_api" "storage_table" {
 resource "azurerm_api_connection" "storage_account_api_connection" {
   name                = "${var.prefix}-tf-audit-sa-api-connection"
   resource_group_name = var.resource_group_name
-  #fixme
   managed_api_id      = data.azurerm_managed_api.storage_table.id
   display_name        = "audit-sa-api-conn"
 
@@ -44,10 +16,35 @@ resource "azurerm_api_connection" "storage_account_api_connection" {
 
   tags = var.tags
 
-  # lifecycle {
-  #   # NOTE: since the connectionString is a secure value it's not returned from the API
-  #   ignore_changes = ["parameter_values"]
-  # }
+  lifecycle {
+    # NOTE: since the sharedkey is a secure value it's not returned from the API
+    ignore_changes = ["parameter_values.sharedkey"]
+  }
+}
+
+resource "azurerm_logic_app_workflow" "workflow" {
+  name                = "${var.prefix}-terraform-audit"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  identity {
+    type = "SystemAssigned"
+  }
+
+  parameters = {
+    "$connections": jsonencode({
+            "type": "Object",
+            "defaultValue": {
+                "azuretables": {
+                    "id": azurerm_api_connection.storage_account_api_connection.managed_api_id,
+                    "connectionId": azurerm_api_connection.storage_account_api_connection.id,
+                    "connectionName": azurerm_api_connection.storage_account_api_connection.name
+                }
+            }
+        })
+  }
+
+
+  tags = var.tags
 }
 
 
