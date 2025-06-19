@@ -88,106 +88,106 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
 
   body = <<BODY
   {
-        "foreach": "@body('${azurerm_logic_app_action_custom.get_entities.name}')?['value']",
-        "actions": {
-            "CheckSkipPolicy": {
-                "actions": {
-                    "NotifySlackSkipPolicy": {
-                        "type": "Http",
-                        "inputs": {
-                            "uri": "${var.slack_webhook_url}",
-                            "method": "POST",
-                            "headers": {
-                                "Content-Type": "application/json"
-                            },
-                            "body": {
-	"blocks": [
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": ":warning: apply in prod"
-			}
-		},
-		{
-			"type": "rich_text",
-			"elements": [
-				{
-					"type": "rich_text_section",
-					"elements": [
-						{
-							"type": "text",
-							"text": "Dettagli:\n"
-						}
-					]
-				},
-				{
-					"type": "rich_text_list",
-					"style": "bullet",
-					"indent": 0,
-					"elements": [
-						{
-							"type": "rich_text_section",
-							"elements": [
-								{
-									"type": "text",
-									"text": "applier: "
-								},
-								{
-									"type": "text",
-									"text": "nome"
-								}
-							]
-						},
-						{
-							"type": "rich_text_section",
-							"elements": [
-								{
-									"type": "text",
-									"text": "cartella: "
-								},
-								{
-									"type": "text",
-									"text": "cartella"
-								}
-							]
-						},
-						{
-							"type": "rich_text_section",
-							"elements": [
-								{
-									"type": "text",
-									"text": "skipPolicy: "
-								},
-								{
-									"type": "text",
-									"text": "skippolicy"
-								}
-							]
-						}
-					]
-				}
-			]
-		},
-		{
-			"type": "divider"
-		},
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "<https://google.com|Check the plan>"
-			}
-		},
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "<https://google.com|Check the apply result>"
-			}
-		}
-	]
-},
+    "foreach": "@body('${azurerm_logic_app_action_custom.get_entities.name}')?['value']",
+    "actions": {
+        "CheckSkipPolicy": {
+            "actions": {
+                "NotifySlackSkipPolicy": {
+                    "type": "Http",
+                    "inputs": {
+                        "uri": "${var.slack_webhook_url}",
+                        "method": "POST",
+                        "headers": {
+                            "Content-Type": "application/json"
+                        },
+                        "body": {
+                            "blocks": [
+                                {
+                                    "type": "section",
+                                    "text": {
+                                        "type": "mrkdwn",
+                                        "text": ":warning: apply in prod"
+                                    }
+                                },
+                                {
+                                    "type": "rich_text",
+                                    "elements": [
+                                        {
+                                            "type": "rich_text_section",
+                                            "elements": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "Dettagli:\n"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "rich_text_list",
+                                            "style": "bullet",
+                                            "indent": 0,
+                                            "elements": [
+                                                {
+                                                    "type": "rich_text_section",
+                                                    "elements": [
+                                                        {
+                                                            "type": "text",
+                                                            "text": "applier: "
+                                                        },
+                                                        {
+                                                            "type": "text",
+                                                            "text": "nome"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "rich_text_section",
+                                                    "elements": [
+                                                        {
+                                                            "type": "text",
+                                                            "text": "cartella: "
+                                                        },
+                                                        {
+                                                            "type": "text",
+                                                            "text": "cartella"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "rich_text_section",
+                                                    "elements": [
+                                                        {
+                                                            "type": "text",
+                                                            "text": "skipPolicy: "
+                                                        },
+                                                        {
+                                                            "type": "text",
+                                                            "text": "skippolicy"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "divider"
+                                },
+                                {
+                                    "type": "section",
+                                    "text": {
+                                        "type": "mrkdwn",
+                                        "text": "<https://google.com|Check the plan>"
+                                    }
+                                },
+                                {
+                                    "type": "section",
+                                    "text": {
+                                        "type": "mrkdwn",
+                                        "text": "<https://google.com|Check the apply result>"
+                                    }
+                                }
+                            ]
+                        },
                         "runtimeConfiguration": {
                             "contentTransfer": {
                                 "transferMode": "Chunked"
@@ -252,93 +252,93 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                     "Content-Type": "application/json"
                                 },
                                 "body": {
-	"blocks": [
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": ":warning: apply in prod"
-			}
-		},
-		{
-			"type": "rich_text",
-			"elements": [
-				{
-					"type": "rich_text_section",
-					"elements": [
-						{
-							"type": "text",
-							"text": "Dettagli:\n"
-						}
-					]
-				},
-				{
-					"type": "rich_text_list",
-					"style": "bullet",
-					"indent": 0,
-					"elements": [
-						{
-							"type": "rich_text_section",
-							"elements": [
-								{
-									"type": "text",
-									"text": "applier: "
-								},
-								{
-									"type": "text",
-									"text": "nome"
-								}
-							]
-						},
-						{
-							"type": "rich_text_section",
-							"elements": [
-								{
-									"type": "text",
-									"text": "cartella: "
-								},
-								{
-									"type": "text",
-									"text": "cartella"
-								}
-							]
-						},
-						{
-							"type": "rich_text_section",
-							"elements": [
-								{
-									"type": "text",
-									"text": "skipPolicy: "
-								},
-								{
-									"type": "text",
-									"text": "skippolicy"
-								}
-							]
-						}
-					]
-				}
-			]
-		},
-		{
-			"type": "divider"
-		},
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "<https://google.com|Check the plan>"
-			}
-		},
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "<https://google.com|Check the apply result>"
-			}
-		}
-	]
-},
+                                    "blocks": [
+                                        {
+                                            "type": "section",
+                                            "text": {
+                                                "type": "mrkdwn",
+                                                "text": ":warning: apply in prod"
+                                            }
+                                        },
+                                        {
+                                            "type": "rich_text",
+                                            "elements": [
+                                                {
+                                                    "type": "rich_text_section",
+                                                    "elements": [
+                                                        {
+                                                            "type": "text",
+                                                            "text": "Dettagli:\n"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "rich_text_list",
+                                                    "style": "bullet",
+                                                    "indent": 0,
+                                                    "elements": [
+                                                        {
+                                                            "type": "rich_text_section",
+                                                            "elements": [
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "applier: "
+                                                                },
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "nome"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "rich_text_section",
+                                                            "elements": [
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "cartella: "
+                                                                },
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "cartella"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "rich_text_section",
+                                                            "elements": [
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "skipPolicy: "
+                                                                },
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "skippolicy"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "divider"
+                                        },
+                                        {
+                                            "type": "section",
+                                            "text": {
+                                                "type": "mrkdwn",
+                                                "text": "<https://google.com|Check the plan>"
+                                            }
+                                        },
+                                        {
+                                            "type": "section",
+                                            "text": {
+                                                "type": "mrkdwn",
+                                                "text": "<https://google.com|Check the apply result>"
+                                            }
+                                        }
+                                    ]
+                                }
                             },
                             "runtimeConfiguration": {
                                 "contentTransfer": {
@@ -367,6 +367,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
             ]
         },
         "type": "Foreach"
+    }
 }
   BODY
 }
