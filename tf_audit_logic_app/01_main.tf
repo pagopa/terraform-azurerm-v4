@@ -109,7 +109,7 @@ resource "azurerm_api_connection" "storage_account_api_connection" {
 
   lifecycle {
     # NOTE: since the sharedkey is a secure value it's not returned from the API
-    ignore_changes = ["parameter_values.sharedkey"]
+    ignore_changes = [parameter_values["sharedkey"]]
   }
 }
 
