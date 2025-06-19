@@ -1,13 +1,9 @@
-resource "azurerm_resource_group" "teraform_audit_rg" {
-  name     = "${var.prefix}-terraform-audit-rg"
-  location = var.location
-}
 
 
 resource "azurerm_logic_app_workflow" "workflow" {
   name                = "${var.prefix}-terraform-audit"
   location            = var.location
-  resource_group_name = azurerm_resource_group.teraform_audit_rg.name
+  resource_group_name = var.resource_group_name
   identity {
     type = "SystemAssigned"
   }
@@ -32,7 +28,7 @@ resource "azurerm_logic_app_workflow" "workflow" {
 
 resource "azurerm_api_connection" "storage_account_api_connection" {
   name                = "${var.prefix}-tf-audit-sa-api-connection"
-  resource_group_name = azurerm_resource_group.teraform_audit_rg.name
+  resource_group_name = var.resource_group_name
   #fixme
   managed_api_id      = "/subscriptions/ac17914c-79bf-48fa-831e-1359ef74c1d5/providers/Microsoft.Web/locations/italynorth/managedApis/azuretables"
   display_name        = "audit-sa-api-conn"
