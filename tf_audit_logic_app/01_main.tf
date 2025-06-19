@@ -80,13 +80,14 @@ resource "azurerm_logic_app_action_custom" "get_entities" {
   }
   BODY
 }
+
 resource "azurerm_logic_app_action_custom" "elaborate_entity" {
   name         = "ElaborateEntityAction"
   logic_app_id = azurerm_logic_app_workflow.workflow.id
 
   body = <<BODY
   {
-      "ForEachEntity: {
+      "ForEachEntity": {
       "foreach": "@body('${azurerm_logic_app_action_custom.get_entities.name}')?['value']",
       "actions": {
           "CheckSkipPolicy": {
