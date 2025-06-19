@@ -221,6 +221,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
       },
       "type": "Foreach"
   }
+  }
   BODY
 }
 
