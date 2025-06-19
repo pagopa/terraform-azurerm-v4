@@ -34,6 +34,7 @@ variable "storage_account_settings" {
   type = object({
     name                   = string
     table_name             = string
+    access_key             = string
   })
   description = "(Required) Storage account settings for the Logic App"
 }
