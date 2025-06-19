@@ -33,12 +33,10 @@ resource "azurerm_logic_app_workflow" "workflow" {
   parameters = {
     "$connections": jsonencode({
             "type": "Object",
-            "defaultValue": {
-                "azuretables": {
-                    "id": azurerm_api_connection.storage_account_api_connection.managed_api_id,
-                    "connectionId": azurerm_api_connection.storage_account_api_connection.id,
-                    "connectionName": azurerm_api_connection.storage_account_api_connection.name
-                }
+            "azuretables": {
+                "id": azurerm_api_connection.storage_account_api_connection.managed_api_id,
+                "connectionId": azurerm_api_connection.storage_account_api_connection.id,
+                "connectionName": azurerm_api_connection.storage_account_api_connection.name
             }
         })
   }
