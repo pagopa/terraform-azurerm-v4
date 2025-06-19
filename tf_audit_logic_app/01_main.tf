@@ -14,9 +14,9 @@ resource "azurerm_logic_app_workflow" "workflow" {
             "defaultValue": {
                 "azuretables": {
                     #fixme
-                    "id": "/subscriptions/ac17914c-79bf-48fa-831e-1359ef74c1d5/providers/Microsoft.Web/locations/italynorth/managedApis/azuretables",
-                    "connectionId": "/subscriptions/ac17914c-79bf-48fa-831e-1359ef74c1d5/resourceGroups/d-marco-test/providers/Microsoft.Web/connections/azuretables",
-                    "connectionName": "azuretables"
+                    "id": azurerm_api_connection.storage_account_api_connection.managed_api_id,
+                    "connectionId": azurerm_api_connection.storage_account_api_connection.id,
+                    "connectionName": azurerm_api_connection.storage_account_api_connection.name
                 }
             }
         })
@@ -25,12 +25,16 @@ resource "azurerm_logic_app_workflow" "workflow" {
   tags = var.tags
 }
 
+data "azurerm_managed_api" "storage_table" {
+  name     = "azuretables"
+  location = var.location
+}
 
 resource "azurerm_api_connection" "storage_account_api_connection" {
   name                = "${var.prefix}-tf-audit-sa-api-connection"
   resource_group_name = var.resource_group_name
   #fixme
-  managed_api_id      = "/subscriptions/ac17914c-79bf-48fa-831e-1359ef74c1d5/providers/Microsoft.Web/locations/italynorth/managedApis/azuretables"
+  managed_api_id      = data.azurerm_managed_api.storage_table.id
   display_name        = "audit-sa-api-conn"
 
   parameter_values = {
