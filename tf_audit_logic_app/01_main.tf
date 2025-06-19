@@ -166,7 +166,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                 "headers": {
                                     "If-Match": "*"
                                 },
-                                "path": "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('prodapply')}/entities/etag(PartitionKey='@{encodeURIComponent(items('For_each')['partitionKey'])}',RowKey='@{encodeURIComponent(items('For_each')['rowKey'])}')"
+                                "path": "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('prodapply')}/entities/etag(PartitionKey='@{encodeURIComponent(items('ForEachEntity')['partitionKey'])}',RowKey='@{encodeURIComponent(items('ForEachEntity')['rowKey'])}')"
                             }
                         },
                         "NotifySlack": {
