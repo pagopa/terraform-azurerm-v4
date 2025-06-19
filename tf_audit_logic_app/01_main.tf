@@ -1,5 +1,5 @@
 locals {
-  slack_message = {
+  slack_message = jsonencode({
 	"blocks": [
 		{
 			"type": "section",
@@ -86,7 +86,7 @@ locals {
 			}
 		}
 	]
-}
+})
 }
 
 data "azurerm_managed_api" "storage_table" {
