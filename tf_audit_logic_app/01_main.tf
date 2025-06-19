@@ -38,10 +38,6 @@ resource "azurerm_api_connection" "storage_account_api_connection" {
   display_name        = "audit-sa-api-conn"
 
   parameter_values = {
-    keyBasedAuth = jsonencode({
-      #fixme
-      storageaccount = var.storage_account_settings.name
-    })
   }
 
   tags = var.tags
