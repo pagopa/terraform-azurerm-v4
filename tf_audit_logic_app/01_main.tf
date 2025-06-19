@@ -1,3 +1,94 @@
+locals {
+  slack_message = {
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": ":warning: apply in prod"
+			}
+		},
+		{
+			"type": "rich_text",
+			"elements": [
+				{
+					"type": "rich_text_section",
+					"elements": [
+						{
+							"type": "text",
+							"text": "Dettagli:\n"
+						}
+					]
+				},
+				{
+					"type": "rich_text_list",
+					"style": "bullet",
+					"indent": 0,
+					"elements": [
+						{
+							"type": "rich_text_section",
+							"elements": [
+								{
+									"type": "text",
+									"text": "applier: "
+								},
+								{
+									"type": "text",
+									"text": "nome"
+								}
+							]
+						},
+						{
+							"type": "rich_text_section",
+							"elements": [
+								{
+									"type": "text",
+									"text": "cartella: "
+								},
+								{
+									"type": "text",
+									"text": "cartella"
+								}
+							]
+						},
+						{
+							"type": "rich_text_section",
+							"elements": [
+								{
+									"type": "text",
+									"text": "skipPolicy: "
+								},
+								{
+									"type": "text",
+									"text": "skippolicy"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "<https://google.com|Check the plan>"
+			}
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "<https://google.com|Check the apply result>"
+			}
+		}
+	]
+}
+}
+
 data "azurerm_managed_api" "storage_table" {
   name     = "azuretables"
   location = var.location
@@ -100,21 +191,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                             "headers": {
                                 "Content-Type": "application/json"
                             },
-                            "body": {
-                                "text": "Eseguito apply in prod con skip policy",
-                                "blocks": [
-                                    {
-                                        "type": "section",
-                                        "fields": [
-                                            {
-                                                "type": "mrkdwn",
-                                                "text": ":warning: qualcosa"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        },
+                            "body": ${jsonencode(local.slack_message)},
                         "runtimeConfiguration": {
                             "contentTransfer": {
                                 "transferMode": "Chunked"
@@ -178,20 +255,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                 "headers": {
                                     "Content-Type": "application/json"
                                 },
-                                "body": {
-                                    "text": "Eseguito apply in prod. policy valide",
-                                    "blocks": [
-                                        {
-                                            "type": "section",
-                                            "fields": [
-                                                {
-                                                    "type": "mrkdwn",
-                                                    "text": ":warning: qualcosa"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
+                                "body": ${jsonencode(local.slack_message)},
                             },
                             "runtimeConfiguration": {
                                 "contentTransfer": {
