@@ -1,10 +1,11 @@
 locals {
 
   default_resource_groups = {
-    data     = "${var.resource_group_prefix}-data-rg"
-    security = "${var.resource_group_prefix}-security-rg"
-    compute  = "${var.resource_group_prefix}-compute-rg"
-    cicd     = "${var.resource_group_prefix}-cicd-rg"
+    data       = "${var.resource_group_prefix}-data-rg"
+    security   = "${var.resource_group_prefix}-security-rg"
+    compute    = "${var.resource_group_prefix}-compute-rg"
+    cicd       = "${var.resource_group_prefix}-cicd-rg"
+    monitoring = "${var.resource_group_prefix}-monitoring-rg"
   }
 
   # Merge default and additional resource groups
