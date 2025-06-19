@@ -191,7 +191,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                             "headers": {
                                 "Content-Type": "application/json"
                             },
-                            "body": ${local.slack_message},
+                            "body": "${local.slack_message}",
                         "runtimeConfiguration": {
                             "contentTransfer": {
                                 "transferMode": "Chunked"
@@ -255,7 +255,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                 "headers": {
                                     "Content-Type": "application/json"
                                 },
-                                "body": ${local.slack_message},
+                                "body": "${local.slack_message}",
                             },
                             "runtimeConfiguration": {
                                 "contentTransfer": {
