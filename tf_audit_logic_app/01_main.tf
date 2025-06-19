@@ -9,7 +9,7 @@ resource "azurerm_logic_app_workflow" "workflow" {
   }
 
   workflow_parameters = {
-        "$connections": {
+        "$connections": jsonencode({
             "type": "Object",
             "value": {
                 "azuretables": {
@@ -19,7 +19,7 @@ resource "azurerm_logic_app_workflow" "workflow" {
                     "connectionName": "azuretables"
                 }
             }
-        }
+        })
   }
 
   tags = var.tags
@@ -34,10 +34,10 @@ resource "azurerm_api_connection" "storage_account_api_connection" {
   display_name        = "audit-sa-api-conn"
 
   parameter_values = {
-    keyBasedAuth = {
+    keyBasedAuth = jsonencode({
       #fixme
       storageaccount = var.storage_account_settings.name
-    }
+    })
   }
 
   tags = var.tags
