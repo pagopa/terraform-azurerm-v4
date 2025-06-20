@@ -310,7 +310,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                             },
                                                             {
                                                                 "type": "text",
-                                                                "text": string(@items('ForEachEntity')['SkipPolicy'])
+                                                                "text": "@items('ForEachEntity')['SkipPolicy']"
                                                             }
                                                         ]
                                                     },
