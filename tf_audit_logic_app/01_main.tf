@@ -184,6 +184,19 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                     "elements": [
                                                         {
                                                             "type": "text",
+                                                            "text": "applySuccess: "
+                                                        },
+                                                        {
+                                                            "type": "text",
+                                                            "text": "@string(items('ForEachEntity')['ApplySuccess'])"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "rich_text_section",
+                                                    "elements": [
+                                                        {
+                                                            "type": "text",
                                                             "text": "timestamp: "
                                                         },
                                                         {
@@ -337,6 +350,19 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                             {
                                                                 "type": "text",
                                                                 "text": "@string(items('ForEachEntity')['SkipPolicy'])"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "rich_text_section",
+                                                        "elements": [
+                                                            {
+                                                                "type": "text",
+                                                                "text": "applySuccess: "
+                                                            },
+                                                            {
+                                                                "type": "text",
+                                                                "text": "@string(items('ForEachEntity')['ApplySuccess'])"
                                                             }
                                                         ]
                                                     },
