@@ -13,3 +13,10 @@ output "idh_resource_configuration" {
 output "idh_tiers_configurations" {
   value = local.tiers_configurations
 }
+
+output "non_geo_redundant_locations" {
+  value = [
+    "italynorth",
+    "spaincentral"
+  ]
+}
