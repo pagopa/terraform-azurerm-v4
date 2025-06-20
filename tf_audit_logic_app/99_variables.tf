@@ -19,8 +19,8 @@ variable "location" {
 
 variable "trigger" {
   type = object({
-    interval     = number
-    frequency    = string
+    interval  = number
+    frequency = string
   })
   description = "(required) Trigger configuration for the Logic App"
 
@@ -32,15 +32,15 @@ variable "trigger" {
 
 variable "storage_account_settings" {
   type = object({
-    name                   = string
-    table_name             = string
-    access_key             = string
+    name       = string
+    table_name = string
+    access_key = string
   })
   description = "(Required) Storage account settings for the Logic App"
 }
 
 variable "slack_webhook_url" {
-  type = string
+  type        = string
   description = "(Required) Slack webhook URL for notifications"
 
 }

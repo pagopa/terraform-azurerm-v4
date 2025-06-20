@@ -11,7 +11,7 @@ resource "azurerm_api_connection" "storage_account_api_connection" {
 
   parameter_values = {
     storageaccount = var.storage_account_settings.name
-    sharedkey  = var.storage_account_settings.access_key
+    sharedkey      = var.storage_account_settings.access_key
   }
 
   tags = var.tags
@@ -31,20 +31,20 @@ resource "azurerm_logic_app_workflow" "workflow" {
   }
 
   parameters = {
-    "$connections": jsonencode({
-      "azuretables": {
-          "id": azurerm_api_connection.storage_account_api_connection.managed_api_id,
-          "connectionId": azurerm_api_connection.storage_account_api_connection.id,
-          "connectionName": azurerm_api_connection.storage_account_api_connection.name
+    "$connections" : jsonencode({
+      "azuretables" : {
+        "id" : azurerm_api_connection.storage_account_api_connection.managed_api_id,
+        "connectionId" : azurerm_api_connection.storage_account_api_connection.id,
+        "connectionName" : azurerm_api_connection.storage_account_api_connection.name
       }
     })
   }
 
   workflow_parameters = {
-        "$connections": jsonencode({
-            "type": "Object"
-            "defaultValue": {}
-        })
+    "$connections" : jsonencode({
+      "type" : "Object"
+      "defaultValue" : {}
+    })
   }
 
   tags = var.tags
