@@ -107,7 +107,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                     "type": "section",
                                     "text": {
                                         "type": "mrkdwn",
-                                        "text": ":warning: apply in prod"
+                                        "text": ":warning: Apply in prod"
                                     }
                                 },
                                 {
@@ -136,7 +136,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                         },
                                                         {
                                                             "type": "text",
-                                                            "text": "nome"
+                                                            "text": "@items('ForEachEntity')['Applier']"
                                                         }
                                                     ]
                                                 },
@@ -149,7 +149,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                         },
                                                         {
                                                             "type": "text",
-                                                            "text": "cartella"
+                                                            "text": "@items('ForEachEntity')['Folder']"
                                                         }
                                                     ]
                                                 },
@@ -162,7 +162,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                         },
                                                         {
                                                             "type": "text",
-                                                            "text": "skippolicy"
+                                                            "text": "@items('ForEachEntity')['SkipPolicy']"
                                                         }
                                                     ]
                                                 }
@@ -177,14 +177,14 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                     "type": "section",
                                     "text": {
                                         "type": "mrkdwn",
-                                        "text": "<https://google.com|Check the plan>"
+                                        "text": "<${var.storage_account_settings.primary_blob_endpoint}/${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['PlanFile']|Check the plan>"
                                     }
                                 },
                                 {
                                     "type": "section",
                                     "text": {
                                         "type": "mrkdwn",
-                                        "text": "<https://google.com|Check the apply result>"
+                                        "text": "<${var.storage_account_settings.primary_blob_endpoint}/${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['ApplyFile']|Check the apply result>"
                                     }
                                 }
                             ]
@@ -329,14 +329,14 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                         "type": "section",
                                         "text": {
                                             "type": "mrkdwn",
-                                            "text": "<https://google.com|Check the plan>"
+                                            "text": "<${var.storage_account_settings.primary_blob_endpoint}/${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['PlanFile']|Check the plan>"
                                         }
                                     },
                                     {
                                         "type": "section",
                                         "text": {
                                             "type": "mrkdwn",
-                                            "text": "<https://google.com|Check the apply result>"
+                                            "text": "<${var.storage_account_settings.primary_blob_endpoint}/${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['ApplyFile']|Check the apply result>"
                                         }
                                     }
                                 ]
