@@ -145,6 +145,19 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                     "elements": [
                                                         {
                                                             "type": "text",
+                                                            "text": "project: "
+                                                        },
+                                                        {
+                                                            "type": "text",
+                                                            "text": "@items('ForEachEntity')['Project']"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "rich_text_section",
+                                                    "elements": [
+                                                        {
+                                                            "type": "text",
                                                             "text": "cartella: "
                                                         },
                                                         {
@@ -285,6 +298,19 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                             {
                                                                 "type": "text",
                                                                 "text": "@items('ForEachEntity')['User']"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "rich_text_section",
+                                                        "elements": [
+                                                            {
+                                                                "type": "text",
+                                                                "text": "project: "
+                                                            },
+                                                            {
+                                                                "type": "text",
+                                                                "text": "@items('ForEachEntity')['Project']"
                                                             }
                                                         ]
                                                     },
