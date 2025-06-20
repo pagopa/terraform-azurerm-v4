@@ -43,7 +43,7 @@ resource "azurerm_logic_app_workflow" "workflow" {
   workflow_parameters = {
         "$connections": jsonencode({
             "type": "Object"
-            "default_value": {}
+            "defaultValue": {}
         })
   }
 
