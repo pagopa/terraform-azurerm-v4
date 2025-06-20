@@ -35,8 +35,6 @@ variable "storage_account_settings" {
     name                   = string
     table_name             = string
     access_key             = string
-    primary_blob_endpoint  = string
-    blob_folder            = string
   })
   description = "(Required) Storage account settings for the Logic App"
 }
