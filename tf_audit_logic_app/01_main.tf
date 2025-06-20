@@ -136,7 +136,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                         },
                                                         {
                                                             "type": "text",
-                                                            "text": "@items('ForEachEntity')['Applier']"
+                                                            "text": "@items('ForEachEntity')['User']"
                                                         }
                                                     ]
                                                 },
@@ -165,27 +165,23 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                             "text": "@items('ForEachEntity')['SkipPolicy']"
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "type": "rich_text_section",
+                                                    "elements": [
+                                                        {
+                                                            "type": "text",
+                                                            "text": "timestamp: "
+                                                        },
+                                                        {
+                                                            "type": "text",
+                                                            "text": "@items('ForEachEntity')['Timestamp']"
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         }
                                     ]
-                                },
-                                {
-                                    "type": "divider"
-                                },
-                                {
-                                    "type": "section",
-                                    "text": {
-                                        "type": "mrkdwn",
-                                        "text": "<${var.storage_account_settings.primary_blob_endpoint}${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['PlanFile']|Check the plan>"
-                                    }
-                                },
-                                {
-                                    "type": "section",
-                                    "text": {
-                                        "type": "mrkdwn",
-                                        "text": "<${var.storage_account_settings.primary_blob_endpoint}${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['ApplyFile']|Check the apply result>"
-                                    }
                                 }
                             ]
                         },
@@ -288,7 +284,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                             },
                                                             {
                                                                 "type": "text",
-                                                                "text": "nome"
+                                                                "text": "@items('ForEachEntity')['User']"
                                                             }
                                                         ]
                                                     },
@@ -301,7 +297,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                             },
                                                             {
                                                                 "type": "text",
-                                                                "text": "cartella"
+                                                                "text": "@items('ForEachEntity')['Folder']"
                                                             }
                                                         ]
                                                     },
@@ -314,30 +310,26 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                             },
                                                             {
                                                                 "type": "text",
-                                                                "text": "skippolicy"
+                                                                "text": "@items('ForEachEntity')['SkipPolicy']"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "rich_text_section",
+                                                        "elements": [
+                                                            {
+                                                                "type": "text",
+                                                                "text": "timestamp: "
+                                                            },
+                                                            {
+                                                                "type": "text",
+                                                                "text": "@items('ForEachEntity')['Timestamp']"
                                                             }
                                                         ]
                                                     }
                                                 ]
                                             }
                                         ]
-                                    },
-                                    {
-                                        "type": "divider"
-                                    },
-                                    {
-                                        "type": "section",
-                                        "text": {
-                                            "type": "mrkdwn",
-                                            "text": "<${var.storage_account_settings.primary_blob_endpoint}${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['PlanFile']|Check the plan>"
-                                        }
-                                    },
-                                    {
-                                        "type": "section",
-                                        "text": {
-                                            "type": "mrkdwn",
-                                            "text": "<${var.storage_account_settings.primary_blob_endpoint}${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['ApplyFile']|Check the apply result>"
-                                        }
                                     }
                                 ]
                             }
