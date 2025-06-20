@@ -177,14 +177,14 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                     "type": "section",
                                     "text": {
                                         "type": "mrkdwn",
-                                        "text": "<${var.storage_account_settings.primary_blob_endpoint}/${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['PlanFile']|Check the plan>"
+                                        "text": "<${var.storage_account_settings.primary_blob_endpoint}${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['PlanFile']|Check the plan>"
                                     }
                                 },
                                 {
                                     "type": "section",
                                     "text": {
                                         "type": "mrkdwn",
-                                        "text": "<${var.storage_account_settings.primary_blob_endpoint}/${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['ApplyFile']|Check the apply result>"
+                                        "text": "<${var.storage_account_settings.primary_blob_endpoint}${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['ApplyFile']|Check the apply result>"
                                     }
                                 }
                             ]
@@ -329,14 +329,14 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                         "type": "section",
                                         "text": {
                                             "type": "mrkdwn",
-                                            "text": "<${var.storage_account_settings.primary_blob_endpoint}/${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['PlanFile']|Check the plan>"
+                                            "text": "<${var.storage_account_settings.primary_blob_endpoint}${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['PlanFile']|Check the plan>"
                                         }
                                     },
                                     {
                                         "type": "section",
                                         "text": {
                                             "type": "mrkdwn",
-                                            "text": "<${var.storage_account_settings.primary_blob_endpoint}/${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['ApplyFile']|Check the apply result>"
+                                            "text": "<${var.storage_account_settings.primary_blob_endpoint}${var.storage_account_settings.blob_folder}/@items('ForEachEntity')['ApplyFile']|Check the apply result>"
                                         }
                                     }
                                 ]
