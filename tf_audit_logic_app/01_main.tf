@@ -204,6 +204,19 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                             "text": "@items('ForEachEntity')['Timestamp']"
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "type": "rich_text_section",
+                                                    "elements": [
+                                                        {
+                                                            "type": "text",
+                                                            "text": "planFileName: "
+                                                        },
+                                                        {
+                                                            "type": "text",
+                                                            "text": "@items('ForEachEntity')['PlanFile']"
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         }
@@ -376,6 +389,19 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                             {
                                                                 "type": "text",
                                                                 "text": "@items('ForEachEntity')['Timestamp']"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "rich_text_section",
+                                                        "elements": [
+                                                            {
+                                                                "type": "text",
+                                                                "text": "planFileName: "
+                                                            },
+                                                            {
+                                                                "type": "text",
+                                                                "text": "@items('ForEachEntity')['PlanFile']"
                                                             }
                                                         ]
                                                     }
