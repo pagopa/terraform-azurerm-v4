@@ -26,7 +26,7 @@ module "pgflex" {
   storage_mb                = var.storage_mb != null ? var.storage_mb : module.idh_loader.idh_resource_configuration.storage_mb
 
   backup_retention_days        = module.idh_loader.idh_resource_configuration.backup_retention_days
-  geo_redundant_backup_enabled = module.idh_loader.idh_resource_configuration.geo_redundant_backup_enabled
+  geo_redundant_backup_enabled = contains(module.idh_loader.non_paired_locations, var.location) ? false : module.idh_loader.idh_resource_configuration.geo_redundant_backup_enabled
   create_mode                  = module.idh_loader.idh_resource_configuration.create_mode
   zone                         = module.idh_loader.idh_resource_configuration.zone
 
