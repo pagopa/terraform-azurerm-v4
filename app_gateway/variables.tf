@@ -21,6 +21,12 @@ variable "sku_tier" {
   description = "SKU tier of the App GW"
 }
 
+variable "sku_capacity" {
+  type        = string
+  description = "(Optional) App GW capacity. Use it only when NOT using autoscaling"
+  default     = null
+}
+
 variable "zones" {
   type        = list(any)
   default     = null
@@ -195,14 +201,20 @@ variable "waf_disabled_rule_group" {
 
 # Scaling
 
+variable "app_gateway_autoscale" {
+  type        = bool
+  description = "(Optional) Whether to activate autoscaling"
+  default     = true
+}
+
 variable "app_gateway_max_capacity" {
   type        = string
-  description = "(Optional) Maximum capacity for autoscaling. Accepted values are in the range 2 to 125."
+  description = "(Optional) Maximum capacity for autoscaling. Accepted values are in the range 2 to 125. Ignored if app_gateway_autoscale is false"
 }
 
 variable "app_gateway_min_capacity" {
   type        = string
-  description = "(Required) Minimum capacity for autoscaling. Accepted values are in the range 0 to 100."
+  description = "(Required) Minimum capacity for autoscaling. Accepted values are in the range 0 to 100. Ignored if app_gateway_autoscale is false"
 }
 
 variable "sec_log_analytics_workspace_id" {
