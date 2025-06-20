@@ -162,7 +162,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                         },
                                                         {
                                                             "type": "text",
-                                                            "text": "\"@items('ForEachEntity')['SkipPolicy']\""
+                                                            "text": "string(@items('ForEachEntity')['SkipPolicy'])"
                                                         }
                                                     ]
                                                 },
@@ -310,7 +310,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                             },
                                                             {
                                                                 "type": "text",
-                                                                "text": "\"@items('ForEachEntity')['SkipPolicy']\""
+                                                                "text": "string(@items('ForEachEntity')['SkipPolicy'])"
                                                             }
                                                         ]
                                                     },
