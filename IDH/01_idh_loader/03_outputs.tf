@@ -14,7 +14,7 @@ output "idh_tiers_configurations" {
   value = local.tiers_configurations
 }
 
-output "non_geo_redundant_locations" {
+output "non_paired_locations" {
   value = [
     "italynorth",
     "spaincentral"
