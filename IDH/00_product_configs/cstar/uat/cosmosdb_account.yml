@@ -2,7 +2,6 @@ cosmos_mongo6:
   kind: MongoDB
   capabilities:
   - EnableMongo
-  - EnableServerless
   offer_type: Standard
   consistency_policy:
     consistency_level: BoundedStaleness
@@ -31,7 +30,6 @@ cosmos_mongo7:
   kind: MongoDB
   capabilities:
     - EnableMongo
-    - EnableServerless
   offer_type: Standard
   consistency_policy:
     consistency_level: BoundedStaleness
