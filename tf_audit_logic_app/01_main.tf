@@ -255,7 +255,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                         "type": "section",
                                         "text": {
                                             "type": "mrkdwn",
-                                            "text": ":info: apply in prod"
+                                            "text": ":information_source: Apply in prod"
                                         }
                                     },
                                     {
