@@ -107,7 +107,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                     "type": "section",
                                     "text": {
                                         "type": "mrkdwn",
-                                        "text": ":warning: Apply in prod"
+                                        "text": ":warning: Apply in prod con skip policy"
                                     }
                                 },
                                 {
@@ -255,7 +255,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                         "type": "section",
                                         "text": {
                                             "type": "mrkdwn",
-                                            "text": ":warning: apply in prod"
+                                            "text": ":info: apply in prod"
                                         }
                                     },
                                     {
@@ -310,7 +310,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                                             },
                                                             {
                                                                 "type": "text",
-                                                                "text": "string(@items('ForEachEntity')['SkipPolicy'])"
+                                                                "text": string(@items('ForEachEntity')['SkipPolicy'])
                                                             }
                                                         ]
                                                     },
