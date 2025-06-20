@@ -1,8 +1,8 @@
-variable "prefix" {
+variable "product_name" {
   type = string
   validation {
     condition = (
-      length(var.prefix) <= 6
+      length(var.product_name) <= 6
     )
     error_message = "Max length is 6 chars."
   }
@@ -23,7 +23,7 @@ variable "resource_group_name" {
 }
 
 
-variable "idh_resource" {
+variable "idh_resource_tier" {
   type        = string
   description = "(Required) The name od IDH resource key to be created."
 }

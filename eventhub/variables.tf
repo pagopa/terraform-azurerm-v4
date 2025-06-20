@@ -85,27 +85,12 @@ variable "public_network_access_enabled" {
 # Private endpoint
 #
 
-# If this variable contains empty arrays as in the default value a new private DNS Zone will be created
-variable "private_dns_zones" {
+variable "private_dns_zones_ids" {
   description = "Private DNS Zones where the private endpoint will be created"
-  type = object({
-    id                  = list(string)
-    name                = list(string)
-    resource_group_name = string
-  })
-  default = {
-    id                  = []
-    name                = []
-    resource_group_name = ""
-  }
+  type        = list(string)
+  default     = []
 }
 
-variable "private_dns_zone_record_A_name" {
-  description = "Name of the A record in the private dns zone"
-  type        = string
-  default     = "eventhub"
-
-}
 
 variable "private_endpoint_created" {
   description = "Choose to allow the creation of the private endpoint"
@@ -125,17 +110,6 @@ variable "private_endpoint_subnet_id" {
 }
 
 
-variable "internal_private_dns_zone_created" {
-  description = "(Deprecated: create a standalone dns zone) Choose to allow the creation of the dns zone"
-  type        = bool
-  default     = false
-}
-
-variable "internal_private_dns_zone_resource_group_name" {
-  description = "(Deprecated: create a standalone dns zone) Name of the resource group record in the private dns zone"
-  type        = string
-  default     = null
-}
 
 variable "action" {
   description = "The ID of the Action Group and optional map of custom string properties to include with the post webhook operation."

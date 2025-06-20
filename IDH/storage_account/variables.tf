@@ -1,9 +1,9 @@
-variable "prefix" {
+variable "product_name" {
   type        = string
-  description = "(Required) prefix used to identify the platform for which the resource will be created"
+  description = "(Required) product_name used to identify the platform for which the resource will be created"
   validation {
     condition = (
-      length(var.prefix) <= 6
+      length(var.product_name) <= 6
     )
     error_message = "Max length is 6 chars."
   }
@@ -14,7 +14,7 @@ variable "env" {
   description = "(Required) Environment for which the resource will be created"
 }
 
-variable "idh_resource" {
+variable "idh_resource_tier" {
   type        = string
   description = "(Required) The name od IDH resource key to be created."
 }
@@ -113,7 +113,7 @@ variable "immutability_policy" {
   # https://learn.microsoft.com/en-us/azure/storage/blobs/point-in-time-restore-overview#limitations-and-known-issues
   validation {
     condition     = var.immutability_policy.enabled ? !module.idh_loader.point_in_time_restore_enabled : true
-    error_message = "Point in Time restore must be disabled when using immutability policy. use another idh_resource"
+    error_message = "Point in Time restore must be disabled when using immutability policy. use another idh_resource_tier"
   }
 }
 
@@ -124,8 +124,8 @@ variable "replication_type" {
   description = "(Optional) storage account replication type. Default is the minimum replication type for the environment."
 
   validation {
-    condition     = var.replication_type != null ? try(local.allowed_replication_types[var.replication_type], -1) >= lookup(local.allowed_replication_types, module.idh_loader.idh_config.min_account_replication_type, 0) : true
-    error_message = "The replication type '${coalesce(var.replication_type, module.idh_loader.idh_config.min_account_replication_type)}' is not allowed in '${var.env}' environment for idh resource '${var.idh_resource}'. The minimum replication type is '${module.idh_loader.idh_config.min_account_replication_type}'. Valid values are ${local.allowed_replication_types_string}"
+    condition     = var.replication_type != null ? try(local.allowed_replication_types[var.replication_type], -1) >= lookup(local.allowed_replication_types, module.idh_loader.idh_resource_configuration.min_account_replication_type, 0) : true
+    error_message = "The replication type '${coalesce(var.replication_type, module.idh_loader.idh_resource_configuration.min_account_replication_type)}' is not allowed in '${var.env}' environment for idh resource '${var.idh_resource_tier}'. The minimum replication type is '${module.idh_loader.idh_resource_configuration.min_account_replication_type}'. Valid values are ${local.allowed_replication_types_string}"
   }
 }
 

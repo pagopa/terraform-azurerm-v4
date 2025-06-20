@@ -61,12 +61,6 @@ module "event_hub_complete" {
   resource_group_name  = azurerm_resource_group.rg_eventhub.name
   auto_inflate_enabled = false
   sku                  = "Standard"
-  zone_redundant       = true
-
-  virtual_network_ids = [azurerm_virtual_network.this.id]
-
-  internal_private_dns_zone_created             = true
-  internal_private_dns_zone_resource_group_name = "dvopla-eventhub-private-dns-zone-rg"
 
   private_endpoint_created             = true
   private_endpoint_resource_group_name = "dvopla-d-azdoa-rg"

@@ -24,7 +24,7 @@ output "administrator_password" {
 }
 
 output "connection_port" {
-  value     = module.idh_loader.idh_config.server_parameters.pgbouncer_enabled ? "6432" : "5432"
+  value     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled ? "6432" : "5432"
   sensitive = false
 }
 
