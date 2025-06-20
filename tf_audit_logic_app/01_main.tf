@@ -194,10 +194,37 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                 "transferMode": "Chunked"
                             }
                         }
+                    }
+                },
+                "UpdateEntitySkipPolicy": {
+                    "runAfter": {
+                        "NotifySlackSkipPolicy": [
+                            "Succeeded"
+                        ]
                     },
-                    "UpdateEntitySkipPolicy": {
+                    "type": "ApiConnection",
+                    "inputs": {
+                        "host": {
+                            "connection": {
+                                "name": "@parameters('$connections')['azuretables']['connectionId']"
+                            }
+                        },
+                        "method": "patch",
+                        "body": {
+                            "Watched": true
+                        },
+                        "headers": {
+                            "If-Match": "*"
+                        },
+                        "path": "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('prodapply')}/entities/etag(PartitionKey='@{encodeURIComponent(items('ForEachEntity')['partitionKey'])}',RowKey='@{encodeURIComponent(items('ForEachEntity')['rowKey'])}')"
+                    }
+                }
+            },
+            "else": {
+                "actions": {
+                    "UpdateEntity": {
                         "runAfter": {
-                            "NotifySlackSkipPolicy": [
+                            "NotifySlack": [
                                 "Succeeded"
                             ]
                         },
@@ -217,158 +244,131 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                             },
                             "path": "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('prodapply')}/entities/etag(PartitionKey='@{encodeURIComponent(items('ForEachEntity')['partitionKey'])}',RowKey='@{encodeURIComponent(items('ForEachEntity')['rowKey'])}')"
                         }
-                    }
-                },
-                "else": {
-                    "actions": {
-                        "UpdateEntity": {
-                            "runAfter": {
-                                "NotifySlack": [
-                                    "Succeeded"
-                                ]
+                    },
+                    "NotifySlack": {
+                        "type": "Http",
+                        "inputs": {
+                            "uri": "${var.slack_webhook_url}",
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json"
                             },
-                            "type": "ApiConnection",
-                            "inputs": {
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azuretables']['connectionId']"
+                            "body": {
+                                "blocks": [
+                                    {
+                                        "type": "section",
+                                        "text": {
+                                            "type": "mrkdwn",
+                                            "text": ":warning: apply in prod"
+                                        }
+                                    },
+                                    {
+                                        "type": "rich_text",
+                                        "elements": [
+                                            {
+                                                "type": "rich_text_section",
+                                                "elements": [
+                                                    {
+                                                        "type": "text",
+                                                        "text": "Dettagli:\n"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "type": "rich_text_list",
+                                                "style": "bullet",
+                                                "indent": 0,
+                                                "elements": [
+                                                    {
+                                                        "type": "rich_text_section",
+                                                        "elements": [
+                                                            {
+                                                                "type": "text",
+                                                                "text": "applier: "
+                                                            },
+                                                            {
+                                                                "type": "text",
+                                                                "text": "nome"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "rich_text_section",
+                                                        "elements": [
+                                                            {
+                                                                "type": "text",
+                                                                "text": "cartella: "
+                                                            },
+                                                            {
+                                                                "type": "text",
+                                                                "text": "cartella"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "rich_text_section",
+                                                        "elements": [
+                                                            {
+                                                                "type": "text",
+                                                                "text": "skipPolicy: "
+                                                            },
+                                                            {
+                                                                "type": "text",
+                                                                "text": "skippolicy"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "divider"
+                                    },
+                                    {
+                                        "type": "section",
+                                        "text": {
+                                            "type": "mrkdwn",
+                                            "text": "<https://google.com|Check the plan>"
+                                        }
+                                    },
+                                    {
+                                        "type": "section",
+                                        "text": {
+                                            "type": "mrkdwn",
+                                            "text": "<https://google.com|Check the apply result>"
+                                        }
                                     }
-                                },
-                                "method": "patch",
-                                "body": {
-                                    "Watched": true
-                                },
-                                "headers": {
-                                    "If-Match": "*"
-                                },
-                                "path": "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('prodapply')}/entities/etag(PartitionKey='@{encodeURIComponent(items('ForEachEntity')['partitionKey'])}',RowKey='@{encodeURIComponent(items('ForEachEntity')['rowKey'])}')"
+                                ]
                             }
                         },
-                        "NotifySlack": {
-                            "type": "Http",
-                            "inputs": {
-                                "uri": "${var.slack_webhook_url}",
-                                "method": "POST",
-                                "headers": {
-                                    "Content-Type": "application/json"
-                                },
-                                "body": {
-                                    "blocks": [
-                                        {
-                                            "type": "section",
-                                            "text": {
-                                                "type": "mrkdwn",
-                                                "text": ":warning: apply in prod"
-                                            }
-                                        },
-                                        {
-                                            "type": "rich_text",
-                                            "elements": [
-                                                {
-                                                    "type": "rich_text_section",
-                                                    "elements": [
-                                                        {
-                                                            "type": "text",
-                                                            "text": "Dettagli:\n"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "type": "rich_text_list",
-                                                    "style": "bullet",
-                                                    "indent": 0,
-                                                    "elements": [
-                                                        {
-                                                            "type": "rich_text_section",
-                                                            "elements": [
-                                                                {
-                                                                    "type": "text",
-                                                                    "text": "applier: "
-                                                                },
-                                                                {
-                                                                    "type": "text",
-                                                                    "text": "nome"
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            "type": "rich_text_section",
-                                                            "elements": [
-                                                                {
-                                                                    "type": "text",
-                                                                    "text": "cartella: "
-                                                                },
-                                                                {
-                                                                    "type": "text",
-                                                                    "text": "cartella"
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            "type": "rich_text_section",
-                                                            "elements": [
-                                                                {
-                                                                    "type": "text",
-                                                                    "text": "skipPolicy: "
-                                                                },
-                                                                {
-                                                                    "type": "text",
-                                                                    "text": "skippolicy"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "type": "divider"
-                                        },
-                                        {
-                                            "type": "section",
-                                            "text": {
-                                                "type": "mrkdwn",
-                                                "text": "<https://google.com|Check the plan>"
-                                            }
-                                        },
-                                        {
-                                            "type": "section",
-                                            "text": {
-                                                "type": "mrkdwn",
-                                                "text": "<https://google.com|Check the apply result>"
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            "runtimeConfiguration": {
-                                "contentTransfer": {
-                                    "transferMode": "Chunked"
-                                }
+                        "runtimeConfiguration": {
+                            "contentTransfer": {
+                                "transferMode": "Chunked"
                             }
                         }
                     }
-                },
-                "expression": {
-                    "and": [
-                        {
-                            "equals": [
-                                "@items('ForEachEntity')['SkipPolicy']",
-                                true
-                            ]
-                        }
-                    ]
-                },
-                "type": "If"
-            }
-        },
-        "runAfter": {
-            "${azurerm_logic_app_action_custom.get_entities.name}": [
-                "Succeeded"
-            ]
-        },
-        "type": "Foreach"
-    }
+                }
+            },
+            "expression": {
+                "and": [
+                    {
+                        "equals": [
+                            "@items('ForEachEntity')['SkipPolicy']",
+                            true
+                        ]
+                    }
+                ]
+            },
+            "type": "If"
+        }
+    },
+    "runAfter": {
+        "${azurerm_logic_app_action_custom.get_entities.name}": [
+            "Succeeded"
+        ]
+    },
+    "type": "Foreach"
 }
   BODY
 }
