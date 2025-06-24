@@ -50,6 +50,12 @@ variable "enable_host_encryption" {
   description = "(Optional): Enable host encryption"
 }
 
+variable "autoscale_enabled" {
+  type        = bool
+  default     = true
+  description = "(Optional): Enable autoscaling for the node pool"
+}
+
 variable "node_count_min" {
   type        = number
   description = "(Required): Minimum node count"

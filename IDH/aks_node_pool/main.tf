@@ -32,6 +32,7 @@ module "aks_node_pool" {
   ###############################################################
   # Autoscaling
   ###############################################################
+  autoscale_enabled = var.autoscale_enabled
   node_count_min = var.node_count_min
   node_count_max = var.node_count_max
 

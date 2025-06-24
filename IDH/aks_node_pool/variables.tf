@@ -68,16 +68,20 @@ variable "enable_host_encryption" {
   description = "(Optional): Enable host encryption for the node pool."
 }
 
+variable "autoscale_enabled" {
+  default = true
+  type    = bool
+  description = "(Optional): Enable autoscaling for the node pool. Defaults to true."
+}
+
 variable "node_count_min" {
   type        = number
-  default     = null
-  description = "(Optional): Minimum number of nodes in the node pool."
+  description = "(Required): Minimum number of nodes in the node pool."
 }
 
 variable "node_count_max" {
   type        = number
-  default     = null
-  description = "(Optional): Maximum number of nodes in the node pool."
+  description = "(Required): Maximum number of nodes in the node pool."
 }
 
 variable "max_pods" {

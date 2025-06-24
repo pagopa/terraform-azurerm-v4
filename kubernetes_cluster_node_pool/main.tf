@@ -17,7 +17,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   host_encryption_enabled = var.enable_host_encryption
   os_type               = "Linux"
 
-  auto_scaling_enabled  = true
+  auto_scaling_enabled  = var.autoscale_enabled
   node_count            = var.node_count_min
   min_count             = var.node_count_min
   max_count             = var.node_count_max
