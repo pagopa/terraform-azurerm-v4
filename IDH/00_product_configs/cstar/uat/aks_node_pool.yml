@@ -4,9 +4,12 @@ Standard_D8ads_v5:
   os_disk_size_gb: 128
   node_count_min: 1
   node_count_max: 3
+  upgrade_settings_max_surge: "33%"
 Standard_B8ms:
   vm_size: "Standard_B8ms"
   os_disk_type: "Managed"
   os_disk_size_gb: 128
   node_count_min: 1
   node_count_max: 3
+  upgrade_settings_max_surge: "33%"
+
