@@ -32,8 +32,8 @@ module "aks_node_pool" {
   ###############################################################
   # Autoscaling
   ###############################################################
-  node_count_min = try(coalesce(var.node_count_min, lookup(local.idh_cfg, "node_count_min", null)), null)
-  node_count_max = try(coalesce(var.node_count_max, lookup(local.idh_cfg, "node_count_max", null)), null)
+  node_count_min = var.node_count_min
+  node_count_max = var.node_count_max
 
   ###############################################################
   # Networking
