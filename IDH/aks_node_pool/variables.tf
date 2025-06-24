@@ -46,7 +46,7 @@ variable "os_disk_type" {
 
 variable "os_disk_size_gb" {
   type        = number
-  default = null
+  default     = null
   description = "(Optional): The size of the OS disk in GB."
 }
 
@@ -69,8 +69,8 @@ variable "enable_host_encryption" {
 }
 
 variable "autoscale_enabled" {
-  default = true
-  type    = bool
+  default     = true
+  type        = bool
   description = "(Optional): Enable autoscaling for the node pool. Defaults to true."
 }
 

@@ -22,19 +22,19 @@ module "aks_node_pool" {
   ###############################################################
   # Compute & Storage settings (safe‑lookup + try() wrapper)
   ###############################################################
-  vm_size                = try(coalesce(var.vm_size,               lookup(local.idh_cfg, "vm_size",               null)), null)
-  os_disk_type           = try(coalesce(var.os_disk_type,          lookup(local.idh_cfg, "os_disk_type",          null)), null)
-  os_disk_size_gb        = try(coalesce(var.os_disk_size_gb,       lookup(local.idh_cfg, "os_disk_size_gb",       null)), null)
-  zones                  = try(coalesce(var.zones,                 lookup(local.idh_cfg, "zones",                 null)), null)
-  ultra_ssd_enabled      = try(coalesce(var.ultra_ssd_enabled,     lookup(local.idh_cfg, "ultra_ssd_enabled",     null)), null)
-  enable_host_encryption = try(coalesce(var.enable_host_encryption,lookup(local.idh_cfg, "enable_host_encryption",null)), null)
+  vm_size                = try(coalesce(var.vm_size, lookup(local.idh_cfg, "vm_size", null)), null)
+  os_disk_type           = try(coalesce(var.os_disk_type, lookup(local.idh_cfg, "os_disk_type", null)), null)
+  os_disk_size_gb        = try(coalesce(var.os_disk_size_gb, lookup(local.idh_cfg, "os_disk_size_gb", null)), null)
+  zones                  = try(coalesce(var.zones, lookup(local.idh_cfg, "zones", null)), null)
+  ultra_ssd_enabled      = try(coalesce(var.ultra_ssd_enabled, lookup(local.idh_cfg, "ultra_ssd_enabled", null)), null)
+  enable_host_encryption = try(coalesce(var.enable_host_encryption, lookup(local.idh_cfg, "enable_host_encryption", null)), null)
 
   ###############################################################
   # Autoscaling
   ###############################################################
   autoscale_enabled = var.autoscale_enabled
-  node_count_min = var.node_count_min
-  node_count_max = var.node_count_max
+  node_count_min    = var.node_count_min
+  node_count_max    = var.node_count_max
 
   ###############################################################
   # Networking
