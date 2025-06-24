@@ -6,7 +6,7 @@ module "idh_loader" {
   idh_resource_type = "aks_node_pool"
 }
 
-module "node_pool" {
+module "aks_node_pool" {
   source = "../../kubernetes_cluster_node_pool"
 
   kubernetes_cluster_id = var.kubernetes_cluster_id
