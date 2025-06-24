@@ -98,7 +98,8 @@ variable "node_taints" {
 
 variable "upgrade_settings_max_surge" {
   type        = string
-  description = "(Required): Max surge for node pool upgrades."
+  default     = null
+  description = "(Optional): Max surge for node pool upgrades."
 }
 
 variable "node_tags" {
