@@ -5,7 +5,11 @@ variable "kubernetes_cluster_id" {
 
 variable "name" {
   type        = string
-  description = "Name of the node pool"
+  description = "(Prefix) Required: Node pool name. Must not exceed 12 characters."
+  validation {
+    condition     = length(var.name) <= 12
+    error_message = "The node pool name must not exceed 12 characters."
+  }
 }
 
 variable "vm_size" {
@@ -72,26 +76,26 @@ variable "node_labels" {
 variable "node_taints" {
   type        = list(string)
   default     = []
-  description = "Node taints"
+  description = "(Prefix) Optional: List of node taints."
 }
 
 variable "vnet_subnet_id" {
   type        = string
-  description = "Subnet ID for the node pool"
+  description = "(Prefix) Required: Subnet ID for the node pool."
 }
 
 variable "upgrade_settings_max_surge" {
   type        = string
   default     = "33%"
-  description = "Max surge during upgrade"
+  description = "(Prefix) Optional: Max surge during upgrade."
 }
 
 variable "node_tags" {
   type        = map(any)
-  description = "Additional tags for the node pool"
+  description = "(Prefix) Optional: Additional tags for the node pool."
 }
 
 variable "tags" {
   type        = map(any)
-  description = "Base tags"
+  description = "(Prefix) Optional: Base tags."
 }
