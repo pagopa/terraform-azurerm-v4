@@ -32,11 +32,6 @@ variable "name" {
   }
 }
 
-variable "tags" {
-  type        = map(any)
-  description = "(Optional): Map of tags to assign to the resource."
-}
-
 variable "vm_size" {
   type        = string
   default     = null
@@ -110,4 +105,9 @@ variable "upgrade_settings_max_surge" {
 variable "node_tags" {
   type        = map(any)
   description = "(Required): Map of tags to assign to the nodes."
+}
+
+variable "tags" {
+  type        = map(any)
+  description = "(Optional): Map of tags to assign to the resource."
 }
