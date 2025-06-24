@@ -9,8 +9,9 @@ module "idh_loader" {
 module "aks_node_pool" {
   source = "../../kubernetes_cluster_node_pool"
 
-  kubernetes_cluster_id = var.kubernetes_cluster_id
   name                  = var.name
+  kubernetes_cluster_id = var.kubernetes_cluster_id
+  vnet_subnet_id        = var.vnet_subnet_id
 
   vm_size               = coalesce(var.vm_size, module.idh_loader.idh_resource_configuration.vm_size)
   os_disk_type          = coalesce(var.os_disk_type, module.idh_loader.idh_resource_configuration.os_disk_type)
@@ -26,8 +27,6 @@ module "aks_node_pool" {
 
   node_labels           = merge(coalesce(module.idh_loader.idh_resource_configuration.node_labels, {}), var.node_labels)
   node_taints           = coalesce(var.node_taints, module.idh_loader.idh_resource_configuration.node_taints)
-
-  vnet_subnet_id        = var.vnet_subnet_id
 
   upgrade_settings_max_surge = coalesce(var.upgrade_settings_max_surge, module.idh_loader.idh_resource_configuration.upgrade_settings_max_surge)
 

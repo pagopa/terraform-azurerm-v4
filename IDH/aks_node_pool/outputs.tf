@@ -1,7 +1,7 @@
 output "id" {
-  value = module.node_pool.id
+  value = module.aks_node_pool.id
 }
 
 output "name" {
-  value = module.node_pool.name
+  value = module.aks_node_pool.name
 }
