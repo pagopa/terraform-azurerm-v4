@@ -34,7 +34,6 @@ module "aks_node_pool" {
   # Kubernetes runtime metadata
   ###############################################################
   node_labels = var.node_labels
-
   node_taints = var.node_taints
 
   ###############################################################
