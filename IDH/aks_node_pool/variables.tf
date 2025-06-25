@@ -55,7 +55,7 @@ variable "node_labels" {
 
 variable "node_taints" {
   type        = list(string)
-  default = [""]
+  default     = [""]
   description = "(Optional): List of taints to assign to the nodes."
 }
 
