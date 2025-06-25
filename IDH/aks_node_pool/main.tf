@@ -6,11 +6,6 @@ module "idh_loader" {
   idh_resource_type = "aks_node_pool"
 }
 
-locals {
-  # Retrieve IDH loader configuration if present; otherwise use an empty object
-  idh_resource_configuration = try(module.idh_loader.idh_resource_configuration, {})
-}
-
 module "aks_node_pool" {
   source = "../../kubernetes_cluster_node_pool"
 
@@ -51,7 +46,7 @@ module "aks_node_pool" {
   # Azure resource tagging
   ###############################################################
   node_tags = merge(
-    lookup(local.idh_resource_configuration, "node_tags", {}),
+    lookup(module.idh_loader.idh_resource_configuration, "node_tags", {}),
     coalesce(var.node_tags, {})
   )
 
