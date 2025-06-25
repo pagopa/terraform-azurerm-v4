@@ -1,4 +1,11 @@
-Standard_B8ms:
+Standard_B8ms_active:
+  vm_size: "Standard_B8ms"
+  os_disk_type: "Managed"
+  os_disk_size_gb: 128
+  ultra_ssd_enabled: false
+  enable_host_encryption: false
+  upgrade_settings_max_surge: "33%"
+Standard_B8ms_passive:
   vm_size: "Standard_B8ms"
   os_disk_type: "Managed"
   os_disk_size_gb: 128

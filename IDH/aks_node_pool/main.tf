@@ -27,7 +27,7 @@ module "aks_node_pool" {
   # Autoscaling
   ###############################################################
   autoscale_enabled = var.autoscale_enabled
-  node_count_min    = var.node_count_min
+  node_count_min    = var.node_count_min # must be >= node_min_allowed
   node_count_max    = var.node_count_max
 
   ###############################################################
@@ -52,4 +52,15 @@ module "aks_node_pool" {
   tags = var.tags
 }
 
+# Validazione node_count_min rispetto a node_min_allowed
+locals {
+  node_min_allowed = try(module.idh_loader.idh_resource_configuration.node_min_allowed, null)
+  node_count_min_valid = local.node_min_allowed == null || var.node_count_min >= local.node_min_allowed
+}
 
+resource "null_resource" "validate_node_count_min" {
+  count = local.node_count_min_valid ? 0 : 1
+  provisioner "local-exec" {
+    command = "echo 'Errore: node_count_min (${var.node_count_min}) deve essere >= node_min_allowed (${local.node_min_allowed})' && exit 1"
+  }
+}
