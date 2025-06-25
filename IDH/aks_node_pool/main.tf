@@ -54,7 +54,7 @@ module "aks_node_pool" {
 
 # Validazione node_count_min rispetto a node_min_allowed
 locals {
-  node_min_allowed = try(module.idh_loader.idh_resource_configuration.node_min_allowed, null)
+  node_min_allowed     = try(module.idh_loader.idh_resource_configuration.node_min_allowed, null)
   node_count_min_valid = local.node_min_allowed == null || var.node_count_min >= coalesce(local.node_min_allowed, 0)
 }
 
