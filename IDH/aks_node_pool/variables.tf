@@ -41,6 +41,10 @@ variable "autoscale_enabled" {
 variable "node_count_min" {
   type        = number
   description = "(Required): Minimum number of nodes in the node pool."
+  validation {
+    condition     = var.node_count_min >= module.idh_loader.idh_resource_configuration.node_min_allowed ? true : false
+    error_message = "The node count minimum: ${var.node_count_min} must be greater than or equal to the allowed minimum: ${module.idh_loader.idh_resource_configuration.node_min_allowed} nodes for the resource tier."
+  }
 }
 
 variable "node_count_max" {

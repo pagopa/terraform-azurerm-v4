@@ -6,6 +6,7 @@ Standard_D8ads_v5_active:
   ultra_ssd_enabled: false
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
+  node_min_allowed: 1
 Standard_D8ads_v5_passive:
   vm_size: "Standard_D8ads_v5"
   os_disk_type: "Ephemeral"
@@ -13,6 +14,7 @@ Standard_D8ads_v5_passive:
   ultra_ssd_enabled: false
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
+  node_min_allowed: 0
 
 ### D4
 Standard_D4ads_v5_active:
@@ -22,6 +24,7 @@ Standard_D4ads_v5_active:
   ultra_ssd_enabled: false
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
+  node_min_allowed: 1
 Standard_D4ads_v5_passive:
   vm_size: "Standard_D4ads_v5"
   os_disk_type: "Ephemeral"
@@ -29,3 +32,4 @@ Standard_D4ads_v5_passive:
   ultra_ssd_enabled: false
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
+  node_min_allowed: 0

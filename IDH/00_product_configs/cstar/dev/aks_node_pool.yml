@@ -5,6 +5,7 @@ Standard_B8ms_active:
   ultra_ssd_enabled: false
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
+  node_min_allowed: 1
 Standard_B8ms_passive:
   vm_size: "Standard_B8ms"
   os_disk_type: "Managed"
@@ -12,3 +13,4 @@ Standard_B8ms_passive:
   ultra_ssd_enabled: false
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
+  node_min_allowed: 0
