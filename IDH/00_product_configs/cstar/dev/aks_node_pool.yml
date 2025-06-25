@@ -1,6 +1,6 @@
-Standard_D8ads_v5:
-  vm_size: "Standard_D8ads_v5"
-  os_disk_type: "Ephemeral"
+Standard_B8ms:
+  vm_size: "Standard_B8ms"
+  os_disk_type: "Managed"
   os_disk_size_gb: 128
   ultra_ssd_enabled: false
   enable_host_encryption: false
