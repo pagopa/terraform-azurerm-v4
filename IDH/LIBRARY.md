@@ -2,6 +2,7 @@
 
 | 📦 Module | 📄 Documentation |
 |-----------|------------------|
+| 📦 aks_node_pool | [📄 README](aks_node_pool/README.md) |
 | 📦 cosmosdb_account | [📄 README](cosmosdb_account/README.md) |
 | 📦 event_hub | [📄 README](event_hub/README.md) |
 | 📦 key_vault | [📄 README](key_vault/README.md) |

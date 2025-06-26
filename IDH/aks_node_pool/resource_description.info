@@ -1,0 +1,1 @@
+VM Size: {vm_size}, Disk: {os_disk_type} {os_disk_size_gb}GB, Nodes: {node_count_min}-{node_count_max}
