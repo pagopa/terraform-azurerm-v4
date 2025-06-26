@@ -6,12 +6,12 @@ admin:
   certificate_permissions: [Get, List, Update, Create, Import, Delete, Restore, Purge, Recover, Backup, ManageContacts, ManageIssuers, GetIssuers, ListIssuers, SetIssuers, DeleteIssuers]
 developer:
   key_permissions: [Get, List, Update, Create, Import, Delete, Encrypt, Decrypt, Rotate, GetRotationPolicy]
-  secret_permissions: [Get, List, Set, Delete]
+  secret_permissions: [Get, List, Set, Delete, Backup, Purge, Recover, Restore]
   storage_permissions: []
   certificate_permissions: [Get, List, Update, Create, Import, Delete, Restore, Purge, Recover]
 external:
   key_permissions: [Get, List, Update, Create, Import, Delete, Encrypt, Decrypt, Rotate, GetRotationPolicy]
-  secret_permissions: [Get, List, Set, Delete]
+  secret_permissions: [Get, List, Set, Delete, Backup, Purge, Recover, Restore]
   storage_permissions: []
   certificate_permissions: [Get, List, Update, Create, Import, Delete, Restore, Purge, Recover]
 reader:
