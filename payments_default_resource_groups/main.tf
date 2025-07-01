@@ -6,6 +6,7 @@ locals {
     compute    = "${var.resource_group_prefix}-compute-rg"
     cicd       = "${var.resource_group_prefix}-cicd-rg"
     monitoring = "${var.resource_group_prefix}-monitoring-rg"
+    identity   = "${var.resource_group_prefix}-identity-rg"
   }
 
   # Merge default and additional resource groups
