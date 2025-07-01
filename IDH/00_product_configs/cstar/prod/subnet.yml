@@ -22,6 +22,10 @@ container_app_environment:
   prefix_length: 24
   private_endpoint_network_policies: Disabled
   private_link_service_network_policies_enabled: true
+  delegation:
+    name: Microsoft.App/environments
+    actions:
+      - Microsoft.Network/virtualNetworks/subnets/join/action
 aks_overlay:
   prefix_length: 24
   private_endpoint_network_policies: Disabled
