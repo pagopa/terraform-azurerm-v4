@@ -37,6 +37,18 @@ variable "log_analytics_workspace_id" {
   description = "Log Analytics Workspace resource id"
 }
 
+variable "private_endpoint_config" {
+  description = "Configuration for private endpoint and DNS zones for Container Apps Environment"
+  type = object({
+    enabled              = bool
+    subnet_id            = optional(string, null)
+    private_dns_zone_ids = optional(list(string), [])
+  })
+  default = {
+    enabled = false
+  }
+}
+
 variable "tags" {
   type = map(any)
 }
