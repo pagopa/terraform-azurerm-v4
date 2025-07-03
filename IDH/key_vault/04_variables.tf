@@ -53,7 +53,30 @@ variable "sec_storage_id" {
   description = "Storage Account security (it should be in a different subscription)."
 }
 
+variable "private_endpoint_enabled" {
+  type        = bool
+  description = "Enable private endpoint"
+  default     = false
+}
 
+variable "private_dns_zones_ids" {
+  description = "Private DNS Zones where the private endpoint will be created"
+  type        = list(string)
+  default     = []
+}
+
+
+variable "private_endpoint_resource_group_name" {
+  description = "Name of the resource group where the private endpoint will be created"
+  type        = string
+  default     = null
+}
+
+variable "private_endpoint_subnet_id" {
+  type        = string
+  default     = null
+  description = "The id of the subnet that will be used for the private endpoint."
+}
 
 variable "tags" {
   type = map(any)

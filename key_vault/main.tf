@@ -72,3 +72,30 @@ resource "azurerm_monitor_diagnostic_setting" "key_vault" {
     enabled  = false
   }
 }
+
+#
+# Private endpoints
+#
+
+resource "azurerm_private_endpoint" "kv" {
+  count = var.private_endpoint_enabled ? 1 : 0
+
+  name                = "${var.name}-private-endpoint"
+  location            = var.location
+  resource_group_name = var.private_endpoint_resource_group_name
+  subnet_id           = var.private_endpoint_subnet_id
+
+  private_dns_zone_group {
+    name                 = "${var.name}-private-dns-zone-group"
+    private_dns_zone_ids = var.private_dns_zones_ids
+  }
+
+  private_service_connection {
+    name                           = "${var.name}-private-service-connection"
+    private_connection_resource_id = azurerm_key_vault.this.id
+    is_manual_connection           = false
+    subresource_names              = ["vault"]
+  }
+
+  tags = var.tags
+}
