@@ -9,9 +9,25 @@ resource "azurerm_container_app_environment" "container_app_environment" {
   zone_redundancy_enabled        = var.subnet_id == null ? null : var.zone_redundant
   internal_load_balancer_enabled = var.subnet_id == null ? null : var.internal_load_balancer
 
+  dynamic "workload_profile" {
+    for_each = var.workload_profiles != null ? var.workload_profiles : []
+
+    content {
+      name                  = workload_profile.value.name
+      workload_profile_type = workload_profile.value.type
+      minimum_count         = workload_profile.value.min_count
+      maximum_count         = workload_profile.value.max_count
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      infrastructure_resource_group_name
+    ]
+  }
+
   tags = var.tags
 }
-
 
 resource "azurerm_private_endpoint" "this" {
   count = var.private_endpoint_config.enabled ? 1 : 0

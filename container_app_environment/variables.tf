@@ -49,6 +49,17 @@ variable "private_endpoint_config" {
   }
 }
 
+variable "workload_profiles" {
+  description = "Workload profiles list"
+  type = list(object({
+    name      = string
+    type      = string
+    min_count = number
+    max_count = number
+  }))
+  default = []
+}
+
 variable "tags" {
   type = map(any)
 }
