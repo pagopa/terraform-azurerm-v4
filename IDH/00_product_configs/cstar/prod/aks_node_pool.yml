@@ -1,3 +1,4 @@
+### D8
 Standard_D8ads_v5_active:
   vm_size: "Standard_D8ads_v5"
   os_disk_type: "Ephemeral"
@@ -8,6 +9,42 @@ Standard_D8ads_v5_active:
   node_min_allowed: 3
 Standard_D8ads_v5_passive:
   vm_size: "Standard_D8ads_v5"
+  os_disk_type: "Ephemeral"
+  os_disk_size_gb: 128
+  ultra_ssd_enabled: false
+  enable_host_encryption: false
+  upgrade_settings_max_surge: "33%"
+  node_min_allowed: 0
+
+### D4
+Standard_D4ads_v5_active:
+  vm_size: "Standard_D4ads_v5"
+  os_disk_type: "Ephemeral"
+  os_disk_size_gb: 128
+  ultra_ssd_enabled: false
+  enable_host_encryption: false
+  upgrade_settings_max_surge: "33%"
+  node_min_allowed: 3
+Standard_D4ads_v5_passive:
+  vm_size: "Standard_D4ads_v5"
+  os_disk_type: "Ephemeral"
+  os_disk_size_gb: 128
+  ultra_ssd_enabled: false
+  enable_host_encryption: false
+  upgrade_settings_max_surge: "33%"
+  node_min_allowed: 0
+
+### D2
+Standard_D2ads_v5_active:
+  vm_size: "Standard_D2ads_v5"
+  os_disk_type: "Ephemeral"
+  os_disk_size_gb: 128
+  ultra_ssd_enabled: false
+  enable_host_encryption: false
+  upgrade_settings_max_surge: "33%"
+  node_min_allowed: 3
+Standard_D2ads_v5_passive:
+  vm_size: "Standard_D2ads_v5"
   os_disk_type: "Ephemeral"
   os_disk_size_gb: 128
   ultra_ssd_enabled: false
