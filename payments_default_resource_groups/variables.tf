@@ -29,5 +29,5 @@ variable "additional_resource_groups" {
 variable "enable_resource_locks" {
   type        = bool
   description = "Whether to enable CanNotDelete locks on the resource groups"
-  default     = true
+  default     = false
 }
