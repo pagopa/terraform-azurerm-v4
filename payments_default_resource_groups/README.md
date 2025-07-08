@@ -122,7 +122,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_additional_resource_groups"></a> [additional\_resource\_groups](#input\_additional\_resource\_groups) | List of additional resource groups to create besides the default ones | `list(string)` | `[]` | no |
 | <a name="input_additional_tags"></a> [additional\_tags](#input\_additional\_tags) | Additional tags to be merged with the default tags | `map(string)` | `{}` | no |
-| <a name="input_enable_resource_locks"></a> [enable\_resource\_locks](#input\_enable\_resource\_locks) | Whether to enable CanNotDelete locks on the resource groups | `bool` | `true` | no |
+| <a name="input_enable_resource_locks"></a> [enable\_resource\_locks](#input\_enable\_resource\_locks) | Whether to enable CanNotDelete locks on the resource groups | `bool` | `false` | no |
 | <a name="input_location"></a> [location](#input\_location) | The Azure region where the resources should be created | `string` | n/a | yes |
 | <a name="input_resource_group_prefix"></a> [resource\_group\_prefix](#input\_resource\_group\_prefix) | Prefix for the resource group names | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to be applied to the resources | `map(string)` | `{}` | no |
