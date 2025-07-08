@@ -55,6 +55,10 @@ No resources.
 | <a name="input_idh_resource_tier"></a> [idh\_resource\_tier](#input\_idh\_resource\_tier) | (Required) The name od IDH resource key to be created. | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | n/a | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | n/a | `string` | n/a | yes |
+| <a name="input_private_dns_zones_ids"></a> [private\_dns\_zones\_ids](#input\_private\_dns\_zones\_ids) | Private DNS Zones where the private endpoint will be created | `list(string)` | `[]` | no |
+| <a name="input_private_endpoint_enabled"></a> [private\_endpoint\_enabled](#input\_private\_endpoint\_enabled) | Enable private endpoint | `bool` | `false` | no |
+| <a name="input_private_endpoint_resource_group_name"></a> [private\_endpoint\_resource\_group\_name](#input\_private\_endpoint\_resource\_group\_name) | Name of the resource group where the private endpoint will be created | `string` | `null` | no |
+| <a name="input_private_endpoint_subnet_id"></a> [private\_endpoint\_subnet\_id](#input\_private\_endpoint\_subnet\_id) | The id of the subnet that will be used for the private endpoint. | `string` | `null` | no |
 | <a name="input_product_name"></a> [product\_name](#input\_product\_name) | (Required) product\_name used to identify the platform for which the resource will be created | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | n/a | `string` | n/a | yes |
 | <a name="input_sec_log_analytics_workspace_id"></a> [sec\_log\_analytics\_workspace\_id](#input\_sec\_log\_analytics\_workspace\_id) | Log analytics workspace security (it should be in a different subscription). | `string` | `null` | no |
