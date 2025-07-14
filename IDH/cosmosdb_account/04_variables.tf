@@ -184,14 +184,36 @@ variable "private_endpoint_config" {
     service_connection_name_cassandra = optional(string, "")
     name_table                        = optional(string, "")
   })
+
   validation {
-    condition = (
-      var.private_endpoint_config.private_dns_zone_sql_ids != null &&
-      var.private_endpoint_config.private_dns_zone_table_ids != null &&
-      var.private_endpoint_config.private_dns_zone_mongo_ids != null &&
-      var.private_endpoint_config.private_dns_zone_cassandra_ids != null &&
-      (var.private_endpoint_config.enabled == true || var.private_endpoint_config.enabled == false)
-    )
-    error_message = "All private_dns_zone_* fields must be lists; enabled must be boolean."
+    condition = var.private_endpoint_config.enabled == true && contains(module.idh_loader.idh_resource_configuration.capabilities, "EnableMongo") ? (
+      var.private_endpoint_config.name_mongo != "" && var.private_endpoint_config.service_connection_name_mongo != "" && var.private_endpoint_config.private_dns_zone_mongo_ids != []
+    ) : true
+
+    error_message = "Mongo private endpoint configuration is required when the CosmosDB capabilities contains EnableMongo."
+  }
+
+  validation {
+    condition = var.private_endpoint_config.enabled == true && module.idh_loader.idh_resource_configuration.kind == "GlobalDocumentDB" ? (
+      var.private_endpoint_config.name_sql != "" && var.private_endpoint_config.service_connection_name_sql != "" && var.private_endpoint_config.private_dns_zone_sql_ids != []
+    ) : true
+
+    error_message = "Sql private endpoint configuration is required when the CosmosDB kind is GlobalDocumentDB."
+  }
+
+  validation {
+    condition = var.private_endpoint_config.enabled == true && contains(module.idh_loader.idh_resource_configuration.capabilities, "EnableCassandra") ? (
+      var.private_endpoint_config.name_cassandra != "" && var.private_endpoint_config.service_connection_name_cassandra != "" && var.private_endpoint_config.private_dns_zone_cassandra_ids != []
+    ) : true
+
+    error_message = "Cassandra private endpoint configuration is required when the CosmosDB capabilities contains EnableCassandra."
+  }
+
+  validation {
+    condition = var.private_endpoint_config.enabled == true && contains(module.idh_loader.idh_resource_configuration.capabilities, "EnableTable") ? (
+      var.private_endpoint_config.name_table != "" && var.private_endpoint_config.private_dns_zone_table_ids != []
+    ) : true
+
+    error_message = "Table private endpoint configuration is required when the CosmosDB capabilities contains EnableTable."
   }
 }
