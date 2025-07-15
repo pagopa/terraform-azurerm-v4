@@ -42,6 +42,8 @@ No modules.
 | <a name="input_grpc_receiver_port"></a> [grpc\_receiver\_port](#input\_grpc\_receiver\_port) | Otel collector grpc receiver port | `number` | `4317` | no |
 | <a name="input_opentelemetry_operator_helm_version"></a> [opentelemetry\_operator\_helm\_version](#input\_opentelemetry\_operator\_helm\_version) | Helm chart version for otel operator | `string` | n/a | yes |
 | <a name="input_otel_kube_namespace"></a> [otel\_kube\_namespace](#input\_otel\_kube\_namespace) | Namespace where to install the elastic agent resources | `string` | n/a | yes |
+| <a name="input_probe_sampling_percentage"></a> [probe\_sampling\_percentage](#input\_probe\_sampling\_percentage) | Sampling percentage for probes (liveness, readiness). This is used to control the amount of data sent to the APM server. | `number` | `0.1` | no |
+| <a name="input_sampling_percentage"></a> [sampling\_percentage](#input\_sampling\_percentage) | Sampling percentage for application traces, logs and metrics. This is used to control the amount of data sent to the APM server. | `number` | n/a | yes |
 
 ## Outputs
 
