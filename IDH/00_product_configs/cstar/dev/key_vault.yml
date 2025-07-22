@@ -3,10 +3,10 @@ standard_public:
   public_network_access_enabled: true
   soft_delete_retention_days: 7
   sku_name: standard
-  lock_enabled: true
+  lock_enabled: false
 standard_private:
   enable_rbac_authorization: false
   public_network_access_enabled: false
   soft_delete_retention_days: 7
   sku_name: standard
-  lock_enabled: true
+  lock_enabled: false
