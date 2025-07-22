@@ -9,6 +9,7 @@ module "idh_loader" {
 
 locals {
   pgbouncer_enabled = var.pg_bouncer_enabled != null ? var.pg_bouncer_enabled : module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled
+  zone              = var.zone != null ? var.zone : module.idh_loader.idh_resource_configuration.zone
 }
 
 # -------------------------------------------------------------------
@@ -32,7 +33,7 @@ module "pgflex" {
   backup_retention_days        = module.idh_loader.idh_resource_configuration.backup_retention_days
   geo_redundant_backup_enabled = contains(module.idh_loader.non_paired_locations, var.location) ? false : module.idh_loader.idh_resource_configuration.geo_redundant_backup_enabled
   create_mode                  = module.idh_loader.idh_resource_configuration.create_mode
-  zone                         = module.idh_loader.idh_resource_configuration.zone
+  zone                         = local.zone
 
   delegated_subnet_id           = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.delegated_subnet_id : null
   private_dns_zone_id           = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_dns_zone_id : null
@@ -164,7 +165,7 @@ module "replica" {
   diagnostic_settings_enabled = false
 
   log_analytics_workspace_id = var.log_analytics_workspace_id
-  zone                       = module.idh_loader.idh_resource_configuration.zone
+  zone                       = local.zone
   tags                       = var.tags
 
 }

@@ -252,3 +252,9 @@ variable "pg_bouncer_enabled" {
   default     = null
   description = "(Optional) Enable or disable PgBouncer. Defaults to false (Server will be restarted on change!)"
 }
+
+variable "zone" {
+  type        = number
+  default     = null
+  description = "(Optional) The Availability Zone in which the PostgreSQL Flexible Server should be located. (1,2,3)"
+}
