@@ -29,12 +29,16 @@ resource "kubectl_manifest" "otel_collector" {
     helm_release.opentelemetry_operator_helm
   ]
   yaml_body = templatefile("${path.module}/yaml/collector.yaml", {
-    namespace         = var.otel_kube_namespace
-    apm_api_key       = var.elasticsearch_api_key
-    apm_endpoint      = var.elasticsearch_apm_host
-    receiver_port     = var.grpc_receiver_port
-    deployment_env    = var.deployment_env
-    elastic_namespace = var.elastic_namespace
+    namespace                  = var.otel_kube_namespace
+    apm_api_key                = var.elasticsearch_api_key
+    apm_endpoint               = var.elasticsearch_apm_host
+    receiver_port              = var.grpc_receiver_port
+    deployment_env             = var.deployment_env
+    elastic_namespace          = var.elastic_namespace
+    probes_sampling_percentage = var.sampling.probes_sampling_percentage
+    sampling_percentage        = var.sampling.sampling_percentage
+    sampling_enabled           = var.sampling.enabled
+    probe_paths                = var.sampling.probe_paths
   })
 
   force_conflicts = true
