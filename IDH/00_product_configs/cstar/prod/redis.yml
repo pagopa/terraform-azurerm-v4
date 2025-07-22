@@ -29,7 +29,7 @@ basic:
 production:
   capacity: 1
   enable_non_ssl_port: false
-  family: "P"
+  family: "C"
   sku_name: "Standard"
   enable_authentication: true
   version: 6
