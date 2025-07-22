@@ -34,7 +34,7 @@ production:
   enable_authentication: true
   version: 6
   public_network_access_enabled: false
-  zones: [1, 2, 3]
+  zones: []
   private_endpoint_enabled: true
   alert_enabled: true
   data_persistence_authentication_method: "SAS"
