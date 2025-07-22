@@ -246,3 +246,9 @@ variable "geo_replication" {
   }
 
 }
+
+variable "pg_bouncer_enabled" {
+  type        = bool
+  default     = false
+  description = "(Optional) Enable or disable PgBouncer. Defaults to false"
+}

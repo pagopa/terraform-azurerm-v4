@@ -7,6 +7,10 @@ module "idh_loader" {
   idh_resource_type = "postgres_flexible_server"
 }
 
+locals {
+  pgbouncer_enabled = var.pg_bouncer_enabled != null ? var.pg_bouncer_enabled : module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled
+}
+
 # -------------------------------------------------------------------
 # Postgres Flexible Server
 # -------------------------------------------------------------------
@@ -48,7 +52,7 @@ module "pgflex" {
   private_dns_zone_rg_name     = var.private_dns_zone_rg_name
   private_dns_cname_record_ttl = var.private_dns_cname_record_ttl
 
-  pgbouncer_enabled = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled
+  pgbouncer_enabled = local.pgbouncer_enabled
 
   log_analytics_workspace_id                = var.log_analytics_workspace_id
   diagnostic_setting_destination_storage_id = var.diagnostic_setting_destination_storage_id
@@ -68,27 +72,27 @@ module "pgflex" {
 
 # Message    : FATAL: unsupported startup parameter: extra_float_digits
 resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_ignore_startup_parameters" {
-  count     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled ? 1 : 0
+  count     = local.pgbouncer_enabled ? 1 : 0
   name      = "pgbouncer.ignore_startup_parameters"
   server_id = module.pgflex.id
   value     = "extra_float_digits,search_path"
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_min_pool_size" {
-  count     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled ? 1 : 0
+  count     = local.pgbouncer_enabled ? 1 : 0
   name      = "pgbouncer.min_pool_size"
   server_id = module.pgflex.id
   value     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_min_pool_size
 }
 resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_default_pool_size" {
-  count     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled ? 1 : 0
+  count     = local.pgbouncer_enabled ? 1 : 0
   name      = "pgbouncer.default_pool_size"
   server_id = module.pgflex.id
   value     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_default_pool_size
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_max_client_conn" {
-  count     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled ? 1 : 0
+  count     = local.pgbouncer_enabled ? 1 : 0
   name      = "pgbouncer.max_client_conn"
   server_id = module.pgflex.id
   value     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_max_client_conn
@@ -151,7 +155,7 @@ module "replica" {
   sku_name = module.idh_loader.idh_resource_configuration.sku_name
 
   high_availability_enabled = false
-  pgbouncer_enabled         = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled
+  pgbouncer_enabled         = local.pgbouncer_enabled
 
   storage_mb = module.idh_loader.idh_resource_configuration.storage_mb
 
