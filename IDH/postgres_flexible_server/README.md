@@ -181,6 +181,7 @@ Also handles:
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (Required) The name of the Resource Group where the PostgreSQL Flexible Server should exist. | `string` | n/a | yes |
 | <a name="input_storage_mb"></a> [storage\_mb](#input\_storage\_mb) | (Optional) The size of the storage in MB. Changing this forces a new PostgreSQL Flexible Server to be created. | `number` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | n/a | yes |
+| <a name="input_zone"></a> [zone](#input\_zone) | (Optional) The Availability Zone in which the PostgreSQL Flexible Server should be located. (1,2,3) | `number` | `null` | no |
 
 ## Outputs
 
