@@ -35,6 +35,7 @@ variable "internal_load_balancer" {
 variable "log_analytics_workspace_id" {
   type        = string
   description = "Log Analytics Workspace resource id"
+  default     = null
 }
 
 variable "private_endpoint_config" {
