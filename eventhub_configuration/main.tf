@@ -29,6 +29,12 @@ resource "azurerm_eventhub" "events" {
   namespace_id      = data.azurerm_eventhub_namespace.evh_namespace.id
   partition_count   = each.value.partitions
   message_retention = each.value.message_retention
+
+  lifecycle {
+    ignore_changes = [
+      retention_description
+    ]
+  }
 }
 
 #

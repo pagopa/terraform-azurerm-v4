@@ -70,6 +70,13 @@ resource "azurerm_eventhub" "events" {
   namespace_id      = azurerm_eventhub_namespace.this.id
   partition_count   = each.value.partitions
   message_retention = each.value.message_retention
+
+  lifecycle {
+    ignore_changes = [
+      retention_description
+    ]
+  }
+
 }
 
 resource "azurerm_eventhub_consumer_group" "events" {
