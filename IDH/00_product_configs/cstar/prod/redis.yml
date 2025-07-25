@@ -1,5 +1,5 @@
 standard:
-  capacity: 0
+  capacity: 1
   enable_non_ssl_port: false
   family: "C"
   sku_name: "Standard"
