@@ -51,7 +51,7 @@ module "identity_cd" {
   env_short = var.env_short
   domain    = "${var.domain_name}-${var.gh_identity_suffix}"
 
-  identity_role    = "cd"
+  identity_role    = var.identity_role
   identity_rg_name = var.identity_rg_name
 
   github_federations = local.federations

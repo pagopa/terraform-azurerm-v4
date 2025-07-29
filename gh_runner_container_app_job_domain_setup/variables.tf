@@ -246,6 +246,17 @@ variable "domain_security_rg_name" {
   description = "(Optional) Security rg name for the domain"
 }
 
+variable "identity_role" {
+  type        = string
+  description = "Identity role should be either ci or cd"
+  default     = "cd"
+
+  validation {
+    condition     = contains(["ci", "cd"], var.identity_role)
+    error_message = "The identity_role value must be either 'ci' or 'cd'"
+  }
+}
+
 variable "identity_rg_name" {
   type        = string
   description = "Resource group name where the identity will be created"
