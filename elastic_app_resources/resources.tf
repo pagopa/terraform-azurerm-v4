@@ -2,7 +2,8 @@ locals {
   data_streams   = { for d in var.configuration.dataStream : d => d }
   application_id = "${var.application_name}-${var.target_env}"
   dashboards     = { for df in fileset("${var.dashboard_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => "${var.dashboard_folder}/${df}" }
-  queries        = { for df in fileset("${var.query_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => "${var.query_folder}/${df}" }
+  queries        = { for qf in fileset("${var.query_folder}", "/*.ndjson") : trimsuffix(basename(qf), ".ndjson") => "${var.query_folder}/${qf}" }
+  alerts         = { for af in fileset("${var.alert_folder}", "/*.yml") : trimsuffix(basename(af), ".yml") => yamldecode(file("${var.alert_folder}/${af}")) }
 
   elastic_namespace = "${var.target_name}.${var.target_env}"
 
@@ -25,6 +26,7 @@ locals {
 
   ingest_pipeline = { for k, v in var.configuration.indexTemplate : k => jsondecode(file("${var.library_ingest_pipeline_path}/${v.ingestPipeline}.json")) }
 
+  alert_message = "Elasticsearch query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}}"
 }
 
 resource "elasticstack_elasticsearch_ingest_pipeline" "ingest_pipeline" {
@@ -152,6 +154,156 @@ resource "elasticstack_kibana_import_saved_objects" "query" {
   space_id  = var.space_id
 
   file_contents = file(each.value)
+}
+
+
+
+resource "elasticstack_kibana_alerting_rule" "alert" {
+  for_each = local.alerts
+
+  name         = "${local.application_id} ${each.value.name}"
+  consumer     = "logs"
+  notify_when  = null
+  params       = jsonencode({
+    searchConfiguration: {
+      query: {
+        query: each.value.aggregation.query
+        language: "kuery"
+      },
+      index: each.value.source_data_view_type == "logs" ? elasticstack_kibana_data_view.kibana_data_view.data_view.id : elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id,
+    }
+    timeField: "@timestamp",
+    searchType: "searchSource",
+    timeWindowSize: each.value.window.size,
+    timeWindowUnit: each.value.window.unit,
+    threshold: [each.value.threshold.level],
+    thresholdComparator: each.value.threshold.comparator,
+    size: 1,
+    aggType: each.value.aggregation.type,
+    groupBy: "all",
+    termSize: 5,
+    excludeHitsFromPreviousRun: each.value.exclude_hits_from_previous_run,
+  })
+  rule_type_id = ".es-query",
+  interval     = each.value.interval
+  enabled      = lookup(each.value, "enabled", true)
+
+  space_id = var.space_id
+
+  alert_delay = lookup(each.value, "trigger_after_consecutive_runs", null)
+
+
+
+  #email
+  dynamic "actions" {
+    for_each = var.alert_channels.email.enabled && lookup(each.value.notification_channels, 'email', {recipient_list_name: ""}).recipient_list_name != "" ? [1] : []
+    content {
+      id = "elastic-cloud-email"
+      params = jsonencode({
+        message = local.alert_message
+        to      = var.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
+        cc      = []
+        subject = "Elastic alert ${var.env} ${each.value.name}"
+      })
+      frequency {
+        notify_when = "onActionGroupChange"
+        summary     = false
+      }
+    }
+  }
+
+  #email close
+  dynamic "actions" {
+    for_each = var.alert_channels.email.enabled && lookup(each.value.notification_channels, 'email', {recipient_list_name: ""}).recipient_list_name != "" ? [1] : []
+    content {
+      group = "recovered"
+      id    = "elastic-cloud-email"
+      params = jsonencode({
+        message = "Recovered - ${var.env} ${each.value.name}"
+        to      = var.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
+        cc      = []
+        subject = "Recovered - Elastic alert ${var.env} ${each.value.name}"
+      })
+      frequency {
+        notify_when = "onActionGroupChange"
+        summary     = false
+      }
+    }
+  }
+
+  #opsgenie create
+  dynamic "actions" {
+    for_each = var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, 'opsgenie', {connector_name: ""}).connector_name != "" ? [1] : []
+    content {
+      id = var.alert_channels.opsgenie.connectors[each.value.notification_channels.opsgenie.connector_name]
+      params = jsonencode({
+        subAction = "createAlert"
+        subActionParams = {
+          alias = "{{rule.id}}:{{alert.id}}"
+          tags = [
+            "{{rule.tags}}"
+          ],
+          message     = local.alert_message
+          priority    = each.value.opsgenie_priority
+          description = "{{context.internalFullMessage}}"
+        }
+      })
+      frequency {
+        notify_when = "onActionGroupChange"
+        summary     = false
+      }
+    }
+  }
+
+  #opsgenie close alert
+  dynamic "actions" {
+    for_each = var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, 'opsgenie', {connector_name: ""}).connector_name != "" ? [1] : []
+    content {
+      group = "recovered"
+      id    = var.alert_channels.opsgenie.connectors[each.value.notification_channels.opsgenie.connector_name]
+      params = jsonencode({
+        subAction = "closeAlert"
+        subActionParams = {
+          alias = "{{rule.id}}:{{alert.id}}"
+        }
+      })
+      frequency {
+        notify_when = "onActionGroupChange"
+        summary     = false
+      }
+    }
+  }
+
+  #slack
+  dynamic "actions" {
+    for_each = var.alert_channels.slack.enabled && lookup(each.value.notification_channels, 'slack', {connector_name: ""}).connector_name != "" ? [1] : []
+    content {
+      id = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
+      params = jsonencode({
+        "message" : local.alert_message
+      })
+      frequency {
+        notify_when = "onActionGroupChange"
+        summary     = false
+      }
+    }
+  }
+
+  #slack close
+  dynamic "actions" {
+    for_each = var.alert_channels.slack.enabled && lookup(each.value.notification_channels, 'slack', {connector_name: ""}).connector_name != "" ? [1] : []
+    content {
+      group = "recovered"
+      id    = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
+      params = jsonencode({
+        "message" : "Recovered - ${var.env} ${each.value.name}"
+      })
+      frequency {
+        notify_when = "onActionGroupChange"
+        summary     = false
+      }
+    }
+  }
 }
 
 

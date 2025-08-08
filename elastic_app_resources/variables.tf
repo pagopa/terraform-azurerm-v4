@@ -51,6 +51,11 @@ variable "query_folder" {
   description = "Path to the query containing folder for this application"
 }
 
+variable "alert_folder" {
+  type        = string
+  description = "Path to the alert containing folder for this application"
+}
+
 variable "dashboard_folder" {
   type        = string
   description = "Path to the dashboard containing folder for this application"
@@ -100,5 +105,56 @@ variable "custom_index_component_parameters" {
   validation {
     condition     = alltrue([for k in keys(var.custom_index_component_parameters) : !contains(["name", "pipeline", "lifecycle"], k)])
     error_message = "Parameters 'name', 'pipeline' and 'lifecycle' are reserved and cannot be used in custom_index_component_parameters."
+  }
+}
+
+variable "email_recipients" {
+  type        = map(list(string))
+  description = "(Optional) Map of List of email recipients associated to a name. to be used for email alerts. Default is empty"
+  default     = {}
+}
+
+
+
+variable "alert_channels" {
+  type = object({
+    email = optional(object({
+      enabled    = bool
+      recipients = map(string)
+    }), {
+      enabled    = false
+      recipients = {}
+    })
+    slack = optional(object({
+      enabled     = bool
+      connectors  = map(string)
+    }), {
+      enabled     = false
+      connectors  = {}
+    })
+    opsgenie = optional(object({
+      enabled     = bool
+      connectors  = map(string)
+    }), {
+      enabled     = false
+      connectors  = {}
+    })
+  })
+
+  description = "Configuration for alert channels to be used in the application alerts"
+
+  default = {
+    email = {
+      enabled    = false
+      recipients = {}
+    }
+    slack = {
+      enabled     = false
+      connectors  = {}
+    }
+    opsgenie = {
+      enabled     = false
+      connectors  = {}
+    }
   }
 }
