@@ -157,8 +157,31 @@ resource "elasticstack_kibana_import_saved_objects" "query" {
 }
 
 
+resource "terraform_data" "validation" {
+  for_each = local.alerts
+  input = timestamp()
+
+  lifecycle {
+    precondition {
+      condition     = var.alert_channels.opsgenie.enabled && contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", {connector_name: ""}).connector_name)
+      error_message = "opsgenie connector name must be defined in alert_channels. used by alert ${each.key} in ${var.application_name} application"
+    }
+
+    precondition {
+      condition     = var.alert_channels.slack.enabled && contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", {connector_name: ""}).connector_name)
+      error_message = "slack connector name must be defined in alert_channels. used by alert ${each.key} in ${var.application_name} application"
+    }
+
+    precondition {
+      condition     = var.alert_channels.email.enabled && contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", {recipients: ""}).recipients)
+      error_message = "email list name must be defined in alert_channels. used by alert ${each.key} in ${var.application_name} application"
+    }
+  }
+}
+
 
 resource "elasticstack_kibana_alerting_rule" "alert" {
+  depends_on = [terraform_data.validation]
   for_each = local.alerts
 
   name         = "${local.application_id} ${each.value.name}"
@@ -243,9 +266,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
           tags = [
             "{{rule.tags}}"
           ],
-          message     = local.alert_message
+          message     = "Elastic alert ${var.target_env} ${each.value.name}",
           priority    = each.value.opsgenie_priority
-          description = "{{context.internalFullMessage}}"
+          description = local.alert_message
         }
       })
       frequency {
