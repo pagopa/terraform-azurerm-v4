@@ -172,19 +172,19 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       },
       index: each.value.source_data_view_type == "logs" ? elasticstack_kibana_data_view.kibana_data_view.data_view.id : elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id,
     }
-    timeField: "@timestamp",
-    searchType: "searchSource",
-    timeWindowSize: each.value.window.size,
-    timeWindowUnit: each.value.window.unit,
-    threshold: [each.value.threshold.level],
-    thresholdComparator: each.value.threshold.comparator,
-    size: 1,
-    aggType: each.value.aggregation.type,
-    groupBy: "all",
-    termSize: 5,
-    excludeHitsFromPreviousRun: each.value.exclude_hits_from_previous_run,
+    timeField: "@timestamp"
+    searchType: "searchSource"
+    timeWindowSize: each.value.window.size
+    timeWindowUnit: each.value.window.unit
+    threshold: [each.value.threshold.level]
+    thresholdComparator: each.value.threshold.comparator
+    size: 1
+    aggType: each.value.aggregation.type
+    groupBy: "all"
+    termSize: 5
+    excludeHitsFromPreviousRun: each.value.exclude_hits_from_previous_run
   })
-  rule_type_id = ".es-query",
+  rule_type_id = ".es-query"
   interval     = each.value.interval
   enabled      = lookup(each.value, "enabled", true)
 
