@@ -156,10 +156,8 @@ resource "elasticstack_kibana_import_saved_objects" "query" {
   file_contents = file(each.value)
 }
 
-
-resource "terraform_data" "validation" {
+resource "elasticstack_kibana_alerting_rule" "alert" {
   for_each = local.alerts
-  input = timestamp()
 
   lifecycle {
     precondition {
@@ -173,16 +171,10 @@ resource "terraform_data" "validation" {
     }
 
     precondition {
-      condition     = var.alert_channels.email.enabled && contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", {recipients: ""}).recipients)
+      condition     = var.alert_channels.email.enabled && contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", {recipient_list_name: ""}).recipient_list_name)
       error_message = "email list name must be defined in alert_channels. used by alert ${each.key} in ${var.application_name} application"
     }
   }
-}
-
-
-resource "elasticstack_kibana_alerting_rule" "alert" {
-  depends_on = [terraform_data.validation]
-  for_each = local.alerts
 
   name         = "${local.application_id} ${each.value.name}"
   consumer     = "logs"
