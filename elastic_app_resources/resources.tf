@@ -185,7 +185,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     excludeHitsFromPreviousRun: each.value.exclude_hits_from_previous_run
   })
   rule_type_id = ".es-query"
-  interval     = each.value.interval
+  interval     = each.value.schedule
   enabled      = lookup(each.value, "enabled", true)
 
   space_id = var.space_id
