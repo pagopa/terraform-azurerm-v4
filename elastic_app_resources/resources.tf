@@ -166,7 +166,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = var.alert_channels.slack.enabled && contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", {connector_name: ""}).connector_name)
+      condition     = var.alert_channels.slack.enabled ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", {connector_name: ""}).connector_name) : true
       error_message = "slack connector name '${lookup(each.value.notification_channels, "slack", {connector_name: ""}).connector_name}' must be defined in var.app_connectors. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
