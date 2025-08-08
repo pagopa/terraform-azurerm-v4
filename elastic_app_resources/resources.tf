@@ -207,7 +207,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   rule_type_id = ".es-query"
   interval     = each.value.schedule
 
-  enabled      = lookup(each.value, "enabled", true) && (var.alert_channels.email.enabled || var.alert_channels.opsgenie.enabled || var.alert_channels.slack.enabled )
+  enabled      = lookup(each.value, "enabled", true) && ( (var.alert_channels.email.enabled && lookup(each.value.notification_channels, "email", {recipient_list_name: ""}).recipient_list_name != "")
+                                                          || (var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, "opsgenie", {connector_name: ""}).connector_name != "")
+                                                          || (var.alert_channels.slack.enabled && lookup(each.value.notification_channels, "email", {connector_name: ""}).connector_name != "") )
 
   space_id = var.space_id
 
