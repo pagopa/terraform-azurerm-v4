@@ -120,7 +120,7 @@ variable "alert_channels" {
   type = object({
     email = optional(object({
       enabled    = bool
-      recipients = map(string)
+      recipients = map(list(string))
     }), {
       enabled    = false
       recipients = {}
