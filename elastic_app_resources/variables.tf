@@ -157,4 +157,17 @@ variable "alert_channels" {
       connectors  = {}
     }
   }
+
+  validation {
+    condition = var.alert_channels.email.enabled == false || length(var.alert_channels.email.recipients) > 0
+    error_message = "Email recipients must be defined if email alert channel is enabled."
+  }
+  validation {
+    condition = var.alert_channels.slack.enabled == false || length(var.alert_channels.slack.connectors) > 0
+    error_message = "Slack connectors must be defined if slack alert channel is enabled."
+  }
+  validation {
+    condition     = var.alert_channels.opsgenie.enabled == false || length(var.alert_channels.opsgenie.connectors) > 0
+    error_message = "Opsgenie connectors must be defined if opsgenie alert channel is enabled."
+  }
 }

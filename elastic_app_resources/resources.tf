@@ -177,13 +177,13 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
     precondition {
       condition     = contains(["logs", "apm"], each.value.source_data_view_type)
-      error_message = "source_data_view_type must be 'logs' or 'apm'. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "source_data_view_type '${each.value.source_data_view_type}' not valid;  must be 'logs' or 'apm'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
   }
 
   name         = "${local.application_id} ${each.value.name}"
   consumer     = "logs"
-  notify_when  = null
+  notify_when  = "onActionGroupChange"
   params       = jsonencode({
     searchConfiguration: {
       query: {
