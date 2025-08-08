@@ -110,7 +110,7 @@ variable "custom_index_component_parameters" {
 
 variable "email_recipients" {
   type        = map(list(string))
-  description = "(Optional) Map of List of email recipients associated to a name. to be used for email alerts. Default is empty"
+  description = "(Optional) Map of email recipients for alert notifications. The key is the name of the recipient group, and the value is a list of email addresses."
   default     = {}
 }
 
@@ -121,49 +121,48 @@ variable "alert_channels" {
     email = optional(object({
       enabled    = bool
       recipients = map(list(string))
-    }), {
+      }), {
       enabled    = false
       recipients = {}
     })
     slack = optional(object({
-      enabled     = bool
-      connectors  = map(string)
-    }), {
-      enabled     = false
-      connectors  = {}
+      enabled    = bool
+      connectors = map(string)
+      }), {
+      enabled    = false
+      connectors = {}
     })
     opsgenie = optional(object({
-      enabled     = bool
-      connectors  = map(string)
-    }), {
-      enabled     = false
-      connectors  = {}
+      enabled    = bool
+      connectors = map(string)
+      }), {
+      enabled    = false
+      connectors = {}
     })
   })
 
-  description = "Configuration for alert channels to be used in the application alerts"
-
+  description = "Configuration for alert channels to be used in the application alerts. Each channel can be enabled or disabled, and if enabled, must have the necessary recipients or connectors defined."
   default = {
     email = {
       enabled    = false
       recipients = {}
     }
     slack = {
-      enabled     = false
-      connectors  = {}
+      enabled    = false
+      connectors = {}
     }
     opsgenie = {
-      enabled     = false
-      connectors  = {}
+      enabled    = false
+      connectors = {}
     }
   }
 
   validation {
-    condition = var.alert_channels.email.enabled == false || length(var.alert_channels.email.recipients) > 0
+    condition     = var.alert_channels.email.enabled == false || length(var.alert_channels.email.recipients) > 0
     error_message = "Email recipients must be defined if email alert channel is enabled."
   }
   validation {
-    condition = var.alert_channels.slack.enabled == false || length(var.alert_channels.slack.connectors) > 0
+    condition     = var.alert_channels.slack.enabled == false || length(var.alert_channels.slack.connectors) > 0
     error_message = "Slack connectors must be defined if slack alert channel is enabled."
   }
   validation {
