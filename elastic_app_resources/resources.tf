@@ -196,7 +196,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #email
   dynamic "actions" {
-    for_each = var.alert_channels.email.enabled && lookup(each.value.notification_channels, 'email', {recipient_list_name: ""}).recipient_list_name != "" ? [1] : []
+    for_each = var.alert_channels.email.enabled && lookup(each.value.notification_channels, "email", {recipient_list_name: ""}).recipient_list_name != "" ? [1] : []
     content {
       id = "elastic-cloud-email"
       params = jsonencode({
@@ -214,7 +214,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #email close
   dynamic "actions" {
-    for_each = var.alert_channels.email.enabled && lookup(each.value.notification_channels, 'email', {recipient_list_name: ""}).recipient_list_name != "" ? [1] : []
+    for_each = var.alert_channels.email.enabled && lookup(each.value.notification_channels, "email", {recipient_list_name: ""}).recipient_list_name != "" ? [1] : []
     content {
       group = "recovered"
       id    = "elastic-cloud-email"
@@ -233,7 +233,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #opsgenie create
   dynamic "actions" {
-    for_each = var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, 'opsgenie', {connector_name: ""}).connector_name != "" ? [1] : []
+    for_each = var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, "opsgenie", {connector_name: ""}).connector_name != "" ? [1] : []
     content {
       id = var.alert_channels.opsgenie.connectors[each.value.notification_channels.opsgenie.connector_name]
       params = jsonencode({
@@ -257,7 +257,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #opsgenie close alert
   dynamic "actions" {
-    for_each = var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, 'opsgenie', {connector_name: ""}).connector_name != "" ? [1] : []
+    for_each = var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, "opsgenie", {connector_name: ""}).connector_name != "" ? [1] : []
     content {
       group = "recovered"
       id    = var.alert_channels.opsgenie.connectors[each.value.notification_channels.opsgenie.connector_name]
@@ -276,7 +276,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #slack
   dynamic "actions" {
-    for_each = var.alert_channels.slack.enabled && lookup(each.value.notification_channels, 'slack', {connector_name: ""}).connector_name != "" ? [1] : []
+    for_each = var.alert_channels.slack.enabled && lookup(each.value.notification_channels, "slack", {connector_name: ""}).connector_name != "" ? [1] : []
     content {
       id = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
       params = jsonencode({
@@ -291,7 +291,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #slack close
   dynamic "actions" {
-    for_each = var.alert_channels.slack.enabled && lookup(each.value.notification_channels, 'slack', {connector_name: ""}).connector_name != "" ? [1] : []
+    for_each = var.alert_channels.slack.enabled && lookup(each.value.notification_channels, "slack", {connector_name: ""}).connector_name != "" ? [1] : []
     content {
       group = "recovered"
       id    = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
