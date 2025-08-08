@@ -203,7 +203,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         message = local.alert_message
         to      = var.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
         cc      = []
-        subject = "Elastic alert ${var.env} ${each.value.name}"
+        subject = "Elastic alert ${var.target_env} ${each.value.name}"
       })
       frequency {
         notify_when = "onActionGroupChange"
@@ -219,10 +219,10 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       group = "recovered"
       id    = "elastic-cloud-email"
       params = jsonencode({
-        message = "Recovered - ${var.env} ${each.value.name}"
+        message = "Recovered - ${var.target_env} ${each.value.name}"
         to      = var.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
         cc      = []
-        subject = "Recovered - Elastic alert ${var.env} ${each.value.name}"
+        subject = "Recovered - Elastic alert ${var.target_env} ${each.value.name}"
       })
       frequency {
         notify_when = "onActionGroupChange"
@@ -296,7 +296,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       group = "recovered"
       id    = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
       params = jsonencode({
-        "message" : "Recovered - ${var.env} ${each.value.name}"
+        "message" : "Recovered - ${var.target_env} ${each.value.name}"
       })
       frequency {
         notify_when = "onActionGroupChange"
