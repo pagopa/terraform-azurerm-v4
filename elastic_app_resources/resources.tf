@@ -145,13 +145,13 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = each.value.log_query != null ? each.value.apm_metric == null : true
+      condition     = each.value.log_query != null ? lookup(each.value, "apm_metric", null) == null : true
       error_message = "log_query and apm_metric are mutually exclusive. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = each.value.log_query != null ?  each.value.log_query.type != null && each.value.log_query.query != null && each.value.log_query.data_view != null : true
-      error_message = "log_query must have type, query and data_view defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+      condition     = each.value.log_query != null ?  each.value.log_query.aggregation != null && each.value.log_query.query != null && each.value.log_query.data_view != null : true
+      error_message = "log_query must have aggregation, query and data_view defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
