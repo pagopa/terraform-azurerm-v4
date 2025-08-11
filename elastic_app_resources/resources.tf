@@ -184,14 +184,31 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "apm_metric.metric must be one of ${join(",", keys(local.rule_type_id_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
+
+    # when apm_metric is defined, apm_metric.threshold must be defined
     precondition {
-      condition     = contains([">", ">=", "<", "<=", "between", "notBetween"], each.value.threshold.comparator)
-      error_message = "threshold.comparator must be one of '>', '>=', '<', '<=', 'between', 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
+      condition     = lookup(each.value, "apm_metric", null) != null ? each.value.apm_metric.threshold != null : true
+      error_message = "apm_metric.threshold must be defined when apm_metric is used. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = contains(["between", "notBetween"], each.value.threshold.comparator) ? length(each.value.threshold.values) == 2 : length(each.value.threshold.values) == 1
-      error_message = "threshold.values must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
+      condition     = lookup(each.value, "log_query", null) != null ? each.value.log_query.threshold != null : true
+      error_message = "log_query.threshold must be defined when log_query is used. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = lookup(each.value, "log_query", null) != null ? each.value.log_query.threshold != null && length(each.value.log_query.values) > 0 : true
+      error_message = "log_query.threshold must have comparator and values defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = lookup(each.value, "log_query", null) != null ?  contains([">", ">=", "<", "<=", "between", "notBetween"], each.value.log_query.threshold.comparator) : true
+      error_message = "log_query.threshold.comparator must be one of '>', '>=', '<', '<=', 'between', 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = lookup(each.value, "log_query", null) != null ? (contains(["between", "notBetween"], each.value.log_query.threshold.comparator) ? length(each.value.log_query.threshold.values) == 2 : length(each.value.log_query.threshold.values) == 1) : true
+      error_message = "log_query.threshold.values must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
 
