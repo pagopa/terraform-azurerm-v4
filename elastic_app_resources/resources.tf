@@ -234,6 +234,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   notify_when = "onActionGroupChange"
   params = jsonencode(
     merge(
+      # log query fields
       lookup(each.value, "log_query", null) != null ? {
         searchConfiguration : {
           query : {
@@ -247,10 +248,13 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         timeWindowSize : each.value.window.size
         timeWindowUnit : each.value.window.unit
         aggType : each.value.log_query.aggregation.type
+        threshold : each.value.log_query.threshold.values
+        thresholdComparator : each.value.log_query.threshold.comparator
         groupBy : "all"
       } : null,
       # optional log_query fields
       lookup(lookup(each.value, "log_query", {aggregation: {}}).aggregation, "field", null) != null ? {aggField: lookup(each.value.log_query.aggregation, "field", null)} : null,
+      # apm metric fields
       lookup(each.value, "apm_metric", null) != null ? {
         searchConfiguration : {
           query : {
@@ -262,14 +266,13 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         windowSize: each.value.window.size
         windowUnit: each.value.window.unit
         environment: var.target_env
+        threshold : each.value.apm_metric.threshold
       } : null,
       # common parameters for both log_query and apm_metric
       {
         size : 1
         termSize : 5
         excludeHitsFromPreviousRun : each.value.exclude_hits_from_previous_run
-        threshold : each.value.threshold.values
-        thresholdComparator : each.value.threshold.comparator
       }
     )
   )
