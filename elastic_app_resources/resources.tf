@@ -216,7 +216,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   rule_type_id = each.value.log_query != null ? ".es-query" : local.rule_type_id_map[each.value.apm_metric.metric]
   notify_when = "onActionGroupChange"
   params = jsonencode(
-    merge( each.value.log_query != null ? {
+    merge(
+      each.value.log_query != null ? {
         searchConfiguration : {
           query : {
             query : each.value.log_query.query
@@ -224,33 +225,35 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
           },
           index : each.value.log_query.data_view == "logs" ? elasticstack_kibana_data_view.kibana_data_view.data_view.id : elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
         }
-      timeField : "@timestamp"
-      searchType : "searchSource"
-      timeWindowSize : each.value.window.size
-      timeWindowUnit : each.value.window.unit
-      aggType : each.value.log_query.aggregation.type
-      aggField: lookup(each.value.log_query.aggregation, "field", null)
-      groupBy : "all"
-    } : {}, each.value.apm_metric != null ? {
-      searchConfiguration : {
-        query : {
-          query : each.value.apm_metric.filter
-          language : "kuery"
+        timeField : "@timestamp"
+        searchType : "searchSource"
+        timeWindowSize : each.value.window.size
+        timeWindowUnit : each.value.window.unit
+        aggType : each.value.log_query.aggregation.type
+        aggField: lookup(each.value.log_query.aggregation, "field", null)
+        groupBy : "all"
+      } : null,
+      each.value.apm_metric != null ? {
+        searchConfiguration : {
+          query : {
+            query : each.value.apm_metric.filter
+            language : "kuery"
+          }
         }
-      }
-      useKqlFilter: true
-      windowSize: each.value.window.size
-      windowUnit: each.value.window.unit
-      environment: var.target_env
-    } : {},
-    {
+        useKqlFilter: true
+        windowSize: each.value.window.size
+        windowUnit: each.value.window.unit
+        environment: var.target_env
+      } : null,
       # common parameters for both log_query and apm_metric
-      size : 1
-      termSize : 5
-      excludeHitsFromPreviousRun : each.value.exclude_hits_from_previous_run
-      threshold : each.value.threshold.values
-      thresholdComparator : each.value.threshold.comparator
-    })
+      {
+        size : 1
+        termSize : 5
+        excludeHitsFromPreviousRun : each.value.exclude_hits_from_previous_run
+        threshold : each.value.threshold.values
+        thresholdComparator : each.value.threshold.comparator
+      }
+    )
   )
   interval     = each.value.schedule
 
