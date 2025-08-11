@@ -212,12 +212,12 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   }
 
   name        = "${local.application_id} ${each.value.name}"
-  consumer    = each.value.log_query != null ? "logs" : "alerts"
-  rule_type_id = each.value.log_query != null ? ".es-query" : local.rule_type_id_map[each.value.apm_metric.metric]
+  consumer    = lookup(each.value, "log_query", null) != null ? "logs" : "alerts"
+  rule_type_id = lookup(each.value, "log_query", null) != null ? ".es-query" : local.rule_type_id_map[lookup(each.value, "apm_metric", null).metric]
   notify_when = "onActionGroupChange"
   params = jsonencode(
     merge(
-      each.value.log_query != null ? {
+      lookup(each.value, "log_query", null) != null ? {
         searchConfiguration : {
           query : {
             query : each.value.log_query.query
@@ -233,7 +233,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         aggField: lookup(each.value.log_query.aggregation, "field", null)
         groupBy : "all"
       } : null,
-      each.value.apm_metric != null ? {
+      lookup(each.value, "apm_metric", null) != null ? {
         searchConfiguration : {
           query : {
             query : each.value.apm_metric.filter
