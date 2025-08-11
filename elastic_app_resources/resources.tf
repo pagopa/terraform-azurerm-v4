@@ -259,7 +259,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         environment : var.target_env
       } : null,
       # apm metric base fields
-      can(each.value.apm_metric) and !can(each.value.apm_metric.anomaly) ? {
+      can(each.value.apm_metric) && !can(each.value.apm_metric.anomaly) ? {
         searchConfiguration : {
           query : {
             query : each.value.apm_metric.filter
