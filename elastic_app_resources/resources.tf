@@ -236,9 +236,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
             query : each.value.log_query.query
             language : "kuery"
           },
-          index : each.value.log_query.data_view == "logs" ?
-            elasticstack_kibana_data_view.kibana_data_view.data_view.id :
-            elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
+          index : each.value.log_query.data_view == "logs" ? elasticstack_kibana_data_view.kibana_data_view.data_view.id :  elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
         }
         timeField : "@timestamp"
         searchType : "searchSource"
@@ -274,8 +272,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         threshold : each.value.apm_metric.threshold
       } : null,
       # apm_metric anomaly fields
-      lookup(lookup(each.value, "apm_metric", { anomaly : {} }).anomaly, "service_name", null) != null
-      ? {
+      lookup(lookup(each.value, "apm_metric", { anomaly : {} }).anomaly, "service_name", null) != null ? {
         serviceName : each.value.apm_metric.anomaly.service_name
         transactionType: "request"
         anomalySeverityType: each.value.apm_metric.anomaly.severity_type

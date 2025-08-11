@@ -38,6 +38,6 @@ locals {
   anomaly_detector_map = {
     latency = "txLatency",
     throughput = "txThroughput",
-    failure_rate = "txFailureRate"
+    failures = "txFailureRate"
   }
 }
