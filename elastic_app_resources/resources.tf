@@ -175,8 +175,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null ?  each.value.apm_metric.type != null && each.value.apm_metric.filter != null && each.value.apm_metric.metric != null : true
-      error_message = "apm_metric must have type, filter and metric defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+      condition     = lookup(each.value, "apm_metric", null) != null ?  each.value.apm_metric.threshold != null && each.value.apm_metric.filter != null && each.value.apm_metric.metric != null : true
+      error_message = "apm_metric must have threshold, filter and metric defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
