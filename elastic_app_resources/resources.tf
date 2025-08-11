@@ -175,13 +175,22 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null ?  (lookup(lookup(each.value, "apm_metric", null), "anomaly", null) == null ? (each.value.apm_metric.threshold != null && each.value.apm_metric.filter != null && each.value.apm_metric.metric != null) : (each.value.apm_metric.anomaly.service != null && length(each.value.apm_metric.anomaly.detectors) > 0)  ) : true
-      error_message = "apm_metric must have threshold, filter and metric defined OR anomaly with service_name and detectors defined. used by alert '${each.value.name}' in '${var.application_name}' application"
-      # error_message = "apm_metric must have threshold, filter and metric defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+      condition     = lookup(each.value, "apm_metric", null) != null ?  (!can(each.value.apm_metric.anomaly) ? (each.value.apm_metric.threshold != null && each.value.apm_metric.filter != null && each.value.apm_metric.metric != null) : (each.value.apm_metric.anomaly.service != null && length(each.value.apm_metric.anomaly.detectors) > 0) && each.value.apm_metric.anomaly.severity_type != null ) : true
+      error_message = "apm_metric must have threshold, filter and metric defined OR anomaly with service, detectors and severity_type defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null ?  contains(["failed_transactions", "latency", "error_count", "anomaly"], each.value.apm_metric.metric) : true
+      condition = can(each.value.apm_metric.anomaly) ? alltrue([for d in each.value.apm_metric.anomaly.detectors: contains(keys(local.anomaly_detector_map), d)]): true
+      error_message = "apm_metric.anomaly. detectors must be one of ${join(",", keys(local.anomaly_detector_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition = can(each.value.apm_metric.anomaly) ? contains(["critical", "major", "minor", "warning"], each.value.apm_metric.anomaly.severity_type): true
+      error_message = "apm_metric.anomaly. detectors must be one of ${join(",", keys(local.anomaly_detector_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = lookup(each.value, "apm_metric", null) != null ?  contains(keys(local.rule_type_id_map), each.value.apm_metric.metric) : true
       error_message = "apm_metric.metric must be one of ${join(",", keys(local.rule_type_id_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
