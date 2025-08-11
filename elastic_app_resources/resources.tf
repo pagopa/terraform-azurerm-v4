@@ -175,7 +175,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null  ?  each.value.apm_metric.metric != null : true
+      condition     = lookup(each.value, "apm_metric", null) != null  ?  try(each.value.apm_metric.metric, "") != "" : true
       error_message = "apm_metric must have metric defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
@@ -211,7 +211,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null ?  contains(keys(local.rule_type_id_map), each.value.apm_metric.metric) : true
+      condition     = lookup(each.value, "apm_metric", null) != null ?  contains(keys(local.rule_type_id_map), try(each.value.apm_metric.metric, "")) : true
       error_message = "apm_metric.metric must be one of ${join(",", keys(local.rule_type_id_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
