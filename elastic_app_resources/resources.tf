@@ -150,17 +150,17 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ?  each.value.log_query.aggregation != null && each.value.log_query.query != null && each.value.log_query.data_view != null : true
+      condition     = lookup(each.value, "log_query", null) != null ?  try(each.value.log_query.aggregation, "") != "" && try(each.value.log_query.query, "") != "" && try(each.value.log_query.data_view, "") != "" : true
       error_message = "log_query must have aggregation, query and data_view defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ?  contains(["logs", "apm"], each.value.log_query.data_view) : true
+      condition     = lookup(each.value, "log_query", null) != null ?  contains(["logs", "apm"], try(each.value.log_query.data_view, "")) : true
       error_message = "log_query.data_view type must be either 'logs' or 'apm'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ?  contains(["count", "sum", "avg", "min", "max"], each.value.log_query.aggregation.type) : true
+      condition     = lookup(each.value, "log_query", null) != null ?  contains(["count", "sum", "avg", "min", "max"], try(each.value.log_query.aggregation.type, "")) : true
       error_message = "log_query.aggregation.type must be one of 'sum', 'avg', 'min', 'max'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
@@ -201,12 +201,12 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
 
     precondition {
-      condition = can(each.value.apm_metric.anomaly) ? alltrue([for d in each.value.apm_metric.anomaly.detectors: contains(keys(local.anomaly_detector_map), d)]): true
+      condition = can(each.value.apm_metric.anomaly) ? alltrue([for d in try(each.value.apm_metric.anomaly.detectors, []): contains(keys(local.anomaly_detector_map), d)]): true
       error_message = "apm_metric.anomaly.detectors must be one of ${join(",", keys(local.anomaly_detector_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition = can(each.value.apm_metric.anomaly) ? contains(["critical", "major", "minor", "warning"], each.value.apm_metric.anomaly.severity_type): true
+      condition = can(each.value.apm_metric.anomaly) ? contains(["critical", "major", "minor", "warning"], try(each.value.apm_metric.anomaly.severity_type, "")): true
       error_message = "apm_metric.anomaly.severity_type must be one of ${join(",", ["critical", "major", "minor", "warning"])}. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
@@ -216,22 +216,22 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ? each.value.log_query.threshold != null : true
+      condition     = lookup(each.value, "log_query", null) != null ? try(each.value.log_query.threshold, "") != "" : true
       error_message = "log_query.threshold must be defined when log_query is used. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ? each.value.log_query.threshold.comparator != null && length(each.value.log_query.threshold.values) > 0 : true
+      condition     = lookup(each.value, "log_query", null) != null ? try(each.value.log_query.threshold.comparator, "") != "" && length(try(each.value.log_query.threshold.values, [])) > 0 : true
       error_message = "log_query.threshold must have comparator and values defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ?  contains([">", ">=", "<", "<=", "between", "notBetween"], each.value.log_query.threshold.comparator) : true
+      condition     = lookup(each.value, "log_query", null) != null ?  contains([">", ">=", "<", "<=", "between", "notBetween"], try(each.value.log_query.threshold.comparator, "")) : true
       error_message = "log_query.threshold.comparator must be one of '>', '>=', '<', '<=', 'between', 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ? (contains(["between", "notBetween"], each.value.log_query.threshold.comparator) ? length(each.value.log_query.threshold.values) == 2 : length(each.value.log_query.threshold.values) == 1) : true
+      condition     = lookup(each.value, "log_query", null) != null ? (contains(["between", "notBetween"], try(each.value.log_query.threshold.comparator, "")) ? length(try(each.value.log_query.threshold.values, [])) == 2 : length(try(each.value.log_query.threshold.values, [])) == 1) : true
       error_message = "log_query.threshold.values must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
   }
