@@ -185,7 +185,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
    precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null  && try(each.value.apm_metric.metric, "") != "anomaly" ? try(each.value.apm_metric.filter, "") != "" && try(each.value.apm_metric.anomaly.threshold, "") != "" : true
+      condition     = lookup(each.value, "apm_metric", null) != null  && try(each.value.apm_metric.metric, "") != "anomaly" ? (try(each.value.apm_metric.filter, "") != "" && try(each.value.apm_metric.anomaly.threshold, "") != "") : true
      error_message = "apm_metric must have filter and threshold defined when not using metric 'anomaly'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
