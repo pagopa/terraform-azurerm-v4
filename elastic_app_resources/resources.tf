@@ -190,8 +190,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = contains(["between", "notBetween"], each.value.threshold.comparator) ? length(each.value.threshold.value) == 2 : length(each.value.threshold.value) == 1
-      error_message = "threshold.value must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
+      condition     = contains(["between", "notBetween"], each.value.threshold.comparator) ? length(each.value.threshold.values) == 2 : length(each.value.threshold.values) == 1
+      error_message = "threshold.values must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
 
