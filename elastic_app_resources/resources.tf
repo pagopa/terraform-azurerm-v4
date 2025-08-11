@@ -175,20 +175,14 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null ?  each.value.apm_metric.threshold != null && each.value.apm_metric.filter != null && each.value.apm_metric.metric != null : true
-      error_message = "apm_metric must have threshold, filter and metric defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+      condition     = lookup(each.value, "apm_metric", null) != null ?  (lookup(lookup(each.value, "apm_metric", null), "anomaly", null) == null ? (each.value.apm_metric.threshold != null && each.value.apm_metric.filter != null && each.value.apm_metric.metric != null) : (each.value.apm_metric.anomaly.service != null && length(each.value.apm_metric.anomaly.detectors) > 0)  ) : true
+      error_message = "apm_metric must have threshold, filter and metric defined OR anomaly with service_name and detectors defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+      # error_message = "apm_metric must have threshold, filter and metric defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "apm_metric", null) != null ?  contains(["failed_transactions", "latency", "error_count", "anomaly"], each.value.apm_metric.metric) : true
       error_message = "apm_metric.metric must be one of ${join(",", keys(local.rule_type_id_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
-    }
-
-
-    # when apm_metric is defined, apm_metric.threshold must be defined
-    precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null ? each.value.apm_metric.threshold != null : true
-      error_message = "apm_metric.threshold must be defined when apm_metric is used. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
