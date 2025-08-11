@@ -165,7 +165,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null && contains(["sum", "avg", "min", "max"], each.value.log_query.aggregation.type) ? each.value.log_query.aggregation.field != null : true
+      condition     = lookup(each.value, "log_query", null) != null && contains(["sum", "avg", "min", "max"], each.value.log_query.aggregation.type) ? lookup(each.value.log_query.aggregation, "field", null) != null : true
       error_message = "log_query.aggregation.field must be defined when aggregation type is 'sum', 'avg', 'min' or 'max'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
