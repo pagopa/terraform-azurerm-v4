@@ -231,10 +231,10 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       aggType : each.value.log_query.aggregation.type
       aggField: lookup(each.value.log_query.aggregation, "field", null)
       groupBy : "all"
-    } : {
+    } : {}, each.value.apm_metric != null ? {
       searchConfiguration : {
         query : {
-          query : each.value.log_query.query
+          query : each.value.apm_metric.filter
           language : "kuery"
         }
       }
@@ -242,7 +242,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       windowSize: each.value.window.size
       windowUnit: each.value.window.unit
       environment: var.target_env
-      }, {
+    } : {},
+    {
       # common parameters for both log_query and apm_metric
       size : 1
       termSize : 5
