@@ -230,7 +230,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   params = jsonencode(
     merge(
       # log query fields
-        lookup(each.value, "log_query", null) != null ? {
+      can(each.value.log_query) ? {
         searchConfiguration : {
           query : {
             query : each.value.log_query.query
@@ -251,17 +251,15 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         termSize : 5
       } : null,
       # optional log_query fields
-      lookup(lookup(each.value, "log_query", {aggregation : {}}).aggregation, "field", null) != null ?
-        { aggField : lookup(each.value.log_query.aggregation, "field", null) } :
-        null,
+      can(each.value.log_query.aggregation.field) ? { aggField : lookup(each.value.log_query.aggregation, "field", null) } : null,
       # apm metric common fields
-      lookup(each.value, "apm_metric", null) != null ? {
+      can(each.value.apm_metric) ? {
         windowSize : each.value.window.size
         windowUnit : each.value.window.unit
         environment : var.target_env
       } : null,
       # apm metric base fields
-      lookup(each.value, "apm_metric", null) != null && lookup(lookup(each.value, "apm_metric", {}), "anomaly", null) == null ? {
+      can(each.value.apm_metric) and !can(each.value.apm_metric.anomaly) ? {
         searchConfiguration : {
           query : {
             query : each.value.apm_metric.filter
@@ -272,7 +270,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         threshold : each.value.apm_metric.threshold
       } : null,
       # apm_metric anomaly fields
-      lookup(lookup(each.value, "apm_metric", { anomaly : {} }).anomaly, "service_name", null) != null ? {
+      can(each.value.apm_metric.anomaly) ? {
         serviceName : each.value.apm_metric.anomaly.service_name
         transactionType: "request"
         anomalySeverityType: each.value.apm_metric.anomaly.severity_type
