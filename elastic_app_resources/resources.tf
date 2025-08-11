@@ -230,9 +230,10 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         timeWindowSize : each.value.window.size
         timeWindowUnit : each.value.window.unit
         aggType : each.value.log_query.aggregation.type
-        aggField: lookup(each.value.log_query.aggregation, "field", null)
         groupBy : "all"
       } : null,
+      # optional log_query fields
+      lookup(lookup(each.value, "log_query", {aggregation: {}}).aggregation, "field", null) != null ? {aggField: lookup(each.value.log_query.aggregation, "field", null)} : null
       lookup(each.value, "apm_metric", null) != null ? {
         searchConfiguration : {
           query : {
