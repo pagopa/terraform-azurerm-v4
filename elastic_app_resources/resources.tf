@@ -175,7 +175,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null  ?  each.value.apm_metric.metric != null && contains([], each.value.apm_metric.metric): true
+      condition     = lookup(each.value, "apm_metric", null) != null  ?  each.value.apm_metric.metric != null : true
       error_message = "apm_metric must have metric defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
