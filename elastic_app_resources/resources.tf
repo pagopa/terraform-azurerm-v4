@@ -181,7 +181,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
     precondition {
       condition     = each.value.apm_metric != null ?  contains(["failed_transactions", "latency", "error_count", "anomaly"], each.value.apm_metric.metric) : true
-      error_message = "apm_metric.metric must be one of ${join("," keys(local.rule_type_id_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "apm_metric.metric must be one of ${join(",", keys(local.rule_type_id_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
