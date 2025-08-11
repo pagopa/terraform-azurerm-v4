@@ -1,34 +1,3 @@
-locals {
-  data_streams   = { for d in var.configuration.dataStream : d => d }
-  application_id = "${var.application_name}-${var.target_env}"
-  dashboards     = { for df in fileset("${var.dashboard_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => "${var.dashboard_folder}/${df}" }
-  queries        = { for qf in fileset("${var.query_folder}", "/*.ndjson") : trimsuffix(basename(qf), ".ndjson") => "${var.query_folder}/${qf}" }
-  alerts         = { for af in fileset("${var.alert_folder}", "/*.yml") : trimsuffix(basename(af), ".yml") => yamldecode(file("${var.alert_folder}/${af}")) }
-
-  elastic_namespace = "${var.target_name}.${var.target_env}"
-
-  index_custom_component = { for k, v in var.configuration.indexTemplate : k => jsondecode(templatefile("${var.library_index_custom_path}/${lookup(v, "customComponent", var.default_custom_component_name)}.json", merge({
-    name      = "${k}-${local.application_id}"
-    pipeline  = elasticstack_elasticsearch_ingest_pipeline.ingest_pipeline[k].name
-    lifecycle = "${var.target_name}-${var.target_env}-${var.ilm_name}-ilm"
-  }, var.custom_index_component_parameters))) }
-
-  index_package_component = { for k, v in var.configuration.indexTemplate : k => jsondecode(templatefile("${var.library_index_package_path}/${v.packageComponent}.json", {
-    name = "${k}-${local.application_id}"
-    })) if lookup(v, "packageComponent", null) != null
-  }
-
-  runtime_fields = { for field in lookup(var.configuration.dataView, "runtimeFields", {}) : field.name => {
-    type          = field.runtimeField.type
-    script_source = field.runtimeField.script.source
-    }
-  }
-
-  ingest_pipeline = { for k, v in var.configuration.indexTemplate : k => jsondecode(file("${var.library_ingest_pipeline_path}/${v.ingestPipeline}.json")) }
-
-  alert_message = "Elasticsearch query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}}"
-}
-
 resource "elasticstack_elasticsearch_ingest_pipeline" "ingest_pipeline" {
   for_each    = local.ingest_pipeline
   name        = "${local.application_id}-${each.key}-pipeline"
@@ -176,46 +145,119 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = contains(["logs", "apm"], each.value.source_data_view_type)
-      error_message = "source_data_view_type '${each.value.source_data_view_type}' not valid;  must be 'logs' or 'apm'. used by alert '${each.value.name}' in '${var.application_name}' application"
+      condition     = each.value.log_query != null ? each.value.apm_metric == null : true
+      error_message = "log_query and apm_metric are mutually exclusive. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
+
+    precondition {
+      condition     = each.value.log_query != null ?  each.value.log_query.type != null && each.value.log_query.query != null && each.value.log_query.data_view != null : true
+      error_message = "log_query must have type, query and data_view defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = each.value.log_query != null ?  contains(["logs", "apm"], each.value.log_query.data_view) : true
+      error_message = "log_query.data_view type must be either 'logs' or 'apm'. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = each.value.log_query != null ?  contains(["count", "sum", "avg", "min", "max"], each.value.log_query.aggregation.type) : true
+      error_message = "log_query.aggregation.type must be one of 'sum', 'avg', 'min', 'max'. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = each.value.log_query != null && contains(["sum", "avg", "min", "max"], each.value.log_query.aggregation.type) ? each.value.log_query.aggregation.field != null : true
+      error_message = "log_query.aggregation.field must be defined when aggregation type is 'sum', 'avg', 'min' or 'max'. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = each.value.apm_metric != null ? each.value.log_query == null : true
+      error_message = "log_query and apm_metric are mutually exclusive. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = each.value.apm_metric != null ?  each.value.apm_metric.type != null && each.value.apm_metric.filter != null && each.value.apm_metric.metric != null : true
+      error_message = "apm_metric must have type, filter and metric defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = each.value.apm_metric != null ?  contains(["failed_transactions", "latency", "error_count", "anomaly"], each.value.apm_metric.metric) : true
+      error_message = "apm_metric.metric must be one of ${join("," keys(local.rule_type_id_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = contains([">", ">=", "<", "<=", "between", "notBetween"], each.value.threshold.comparator)
+      error_message = "threshold.comparator must be one of '>', '>=', '<', '<=', 'between', 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = contains(["between", "notBetween"], each.value.threshold.comparator) ? length(each.value.threshold.value) == 2 : length(each.value.threshold.value) == 1
+      error_message = "threshold.value must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+
+    # precondition {
+    #   condition     = each.value.source_data_view_type == "apm" ? : true
+    #   error_message = ""
+    #   # latency = apm.transaction_duration
+    #   # failed trnsactions = apm.transaction_error_rate
+    #   # anomaly = apm.anomaly .    "anomalySeverityType": "critical",
+    #   #    "anomalyDetectorTypes": [
+    #   #      "txLatency",
+    #   #      "txThroughput",
+    #   #      "txFailureRate"
+    #   #    ]
+    #   # error count = apm.error_rate
+    # }
+
   }
 
   name        = "${local.application_id} ${each.value.name}"
-  consumer    = "logs"
+  consumer    = each.value.log_query != null ? "logs" : "alerts"
+  rule_type_id = each.value.log_query != null ? ".es-query" : local.rule_type_id_map[each.value.apm_metric.metric]
   notify_when = "onActionGroupChange"
-  params = jsonencode({
-    searchConfiguration : {
-      query : {
-        query : each.value.aggregation.query
-        language : "kuery"
-      },
-      index : each.value.source_data_view_type == "logs" ? elasticstack_kibana_data_view.kibana_data_view.data_view.id : elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id,
-    }
-    timeField : "@timestamp"
-    searchType : "searchSource"
-    timeWindowSize : each.value.window.size
-    timeWindowUnit : each.value.window.unit
-    threshold : [each.value.threshold.level]
-    thresholdComparator : each.value.threshold.comparator
-    size : 1
-    aggType : each.value.aggregation.type
-    groupBy : "all"
-    termSize : 5
-    excludeHitsFromPreviousRun : each.value.exclude_hits_from_previous_run
-  })
-  rule_type_id = ".es-query"
+  params = jsonencode(
+    merge( each.value.log_query != null ? {
+        searchConfiguration : {
+          query : {
+            query : each.value.log_query.query
+            language : "kuery"
+          },
+          index : each.value.log_query.data_view == "logs" ? elasticstack_kibana_data_view.kibana_data_view.data_view.id : elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
+        }
+      timeField : "@timestamp"
+      searchType : "searchSource"
+      timeWindowSize : each.value.window.size
+      timeWindowUnit : each.value.window.unit
+      aggType : each.value.log_query.aggregation.type
+      aggField: lookup(each.value.log_query.aggregation, "field", null)
+      groupBy : "all"
+    } : {
+      searchConfiguration : {
+        query : {
+          query : each.value.log_query.query
+          language : "kuery"
+        }
+      }
+      useKqlFilter: true
+      windowSize: each.value.window.size
+      windowUnit: each.value.window.unit
+      environment: var.target_env
+      }, {
+      # common parameters for both log_query and apm_metric
+      size : 1
+      termSize : 5
+      excludeHitsFromPreviousRun : each.value.exclude_hits_from_previous_run
+      threshold : each.value.threshold.values
+      thresholdComparator : each.value.threshold.comparator
+    })
+  )
   interval     = each.value.schedule
 
   # manually disabled overrides the default enabled value
   # if at least one channel is enabled, the alert is enabled
   enabled = lookup(each.value, "enabled", true) && (var.alert_channels.email.enabled || var.alert_channels.opsgenie.enabled || var.alert_channels.slack.enabled)
-
   space_id = var.space_id
-
   alert_delay = lookup(each.value, "trigger_after_consecutive_runs", null)
-
-
 
   #email
   dynamic "actions" {
