@@ -250,6 +250,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         aggType : each.value.log_query.aggregation.type
         threshold : each.value.log_query.threshold.values
         thresholdComparator : each.value.log_query.threshold.comparator
+        excludeHitsFromPreviousRun : each.value.log_query.exclude_hits_from_previous_run
         groupBy : "all"
       } : null,
       # optional log_query fields
@@ -272,7 +273,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       {
         size : 1
         termSize : 5
-        excludeHitsFromPreviousRun : each.value.exclude_hits_from_previous_run
+
       }
     )
   )
