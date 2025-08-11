@@ -232,6 +232,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   consumer    = lookup(each.value, "log_query", null) != null ? "logs" : "alerts"
   rule_type_id = lookup(each.value, "log_query", null) != null ? ".es-query" : local.rule_type_id_map[lookup(each.value, "apm_metric", null).metric]
   notify_when = "onActionGroupChange"
+  tags = [var.application_name, var.target_env]
   params = jsonencode(
     merge(
       # log query fields
