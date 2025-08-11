@@ -197,7 +197,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ? each.value.log_query.threshold != null && length(each.value.log_query.values) > 0 : true
+      condition     = lookup(each.value, "log_query", null) != null ? each.value.log_query.threshold.comparator != null && length(each.value.log_query.threshold.values) > 0 : true
       error_message = "log_query.threshold must have comparator and values defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
