@@ -252,6 +252,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         thresholdComparator : each.value.log_query.threshold.comparator
         excludeHitsFromPreviousRun : each.value.log_query.exclude_hits_from_previous_run
         groupBy : "all"
+        size : 1
+        termSize : 5
       } : null,
       # optional log_query fields
       lookup(lookup(each.value, "log_query", {aggregation: {}}).aggregation, "field", null) != null ? {aggField: lookup(each.value.log_query.aggregation, "field", null)} : null,
@@ -269,12 +271,6 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         environment: var.target_env
         threshold : each.value.apm_metric.threshold
       } : null,
-      # common parameters for both log_query and apm_metric
-      {
-        size : 1
-        termSize : 5
-
-      }
     )
   )
   interval     = each.value.schedule
