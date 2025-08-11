@@ -175,18 +175,29 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null ?  (!can(each.value.apm_metric.anomaly) ? (each.value.apm_metric.threshold != null && each.value.apm_metric.filter != null && each.value.apm_metric.metric != null) : (each.value.apm_metric.anomaly.service != null && length(each.value.apm_metric.anomaly.detectors) > 0) && each.value.apm_metric.anomaly.severity_type != null ) : true
-      error_message = "apm_metric must have threshold, filter and metric defined OR anomaly with service, detectors and severity_type defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+      condition     = lookup(each.value, "apm_metric", null) != null  ?  each.value.apm_metric.metric != null && contains([], each.value.apm_metric.metric): true
+      error_message = "apm_metric must have metric defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
+      condition     = lookup(each.value, "apm_metric", null) != null  && try(each.value.apm_metric.metric, "") == "anomaly" ? try(each.value.apm_metric.anomaly.service, "") != "" && try(each.value.apm_metric.anomaly.severity_type, "") != "" && length(try(each.value.apm_metric.anomaly.detectors, [])) > 0 : true
+      error_message = "apm_metric.anomaly must have service, severity_type and detectors defined when using metric 'anomaly'. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+   precondition {
+      condition     = lookup(each.value, "apm_metric", null) != null  && try(each.value.apm_metric.metric, "") != "anomaly" ? try(each.value.apm_metric.filter, "") != "" && try(each.value.apm_metric.anomaly.threshold, "") != "" : true
+     error_message = "apm_metric must have filter and threshold defined when not using metric 'anomaly'. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+
+    precondition {
       condition = can(each.value.apm_metric.anomaly) ? alltrue([for d in each.value.apm_metric.anomaly.detectors: contains(keys(local.anomaly_detector_map), d)]): true
-      error_message = "apm_metric.anomaly. detectors must be one of ${join(",", keys(local.anomaly_detector_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "apm_metric.anomaly.detectors must be one of ${join(",", keys(local.anomaly_detector_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
       condition = can(each.value.apm_metric.anomaly) ? contains(["critical", "major", "minor", "warning"], each.value.apm_metric.anomaly.severity_type): true
-      error_message = "apm_metric.anomaly. detectors must be one of ${join(",", keys(local.anomaly_detector_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "apm_metric.anomaly.severity_type must be one of ${join(",", ["critical", "major", "minor", "warning"])}. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
@@ -213,22 +224,6 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       condition     = lookup(each.value, "log_query", null) != null ? (contains(["between", "notBetween"], each.value.log_query.threshold.comparator) ? length(each.value.log_query.threshold.values) == 2 : length(each.value.log_query.threshold.values) == 1) : true
       error_message = "log_query.threshold.values must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
-
-
-    # precondition {
-    #   condition     = each.value.source_data_view_type == "apm" ? : true
-    #   error_message = ""
-    #   # latency = apm.transaction_duration
-    #   # failed trnsactions = apm.transaction_error_rate
-    #   # anomaly = apm.anomaly .    "anomalySeverityType": "critical",
-    #   #    "anomalyDetectorTypes": [
-    #   #      "txLatency",
-    #   #      "txThroughput",
-    #   #      "txFailureRate"
-    #   #    ]
-    #   # error count = apm.error_rate
-    # }
-
   }
 
   name        = "${local.application_id} ${each.value.name}"
