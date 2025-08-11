@@ -230,13 +230,15 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   params = jsonencode(
     merge(
       # log query fields
-      lookup(each.value, "log_query", null) != null ? {
+        lookup(each.value, "log_query", null) != null ? {
         searchConfiguration : {
           query : {
             query : each.value.log_query.query
             language : "kuery"
           },
-          index : each.value.log_query.data_view == "logs" ? elasticstack_kibana_data_view.kibana_data_view.data_view.id : elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
+          index : each.value.log_query.data_view == "logs" ?
+            elasticstack_kibana_data_view.kibana_data_view.data_view.id :
+            elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
         }
         timeField : "@timestamp"
         searchType : "searchSource"
@@ -251,21 +253,34 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         termSize : 5
       } : null,
       # optional log_query fields
-      lookup(lookup(each.value, "log_query", {aggregation: {}}).aggregation, "field", null) != null ? {aggField: lookup(each.value.log_query.aggregation, "field", null)} : null,
-      # apm metric fields
+      lookup(lookup(each.value, "log_query", {aggregation : {}}).aggregation, "field", null) != null ?
+        { aggField : lookup(each.value.log_query.aggregation, "field", null) } :
+        null,
+      # apm metric common fields
       lookup(each.value, "apm_metric", null) != null ? {
+        windowSize : each.value.window.size
+        windowUnit : each.value.window.unit
+        environment : var.target_env
+      } : null,
+      # apm metric base fields
+      lookup(each.value, "apm_metric", null) != null && lookup(lookup(each.value, "apm_metric", {}), "anomaly", null) == null ? {
         searchConfiguration : {
           query : {
             query : each.value.apm_metric.filter
             language : "kuery"
           }
         }
-        useKqlFilter: true
-        windowSize: each.value.window.size
-        windowUnit: each.value.window.unit
-        environment: var.target_env
+        useKqlFilter : true
         threshold : each.value.apm_metric.threshold
       } : null,
+      # apm_metric anomaly fields
+      lookup(lookup(each.value, "apm_metric", { anomaly : {} }).anomaly, "service_name", null) != null
+      ? {
+        serviceName : each.value.apm_metric.anomaly.service_name
+        transactionType: "request"
+        anomalySeverityType: each.value.apm_metric.anomaly.severity_type
+        anomalyDetectorTypes: [for d in each.value.apm_metric.anomaly.detectors : local.anomaly_detector_map[d]]
+      } : null
     )
   )
   interval     = each.value.schedule
