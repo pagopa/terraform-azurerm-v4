@@ -271,7 +271,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       } : null,
       # apm_metric anomaly fields
       can(each.value.apm_metric.anomaly) ? {
-        serviceName : each.value.apm_metric.anomaly.service_name
+        serviceName : each.value.apm_metric.anomaly.service
         transactionType: "request"
         anomalySeverityType: each.value.apm_metric.anomaly.severity_type
         anomalyDetectorTypes: [for d in each.value.apm_metric.anomaly.detectors : local.anomaly_detector_map[d]]
