@@ -145,42 +145,42 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = each.value.log_query != null ? lookup(each.value, "apm_metric", null) == null : true
+      condition     = lookup(each.value, "log_query", null) != null ? lookup(each.value, "apm_metric", null) == null : true
       error_message = "log_query and apm_metric are mutually exclusive. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = each.value.log_query != null ?  each.value.log_query.aggregation != null && each.value.log_query.query != null && each.value.log_query.data_view != null : true
+      condition     = lookup(each.value, "log_query", null) != null ?  each.value.log_query.aggregation != null && each.value.log_query.query != null && each.value.log_query.data_view != null : true
       error_message = "log_query must have aggregation, query and data_view defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = each.value.log_query != null ?  contains(["logs", "apm"], each.value.log_query.data_view) : true
+      condition     = lookup(each.value, "log_query", null) != null ?  contains(["logs", "apm"], each.value.log_query.data_view) : true
       error_message = "log_query.data_view type must be either 'logs' or 'apm'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = each.value.log_query != null ?  contains(["count", "sum", "avg", "min", "max"], each.value.log_query.aggregation.type) : true
+      condition     = lookup(each.value, "log_query", null) != null ?  contains(["count", "sum", "avg", "min", "max"], each.value.log_query.aggregation.type) : true
       error_message = "log_query.aggregation.type must be one of 'sum', 'avg', 'min', 'max'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = each.value.log_query != null && contains(["sum", "avg", "min", "max"], each.value.log_query.aggregation.type) ? each.value.log_query.aggregation.field != null : true
+      condition     = lookup(each.value, "log_query", null) != null && contains(["sum", "avg", "min", "max"], each.value.log_query.aggregation.type) ? each.value.log_query.aggregation.field != null : true
       error_message = "log_query.aggregation.field must be defined when aggregation type is 'sum', 'avg', 'min' or 'max'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = each.value.apm_metric != null ? each.value.log_query == null : true
+      condition     = lookup(each.value, "apm_metric", null) != null ? lookup(each.value, "log_query", null) == null : true
       error_message = "log_query and apm_metric are mutually exclusive. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = each.value.apm_metric != null ?  each.value.apm_metric.type != null && each.value.apm_metric.filter != null && each.value.apm_metric.metric != null : true
+      condition     = lookup(each.value, "apm_metric", null) != null ?  each.value.apm_metric.type != null && each.value.apm_metric.filter != null && each.value.apm_metric.metric != null : true
       error_message = "apm_metric must have type, filter and metric defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = each.value.apm_metric != null ?  contains(["failed_transactions", "latency", "error_count", "anomaly"], each.value.apm_metric.metric) : true
+      condition     = lookup(each.value, "apm_metric", null) != null ?  contains(["failed_transactions", "latency", "error_count", "anomaly"], each.value.apm_metric.metric) : true
       error_message = "apm_metric.metric must be one of ${join(",", keys(local.rule_type_id_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
