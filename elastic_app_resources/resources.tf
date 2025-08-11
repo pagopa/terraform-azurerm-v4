@@ -189,6 +189,16 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
      error_message = "apm_metric must have filter and threshold defined when not using metric 'anomaly'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
+   precondition {
+     condition = try(each.value.apm_metric.metric, "") == "anomaly" ? !can(each.value.apm_metric.threshold) || !can(each.value.apm_metric.filter): true
+     error_message = "apm_metric.threshold and apm_metric.filter must not be defined when using metric 'anomaly'. used by alert '${each.value.name}' in '${var.application_name}' application"
+   }
+
+    precondition {
+     condition = contains(["latency", "failed_transactions", "error_count"], try(each.value.apm_metric.metric, "")) ? !can(each.value.apm_metric.anomaly) : true
+     error_message = "apm_metric.anomaly must not be defined when using metric 'latency', 'failed_transactions' or 'error_count'. used by alert '${each.value.name}' in '${var.application_name}' application"
+   }
+
 
     precondition {
       condition = can(each.value.apm_metric.anomaly) ? alltrue([for d in each.value.apm_metric.anomaly.detectors: contains(keys(local.anomaly_detector_map), d)]): true
