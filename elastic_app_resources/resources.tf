@@ -130,12 +130,12 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   lifecycle {
     precondition {
-      condition     = var.alert_channels.opsgenie.enabled ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
+      condition     = var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
       error_message = "opsgenie connector name '${lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.slack.enabled ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
+      condition     = var.alert_channels.slack.enabled && lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
       error_message = "slack connector name '${lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
@@ -217,7 +217,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ? try(each.value.log_query.threshold, "") != "" : true
-      error_message = "log_query.threshold must be defined when log_query is used. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "log_query.threshold must be defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
