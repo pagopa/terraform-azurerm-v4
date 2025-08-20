@@ -137,118 +137,118 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
     precondition {
       condition     = var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
-      error_message = "opsgenie connector name '${lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "opsgenie connector name '${lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = var.alert_channels.slack.enabled && lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
-      error_message = "slack connector name '${lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "slack connector name '${lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = var.alert_channels.email.enabled && lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name != "" ? contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name) : true
-      error_message = "email list name '${lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name}' must be defined in var.email_recipients. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "email list name '${lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name}' must be defined in var.email_recipients. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ? lookup(each.value, "apm_metric", null) == null : true
-      error_message = "log_query and apm_metric are mutually exclusive. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "log_query and apm_metric are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ?  try(each.value.log_query.aggregation, "") != "" && try(each.value.log_query.query, "") != "" && try(each.value.log_query.data_view, "") != "" : true
-      error_message = "log_query must have aggregation, query and data_view defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "log_query must have aggregation, query and data_view defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ?  contains(["logs", "apm"], try(each.value.log_query.data_view, "")) : true
-      error_message = "log_query.data_view type must be either 'logs' or 'apm'. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "log_query.data_view type must be either 'logs' or 'apm'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ?  contains(["count", "sum", "avg", "min", "max"], try(each.value.log_query.aggregation.type, "")) : true
-      error_message = "log_query.aggregation.type must be one of 'count', 'sum', 'avg', 'min', 'max'. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "log_query.aggregation.type must be one of 'count', 'sum', 'avg', 'min', 'max'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "log_query", null) != null && contains(["sum", "avg", "min", "max"], try(each.value.log_query.aggregation.type, "")) ? try(each.value.log_query.aggregation.field, null) != null : true
-      error_message = "log_query.aggregation.field must be defined when aggregation type is 'sum', 'avg', 'min' or 'max'. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "log_query.aggregation.field must be defined when aggregation type is 'sum', 'avg', 'min' or 'max'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "apm_metric", null) != null ? lookup(each.value, "log_query", null) == null : true
-      error_message = "log_query and apm_metric are mutually exclusive. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "log_query and apm_metric are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "apm_metric", null) != null  ?  try(each.value.apm_metric.metric, "") != "" : true
-      error_message = "apm_metric must have metric defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "apm_metric must have metric defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "apm_metric", null) != null  && try(each.value.apm_metric.metric, "") == "anomaly" ? try(each.value.apm_metric.anomaly.service, "") != "" && try(each.value.apm_metric.anomaly.severity_type, "") != "" && length(try(each.value.apm_metric.anomaly.detectors, [])) > 0 : true
-      error_message = "apm_metric.anomaly must have service, severity_type and detectors defined when using metric 'anomaly'. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "apm_metric.anomaly must have service, severity_type and detectors defined when using metric 'anomaly'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
    precondition {
       condition     = lookup(each.value, "apm_metric", null) != null  && try(each.value.apm_metric.metric, "") != "anomaly" ? try(each.value.apm_metric.filter, "") != "" && try(each.value.apm_metric.threshold, "") != "" : true
-     error_message = "apm_metric must have filter and threshold defined when not using metric 'anomaly'. used by alert '${each.value.name}' in '${var.application_name}' application"
+     error_message = "apm_metric must have filter and threshold defined when not using metric 'anomaly'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
    precondition {
      condition = try(each.value.apm_metric.metric, "") == "anomaly" ? !can(each.value.apm_metric.threshold) || !can(each.value.apm_metric.filter): true
-     error_message = "apm_metric.threshold and apm_metric.filter must not be defined when using metric 'anomaly'. used by alert '${each.value.name}' in '${var.application_name}' application"
+     error_message = "apm_metric.threshold and apm_metric.filter must not be defined when using metric 'anomaly'. used by alert '${each.key}' in '${var.application_name}' application"
    }
 
     precondition {
      condition = contains(["latency", "failed_transactions", "error_count"], try(each.value.apm_metric.metric, "")) ? !can(each.value.apm_metric.anomaly) : true
-     error_message = "apm_metric.anomaly must not be defined when using metric 'latency', 'failed_transactions' or 'error_count'. used by alert '${each.value.name}' in '${var.application_name}' application"
+     error_message = "apm_metric.anomaly must not be defined when using metric 'latency', 'failed_transactions' or 'error_count'. used by alert '${each.key}' in '${var.application_name}' application"
    }
 
 
     precondition {
       condition = can(each.value.apm_metric.anomaly) ? alltrue([for d in try(each.value.apm_metric.anomaly.detectors, []): contains(keys(local.anomaly_detector_map), d)]): true
-      error_message = "apm_metric.anomaly.detectors must be one of ${join(",", keys(local.anomaly_detector_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "apm_metric.anomaly.detectors must be one of ${join(",", keys(local.anomaly_detector_map))}. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition = can(each.value.apm_metric.anomaly) ? contains(["critical", "major", "minor", "warning"], try(each.value.apm_metric.anomaly.severity_type, "")): true
-      error_message = "apm_metric.anomaly.severity_type must be one of ${join(",", ["critical", "major", "minor", "warning"])}. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "apm_metric.anomaly.severity_type must be one of ${join(",", ["critical", "major", "minor", "warning"])}. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "apm_metric", null) != null ?  contains(keys(local.rule_type_id_map), try(each.value.apm_metric.metric, "")) : true
-      error_message = "apm_metric.metric must be one of ${join(",", keys(local.rule_type_id_map))}. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "apm_metric.metric must be one of ${join(",", keys(local.rule_type_id_map))}. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ? try(each.value.log_query.threshold, "") != "" : true
-      error_message = "log_query.threshold must be defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "log_query.threshold must be defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ? try(each.value.log_query.threshold.comparator, "") != "" && length(try(each.value.log_query.threshold.values, [])) > 0 : true
-      error_message = "log_query.threshold must have comparator and values defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "log_query.threshold must have comparator and values defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ?  contains([">", ">=", "<", "<=", "between", "notBetween"], try(each.value.log_query.threshold.comparator, "")) : true
-      error_message = "log_query.threshold.comparator must be one of '>', '>=', '<', '<=', 'between', 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "log_query.threshold.comparator must be one of '>', '>=', '<', '<=', 'between', 'notBetween'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ? (contains(["between", "notBetween"], try(each.value.log_query.threshold.comparator, "")) ? length(try(each.value.log_query.threshold.values, [])) == 2 : length(try(each.value.log_query.threshold.values, [])) == 1) : true
-      error_message = "log_query.threshold.values must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "log_query.threshold.values must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = can(each.value.window.size) && can(each.value.window.unit)
-      error_message = "'window' must be ddefined and must have 'size' and 'unit' defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "'window' must be ddefined and must have 'size' and 'unit' defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = can(each.value.schedule)
-      error_message = "'schedule' must be defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "'schedule' must be defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
 
