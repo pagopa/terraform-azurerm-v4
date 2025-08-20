@@ -29,15 +29,15 @@ locals {
   alert_message = "Elasticsearch query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}}"
 
   rule_type_id_map = {
-    "latency" = "apm.transaction_duration"
+    "latency"             = "apm.transaction_duration"
     "failed_transactions" = "apm.transaction_error_rate"
-    "anomaly" = "apm.anomaly"
-    "error_count" = "apm.error_rate"
+    "anomaly"             = "apm.anomaly"
+    "error_count"         = "apm.error_rate"
   }
 
   anomaly_detector_map = {
-    latency = "txLatency",
+    latency    = "txLatency",
     throughput = "txThroughput",
-    failures = "txFailureRate"
+    failures   = "txFailureRate"
   }
 }

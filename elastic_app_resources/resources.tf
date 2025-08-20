@@ -156,17 +156,17 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ?  try(each.value.log_query.aggregation, "") != "" && try(each.value.log_query.query, "") != "" && try(each.value.log_query.data_view, "") != "" : true
+      condition     = lookup(each.value, "log_query", null) != null ? try(each.value.log_query.aggregation, "") != "" && try(each.value.log_query.query, "") != "" && try(each.value.log_query.data_view, "") != "" : true
       error_message = "log_query must have aggregation, query and data_view defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ?  contains(["logs", "apm"], try(each.value.log_query.data_view, "")) : true
+      condition     = lookup(each.value, "log_query", null) != null ? contains(["logs", "apm"], try(each.value.log_query.data_view, "")) : true
       error_message = "log_query.data_view type must be either 'logs' or 'apm'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ?  contains(["count", "sum", "avg", "min", "max"], try(each.value.log_query.aggregation.type, "")) : true
+      condition     = lookup(each.value, "log_query", null) != null ? contains(["count", "sum", "avg", "min", "max"], try(each.value.log_query.aggregation.type, "")) : true
       error_message = "log_query.aggregation.type must be one of 'count', 'sum', 'avg', 'min', 'max'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
@@ -181,43 +181,43 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null  ?  try(each.value.apm_metric.metric, "") != "" : true
+      condition     = lookup(each.value, "apm_metric", null) != null ? try(each.value.apm_metric.metric, "") != "" : true
       error_message = "apm_metric must have metric defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null  && try(each.value.apm_metric.metric, "") == "anomaly" ? try(each.value.apm_metric.anomaly.service, "") != "" && try(each.value.apm_metric.anomaly.severity_type, "") != "" && length(try(each.value.apm_metric.anomaly.detectors, [])) > 0 : true
+      condition     = lookup(each.value, "apm_metric", null) != null && try(each.value.apm_metric.metric, "") == "anomaly" ? try(each.value.apm_metric.anomaly.service, "") != "" && try(each.value.apm_metric.anomaly.severity_type, "") != "" && length(try(each.value.apm_metric.anomaly.detectors, [])) > 0 : true
       error_message = "apm_metric.anomaly must have service, severity_type and detectors defined when using metric 'anomaly'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
-   precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null  && try(each.value.apm_metric.metric, "") != "anomaly" ? try(each.value.apm_metric.filter, "") != "" && try(each.value.apm_metric.threshold, "") != "" : true
-     error_message = "apm_metric must have filter and threshold defined when not using metric 'anomaly'. used by alert '${each.key}' in '${var.application_name}' application"
+    precondition {
+      condition     = lookup(each.value, "apm_metric", null) != null && try(each.value.apm_metric.metric, "") != "anomaly" ? try(each.value.apm_metric.filter, "") != "" && try(each.value.apm_metric.threshold, "") != "" : true
+      error_message = "apm_metric must have filter and threshold defined when not using metric 'anomaly'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
-   precondition {
-     condition = try(each.value.apm_metric.metric, "") == "anomaly" ? !can(each.value.apm_metric.threshold) || !can(each.value.apm_metric.filter): true
-     error_message = "apm_metric.threshold and apm_metric.filter must not be defined when using metric 'anomaly'. used by alert '${each.key}' in '${var.application_name}' application"
-   }
+    precondition {
+      condition     = try(each.value.apm_metric.metric, "") == "anomaly" ? !can(each.value.apm_metric.threshold) || !can(each.value.apm_metric.filter) : true
+      error_message = "apm_metric.threshold and apm_metric.filter must not be defined when using metric 'anomaly'. used by alert '${each.key}' in '${var.application_name}' application"
+    }
 
     precondition {
-     condition = contains(["latency", "failed_transactions", "error_count"], try(each.value.apm_metric.metric, "")) ? !can(each.value.apm_metric.anomaly) : true
-     error_message = "apm_metric.anomaly must not be defined when using metric 'latency', 'failed_transactions' or 'error_count'. used by alert '${each.key}' in '${var.application_name}' application"
-   }
+      condition     = contains(["latency", "failed_transactions", "error_count"], try(each.value.apm_metric.metric, "")) ? !can(each.value.apm_metric.anomaly) : true
+      error_message = "apm_metric.anomaly must not be defined when using metric 'latency', 'failed_transactions' or 'error_count'. used by alert '${each.key}' in '${var.application_name}' application"
+    }
 
 
     precondition {
-      condition = can(each.value.apm_metric.anomaly) ? alltrue([for d in try(each.value.apm_metric.anomaly.detectors, []): contains(keys(local.anomaly_detector_map), d)]): true
+      condition     = can(each.value.apm_metric.anomaly) ? alltrue([for d in try(each.value.apm_metric.anomaly.detectors, []) : contains(keys(local.anomaly_detector_map), d)]) : true
       error_message = "apm_metric.anomaly.detectors must be one of ${join(",", keys(local.anomaly_detector_map))}. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition = can(each.value.apm_metric.anomaly) ? contains(["critical", "major", "minor", "warning"], try(each.value.apm_metric.anomaly.severity_type, "")): true
+      condition     = can(each.value.apm_metric.anomaly) ? contains(["critical", "major", "minor", "warning"], try(each.value.apm_metric.anomaly.severity_type, "")) : true
       error_message = "apm_metric.anomaly.severity_type must be one of ${join(",", ["critical", "major", "minor", "warning"])}. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null ?  contains(keys(local.rule_type_id_map), try(each.value.apm_metric.metric, "")) : true
+      condition     = lookup(each.value, "apm_metric", null) != null ? contains(keys(local.rule_type_id_map), try(each.value.apm_metric.metric, "")) : true
       error_message = "apm_metric.metric must be one of ${join(",", keys(local.rule_type_id_map))}. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
@@ -232,7 +232,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ?  contains([">", ">=", "<", "<=", "between", "notBetween"], try(each.value.log_query.threshold.comparator, "")) : true
+      condition     = lookup(each.value, "log_query", null) != null ? contains([">", ">=", "<", "<=", "between", "notBetween"], try(each.value.log_query.threshold.comparator, "")) : true
       error_message = "log_query.threshold.comparator must be one of '>', '>=', '<', '<=', 'between', 'notBetween'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
@@ -254,11 +254,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   }
 
-  name        = "${local.application_id} ${each.value.name}"
-  consumer    = lookup(each.value, "log_query", null) != null ? "logs" : "alerts"
+  name         = "${local.application_id} ${each.value.name}"
+  consumer     = lookup(each.value, "log_query", null) != null ? "logs" : "alerts"
   rule_type_id = lookup(each.value, "log_query", null) != null ? ".es-query" : local.rule_type_id_map[lookup(each.value, "apm_metric", null).metric]
-  notify_when = "onActionGroupChange"
-  tags = [var.application_name, var.target_env]
+  notify_when  = "onActionGroupChange"
+  tags         = [var.application_name, var.target_env]
   params = jsonencode(
     merge(
       # log query fields
@@ -268,7 +268,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
             query : each.value.log_query.query
             language : "kuery"
           },
-          index : each.value.log_query.data_view == "logs" ? elasticstack_kibana_data_view.kibana_data_view.data_view.id :  elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
+          index : each.value.log_query.data_view == "logs" ? elasticstack_kibana_data_view.kibana_data_view.data_view.id : elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
         }
         timeField : "@timestamp"
         searchType : "searchSource"
@@ -304,18 +304,18 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       # apm_metric anomaly fields
       can(each.value.apm_metric.anomaly) ? {
         serviceName : each.value.apm_metric.anomaly.service
-        transactionType: "request"
-        anomalySeverityType: each.value.apm_metric.anomaly.severity_type
-        anomalyDetectorTypes: [for d in each.value.apm_metric.anomaly.detectors : local.anomaly_detector_map[d]]
+        transactionType : "request"
+        anomalySeverityType : each.value.apm_metric.anomaly.severity_type
+        anomalyDetectorTypes : [for d in each.value.apm_metric.anomaly.detectors : local.anomaly_detector_map[d]]
       } : null
     )
   )
-  interval     = each.value.schedule
+  interval = each.value.schedule
 
   # manually disabled overrides the default enabled value
   # if at least one channel is enabled, the alert is enabled
-  enabled = lookup(each.value, "enabled", true) && (var.alert_channels.email.enabled || var.alert_channels.opsgenie.enabled || var.alert_channels.slack.enabled)
-  space_id = var.space_id
+  enabled     = lookup(each.value, "enabled", true) && (var.alert_channels.email.enabled || var.alert_channels.opsgenie.enabled || var.alert_channels.slack.enabled)
+  space_id    = var.space_id
   alert_delay = lookup(each.value, "trigger_after_consecutive_runs", null)
 
   #email
