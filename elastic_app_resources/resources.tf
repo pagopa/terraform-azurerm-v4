@@ -161,7 +161,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ?  contains(["count", "sum", "avg", "min", "max"], try(each.value.log_query.aggregation.type, "")) : true
-      error_message = "log_query.aggregation.type must be one of 'sum', 'avg', 'min', 'max'. used by alert '${each.value.name}' in '${var.application_name}' application"
+      error_message = "log_query.aggregation.type must be one of 'count', 'sum', 'avg', 'min', 'max'. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
     precondition {
@@ -233,6 +233,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ? (contains(["between", "notBetween"], try(each.value.log_query.threshold.comparator, "")) ? length(try(each.value.log_query.threshold.values, [])) == 2 : length(try(each.value.log_query.threshold.values, [])) == 1) : true
       error_message = "log_query.threshold.values must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.window.size) && can(each.value.window.unit)
+      error_message = "'window' must be ddefined and must have 'size' and 'unit' defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
   }
 
