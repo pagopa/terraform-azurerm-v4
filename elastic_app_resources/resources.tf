@@ -129,6 +129,12 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   for_each = local.alerts
 
   lifecycle {
+
+    precondition {
+      condition     = can(each.value.name)
+      error_message = "'name' must be defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
     precondition {
       condition     = var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
       error_message = "opsgenie connector name '${lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.value.name}' in '${var.application_name}' application"
@@ -245,10 +251,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "'schedule' must be defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
 
-     precondition {
-      condition     = can(each.value.name)
-      error_message = "'name' must be defined. used by alert '${each.value.name}' in '${var.application_name}' application"
-    }
+
   }
 
   name        = "${local.application_id} ${each.value.name}"
