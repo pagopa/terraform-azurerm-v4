@@ -239,6 +239,16 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       condition     = can(each.value.window.size) && can(each.value.window.unit)
       error_message = "'window' must be ddefined and must have 'size' and 'unit' defined. used by alert '${each.value.name}' in '${var.application_name}' application"
     }
+
+    precondition {
+      condition     = can(each.value.schedule)
+      error_message = "'schedule' must be defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
+
+     precondition {
+      condition     = can(each.value.name)
+      error_message = "'name' must be defined. used by alert '${each.value.name}' in '${var.application_name}' application"
+    }
   }
 
   name        = "${local.application_id} ${each.value.name}"
