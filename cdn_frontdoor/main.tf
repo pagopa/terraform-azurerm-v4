@@ -1,19 +1,32 @@
-// Module: cdn_frontdoor
-// Description: Provides Azure CDN Front Door profile, endpoint, origin group, origin and route using a storage account as origin.
-
 locals {
+  name_prefix          = var.dns_prefix_name
   cdn_location         = coalesce(var.cdn_location, var.location)
-  storage_account_name = var.storage_account_name != null ? replace(var.storage_account_name, "-", "") : replace("${var.dns_prefix_name}-sa", "-", "")
-  is_apex              = var.hostname == var.dns_zone_name
-  hostname_label       = local.is_apex ? "" : trimsuffix(replace(var.hostname, var.dns_zone_name, ""), ".")
-  dns_txt_name         = local.hostname_label != "" ? "_dnsauth.${local.hostname_label}" : "_dnsauth"
+  storage_account_name = var.storage_account_name != null ? replace(var.storage_account_name, "-", "") : replace("${local.name_prefix}-sa", "-", "")
+
+  # DNS helpers
+  is_apex        = var.hostname == var.dns_zone_name
+  hostname_label = local.is_apex ? "" : trimsuffix(replace(var.hostname, var.dns_zone_name, ""), ".")
+  dns_txt_name   = local.hostname_label != "" ? "_dnsauth.${local.hostname_label}" : "_dnsauth"
+
+  # Naming (clear suffixes)
+  fd_profile_name    = "${local.name_prefix}-fd-prf"
+  fd_endpoint_name   = "${local.name_prefix}-fd-ep"
+  fd_origin_group    = "${local.name_prefix}-fd-og"
+  fd_origin_primary  = "${local.name_prefix}-fd-or-primary"
+  fd_route_default   = "${local.name_prefix}-fd-rt-default"
+  fd_ruleset_global  = "${local.name_prefix}-fd-rs-global"
+  fd_rule_global     = "${local.name_prefix}-fd-rule-global"
+  fd_diag_name       = "${local.name_prefix}-fd-prf-diag"
+  fd_secret_name     = "${local.name_prefix}-fd-secret"
+  fd_customdom_name  = replace(var.hostname, ".", "-")
 }
 
-/**
- * Storage account hosting static website
- */
+# Storage Account (static website)
 module "cdn_storage_account" {
   source = "../storage_account"
+
+  resource_group_name             = var.resource_group_name
+  location                        = var.location
 
   name                            = local.storage_account_name
   account_kind                    = var.storage_account_kind
@@ -21,44 +34,33 @@ module "cdn_storage_account" {
   account_replication_type        = var.storage_account_replication_type
   access_tier                     = var.storage_access_tier
   blob_versioning_enabled         = true
-  resource_group_name             = var.resource_group_name
-  location                        = var.location
   allow_nested_items_to_be_public = var.storage_account_nested_items_public
   public_network_access_enabled   = var.storage_public_network_access_enabled
-  advanced_threat_protection      = var.advanced_threat_protection_enabled
-  index_document                  = var.index_document
-  error_404_document              = var.error_404_document
+  advanced_threat_protection      = var.storage_account_advanced_threat_protection_enabled
+  index_document                  = var.storage_account_index_document
+  error_404_document              = var.storage_account_error_404_document
   tags                            = var.tags
 }
 
-/**
- * Azure Front Door Standard/Premium profile
- */
+# Front Door profile
 resource "azurerm_cdn_frontdoor_profile" "this" {
-  name                = "${var.dns_prefix_name}-fd-profile"
+  name                = local.fd_profile_name
   resource_group_name = var.resource_group_name
   sku_name            = var.frontdoor_sku_name
   tags                = var.tags
 }
 
-/**
- * Endpoint
- */
+# Endpoint
 resource "azurerm_cdn_frontdoor_endpoint" "this" {
-  name                = "${var.dns_prefix_name}-fd-endpoint"
-  profile_name        = azurerm_cdn_frontdoor_profile.this.name
-  resource_group_name = var.resource_group_name
-  enabled             = true
-  tags                = var.tags
+  name                     = local.fd_endpoint_name
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
+  tags                     = var.tags
 }
 
-/**
- * Origin group and origin
- */
+# Origin Group
 resource "azurerm_cdn_frontdoor_origin_group" "this" {
-  name                = "${var.dns_prefix_name}-og"
-  profile_name        = azurerm_cdn_frontdoor_profile.this.name
-  resource_group_name = var.resource_group_name
+  name                     = local.fd_origin_group
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
 
   session_affinity_enabled = false
 
@@ -76,58 +78,55 @@ resource "azurerm_cdn_frontdoor_origin_group" "this" {
   }
 }
 
-resource "azurerm_cdn_frontdoor_origin" "storage" {
-  name                = "storage"
-  profile_name        = azurerm_cdn_frontdoor_profile.this.name
-  resource_group_name = var.resource_group_name
-  origin_group_name   = azurerm_cdn_frontdoor_origin_group.this.name
+# Origin (Primary - Storage static website)
+resource "azurerm_cdn_frontdoor_origin" "origin_primary" {
+  name                          = local.fd_origin_primary
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.this.id
 
-  host_name          = module.cdn_storage_account.primary_web_host
-  http_port          = 80
-  https_port         = 443
-  origin_host_header = module.cdn_storage_account.primary_web_host
-  priority           = 1
-  weight             = 1000
+  enabled                        = true
+  host_name                      = module.cdn_storage_account.primary_web_host
+  http_port                      = 80
+  https_port                     = 443
+  origin_host_header             = module.cdn_storage_account.primary_web_host
+  certificate_name_check_enabled = false
+  priority                       = 1
+  weight                         = 1000
 }
 
-/**
- * Default route
- */
+# Default route
 resource "azurerm_cdn_frontdoor_route" "this" {
-  name                = "${var.dns_prefix_name}-route"
-  profile_name        = azurerm_cdn_frontdoor_profile.this.name
-  resource_group_name = var.resource_group_name
-  endpoint_name       = azurerm_cdn_frontdoor_endpoint.this.name
-  origin_group_name   = azurerm_cdn_frontdoor_origin_group.this.name
+  name                          = local.fd_route_default
+  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.this.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.this.id
 
   patterns_to_match      = ["/*"]
   supported_protocols    = ["Http", "Https"]
   https_redirect_enabled = var.https_rewrite_enabled
   forwarding_protocol    = "MatchRequest"
   link_to_default_domain = true
+  enabled                = true
 
-  cdn_frontdoor_origin_ids = [azurerm_cdn_frontdoor_origin.storage.id]
+  # Associate Rule Set here (resource `azurerm_cdn_frontdoor_rule_set_route_association` DOES NOT exist)
+  cdn_frontdoor_rule_set_ids = var.global_delivery_rule != null || length(var.delivery_rule) > 0 ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
+
+  cdn_frontdoor_origin_ids = [azurerm_cdn_frontdoor_origin.origin_primary.id]
 }
 
-/**
- * Optional rule set for global headers and custom rules
- */
+# Optional rule set for global headers and custom rules
 resource "azurerm_cdn_frontdoor_rule_set" "this" {
-  count               = var.global_delivery_rule != null || length(var.delivery_rule) > 0 ? 1 : 0
-  name                = "${var.dns_prefix_name}-rules"
-  profile_name        = azurerm_cdn_frontdoor_profile.this.name
-  resource_group_name = var.resource_group_name
+  count                    = var.global_delivery_rule != null || length(var.delivery_rule) > 0 ? 1 : 0
+  name                     = local.fd_ruleset_global
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
 }
 
-# Global delivery rule - only modify response headers for now
+# Global delivery rule
 resource "azurerm_cdn_frontdoor_rule" "global" {
-  count = var.global_delivery_rule != null ? 1 : 0
-
-  name                = "global"
-  profile_name        = azurerm_cdn_frontdoor_profile.this.name
-  resource_group_name = var.resource_group_name
-  rule_set_name       = azurerm_cdn_frontdoor_rule_set.this[0].name
-  order               = 1
+  count                     = var.global_delivery_rule != null ? 1 : 0
+  name                      = local.fd_rule_global
+  cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
+  order                     = 1
+  enabled                   = true
+  behavior_on_match         = "Continue"
 
   actions {
     dynamic "response_header_action" {
@@ -146,29 +145,29 @@ resource "azurerm_cdn_frontdoor_rule" "global" {
 
 # Additional rules based on delivery_rule variable
 resource "azurerm_cdn_frontdoor_rule" "custom" {
-  for_each = { for r in var.delivery_rule : r.name => r }
-
-  name                = each.value.name
-  profile_name        = azurerm_cdn_frontdoor_profile.this.name
-  resource_group_name = var.resource_group_name
-  rule_set_name       = azurerm_cdn_frontdoor_rule_set.this[0].name
-  order               = each.value.order
+  for_each                  = { for r in var.delivery_rule : r.name => r }
+  name                      = each.value.name
+  cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
+  order                     = each.value.order
+  enabled                   = try(each.value.enabled, true)
+  behavior_on_match         = try(each.value.behavior_on_match, "Continue")
 
   dynamic "conditions" {
-    for_each = each.value.url_path_conditions
+    for_each = try(each.value.url_path_conditions, [])
     iterator = c
     content {
       url_path_condition {
         operator         = c.value.operator
         match_values     = c.value.match_values
-        negate_condition = c.value.negate_condition
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, null)
       }
     }
   }
 
   actions {
     dynamic "response_header_action" {
-      for_each = each.value.modify_response_header_actions
+      for_each = try(each.value.modify_response_header_actions, [])
       iterator = rha
       content {
         action = rha.value.action
@@ -179,44 +178,44 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
+    dynamic "request_header_action" {
+      for_each = try(each.value.modify_request_header_actions, [])
+      iterator = rqa
+      content {
+        action = rqa.value.action
+        header_action {
+          header_name = rqa.value.name
+          value       = rqa.value.value
+        }
+      }
+    }
+
     dynamic "url_redirect_action" {
-      for_each = each.value.url_redirect_actions
+      for_each = try(each.value.url_redirect_actions, [])
       iterator = ura
       content {
         redirect_type        = ura.value.redirect_type
-        destination_hostname = ura.value.hostname
-        protocol             = ura.value.protocol
-        destination_path     = ura.value.path
-        destination_fragment = ura.value.fragment
-        query_string         = ura.value.query_string
+        destination_hostname = try(ura.value.hostname, null)
+        protocol             = try(ura.value.protocol, null)
+        destination_path     = try(ura.value.path, null)
+        destination_fragment = try(ura.value.fragment, null)
+        query_string         = try(ura.value.query_string, null)
       }
     }
 
     dynamic "url_rewrite_action" {
-      for_each = each.value.url_rewrite_actions
+      for_each = try(each.value.url_rewrite_actions, [])
       iterator = urw
       content {
         source_pattern          = urw.value.source_pattern
         destination             = urw.value.destination
-        preserve_unmatched_path = urw.value.preserve_unmatched_path
+        preserve_unmatched_path = try(urw.value.preserve_unmatched_path, false)
       }
     }
   }
 }
 
-# Associate rule set to route when any rule exists
-resource "azurerm_cdn_frontdoor_rule_set_route_association" "this" {
-  count = (var.global_delivery_rule != null || length(var.delivery_rule) > 0) ? 1 : 0
-
-  profile_name        = azurerm_cdn_frontdoor_profile.this.name
-  resource_group_name = var.resource_group_name
-  rule_set_name       = azurerm_cdn_frontdoor_rule_set.this[0].name
-  route_name          = azurerm_cdn_frontdoor_route.this.name
-}
-
-/**
- * Custom domain configuration
- */
+# Custom domain configuration
 
 data "azurerm_dns_zone" "this" {
   name                = var.dns_zone_name
@@ -227,7 +226,6 @@ data "azurerm_key_vault" "this" {
   count               = (var.dns_zone_name == var.hostname || var.custom_hostname_kv_enabled) && var.keyvault_id == null ? 1 : 0
   name                = var.keyvault_vault_name
   resource_group_name = var.keyvault_resource_group_name
-  subscription_id     = var.keyvault_subscription_id
 }
 
 locals {
@@ -244,7 +242,7 @@ data "azurerm_key_vault_certificate" "custom_domain" {
 
 resource "azurerm_cdn_frontdoor_secret" "this" {
   count                    = local.use_kv_certificate ? 1 : 0
-  name                     = "${var.dns_prefix_name}-secret"
+  name                     = local.fd_secret_name
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
 
   secret {
@@ -255,7 +253,7 @@ resource "azurerm_cdn_frontdoor_secret" "this" {
 }
 
 resource "azurerm_cdn_frontdoor_custom_domain" "this" {
-  name                     = replace(var.hostname, ".", "-")
+  name                     = local.fd_customdom_name
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
   dns_zone_id              = data.azurerm_dns_zone.this.id
   host_name                = var.hostname
@@ -267,24 +265,25 @@ resource "azurerm_cdn_frontdoor_custom_domain" "this" {
   }
 }
 
-resource "azurerm_cdn_frontdoor_custom_domain_association" "this" {
-  cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.this.id
-  cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.this.id]
-}
-
 resource "azurerm_dns_txt_record" "domain_validation" {
   name                = local.dns_txt_name
   zone_name           = var.dns_zone_name
   resource_group_name = var.dns_zone_resource_group_name
   ttl                 = 3600
 
-  record {
-    value = azurerm_cdn_frontdoor_custom_domain.this.validation_token
-  }
-
-  depends_on = [azurerm_cdn_frontdoor_route.this]
+  record { value = azurerm_cdn_frontdoor_custom_domain.this.validation_token }
 }
 
+resource "azurerm_cdn_frontdoor_custom_domain_association" "this" {
+  cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.this.id
+  cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.this.id]
+
+  depends_on = [
+    azurerm_dns_txt_record.domain_validation
+  ]
+}
+
+# DNS records
 resource "azurerm_dns_a_record" "apex_hostname" {
   count               = var.create_dns_record && local.is_apex ? 1 : 0
   name                = "@"
@@ -292,10 +291,6 @@ resource "azurerm_dns_a_record" "apex_hostname" {
   resource_group_name = var.dns_zone_resource_group_name
   ttl                 = 3600
   target_resource_id  = azurerm_cdn_frontdoor_endpoint.this.id
-
-  tags = var.tags
-
-  depends_on = [azurerm_cdn_frontdoor_custom_domain_association.this]
 }
 
 resource "azurerm_dns_cname_record" "hostname" {
@@ -305,14 +300,11 @@ resource "azurerm_dns_cname_record" "hostname" {
   resource_group_name = var.dns_zone_resource_group_name
   ttl                 = 3600
   record              = azurerm_cdn_frontdoor_endpoint.this.host_name
-
-  tags = var.tags
-
-  depends_on = [azurerm_cdn_frontdoor_custom_domain_association.this]
 }
 
+# Diagnostics (v4: enabled_log / enabled_metric)
 resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings_cdn_profile" {
-  name                       = "${var.dns_prefix_name}-cdn-profile-diagnostic-settings"
+  name                       = local.fd_diag_name
   target_resource_id         = azurerm_cdn_frontdoor_profile.this.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
@@ -320,11 +312,12 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings_cdn_profile" 
     category_group = "allLogs"
   }
 
-  metric {
+  enabled_metric {
     category = "AllMetrics"
   }
 }
 
+# Key Vault Access Policy for AFD SP (if using KV cert)
 resource "azurerm_key_vault_access_policy" "azure_cdn_frontdoor_policy" {
   count = var.custom_hostname_kv_enabled ? 1 : 0
 
@@ -332,12 +325,6 @@ resource "azurerm_key_vault_access_policy" "azure_cdn_frontdoor_policy" {
   tenant_id    = var.tenant_id
   object_id    = var.azuread_service_principal_azure_cdn_frontdoor_id
 
-  secret_permissions = [
-    "Get",
-  ]
-
-  certificate_permissions = [
-    "Get",
-  ]
+  secret_permissions = ["Get"]
+  certificate_permissions = ["Get"]
 }
-
