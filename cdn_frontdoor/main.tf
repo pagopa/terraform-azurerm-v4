@@ -375,7 +375,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
   name                      = each.value.name
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
   order                     = each.value.order
-  enabled                   = try(each.value.enabled, true)
   behavior_on_match         = try(each.value.behavior_on_match, "Continue")
 
   conditions {
