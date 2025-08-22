@@ -66,7 +66,7 @@ variable "storage_account_name" {
   default     = null
 }
 
-variable "advanced_threat_protection_enabled" {
+variable "storage_account_advanced_threat_protection_enabled" {
   type    = bool
   default = false
 }
@@ -375,11 +375,11 @@ variable "hostname" {
   type = string
 }
 
-variable "index_document" {
+variable "storage_account_index_document" {
   type = string
 }
 
-variable "error_404_document" {
+variable "storage_account_error_404_document" {
   type = string
 }
 

@@ -47,9 +47,9 @@ module "cdn" {
   location                     = var.location
   dns_zone_name                = local.dns_zone_name
   dns_zone_resource_group_name = azurerm_resource_group.rg.name
-  error_404_document           = "error_404.html"
+  storage_account_error_404_document           = "error_404.html"
   hostname                     = local.hostname
-  index_document               = "index.html"
+  storage_account_index_document               = "index.html"
   keyvault_resource_group_name = azurerm_resource_group.rg.name
   keyvault_subscription_id     = data.azurerm_client_config.current.subscription_id
   keyvault_vault_name          = azurerm_key_vault.this.name
@@ -66,9 +66,9 @@ module "cdn_different_location" {
   cdn_location                 = var.location_cdn
   dns_zone_name                = local.dns_zone_name
   dns_zone_resource_group_name = azurerm_resource_group.rg.name
-  error_404_document           = "error_404.html"
+  storage_account_error_404_document           = "error_404.html"
   hostname                     = local.hostname
-  index_document               = "index.html"
+  storage_account_index_document               = "index.html"
   keyvault_resource_group_name = azurerm_resource_group.rg.name
   keyvault_subscription_id     = data.azurerm_client_config.current.subscription_id
   keyvault_vault_name          = azurerm_key_vault.this.name
