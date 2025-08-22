@@ -111,63 +111,89 @@ resource "azurerm_cdn_frontdoor_rule_set" "this" {
   name                     = local.fd_ruleset_global
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
 }
+#############################################
+# Azure Front Door Rules (Terraform 4.41.0)
+# ONLY rule resources, corrected per official provider docs
+# Doc scope: https://registry.terraform.io/providers/hashicorp/azurerm/4.41.0/docs/resources/cdn_frontdoor_rule
+#############################################
 
-# --- Global Rule (headers/cache)
+# -------------------------------------------------------------------
+# Global Rule (headers + cache/qs override)
+# -------------------------------------------------------------------
 resource "azurerm_cdn_frontdoor_rule" "global" {
   count                     = var.global_delivery_rule != null ? 1 : 0
-  name                      = local.fd_rule_global
+  name                      = "${var.dns_prefix_name}-fd-rule-global"
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
   order                     = 1
   behavior_on_match         = "Continue"
 
   actions {
-    dynamic "cache_expiration_action" {
+
+    # Cache TTL / behavior (classic -> AFD mapping via route_configuration_override_action)
+    dynamic "route_configuration_override_action" {
       for_each = try(var.global_delivery_rule.cache_expiration_action, [])
       iterator = cea
       content {
-        behavior = cea.value.behavior
-        duration = cea.value.duration
+        cache_behavior = lookup({
+          "Override"     = "OverrideAlways",
+          "SetIfMissing" = "OverrideIfOriginMissing",
+          "BypassCache"  = "Disabled",
+          "HonorOrigin"  = "HonorOrigin"
+        }, cea.value.behavior, "HonorOrigin")
+        cache_duration = cea.value.duration
       }
     }
 
-    dynamic "cache_key_query_string_action" {
-      for_each = try(var.global_delivery_rule.cache_key_query_string_action, [])
+    # Query string caching behavior
+    dynamic "route_configuration_override_action" {
+      for_each = [for ck in try(var.global_delivery_rule.cache_key_query_string_action, []) : ck if contains(["IgnoreQueryString", "UseQueryString"], ck.behavior)]
       iterator = ck
       content {
-        behavior   = ck.value.behavior
-        parameters = ck.value.parameters
+        query_string_caching_behavior = ck.value.behavior
       }
     }
 
+    dynamic "route_configuration_override_action" {
+      for_each = [for ck in try(var.global_delivery_rule.cache_key_query_string_action, []) : ck if contains(["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"], ck.behavior)]
+      iterator = ck
+      content {
+        query_string_caching_behavior = ck.value.behavior
+        query_string_parameters       = length(trim(ck.value.parameters)) > 0 ? split(",", trim(ck.value.parameters)) : []
+      }
+    }
+
+    # Request headers
     dynamic "request_header_action" {
       for_each = try(var.global_delivery_rule.modify_request_header_action, [])
       iterator = rq
       content {
-        action = rq.value.action
-        header_action {
-          header_name = rq.value.name
-          value       = rq.value.value
-        }
+        header_action = rq.value.action
+        header_name   = rq.value.name
+        value         = rq.value.value
       }
     }
 
+    # Response headers
     dynamic "response_header_action" {
       for_each = try(var.global_delivery_rule.modify_response_header_action, [])
       iterator = rh
       content {
-        action = rh.value.action
-        header_action {
-          header_name = rh.value.name
-          value       = rh.value.value
-        }
+        header_action = rh.value.action
+        header_name   = rh.value.name
+        value         = rh.value.value
       }
     }
   }
 
-  depends_on = [azurerm_cdn_frontdoor_origin.primary]
+  depends_on = [
+    azurerm_cdn_frontdoor_origin.primary,
+    azurerm_cdn_frontdoor_origin_group.this
+  ]
 }
 
-# --- Back-compat: URL path cache+header rule(s)
+# -------------------------------------------------------------------
+# URL path -> cache TTL + optional response header (back-compat)
+# -------------------------------------------------------------------
 resource "azurerm_cdn_frontdoor_rule" "url_path_cache" {
   for_each                  = { for r in var.delivery_rule_url_path_condition_cache_expiration_action : r.order => r }
   name                      = each.value.name
@@ -178,30 +204,39 @@ resource "azurerm_cdn_frontdoor_rule" "url_path_cache" {
   conditions {
     url_path_condition {
       operator         = each.value.operator
-      match_values     = [for v in each.value.match_values : trimprefix(v, "/")]
+      match_values     = [for v in each.value.match_values : trimprefix(v, "/")] # no leading '/'
       negate_condition = false
+      transforms       = []
     }
   }
 
   actions {
-    cache_expiration_action {
-      behavior = each.value.behavior
-      duration = each.value.duration
+    route_configuration_override_action {
+      cache_behavior = lookup({
+        "Override"     = "OverrideAlways",
+        "SetIfMissing" = "OverrideIfOriginMissing",
+        "BypassCache"  = "Disabled",
+        "HonorOrigin"  = "HonorOrigin"
+      }, each.value.behavior, "HonorOrigin")
+      cache_duration = each.value.duration
     }
 
     response_header_action {
-      action = each.value.response_action
-      header_action {
-        header_name = each.value.response_name
-        value       = each.value.response_value
-      }
+      header_action = each.value.response_action
+      header_name   = each.value.response_name
+      value         = each.value.response_value
     }
   }
 
-  depends_on = [azurerm_cdn_frontdoor_origin.primary]
+  depends_on = [
+    azurerm_cdn_frontdoor_origin.primary,
+    azurerm_cdn_frontdoor_origin_group.this
+  ]
 }
 
-# --- Back-compat: HTTP(S) scheme redirect rule(s)
+# -------------------------------------------------------------------
+# Scheme redirect (HTTP<->HTTPS) (back-compat)
+# -------------------------------------------------------------------
 resource "azurerm_cdn_frontdoor_rule" "scheme_redirect" {
   for_each                  = { for r in var.delivery_rule_request_scheme_condition : r.order => r }
   name                      = each.value.name
@@ -211,26 +246,32 @@ resource "azurerm_cdn_frontdoor_rule" "scheme_redirect" {
 
   conditions {
     request_scheme_condition {
-      operator     = each.value.operator
-      match_values = each.value.match_values
+      operator         = each.value.operator
+      match_values     = each.value.match_values
+      negate_condition = false
     }
   }
 
   actions {
     url_redirect_action {
       redirect_type        = each.value.url_redirect_action.redirect_type
-      protocol             = each.value.url_redirect_action.protocol
-      destination_hostname = try(each.value.url_redirect_action.hostname, null)
-      destination_path     = try(each.value.url_redirect_action.path, null)
-      destination_fragment = try(each.value.url_redirect_action.fragment, null)
-      query_string         = try(each.value.url_redirect_action.query_string, null)
+      redirect_protocol    = try(each.value.url_redirect_action.protocol, null)
+      destination_hostname = try(each.value.url_redirect_action.hostname, "")
+      destination_path     = try(each.value.url_redirect_action.path, "")
+      destination_fragment = try(each.value.url_redirect_action.fragment, "")
+      query_string         = try(each.value.url_redirect_action.query_string, "")
     }
   }
 
-  depends_on = [azurerm_cdn_frontdoor_origin.primary]
+  depends_on = [
+    azurerm_cdn_frontdoor_origin.primary,
+    azurerm_cdn_frontdoor_origin_group.this
+  ]
 }
 
-# --- Back-compat: URI redirect rule(s)
+# -------------------------------------------------------------------
+# Redirect by Request URI (back-compat)
+# -------------------------------------------------------------------
 resource "azurerm_cdn_frontdoor_rule" "redirect" {
   for_each                  = { for r in var.delivery_rule_redirect : r.order => r }
   name                      = each.value.name
@@ -240,26 +281,33 @@ resource "azurerm_cdn_frontdoor_rule" "redirect" {
 
   conditions {
     request_uri_condition {
-      operator     = each.value.operator
-      match_values = each.value.match_values
+      operator         = each.value.operator
+      match_values     = each.value.match_values
+      negate_condition = false
+      transforms       = []
     }
   }
 
   actions {
     url_redirect_action {
       redirect_type        = each.value.url_redirect_action.redirect_type
-      protocol             = each.value.url_redirect_action.protocol
-      destination_hostname = try(each.value.url_redirect_action.hostname, null)
-      destination_path     = try(each.value.url_redirect_action.path, null)
-      destination_fragment = try(each.value.url_redirect_action.fragment, null)
-      query_string         = try(each.value.url_redirect_action.query_string, null)
+      redirect_protocol    = try(each.value.url_redirect_action.protocol, null)
+      destination_hostname = try(each.value.url_redirect_action.hostname, "")
+      destination_path     = try(each.value.url_redirect_action.path, "")
+      destination_fragment = try(each.value.url_redirect_action.fragment, "")
+      query_string         = try(each.value.url_redirect_action.query_string, "")
     }
   }
 
-  depends_on = [azurerm_cdn_frontdoor_origin.primary]
+  depends_on = [
+    azurerm_cdn_frontdoor_origin.primary,
+    azurerm_cdn_frontdoor_origin_group.this
+  ]
 }
 
-# --- Back-compat: Rewrite-only rule(s)
+# -------------------------------------------------------------------
+# Rewrite-only rules (SPA, etc.) (back-compat)
+# -------------------------------------------------------------------
 resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
   for_each                  = { for r in var.delivery_rule_rewrite : r.order => r }
   name                      = each.value.name
@@ -275,7 +323,7 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
         operator         = c.value.operator
         match_values     = c.value.match_values
         negate_condition = c.value.negate_condition
-        transforms       = c.value.transforms
+        transforms       = try(c.value.transforms, [])
       }
     }
 
@@ -284,9 +332,9 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = [for v in c.value.match_values : trimprefix(v, "/")]
+        match_values     = [for v in c.value.match_values : trimprefix(v, "/")] # no leading '/'
         negate_condition = c.value.negate_condition
-        transforms       = c.value.transforms
+        transforms       = try(c.value.transforms, [])
       }
     }
 
@@ -297,7 +345,7 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
         operator         = c.value.operator
         match_values     = c.value.match_values
         negate_condition = c.value.negate_condition
-        transforms       = c.value.transforms
+        transforms       = try(c.value.transforms, [])
       }
     }
   }
@@ -306,14 +354,22 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
     url_rewrite_action {
       source_pattern          = each.value.url_rewrite_action.source_pattern
       destination             = each.value.url_rewrite_action.destination
-      preserve_unmatched_path = each.value.url_rewrite_action.preserve_unmatched_path
+      preserve_unmatched_path = try(tobool(each.value.url_rewrite_action.preserve_unmatched_path), false)
     }
   }
 
-  depends_on = [azurerm_cdn_frontdoor_origin.primary]
+  depends_on = [
+    azurerm_cdn_frontdoor_origin.primary,
+    azurerm_cdn_frontdoor_origin_group.this
+  ]
 }
 
-# --- Generic rules (conditions/actions superset)
+# -------------------------------------------------------------------
+# Generic custom rules (conditions superset)
+#   - headers
+#   - cache/qs override
+#   (No redirect/rewrite here per provider constraints)
+# -------------------------------------------------------------------
 resource "azurerm_cdn_frontdoor_rule" "custom" {
   for_each                  = { for r in var.delivery_rule : r.name => r }
   name                      = each.value.name
@@ -328,21 +384,21 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       for_each = try(each.value.cookies_conditions, [])
       iterator = c
       content {
-        selector         = c.value.selector
-        operator         = c.value.operator
-        match_values     = c.value.match_values
+        cookie_name     = c.value.selector
+        operator        = c.value.operator
+        match_values    = try(c.value.match_values, [])
         negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, null)
+        transforms      = try(c.value.transforms, [])
       }
     }
 
     # device
-    dynamic "device_condition" {
+    dynamic "is_device_condition" {
       for_each = try(each.value.device_conditions, [])
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = [c.value.match_values]
+        match_values     = try(tostring(c.value.match_values), null) != null ? [c.value.match_values] : try(c.value.match_values, [])
         negate_condition = try(c.value.negate_condition, false)
       }
     }
@@ -359,15 +415,15 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
     }
 
     # post args
-    dynamic "post_arg_condition" {
+    dynamic "post_args_condition" {
       for_each = try(each.value.post_arg_conditions, [])
       iterator = c
       content {
-        selector         = c.value.selector
+        post_args_name   = c.value.selector
         operator         = c.value.operator
-        match_values     = c.value.match_values
+        match_values     = try(c.value.match_values, [])
         negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, null)
+        transforms       = try(c.value.transforms, [])
       }
     }
 
@@ -377,9 +433,9 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = c.value.match_values
+        match_values     = try(c.value.match_values, [])
         negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, null)
+        transforms       = try(c.value.transforms, [])
       }
     }
 
@@ -389,7 +445,7 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = c.value.match_values
+        match_values     = try(c.value.match_values, [])
         negate_condition = try(c.value.negate_condition, false)
       }
     }
@@ -402,7 +458,7 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
         operator         = c.value.operator
         match_values     = c.value.match_values
         negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, null)
+        transforms       = try(c.value.transforms, [])
       }
     }
 
@@ -411,11 +467,11 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       for_each = try(each.value.request_header_conditions, [])
       iterator = c
       content {
-        selector         = c.value.selector
+        header_name      = c.value.selector
         operator         = c.value.operator
-        match_values     = c.value.match_values
+        match_values     = try(c.value.match_values, [])
         negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, null)
+        transforms       = try(c.value.transforms, [])
       }
     }
 
@@ -436,7 +492,7 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = [c.value.match_values]
+        match_values     = try(tolist(c.value.match_values), [c.value.match_values])
         negate_condition = try(c.value.negate_condition, false)
       }
     }
@@ -449,7 +505,7 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
         operator         = c.value.operator
         match_values     = c.value.match_values
         negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, null)
+        transforms       = try(c.value.transforms, [])
       }
     }
 
@@ -461,19 +517,19 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
         operator         = c.value.operator
         match_values     = c.value.match_values
         negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, null)
+        transforms       = try(c.value.transforms, [])
       }
     }
 
     # url file name
-    dynamic "url_file_name_condition" {
+    dynamic "url_filename_condition" {
       for_each = try(each.value.url_file_name_conditions, [])
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = c.value.match_values
+        match_values     = try(c.value.match_values, [])
         negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, null)
+        transforms       = try(c.value.transforms, [])
       }
     }
 
@@ -483,82 +539,76 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = [for v in c.value.match_values : trimprefix(v, "/")]
+        match_values     = [for v in c.value.match_values : trimprefix(v, "/")] # no leading '/'
         negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, null)
+        transforms       = try(c.value.transforms, [])
       }
     }
   }
 
   actions {
-    dynamic "cache_expiration_action" {
-      for_each = try(each.value.cache_expiration_actions, [])
-      iterator = c
-      content {
-        behavior = c.value.behavior
-        duration = c.value.duration
-      }
-    }
-
-    dynamic "cache_key_query_string_action" {
-      for_each = try(each.value.cache_key_query_string_actions, [])
-      iterator = c
-      content {
-        behavior   = c.value.behavior
-        parameters = c.value.parameters
-      }
-    }
-
+    # Response headers
     dynamic "response_header_action" {
       for_each = try(each.value.modify_response_header_actions, [])
       iterator = rha
       content {
-        action = rha.value.action
-        header_action {
-          header_name = rha.value.name
-          value       = rha.value.value
-        }
+        header_action = rha.value.action
+        header_name   = rha.value.name
+        value         = rha.value.value
       }
     }
 
+    # Request headers
     dynamic "request_header_action" {
       for_each = try(each.value.modify_request_header_actions, [])
       iterator = rqa
       content {
-        action = rqa.value.action
-        header_action {
-          header_name = rqa.value.name
-          value       = rqa.value.value
-        }
+        header_action = rqa.value.action
+        header_name   = rqa.value.name
+        value         = rqa.value.value
       }
     }
 
-    dynamic "url_redirect_action" {
-      for_each = try(each.value.url_redirect_actions, [])
-      iterator = ura
+    # Cache TTL / behavior override
+    dynamic "route_configuration_override_action" {
+      for_each = try(each.value.cache_expiration_actions, [])
+      iterator = c
       content {
-        redirect_type        = ura.value.redirect_type
-        destination_hostname = try(ura.value.hostname, null)
-        protocol             = try(ura.value.protocol, null)
-        destination_path     = try(ura.value.path, null)
-        destination_fragment = try(ura.value.fragment, null)
-        query_string         = try(ura.value.query_string, null)
+        cache_behavior = lookup({
+          "Override"     = "OverrideAlways",
+          "SetIfMissing" = "OverrideIfOriginMissing",
+          "BypassCache"  = "Disabled",
+          "HonorOrigin"  = "HonorOrigin"
+        }, c.value.behavior, "HonorOrigin")
+        cache_duration = c.value.duration
       }
     }
 
-    dynamic "url_rewrite_action" {
-      for_each = try(each.value.url_rewrite_actions, [])
-      iterator = urw
+    # Query string caching behavior
+    dynamic "route_configuration_override_action" {
+      for_each = [for ck in try(each.value.cache_key_query_string_actions, []) : ck if contains(["IgnoreQueryString", "UseQueryString"], ck.behavior)]
+      iterator = ck
       content {
-        source_pattern          = urw.value.source_pattern
-        destination             = urw.value.destination
-        preserve_unmatched_path = try(urw.value.preserve_unmatched_path, false)
+        query_string_caching_behavior = ck.value.behavior
+      }
+    }
+
+    dynamic "route_configuration_override_action" {
+      for_each = [for ck in try(each.value.cache_key_query_string_actions, []) : ck if contains(["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"], ck.behavior)]
+      iterator = ck
+      content {
+        query_string_caching_behavior = ck.value.behavior
+        query_string_parameters       = length(trim(ck.value.parameters)) > 0 ? split(",", trim(ck.value.parameters)) : []
       }
     }
   }
 
-  depends_on = [azurerm_cdn_frontdoor_origin.primary]
+  depends_on = [
+    azurerm_cdn_frontdoor_origin.primary,
+    azurerm_cdn_frontdoor_origin_group.this
+  ]
 }
+
 
 ############################################################
 # Default Route
