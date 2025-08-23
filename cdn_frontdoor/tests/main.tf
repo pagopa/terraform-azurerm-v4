@@ -44,38 +44,38 @@ resource "azurerm_dns_zone" "zone" {
 module "cdn" {
   source = "../../cdn_frontdoor"
 
-  location                     = var.location
-  dns_zone_name                = local.dns_zone_name
-  dns_zone_resource_group_name = azurerm_resource_group.rg.name
-  storage_account_error_404_document           = "error_404.html"
-  hostname                     = local.hostname
-  storage_account_index_document               = "index.html"
-  keyvault_resource_group_name = azurerm_resource_group.rg.name
-  keyvault_subscription_id     = data.azurerm_client_config.current.subscription_id
-  keyvault_vault_name          = azurerm_key_vault.this.name
-  log_analytics_workspace_id   = azurerm_log_analytics_workspace.log_analytics_workspace.id
-  dns_prefix_name              = local.project
-  resource_group_name          = azurerm_resource_group.rg.name
-  tags                         = var.tags
+  location                           = var.location
+  dns_zone_name                      = local.dns_zone_name
+  dns_zone_resource_group_name       = azurerm_resource_group.rg.name
+  storage_account_error_404_document = "error_404.html"
+  hostname                           = local.hostname
+  storage_account_index_document     = "index.html"
+  keyvault_resource_group_name       = azurerm_resource_group.rg.name
+  keyvault_subscription_id           = data.azurerm_client_config.current.subscription_id
+  keyvault_vault_name                = azurerm_key_vault.this.name
+  log_analytics_workspace_id         = azurerm_log_analytics_workspace.log_analytics_workspace.id
+  dns_prefix_name                    = local.project
+  resource_group_name                = azurerm_resource_group.rg.name
+  tags                               = var.tags
 }
 
 module "cdn_different_location" {
   source = "../../cdn_frontdoor"
 
-  location                     = var.location
-  cdn_location                 = var.location_cdn
-  dns_zone_name                = local.dns_zone_name
-  dns_zone_resource_group_name = azurerm_resource_group.rg.name
-  storage_account_error_404_document           = "error_404.html"
-  hostname                     = local.hostname
-  storage_account_index_document               = "index.html"
-  keyvault_resource_group_name = azurerm_resource_group.rg.name
-  keyvault_subscription_id     = data.azurerm_client_config.current.subscription_id
-  keyvault_vault_name          = azurerm_key_vault.this.name
-  log_analytics_workspace_id   = azurerm_log_analytics_workspace.log_analytics_workspace.id
-  dns_prefix_name              = local.project
-  resource_group_name          = azurerm_resource_group.rg.name
-  tags                         = var.tags
+  location                           = var.location
+  cdn_location                       = var.location_cdn
+  dns_zone_name                      = local.dns_zone_name
+  dns_zone_resource_group_name       = azurerm_resource_group.rg.name
+  storage_account_error_404_document = "error_404.html"
+  hostname                           = local.hostname
+  storage_account_index_document     = "index.html"
+  keyvault_resource_group_name       = azurerm_resource_group.rg.name
+  keyvault_subscription_id           = data.azurerm_client_config.current.subscription_id
+  keyvault_vault_name                = azurerm_key_vault.this.name
+  log_analytics_workspace_id         = azurerm_log_analytics_workspace.log_analytics_workspace.id
+  dns_prefix_name                    = local.project
+  resource_group_name                = azurerm_resource_group.rg.name
+  tags                               = var.tags
 }
 
 

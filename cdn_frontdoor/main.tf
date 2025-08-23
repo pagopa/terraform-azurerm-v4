@@ -33,8 +33,8 @@ locals {
 module "cdn_storage_account" {
   source = "../storage_account"
 
-  resource_group_name             = var.resource_group_name
-  location                        = var.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
 
   name                            = local.storage_account_name
   account_kind                    = var.storage_account_kind
@@ -221,9 +221,9 @@ resource "azurerm_cdn_frontdoor_rule" "url_path_cache" {
         "SetIfMissing" = "OverrideIfOriginMissing",
         "BypassCache"  = "Disabled",
         "HonorOrigin"  = "HonorOrigin"
-      },
+        },
         "HonorOrigin",
-        each.value.behavior)
+      each.value.behavior)
       cache_duration = each.value.duration
     }
 
@@ -389,11 +389,11 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       for_each = try(each.value.cookies_conditions, [])
       iterator = c
       content {
-        cookie_name     = c.value.selector
-        operator        = c.value.operator
-        match_values    = try(c.value.match_values, [])
+        cookie_name      = c.value.selector
+        operator         = c.value.operator
+        match_values     = try(c.value.match_values, [])
         negate_condition = try(c.value.negate_condition, false)
-        transforms      = try(c.value.transforms, [])
+        transforms       = try(c.value.transforms, [])
       }
     }
 
@@ -759,6 +759,6 @@ resource "azurerm_key_vault_access_policy" "azure_cdn_frontdoor_policy" {
   tenant_id    = var.tenant_id
   object_id    = azurerm_cdn_frontdoor_profile.this.identity[0]
 
-  secret_permissions     = ["Get"]
+  secret_permissions      = ["Get"]
   certificate_permissions = ["Get"]
 }
