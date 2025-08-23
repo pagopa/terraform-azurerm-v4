@@ -1,6 +1,19 @@
 # CDN Front Door
 
 This module provisions an Azure Front Door (Standard/Premium) profile with an Azure Storage static website as origin. It replaces the legacy `cdn` module based on Azure CDN Classic.
+    
+## Migration notes
+
+*Removed parameters:*
+
+- `advanced_threat_protection_enabled`
+- `keyvault_subscription_id`
+
+*Changed names:*
+
+- `index_document` -> `storage_account_index_document`
+- `error_404_document` -> `storage_account_error_404_document`
+- `keyvault_resource_group_name` & `keyvault_vault_name` -> `keyvault_id`
 
 ## Usage
 
