@@ -383,12 +383,6 @@ variable "storage_account_error_404_document" {
   type = string
 }
 
-variable "azuread_service_principal_azure_cdn_frontdoor_id" {
-  type        = string
-  description = "Azure CDN Front Door Principal ID - Microsoft.AzureFrontDoor-Cdn"
-  default     = null
-}
-
 variable "custom_hostname_kv_enabled" {
   type        = bool
   default     = false

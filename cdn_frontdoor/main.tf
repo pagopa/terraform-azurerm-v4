@@ -757,7 +757,7 @@ resource "azurerm_key_vault_access_policy" "azure_cdn_frontdoor_policy" {
 
   key_vault_id = local.keyvault_id
   tenant_id    = var.tenant_id
-  object_id    = azurerm_cdn_frontdoor_profile.this.identity.identity_ids[0]
+  object_id    = azurerm_cdn_frontdoor_profile.this.identity[0]
 
   secret_permissions     = ["Get"]
   certificate_permissions = ["Get"]
