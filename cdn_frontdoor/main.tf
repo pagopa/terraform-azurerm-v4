@@ -5,7 +5,7 @@
 #############################################
 
 locals {
-  name_prefix          = var.dns_prefix_name
+  name_prefix          = var.cdn_prefix_name
   cdn_location         = coalesce(var.cdn_location, var.location)
   storage_account_name = var.storage_account_name != null ? replace(var.storage_account_name, "-", "") : replace("${local.name_prefix}-sa", "-", "")
 
@@ -126,7 +126,7 @@ resource "azurerm_cdn_frontdoor_rule_set" "this" {
 # -------------------------------------------------------------------
 resource "azurerm_cdn_frontdoor_rule" "global" {
   count                     = var.global_delivery_rule != null ? 1 : 0
-  name                      = "${var.dns_prefix_name}-fd-rule-global"
+  name                      = "${var.cdn_prefix_name}-fd-rule-global"
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
   order                     = 1
   behavior_on_match         = "Continue"

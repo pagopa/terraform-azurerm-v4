@@ -1,4 +1,4 @@
-variable "dns_prefix_name" {
+variable "cdn_prefix_name" {
   type        = string
   description = "Prefix used for naming resources (e.g. myprefix-myapp)"
 }

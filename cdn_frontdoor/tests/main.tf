@@ -54,7 +54,7 @@ module "cdn" {
   keyvault_subscription_id           = data.azurerm_client_config.current.subscription_id
   keyvault_vault_name                = azurerm_key_vault.this.name
   log_analytics_workspace_id         = azurerm_log_analytics_workspace.log_analytics_workspace.id
-  dns_prefix_name                    = local.project
+  cdn_prefix_name                    = local.project
   resource_group_name                = azurerm_resource_group.rg.name
   tags                               = var.tags
 }
@@ -73,7 +73,7 @@ module "cdn_different_location" {
   keyvault_subscription_id           = data.azurerm_client_config.current.subscription_id
   keyvault_vault_name                = azurerm_key_vault.this.name
   log_analytics_workspace_id         = azurerm_log_analytics_workspace.log_analytics_workspace.id
-  dns_prefix_name                    = local.project
+  cdn_prefix_name                    = local.project
   resource_group_name                = azurerm_resource_group.rg.name
   tags                               = var.tags
 }
