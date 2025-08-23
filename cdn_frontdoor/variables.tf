@@ -36,20 +36,15 @@ variable "frontdoor_sku_name" {
 #
 # KV
 #
-variable "keyvault_resource_group_name" {
-  type        = string
-  description = "Key vault resource group name"
-}
-
-variable "keyvault_subscription_id" {
-  type        = string
-  description = "Key vault subscription id"
-}
-
-variable "keyvault_vault_name" {
-  type        = string
-  description = "Key vault name"
-}
+# variable "keyvault_resource_group_name" {
+#   type        = string
+#   description = "Key vault resource group name"
+# }
+#
+# variable "keyvault_vault_name" {
+#   type        = string
+#   description = "Key vault name"
+# }
 
 variable "keyvault_id" {
   type        = string

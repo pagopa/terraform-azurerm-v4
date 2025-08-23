@@ -93,7 +93,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "this" {
   }
 }
 
-resource "azurerm_cdn_frontdoor_origin" "primary" {
+resource "azurerm_cdn_frontdoor_origin" "storage_web_host" {
   name                          = local.fd_origin_primary
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.this.id
 
@@ -190,7 +190,7 @@ resource "azurerm_cdn_frontdoor_rule" "global" {
   }
 
   depends_on = [
-    azurerm_cdn_frontdoor_origin.primary,
+    azurerm_cdn_frontdoor_origin.storage_web_host,
     azurerm_cdn_frontdoor_origin_group.this
   ]
 }
@@ -235,7 +235,7 @@ resource "azurerm_cdn_frontdoor_rule" "url_path_cache" {
   }
 
   depends_on = [
-    azurerm_cdn_frontdoor_origin.primary,
+    azurerm_cdn_frontdoor_origin.storage_web_host,
     azurerm_cdn_frontdoor_origin_group.this
   ]
 }
@@ -270,7 +270,7 @@ resource "azurerm_cdn_frontdoor_rule" "scheme_redirect" {
   }
 
   depends_on = [
-    azurerm_cdn_frontdoor_origin.primary,
+    azurerm_cdn_frontdoor_origin.storage_web_host,
     azurerm_cdn_frontdoor_origin_group.this
   ]
 }
@@ -306,7 +306,7 @@ resource "azurerm_cdn_frontdoor_rule" "redirect" {
   }
 
   depends_on = [
-    azurerm_cdn_frontdoor_origin.primary,
+    azurerm_cdn_frontdoor_origin.storage_web_host,
     azurerm_cdn_frontdoor_origin_group.this
   ]
 }
@@ -365,7 +365,7 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
   }
 
   depends_on = [
-    azurerm_cdn_frontdoor_origin.primary,
+    azurerm_cdn_frontdoor_origin.storage_web_host,
     azurerm_cdn_frontdoor_origin_group.this
   ]
 }
@@ -609,7 +609,7 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
   }
 
   depends_on = [
-    azurerm_cdn_frontdoor_origin.primary,
+    azurerm_cdn_frontdoor_origin.storage_web_host,
     azurerm_cdn_frontdoor_origin_group.this
   ]
 }
@@ -633,7 +633,7 @@ resource "azurerm_cdn_frontdoor_route" "this" {
   # Associate Rule Set (no separate association resource)
   cdn_frontdoor_rule_set_ids = var.global_delivery_rule != null || length(var.delivery_rule) > 0 || length(var.delivery_rule_redirect) > 0 || length(var.delivery_rule_rewrite) > 0 || length(var.delivery_rule_request_scheme_condition) > 0 || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0 ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
 
-  cdn_frontdoor_origin_ids = [azurerm_cdn_frontdoor_origin.primary.id]
+  cdn_frontdoor_origin_ids = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
 
   # Route-level cache configuration (back-compat to classic querystring behavior)
   cache {
@@ -642,7 +642,7 @@ resource "azurerm_cdn_frontdoor_route" "this" {
 }
 
 ############################################################
-# Custom domain + TLS (managed or KV)
+# 🌐 Custom domain + TLS (managed or KV)
 ############################################################
 
 data "azurerm_dns_zone" "this" {
@@ -650,14 +650,9 @@ data "azurerm_dns_zone" "this" {
   resource_group_name = var.dns_zone_resource_group_name
 }
 
-data "azurerm_key_vault" "this" {
-  count               = (var.dns_zone_name == var.hostname || var.custom_hostname_kv_enabled) && var.keyvault_id == null ? 1 : 0
-  name                = var.keyvault_vault_name
-  resource_group_name = var.keyvault_resource_group_name
-}
 
 locals {
-  keyvault_id        = coalesce(var.keyvault_id, try(data.azurerm_key_vault.this[0].id, null))
+  keyvault_id        = var.keyvault_id
   certificate_name   = replace(var.hostname, ".", "-")
   use_kv_certificate = var.dns_zone_name == var.hostname || var.custom_hostname_kv_enabled
 }
