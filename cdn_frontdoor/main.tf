@@ -15,15 +15,15 @@ locals {
   dns_txt_name   = local.hostname_label != "" ? "_dnsauth.${local.hostname_label}" : "_dnsauth"
 
   # Naming
-  fd_profile_name   = "${local.name_prefix}-fd-prf"
-  fd_endpoint_name  = "${local.name_prefix}-fd-ep"
-  fd_origin_group   = "${local.name_prefix}-fd-og"
-  fd_origin_primary = "${local.name_prefix}-fd-or-primary"
-  fd_route_default  = "${local.name_prefix}-fd-rt-default"
-  fd_ruleset_global = "${local.name_prefix}-fd-rs-global"
-  fd_rule_global    = "${local.name_prefix}-fd-rule-global"
-  fd_diag_name      = "${local.name_prefix}-fd-prf-diag"
-  fd_secret_name    = "${local.name_prefix}-fd-secret"
+  fd_profile_name   = "${local.name_prefix}-cdn-prf"
+  fd_endpoint_name  = "${local.name_prefix}-cdn-ep"
+  fd_origin_group   = "${local.name_prefix}-cdn-og"
+  fd_origin_primary = "${local.name_prefix}-cdn-or-primary"
+  fd_route_default  = "${local.name_prefix}-cdn-rtd"
+  fd_ruleset_global = replace("${local.name_prefix}-cdn-rs-global", "-", "")
+  fd_rule_global    = replace("${local.name_prefix}-cdn-rule-global", "-", "")
+  fd_diag_name      = "${local.name_prefix}-cdn-diag"
+  fd_secret_name    = "${local.name_prefix}-cdn-secret"
   fd_customdom_name = replace(var.hostname, ".", "-")
 }
 
@@ -126,7 +126,7 @@ resource "azurerm_cdn_frontdoor_rule_set" "this" {
 # -------------------------------------------------------------------
 resource "azurerm_cdn_frontdoor_rule" "global" {
   count                     = var.global_delivery_rule != null ? 1 : 0
-  name                      = "${var.cdn_prefix_name}-fd-rule-global"
+  name                      = local.fd_rule_global
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
   order                     = 1
   behavior_on_match         = "Continue"
