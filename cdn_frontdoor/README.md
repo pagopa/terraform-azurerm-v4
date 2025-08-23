@@ -14,6 +14,7 @@ This module provisions an Azure Front Door (Standard/Premium) profile with an Az
 - `index_document` -> `storage_account_index_document`
 - `error_404_document` -> `storage_account_error_404_document`
 - `keyvault_resource_group_name` & `keyvault_vault_name` -> `keyvault_id`
+- `querystring_caching_behaviour` -> default values now is `IgnoreQueryString
 
 ## Usage
 
