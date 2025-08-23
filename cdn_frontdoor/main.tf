@@ -58,6 +58,10 @@ resource "azurerm_cdn_frontdoor_profile" "this" {
   resource_group_name = var.resource_group_name
   sku_name            = var.frontdoor_sku_name
   tags                = var.tags
+
+  identity {
+    type = "SystemAssigned"
+  }
 }
 
 resource "azurerm_cdn_frontdoor_endpoint" "this" {
@@ -217,7 +221,9 @@ resource "azurerm_cdn_frontdoor_rule" "url_path_cache" {
         "SetIfMissing" = "OverrideIfOriginMissing",
         "BypassCache"  = "Disabled",
         "HonorOrigin"  = "HonorOrigin"
-      }, each.value.behavior, "HonorOrigin")
+      },
+        "HonorOrigin",
+        each.value.behavior)
       cache_duration = each.value.duration
     }
 
@@ -751,7 +757,7 @@ resource "azurerm_key_vault_access_policy" "azure_cdn_frontdoor_policy" {
 
   key_vault_id = local.keyvault_id
   tenant_id    = var.tenant_id
-  object_id    = var.azuread_service_principal_azure_cdn_frontdoor_id
+  object_id    = azurerm_cdn_frontdoor_profile.this.identity.identity_ids[0]
 
   secret_permissions     = ["Get"]
   certificate_permissions = ["Get"]
