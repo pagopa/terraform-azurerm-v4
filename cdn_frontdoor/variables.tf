@@ -12,12 +12,6 @@ variable "location" {
   type = string
 }
 
-variable "cdn_location" {
-  type        = string
-  default     = null
-  description = "If the location of the CDN needs to be different from that of the storage account, set this variable to the location where the CDN should be created. For example, cdn_location = westeurope and location = northitaly"
-}
-
 variable "tags" {
   type = map(string)
 }
@@ -31,20 +25,6 @@ variable "frontdoor_sku_name" {
   description = "SKU name for the Azure Front Door profile"
   default     = "Standard_AzureFrontDoor"
 }
-
-
-#
-# KV
-#
-# variable "keyvault_resource_group_name" {
-#   type        = string
-#   description = "Key vault resource group name"
-# }
-#
-# variable "keyvault_vault_name" {
-#   type        = string
-#   description = "Key vault name"
-# }
 
 variable "keyvault_id" {
   type        = string
@@ -96,6 +76,14 @@ variable "storage_public_network_access_enabled" {
   type        = bool
   default     = true
   description = "Flag to set public public network for storage account"
+}
+
+variable "storage_account_index_document" {
+  type = string
+}
+
+variable "storage_account_error_404_document" {
+  type = string
 }
 
 #
@@ -343,23 +331,21 @@ variable "delivery_rule" {
 variable "querystring_caching_behaviour" {
   type    = string
   default = "IgnoreQueryString"
+  description = "Defines the query string caching behavior for the CDN endpoint. Possible values are: IgnoreQueryString, BypassCaching, UseQueryString, NotSet"
 }
 
 variable "https_rewrite_enabled" {
   type    = bool
   default = true
+  description = "Flag to enable HTTPS rewrite on CDN"
 }
 
-variable "hostname" {
-  type = string
-}
-
-variable "storage_account_index_document" {
-  type = string
-}
-
-variable "storage_account_error_404_document" {
-  type = string
+#
+# Custom Domains
+#
+variable "customs_domains" {
+  type        = list(string)
+  description = "List of custom domains to attach to the Front Door route"
 }
 
 variable "custom_hostname_kv_enabled" {
@@ -370,13 +356,16 @@ variable "custom_hostname_kv_enabled" {
 
 variable "dns_zone_name" {
   type = string
+  description = "DNS zone name where the A record will be created (e.g. example.com)"
 }
 
 variable "dns_zone_resource_group_name" {
   type = string
+  description = "Resource group name where the DNS zone is located"
 }
 
 variable "create_dns_record" {
   type    = bool
   default = true
+  description = "Flag to create DNS A record for the Front Door custom domains"
 }

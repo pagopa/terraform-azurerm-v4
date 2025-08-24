@@ -1,6 +1,5 @@
 locals {
   name_prefix          = var.cdn_prefix_name
-  cdn_location         = coalesce(var.cdn_location, var.location)
   storage_account_name = var.storage_account_name != null ? replace(var.storage_account_name, "-", "") : replace("${local.name_prefix}-sa", "-", "")
   fd_profile_name      = "${local.name_prefix}-cdn-profile"
   fd_endpoint_name     = "${local.name_prefix}-cdn-endpoint"
@@ -654,6 +653,93 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
 
 
 ############################################################
+# 🌐 Custom domain + TLS (managed or KV)
+############################################################
+
+data "azurerm_dns_zone" "this" {
+  name                = var.dns_zone_name
+  resource_group_name = var.dns_zone_resource_group_name
+}
+
+locals {
+  keyvault_id = var.keyvault_id
+
+  custom_domains = {
+    for host in var.customs_domains : host => {
+      is_apex   = host == var.dns_zone_name
+      label     = host == var.dns_zone_name ? "" : trimsuffix(replace(host, var.dns_zone_name, ""), ".")
+      txt_name  = host == var.dns_zone_name ? "_dnsauth" : "_dnsauth.${trimsuffix(replace(host, var.dns_zone_name, ""), ".")}"
+      cert_name = replace(host, ".", "-")
+      use_kv    = (host == var.dns_zone_name) || var.custom_hostname_kv_enabled
+    }
+  }
+}
+
+data "azurerm_key_vault_certificate" "custom_domain_certificates" {
+  for_each     = { for k, v in local.custom_domains : k => v if v.use_kv }
+  name         = each.value.cert_name
+  key_vault_id = local.keyvault_id
+}
+
+resource "azurerm_cdn_frontdoor_secret" "customer_certificates" {
+  for_each                 = { for k, v in local.custom_domains : k => v if v.use_kv }
+  name                     = "secret-${each.value.cert_name}"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
+
+  secret {
+    customer_certificate {
+      key_vault_certificate_id = data.azurerm_key_vault_certificate.custom_domain_certificates[each.key].versionless_id
+    }
+  }
+}
+
+resource "azurerm_cdn_frontdoor_custom_domain" "customs_domains" {
+  for_each                 = local.custom_domains
+  name                     = replace(each.key, ".", "-")
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
+  dns_zone_id              = data.azurerm_dns_zone.this.id
+  host_name                = each.key
+
+  tls {
+    certificate_type        = each.value.use_kv ? "CustomerCertificate" : "ManagedCertificate"
+    cdn_frontdoor_secret_id = each.value.use_kv ? azurerm_cdn_frontdoor_secret.customer_certificates[each.key].id : null
+  }
+}
+
+resource "azurerm_dns_txt_record" "domain_validation" {
+  for_each            = local.custom_domains
+  name                = each.value.txt_name
+  zone_name           = var.dns_zone_name
+  resource_group_name = var.dns_zone_resource_group_name
+  ttl                 = 3600
+
+  record {
+    value = azurerm_cdn_frontdoor_custom_domain.customs_domains[each.key].validation_token
+  }
+}
+
+############################################################
+# DNS records
+############################################################
+resource "azurerm_dns_a_record" "apex_hostname" {
+  for_each            = { for k, v in local.custom_domains : k => v if v.is_apex && var.create_dns_record }
+  name                = "@"
+  zone_name           = var.dns_zone_name
+  resource_group_name = var.dns_zone_resource_group_name
+  ttl                 = 3600
+  target_resource_id  = azurerm_cdn_frontdoor_endpoint.this.id
+}
+
+resource "azurerm_dns_cname_record" "hostname" {
+  for_each            = { for k, v in local.custom_domains : k => v if !v.is_apex && var.create_dns_record }
+  name                = trimsuffix(each.value.label, ".")
+  zone_name           = var.dns_zone_name
+  resource_group_name = var.dns_zone_resource_group_name
+  ttl                 = 3600
+  record              = azurerm_cdn_frontdoor_endpoint.this.host_name
+}
+
+############################################################
 # Default Route
 ############################################################
 resource "azurerm_cdn_frontdoor_route" "this" {
@@ -677,104 +763,16 @@ resource "azurerm_cdn_frontdoor_route" "this" {
   ) ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
 
   cdn_frontdoor_origin_ids        = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
-  cdn_frontdoor_custom_domain_ids = [for d in azurerm_cdn_frontdoor_custom_domain.this : d.id]
+  cdn_frontdoor_custom_domain_ids = [for d in azurerm_cdn_frontdoor_custom_domain.customs_domains : d.id]
 
   cache {
     query_string_caching_behavior = var.querystring_caching_behaviour
   }
 
   depends_on = [
-    azurerm_cdn_frontdoor_custom_domain.this,
+    azurerm_cdn_frontdoor_custom_domain.customs_domains,
     azurerm_dns_txt_record.domain_validation
   ]
-}
-
-
-############################################################
-# 🌐 Custom domain + TLS (managed or KV)
-############################################################
-
-data "azurerm_dns_zone" "this" {
-  name                = var.dns_zone_name
-  resource_group_name = var.dns_zone_resource_group_name
-}
-
-locals {
-  keyvault_id = var.keyvault_id
-
-  custom_domains = {
-    for h in var.customs_domains : h => {
-      is_apex   = h == var.dns_zone_name
-      label     = h == var.dns_zone_name ? "" : trimsuffix(replace(h, var.dns_zone_name, ""), ".")
-      txt_name  = h == var.dns_zone_name ? "_dnsauth" : "_dnsauth.${trimsuffix(replace(h, var.dns_zone_name, ""), ".")}"
-      cert_name = replace(h, ".", "-")
-      use_kv    = (h == var.dns_zone_name) || var.custom_hostname_kv_enabled
-    }
-  }
-}
-
-data "azurerm_key_vault_certificate" "custom_domain" {
-  for_each     = { for k, v in local.custom_domains : k => v if v.use_kv }
-  name         = each.value.cert_name
-  key_vault_id = local.keyvault_id
-}
-
-resource "azurerm_cdn_frontdoor_secret" "customer_certificate" {
-  for_each                 = { for k, v in local.custom_domains : k => v if v.use_kv }
-  name                     = "secret-${each.value.cert_name}"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-
-  secret {
-    customer_certificate {
-      key_vault_certificate_id = data.azurerm_key_vault_certificate.custom_domain[each.key].versionless_id
-    }
-  }
-}
-
-resource "azurerm_cdn_frontdoor_custom_domain" "this" {
-  for_each                 = local.custom_domains
-  name                     = replace(each.key, ".", "-")
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  dns_zone_id              = data.azurerm_dns_zone.this.id
-  host_name                = each.key
-
-  tls {
-    certificate_type        = each.value.use_kv ? "CustomerCertificate" : "ManagedCertificate"
-    cdn_frontdoor_secret_id = each.value.use_kv ? azurerm_cdn_frontdoor_secret.customer_certificate[each.key].id : null
-  }
-}
-
-resource "azurerm_dns_txt_record" "domain_validation" {
-  for_each            = local.custom_domains
-  name                = each.value.txt_name
-  zone_name           = var.dns_zone_name
-  resource_group_name = var.dns_zone_resource_group_name
-  ttl                 = 3600
-
-  record {
-    value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
-  }
-}
-
-############################################################
-# DNS records
-############################################################
-resource "azurerm_dns_a_record" "apex_hostname" {
-  for_each            = { for k, v in local.custom_domains : k => v if v.is_apex && var.create_dns_record }
-  name                = "@"
-  zone_name           = var.dns_zone_name
-  resource_group_name = var.dns_zone_resource_group_name
-  ttl                 = 3600
-  target_resource_id  = azurerm_cdn_frontdoor_endpoint.this.id
-}
-
-resource "azurerm_dns_cname_record" "hostname" {
-  for_each            = { for k, v in local.custom_domains : k => v if !v.is_apex && var.create_dns_record }
-  name                = trimsuffix(each.value.label, ".")
-  zone_name           = var.dns_zone_name
-  resource_group_name = var.dns_zone_resource_group_name
-  ttl                 = 3600
-  record              = azurerm_cdn_frontdoor_endpoint.this.host_name
 }
 
 ############################################################
