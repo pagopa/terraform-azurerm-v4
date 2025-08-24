@@ -26,6 +26,11 @@ variable "resource_group_name" {
   type = string
 }
 
+variable enable_custom_domain {
+  type    = bool
+  default = false
+}
+
 variable "frontdoor_sku_name" {
   type        = string
   description = "SKU name for the Azure Front Door profile"
@@ -370,10 +375,12 @@ variable "custom_hostname_kv_enabled" {
 
 variable "dns_zone_name" {
   type = string
+  default = ""
 }
 
 variable "dns_zone_resource_group_name" {
   type = string
+  default = ""
 }
 
 variable "create_dns_record" {

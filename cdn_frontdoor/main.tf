@@ -1,18 +1,15 @@
-#############################################
-# Azure Front Door (Standard/Premium) module
-# Fixed & back-compat with classic CDN module
-# Provider: hashicorp/azurerm >= 4.41.0
-#############################################
-
+############################################################
+# Locals (naming, helpers)
+############################################################
 locals {
   name_prefix          = var.cdn_prefix_name
   cdn_location         = coalesce(var.cdn_location, var.location)
   storage_account_name = var.storage_account_name != null ? replace(var.storage_account_name, "-", "") : replace("${local.name_prefix}-sa", "-", "")
 
-  # DNS helpers
-  is_apex        = var.hostname == var.dns_zone_name
-  hostname_label = local.is_apex ? "" : trimsuffix(replace(var.hostname, var.dns_zone_name, ""), ".")
-  dns_txt_name   = local.hostname_label != "" ? "_dnsauth.${local.hostname_label}" : "_dnsauth"
+  # DNS helpers computed only when custom domain is enabled
+  is_apex        = var.enable_custom_domain ? var.hostname == var.dns_zone_name : false
+  hostname_label = var.enable_custom_domain ? (local.is_apex ? "" : trimsuffix(replace(var.hostname, var.dns_zone_name, ""), ".")) : ""
+  dns_txt_name   = var.enable_custom_domain ? (local.hostname_label != "" ? "_dnsauth.${local.hostname_label}" : "_dnsauth") : ""
 
   # Naming
   fd_profile_name   = "${local.name_prefix}-cdn-profile"
@@ -24,7 +21,12 @@ locals {
   fd_rule_global    = replace("rule-global", "-", "")
   fd_diag_name      = "tf-diagnostics"
   fd_secret_name    = "secret-certificate"
-  fd_customdom_name = replace(var.hostname, ".", "-")
+  fd_customdom_name = var.enable_custom_domain ? replace(var.hostname, ".", "-") : ""
+
+  # Certificate helpers
+  keyvault_id        = var.keyvault_id
+  certificate_name   = var.enable_custom_domain ? replace(var.hostname, ".", "-") : ""
+  use_kv_certificate = var.enable_custom_domain ? (var.dns_zone_name == var.hostname || var.custom_hostname_kv_enabled) : false
 }
 
 ############################################################
@@ -33,8 +35,8 @@ locals {
 module "cdn_storage_account" {
   source = "../storage_account"
 
-  resource_group_name = var.resource_group_name
-  location            = var.location
+  resource_group_name             = var.resource_group_name
+  location                        = var.location
 
   name                            = local.storage_account_name
   account_kind                    = var.storage_account_kind
@@ -59,9 +61,7 @@ resource "azurerm_cdn_frontdoor_profile" "this" {
   sku_name            = var.frontdoor_sku_name
   tags                = var.tags
 
-  identity {
-    type = "SystemAssigned"
-  }
+  identity { type = "SystemAssigned" }
 }
 
 resource "azurerm_cdn_frontdoor_endpoint" "this" {
@@ -163,7 +163,6 @@ resource "azurerm_cdn_frontdoor_rule" "global" {
     azurerm_cdn_frontdoor_origin_group.this
   ]
 }
-
 
 # -------------------------------------------------------------------
 # URL path -> cache TTL + optional response header (back-compat)
@@ -282,35 +281,20 @@ resource "azurerm_cdn_frontdoor_rule" "redirect" {
 }
 
 # =============================================================
-# REWRITE-ONLY RULE (AFD Standard/Premium) — inline explanations (EN)
-# =============================================================
-# Goal: apply SPA/root rewrites without changing the existing input schema
-# (var.delivery_rule_rewrite).
-#
-# Background: `url_path_condition` does not accept a leading slash in
-# `match_values`. Many modules use `trimprefix(v, "/")` to remove it. When
-# `v = "/"`, the result is an empty string → provider/API validation error 400
-# ("Match value(s) must be provided").
-#
+# REWRITE-ONLY RULE (AFD Standard/Premium)
+# Goal: apply SPA/root rewrites without changing input schema
+# Context: url_path_condition disallows leading '/'; guard root "/"
 # Strategy:
-# 1) Pass-through any `request_uri_condition` provided by the caller.
-# 2) Auto-convert ONLY `url_path_condition == "/"` into an equivalent
-#    `request_uri_condition` that allows the leading slash.
-# 3) Publish remaining `url_path_condition` entries after removing the leading
-#    slash; drop empty results.
-# 4) Keep the `var.delivery_rule_rewrite` schema unchanged.
-#
+# 1) Pass-through request_uri_condition if provided.
+# 2) Convert url_path_condition == "/" into request_uri_condition == "/".
+# 3) Publish remaining url_path_condition stripping the leading '/'.
+# 4) Keep var.delivery_rule_rewrite schema unchanged.
 # Typical use-cases:
-# - Root SPA:        path == "/"  → rewrite to "/app/index.html".
-# - SPA prefix:      path beginsWith "/portal/" → rewrite to "/portal/index.html".
-# - Extension-based: missing extension → fallback to index.html.
+# - Root SPA:        "/"  → "/app/index.html"
+# - SPA prefix:      "/portal/" → "/portal/index.html"
+# - Extension-less:  no ext → fallback to index.html
 # =============================================================
-
 resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
-  # -----------------------------------------------------------
-  # for_each: each object in var.delivery_rule_rewrite becomes a Rule.
-  # Key = order, to enforce a stable evaluation order.
-  # -----------------------------------------------------------
   for_each                  = { for r in var.delivery_rule_rewrite : r.order => r }
   name                      = each.value.name
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
@@ -332,13 +316,13 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
   #   - url_file_extension_condition: pass-through (e.g., “no extension”).
   # -----------------------------------------------------------
   conditions {
-    # 1) PASS-THROUGH of request_uri_condition provided by the caller
+    # 1) pass-through of request_uri_condition
     dynamic "request_uri_condition" {
       for_each = [for c in each.value.conditions : c if c.condition_type == "request_uri_condition"]
       iterator = c
       content {
-        operator         = c.value.operator        # Equal | RegEx | BeginsWith | EndsWith | Wildcard
-        match_values     = c.value.match_values    # e.g., ["/"], ["/portal/"], ["^/?$"]
+        operator         = c.value.operator
+        match_values     = c.value.match_values
         negate_condition = c.value.negate_condition
         transforms       = try(c.value.transforms, [])
       }
@@ -360,17 +344,14 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
       ])
       iterator = ur
       content {
-        operator         = ur.value.operator      # usually "Equal" for the root
-        match_values     = [ur.value.match_value] # ["/"]
+        operator         = ur.value.operator
+        match_values     = [ur.value.match_value]
         negate_condition = ur.value.negate_condition
         transforms       = ur.value.transforms
       }
     }
 
-    # 3) NORMAL URL PATHS: strip leading slash and publish only if non-empty.
-    #    Examples:
-    #    - ["/portal/"]    → ["portal/"]
-    #    - ["/app", "/"]  → ["app"]   ("/" is filtered here and converted above)
+    # 3) normal url_path values after trimming leading '/'
     dynamic "url_path_condition" {
       for_each = [for c in each.value.conditions : c if c.condition_type == "url_path_condition" && length(compact([for v in c.match_values : trimprefix(v, "/")])) > 0]
       iterator = c
@@ -382,10 +363,7 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
       }
     }
 
-    # 4) FILE EXTENSION: typical SPA fallback (no extension → rewrite)
-    #    Examples:
-    #    - operator: LessThanOrEqual, match_values: ["0"] to match “no ext”.
-    #    - operator: Equal, match_values: ["html", "js"] for targeted filters.
+    # 4) optional extension filters
     dynamic "url_file_extension_condition" {
       for_each = [for c in each.value.conditions : c if c.condition_type == "url_file_extension_condition"]
       iterator = c
@@ -415,16 +393,11 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
     }
   }
 
-  # -----------------------------------------------------------
-  # depends_on: ensure Origin & Origin Group exist before creating the Rule
-  # (prevents provisioning races).
-  # -----------------------------------------------------------
   depends_on = [
     azurerm_cdn_frontdoor_origin.storage_web_host,
     azurerm_cdn_frontdoor_origin_group.this
   ]
 }
-
 
 # -------------------------------------------------------------------
 # Generic custom rules (conditions superset)
@@ -440,7 +413,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
   behavior_on_match         = try(each.value.behavior_on_match, "Continue")
 
   conditions {
-    # cookies
     dynamic "cookies_condition" {
       for_each = try(each.value.cookies_conditions, [])
       iterator = c
@@ -453,7 +425,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # device
     dynamic "is_device_condition" {
       for_each = try(each.value.device_conditions, [])
       iterator = c
@@ -464,7 +435,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # http version
     dynamic "http_version_condition" {
       for_each = try(each.value.http_version_conditions, [])
       iterator = c
@@ -475,7 +445,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # post args
     dynamic "post_args_condition" {
       for_each = try(each.value.post_arg_conditions, [])
       iterator = c
@@ -488,7 +457,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # query string
     dynamic "query_string_condition" {
       for_each = try(each.value.query_string_conditions, [])
       iterator = c
@@ -500,7 +468,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # remote address
     dynamic "remote_address_condition" {
       for_each = try(each.value.remote_address_conditions, [])
       iterator = c
@@ -511,7 +478,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # request body
     dynamic "request_body_condition" {
       for_each = try(each.value.request_body_conditions, [])
       iterator = c
@@ -523,7 +489,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # request header
     dynamic "request_header_condition" {
       for_each = try(each.value.request_header_conditions, [])
       iterator = c
@@ -536,7 +501,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # request method
     dynamic "request_method_condition" {
       for_each = try(each.value.request_method_conditions, [])
       iterator = c
@@ -547,7 +511,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # request scheme
     dynamic "request_scheme_condition" {
       for_each = try(each.value.request_scheme_conditions, [])
       iterator = c
@@ -558,7 +521,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # request uri
     dynamic "request_uri_condition" {
       for_each = try(each.value.request_uri_conditions, [])
       iterator = c
@@ -570,7 +532,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # url file extension
     dynamic "url_file_extension_condition" {
       for_each = try(each.value.url_file_extension_conditions, [])
       iterator = c
@@ -582,7 +543,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # url file name
     dynamic "url_filename_condition" {
       for_each = try(each.value.url_file_name_conditions, [])
       iterator = c
@@ -594,7 +554,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # url path
     dynamic "url_path_condition" {
       for_each = try(each.value.url_path_conditions, [])
       iterator = c
@@ -659,7 +618,7 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       iterator = ck
       content {
         query_string_caching_behavior = ck.value.behavior
-        query_string_parameters       = length(trim(ck.value.parameters)) > 0 ? split(",", trim(ck.value.parameters)) : []
+        query_string_parameters       = length(trimspace(ck.value.parameters)) > 0 ? split(",", trimspace(ck.value.parameters)) : []
       }
     }
   }
@@ -670,11 +629,10 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
   ]
 }
 
-
 ############################################################
 # Default Route
 ############################################################
-resource "azurerm_cdn_frontdoor_route" "this" {
+resource "azurerm_cdn_frontdoor_route" "default_route" {
   name                          = local.fd_route_default
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.this.id
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.this.id
@@ -696,43 +654,34 @@ resource "azurerm_cdn_frontdoor_route" "this" {
   ) ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
 
   cdn_frontdoor_origin_ids        = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
-  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.this.id]
+  cdn_frontdoor_custom_domain_ids = var.enable_custom_domain ? [azurerm_cdn_frontdoor_custom_domain.this[0].id] : []
 
   cache {
     query_string_caching_behavior = var.querystring_caching_behaviour
   }
 
-  depends_on = [
-    azurerm_cdn_frontdoor_custom_domain.this,
-    azurerm_dns_txt_record.domain_validation
-  ]
 }
 
-
 ############################################################
-# 🌐 Custom domain + TLS (managed or KV)
+# 🌐 Custom domain + TLS (managed or KV) — conditional
 ############################################################
+# Entire block is skipped when enable_custom_domain = false.
+# Also skips DNS data source and records in that case.
 
 data "azurerm_dns_zone" "this" {
+  count               = var.enable_custom_domain ? 1 : 0
   name                = var.dns_zone_name
   resource_group_name = var.dns_zone_resource_group_name
 }
 
-
-locals {
-  keyvault_id        = var.keyvault_id
-  certificate_name   = replace(var.hostname, ".", "-")
-  use_kv_certificate = var.dns_zone_name == var.hostname || var.custom_hostname_kv_enabled
-}
-
 data "azurerm_key_vault_certificate" "custom_domain" {
-  count        = local.use_kv_certificate ? 1 : 0
+  count        = var.enable_custom_domain && local.use_kv_certificate ? 1 : 0
   name         = local.certificate_name
   key_vault_id = local.keyvault_id
 }
 
 resource "azurerm_cdn_frontdoor_secret" "this" {
-  count                    = local.use_kv_certificate ? 1 : 0
+  count                    = var.enable_custom_domain && local.use_kv_certificate ? 1 : 0
   name                     = local.fd_secret_name
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
 
@@ -744,32 +693,33 @@ resource "azurerm_cdn_frontdoor_secret" "this" {
 }
 
 resource "azurerm_cdn_frontdoor_custom_domain" "this" {
+  count                    = var.enable_custom_domain ? 1 : 0
   name                     = local.fd_customdom_name
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  dns_zone_id              = data.azurerm_dns_zone.this.id
+  dns_zone_id              = var.enable_custom_domain ? data.azurerm_dns_zone.this[0].id : null
   host_name                = var.hostname
 
   tls {
     certificate_type        = local.use_kv_certificate ? "CustomerCertificate" : "ManagedCertificate"
-    minimum_tls_version     = "TLS12"
-    cdn_frontdoor_secret_id = local.use_kv_certificate ? azurerm_cdn_frontdoor_secret.this[0].id : null
+    cdn_frontdoor_secret_id = var.enable_custom_domain && local.use_kv_certificate ? azurerm_cdn_frontdoor_secret.this[0].id : null
   }
 }
 
 resource "azurerm_dns_txt_record" "domain_validation" {
+  count               = var.enable_custom_domain ? 1 : 0
   name                = local.dns_txt_name
   zone_name           = var.dns_zone_name
   resource_group_name = var.dns_zone_resource_group_name
   ttl                 = 3600
 
-  record { value = azurerm_cdn_frontdoor_custom_domain.this.validation_token }
+  record { value = azurerm_cdn_frontdoor_custom_domain.this[0].validation_token }
 }
 
 ############################################################
-# DNS records
+# DNS records (Apex A-record or subdomain CNAME) — conditional
 ############################################################
 resource "azurerm_dns_a_record" "apex_hostname" {
-  count               = var.create_dns_record && local.is_apex ? 1 : 0
+  count               = var.enable_custom_domain && local.is_apex && var.create_dns_record ? 1 : 0
   name                = "@"
   zone_name           = var.dns_zone_name
   resource_group_name = var.dns_zone_resource_group_name
@@ -778,7 +728,7 @@ resource "azurerm_dns_a_record" "apex_hostname" {
 }
 
 resource "azurerm_dns_cname_record" "hostname" {
-  count               = var.create_dns_record && !local.is_apex ? 1 : 0
+  count               = var.enable_custom_domain && !local.is_apex && var.create_dns_record ? 1 : 0
   name                = local.hostname_label
   zone_name           = var.dns_zone_name
   resource_group_name = var.dns_zone_resource_group_name
@@ -794,20 +744,15 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings_cdn_profile" 
   target_resource_id         = azurerm_cdn_frontdoor_profile.this.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
-  enabled_log {
-    category_group = "allLogs"
-  }
-
-  enabled_metric {
-    category = "AllMetrics"
-  }
+  enabled_log { category_group = "allLogs" }
+  enabled_metric { category = "AllMetrics" }
 }
 
 ############################################################
-# Key Vault Access Policy for AFD SP (if using KV cert)
+# Key Vault Access Policy for AFD SP (if using KV cert) — conditional
 ############################################################
 resource "azurerm_key_vault_access_policy" "azure_cdn_frontdoor_policy" {
-  count = var.custom_hostname_kv_enabled ? 1 : 0
+  count = var.enable_custom_domain && var.custom_hostname_kv_enabled ? 1 : 0
 
   key_vault_id = local.keyvault_id
   tenant_id    = var.tenant_id
