@@ -28,7 +28,8 @@ variable "resource_group_name" {
 
 variable enable_custom_domain {
   type    = bool
-  default = false
+  default = true
+  description = "Enable the custom domain configuration on the Front Door"
 }
 
 variable "frontdoor_sku_name" {
@@ -357,6 +358,7 @@ variable "https_rewrite_enabled" {
 
 variable "hostname" {
   type = string
+  default = ""
 }
 
 variable "storage_account_index_document" {
