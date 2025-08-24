@@ -311,39 +311,111 @@ resource "azurerm_cdn_frontdoor_rule" "redirect" {
   ]
 }
 
-# -------------------------------------------------------------------
-# Rewrite-only rules (SPA, etc.) (back-compat)
-# -------------------------------------------------------------------
+# =============================================================
+# REWRITE-ONLY RULE (AFD Standard/Premium) — inline explanations (EN)
+# =============================================================
+# Goal: apply SPA/root rewrites without changing the existing input schema
+# (var.delivery_rule_rewrite).
+#
+# Background: `url_path_condition` does not accept a leading slash in
+# `match_values`. Many modules use `trimprefix(v, "/")` to remove it. When
+# `v = "/"`, the result is an empty string → provider/API validation error 400
+# ("Match value(s) must be provided").
+#
+# Strategy:
+# 1) Pass-through any `request_uri_condition` provided by the caller.
+# 2) Auto-convert ONLY `url_path_condition == "/"` into an equivalent
+#    `request_uri_condition` that allows the leading slash.
+# 3) Publish remaining `url_path_condition` entries after removing the leading
+#    slash; drop empty results.
+# 4) Keep the `var.delivery_rule_rewrite` schema unchanged.
+#
+# Typical use-cases:
+# - Root SPA:        path == "/"  → rewrite to "/app/index.html".
+# - SPA prefix:      path beginsWith "/portal/" → rewrite to "/portal/index.html".
+# - Extension-based: missing extension → fallback to index.html.
+# =============================================================
+
 resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
+  # -----------------------------------------------------------
+  # for_each: each object in var.delivery_rule_rewrite becomes a Rule.
+  # Key = order, to enforce a stable evaluation order.
+  # -----------------------------------------------------------
   for_each                  = { for r in var.delivery_rule_rewrite : r.order => r }
   name                      = each.value.name
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
   order                     = each.value.order
   behavior_on_match         = "Continue"
 
+  # -----------------------------------------------------------
+  # CONDITIONS
+  #   - request_uri_condition (pass-through):
+  #       If the caller already provided conditions on the full URI, publish
+  #       them as-is (leading slash allowed). Useful for root "/", regex, or
+  #       full-path matching (query excluded).
+  #   - request_uri_condition (auto-converted from url_path == "/"):
+  #       Intercept ONLY `url_path_condition` entries whose value is exactly
+  #       "/", and convert them to `request_uri_condition` with match "/".
+  #   - url_path_condition (normal entries):
+  #       Publish after stripping the leading slash; skip empty results.
+  #       Example: ["/portal/", "/app"] → ["portal/", "app"].
+  #   - url_file_extension_condition: pass-through (e.g., “no extension”).
+  # -----------------------------------------------------------
   conditions {
+    # 1) PASS-THROUGH of request_uri_condition provided by the caller
     dynamic "request_uri_condition" {
       for_each = [for c in each.value.conditions : c if c.condition_type == "request_uri_condition"]
       iterator = c
       content {
-        operator         = c.value.operator
-        match_values     = c.value.match_values
+        operator         = c.value.operator        # Equal | RegEx | BeginsWith | EndsWith | Wildcard
+        match_values     = c.value.match_values    # e.g., ["/"], ["/portal/"], ["^/?$"]
         negate_condition = c.value.negate_condition
         transforms       = try(c.value.transforms, [])
       }
     }
 
+    # 2) AUTO-CONVERSION: url_path_condition == "/" → request_uri_condition == "/"
+    #    Reason: url_path does not allow a leading slash; `"/"` would become "".
+    #    This avoids 400 without changing the variable schema.
+    dynamic "request_uri_condition" {
+      for_each = flatten([
+        for c in each.value.conditions : [
+          for v in c.match_values : {
+            operator         = c.operator
+            match_value      = v
+            negate_condition = c.negate_condition
+            transforms       = try(c.transforms, [])
+          } if c.condition_type == "url_path_condition" && trimspace(v) == "/"
+        ]
+      ])
+      iterator = ur
+      content {
+        operator         = ur.value.operator      # usually "Equal" for the root
+        match_values     = [ur.value.match_value] # ["/"]
+        negate_condition = ur.value.negate_condition
+        transforms       = ur.value.transforms
+      }
+    }
+
+    # 3) NORMAL URL PATHS: strip leading slash and publish only if non-empty.
+    #    Examples:
+    #    - ["/portal/"]    → ["portal/"]
+    #    - ["/app", "/"]  → ["app"]   ("/" is filtered here and converted above)
     dynamic "url_path_condition" {
-      for_each = [for c in each.value.conditions : c if c.condition_type == "url_path_condition"]
+      for_each = [for c in each.value.conditions : c if c.condition_type == "url_path_condition" && length(compact([for v in c.match_values : trimprefix(v, "/")])) > 0]
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = [for v in c.value.match_values : trimprefix(v, "/")] # no leading '/'
+        match_values     = compact([for v in c.value.match_values : trimprefix(v, "/")])
         negate_condition = c.value.negate_condition
         transforms       = try(c.value.transforms, [])
       }
     }
 
+    # 4) FILE EXTENSION: typical SPA fallback (no extension → rewrite)
+    #    Examples:
+    #    - operator: LessThanOrEqual, match_values: ["0"] to match “no ext”.
+    #    - operator: Equal, match_values: ["html", "js"] for targeted filters.
     dynamic "url_file_extension_condition" {
       for_each = [for c in each.value.conditions : c if c.condition_type == "url_file_extension_condition"]
       iterator = c
@@ -356,6 +428,15 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
     }
   }
 
+  # -----------------------------------------------------------
+  # ACTIONS — URL REWRITE
+  #  - source_pattern: what to match (e.g., "/" or "/portal/")
+  #  - destination:    where to rewrite (e.g., "/portal/index.html")
+  #  - preserve_unmatched_path: false for classic SPA patterns
+  #    Examples:
+  #    - Root → SPA index:    "/" → "/portale-enti/index.html"
+  #    - SPA prefix:          "/portal/" → "/portal/index.html"
+  # -----------------------------------------------------------
   actions {
     url_rewrite_action {
       source_pattern          = each.value.url_rewrite_action.source_pattern
@@ -364,11 +445,16 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
     }
   }
 
+  # -----------------------------------------------------------
+  # depends_on: ensure Origin & Origin Group exist before creating the Rule
+  # (prevents provisioning races).
+  # -----------------------------------------------------------
   depends_on = [
     azurerm_cdn_frontdoor_origin.storage_web_host,
     azurerm_cdn_frontdoor_origin_group.this
   ]
 }
+
 
 # -------------------------------------------------------------------
 # Generic custom rules (conditions superset)
@@ -630,15 +716,30 @@ resource "azurerm_cdn_frontdoor_route" "this" {
   link_to_default_domain = true
   enabled                = true
 
-  # Associate Rule Set (no separate association resource)
-  cdn_frontdoor_rule_set_ids = var.global_delivery_rule != null || length(var.delivery_rule) > 0 || length(var.delivery_rule_redirect) > 0 || length(var.delivery_rule_rewrite) > 0 || length(var.delivery_rule_request_scheme_condition) > 0 || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0 ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
+  # Associate Rule Set (unchanged)
+  cdn_frontdoor_rule_set_ids = (
+    var.global_delivery_rule != null
+    || length(var.delivery_rule) > 0
+    || length(var.delivery_rule_redirect) > 0
+    || length(var.delivery_rule_rewrite) > 0
+    || length(var.delivery_rule_request_scheme_condition) > 0
+    || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0
+  ) ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
 
   cdn_frontdoor_origin_ids = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
 
-  # Route-level cache configuration (back-compat to classic querystring behavior)
+  # Bind the Custom Domain directly on the Route (replace association resource)
+  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.this.id]
+
   cache {
     query_string_caching_behavior = var.querystring_caching_behaviour
   }
+
+  # Ensure the custom domain and DNS TXT validation are ready before binding
+  depends_on = [
+    azurerm_cdn_frontdoor_custom_domain.this,
+    azurerm_dns_txt_record.domain_validation
+  ]
 }
 
 ############################################################
@@ -697,15 +798,6 @@ resource "azurerm_dns_txt_record" "domain_validation" {
   record { value = azurerm_cdn_frontdoor_custom_domain.this.validation_token }
 }
 
-resource "azurerm_cdn_frontdoor_custom_domain_association" "this" {
-  cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.this.id
-  cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.this.id]
-
-  depends_on = [
-    azurerm_dns_txt_record.domain_validation
-  ]
-}
-
 ############################################################
 # DNS records
 ############################################################
@@ -752,7 +844,7 @@ resource "azurerm_key_vault_access_policy" "azure_cdn_frontdoor_policy" {
 
   key_vault_id = local.keyvault_id
   tenant_id    = var.tenant_id
-  object_id    = azurerm_cdn_frontdoor_profile.this.identity[0]
+  object_id    = azurerm_cdn_frontdoor_profile.this.identity[0].principal_id
 
   secret_permissions      = ["Get"]
   certificate_permissions = ["Get"]
