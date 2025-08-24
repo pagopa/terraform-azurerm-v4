@@ -15,15 +15,15 @@ locals {
   dns_txt_name   = local.hostname_label != "" ? "_dnsauth.${local.hostname_label}" : "_dnsauth"
 
   # Naming
-  fd_profile_name   = "${local.name_prefix}-cdn-prf"
-  fd_endpoint_name  = "${local.name_prefix}-cdn-ep"
-  fd_origin_group   = "${local.name_prefix}-cdn-og"
-  fd_origin_primary = "${local.name_prefix}-cdn-or-primary"
-  fd_route_default  = "${local.name_prefix}-cdn-rtd"
-  fd_ruleset_global = replace("${local.name_prefix}-cdn-rs-global", "-", "")
-  fd_rule_global    = replace("${local.name_prefix}-cdn-rule-global", "-", "")
-  fd_diag_name      = "${local.name_prefix}-cdn-diag"
-  fd_secret_name    = "${local.name_prefix}-cdn-secret"
+  fd_profile_name   = "${local.name_prefix}-cdn-profile"
+  fd_endpoint_name  = "${local.name_prefix}-cdn-endpoint"
+  fd_origin_group   = "origin-group"
+  fd_origin_primary = "origin-group-primary"
+  fd_route_default  = "route-default"
+  fd_ruleset_global = replace("ruleset-global", "-", "")
+  fd_rule_global    = replace("rule-global", "-", "")
+  fd_diag_name      = "tf-diagnostics"
+  fd_secret_name    = "secret-certificate"
   fd_customdom_name = replace(var.hostname, ".", "-")
 }
 
@@ -784,6 +784,7 @@ resource "azurerm_cdn_frontdoor_custom_domain" "this" {
 
   tls {
     certificate_type        = local.use_kv_certificate ? "CustomerCertificate" : "ManagedCertificate"
+    minimum_tls_version     = "TLS12"
     cdn_frontdoor_secret_id = local.use_kv_certificate ? azurerm_cdn_frontdoor_secret.this[0].id : null
   }
 }
