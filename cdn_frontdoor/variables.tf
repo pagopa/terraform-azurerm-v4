@@ -107,19 +107,43 @@ variable "log_analytics_workspace_id" {
 }
 
 #
-# Rules
+# CDN Configuration
 #
-variable "global_delivery_rules" {
-  type = list(object({
-    order                         = number
-    cache_expiration_action       = optional(list(object({ behavior = string, duration = string })), [])
-    cache_key_query_string_action = optional(list(object({ behavior = string, parameters = string })), [])
-    modify_request_header_action  = optional(list(object({ action = string, name = string, value = string })), [])
-    modify_response_header_action = optional(list(object({ action = string, name = string, value = string })), [])
-  }))
-  default = []
+variable "querystring_caching_behaviour" {
+  type    = string
+  default = "IgnoreQueryString"
 }
 
+variable "global_delivery_rule" {
+  type = object({
+    cache_expiration_action = list(object({
+      behavior = string
+      duration = string
+    }))
+    cache_key_query_string_action = list(object({
+      behavior   = string
+      parameters = string
+    }))
+    modify_request_header_action = list(object({
+      action = string
+      name   = string
+      value  = string
+    }))
+    modify_response_header_action = list(object({
+      action = string
+      name   = string
+      value  = string
+    }))
+  })
+  # TODO improvements
+  # validation {
+  #   condition = (
+  #     length(var.global_delivery_rule.modify_response_header_action[*].value) <= 128
+  #   )
+  #   error_message = "Max length is 128 chars."
+  # }
+  default = null
+}
 
 variable "delivery_rule_url_path_condition_cache_expiration_action" {
   type = list(object({
@@ -335,14 +359,6 @@ variable "delivery_rule" {
     // end actions
   }))
   default = []
-}
-
-#
-# CDN Configuration
-#
-variable "querystring_caching_behaviour" {
-  type    = string
-  default = "IgnoreQueryString"
 }
 
 variable "https_rewrite_enabled" {

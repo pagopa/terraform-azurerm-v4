@@ -111,24 +111,64 @@ resource "azurerm_cdn_frontdoor_origin" "storage_web_host" {
 # Rule Set (global) + Rules (global/custom)
 ############################################################
 resource "azurerm_cdn_frontdoor_rule_set" "this" {
-  count                    = length(var.global_delivery_rules) > 0 || length(var.delivery_rule) > 0 || length(var.delivery_rule_redirect) > 0 || length(var.delivery_rule_rewrite) > 0 || length(var.delivery_rule_request_scheme_condition) > 0 || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0 ? 1 : 0
+  count                    = var.global_delivery_rule != null || length(var.delivery_rule) > 0 || length(var.delivery_rule_redirect) > 0 || length(var.delivery_rule_rewrite) > 0 || length(var.delivery_rule_request_scheme_condition) > 0 || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0 ? 1 : 0
   name                     = local.fd_ruleset_global
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
 }
+#############################################
+# Azure Front Door Rules (Terraform 4.41.0)
+# ONLY rule resources, corrected per official provider docs
+# Doc scope: https://registry.terraform.io/providers/hashicorp/azurerm/4.41.0/docs/resources/cdn_frontdoor_rule
+#############################################
 
 # -------------------------------------------------------------------
 # Global Rule (headers + cache/qs override)
 # -------------------------------------------------------------------
 resource "azurerm_cdn_frontdoor_rule" "global" {
-  for_each                  = { for r in var.global_delivery_rules : tostring(r.order) => r }
-  name                      = format("%s-%04d", local.fd_rule_global, each.value.order)
+  count                     = var.global_delivery_rule != null ? 1 : 0
+  name                      = local.fd_rule_global
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
-  order                     = each.value.order
+  order                     = 1
   behavior_on_match         = "Continue"
 
   actions {
+
+    # Cache TTL / behavior (classic -> AFD mapping via route_configuration_override_action)
+    dynamic "route_configuration_override_action" {
+      for_each = try(var.global_delivery_rule.cache_expiration_action, [])
+      iterator = cea
+      content {
+        cache_behavior = lookup({
+          "Override"     = "OverrideAlways",
+          "SetIfMissing" = "OverrideIfOriginMissing",
+          "BypassCache"  = "Disabled",
+          "HonorOrigin"  = "HonorOrigin"
+        }, cea.value.behavior, "HonorOrigin")
+        cache_duration = cea.value.duration
+      }
+    }
+
+    # Query string caching behavior
+    dynamic "route_configuration_override_action" {
+      for_each = [for ck in try(var.global_delivery_rule.cache_key_query_string_action, []) : ck if contains(["IgnoreQueryString", "UseQueryString"], ck.behavior)]
+      iterator = ck
+      content {
+        query_string_caching_behavior = ck.value.behavior
+      }
+    }
+
+    dynamic "route_configuration_override_action" {
+      for_each = [for ck in try(var.global_delivery_rule.cache_key_query_string_action, []) : ck if contains(["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"], ck.behavior)]
+      iterator = ck
+      content {
+        query_string_caching_behavior = ck.value.behavior
+        query_string_parameters       = length(trim(ck.value.parameters)) > 0 ? split(",", trim(ck.value.parameters)) : []
+      }
+    }
+
+    # Request headers
     dynamic "request_header_action" {
-      for_each = try(each.value.modify_request_header_action, [])
+      for_each = try(var.global_delivery_rule.modify_request_header_action, [])
       iterator = rq
       content {
         header_action = rq.value.action
@@ -137,23 +177,14 @@ resource "azurerm_cdn_frontdoor_rule" "global" {
       }
     }
 
+    # Response headers
     dynamic "response_header_action" {
-      for_each = try(each.value.modify_response_header_action, [])
+      for_each = try(var.global_delivery_rule.modify_response_header_action, [])
       iterator = rh
       content {
         header_action = rh.value.action
         header_name   = rh.value.name
         value         = rh.value.value
-      }
-    }
-
-    dynamic "route_configuration_override_action" {
-      for_each = (length(try(each.value.cache_expiration_action, [])) > 0 || length(try(each.value.cache_key_query_string_action, [])) > 0) ? [1] : []
-      content {
-        cache_behavior                = lookup({ Override = "OverrideAlways", SetIfMissing = "OverrideIfOriginMissing", BypassCache = "Disabled", HonorOrigin = "HonorOrigin" }, try(each.value.cache_expiration_action[0].behavior, "HonorOrigin"), "HonorOrigin")
-        cache_duration                = try(each.value.cache_expiration_action[0].duration, null)
-        query_string_caching_behavior = try(each.value.cache_key_query_string_action[0].behavior, null)
-        query_string_parameters       = contains(["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"], try(each.value.cache_key_query_string_action[0].behavior, "")) && length(trimspace(try(each.value.cache_key_query_string_action[0].parameters, ""))) > 0 ? split(",", trimspace(each.value.cache_key_query_string_action[0].parameters)) : null
       }
     }
   }
@@ -163,7 +194,6 @@ resource "azurerm_cdn_frontdoor_rule" "global" {
     azurerm_cdn_frontdoor_origin_group.this
   ]
 }
-
 
 # -------------------------------------------------------------------
 # URL path -> cache TTL + optional response header (back-compat)
@@ -686,8 +716,9 @@ resource "azurerm_cdn_frontdoor_route" "this" {
   link_to_default_domain = true
   enabled                = true
 
+  # Associate Rule Set (unchanged)
   cdn_frontdoor_rule_set_ids = (
-    length(var.global_delivery_rules) > 0
+    var.global_delivery_rule != null
     || length(var.delivery_rule) > 0
     || length(var.delivery_rule_redirect) > 0
     || length(var.delivery_rule_rewrite) > 0
@@ -695,19 +726,21 @@ resource "azurerm_cdn_frontdoor_route" "this" {
     || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0
   ) ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
 
-  cdn_frontdoor_origin_ids        = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
+  cdn_frontdoor_origin_ids = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
+
+  # Bind the Custom Domain directly on the Route (replace association resource)
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.this.id]
 
   cache {
     query_string_caching_behavior = var.querystring_caching_behaviour
   }
 
+  # Ensure the custom domain and DNS TXT validation are ready before binding
   depends_on = [
     azurerm_cdn_frontdoor_custom_domain.this,
     azurerm_dns_txt_record.domain_validation
   ]
 }
-
 
 ############################################################
 # 🌐 Custom domain + TLS (managed or KV)
