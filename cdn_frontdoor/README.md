@@ -8,6 +8,7 @@ This module provisions an Azure Front Door (Standard/Premium) profile with an Az
 
 - `advanced_threat_protection_enabled`
 - `keyvault_subscription_id`
+- `cdn_location` -> use `var.location` 
 
 *Changed names:*
 
