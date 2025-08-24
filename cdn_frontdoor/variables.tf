@@ -203,144 +203,39 @@ variable "delivery_rule" {
     name  = string
     order = number
 
-    # start conditions
-    cookies_conditions          = optional(list(object({
-      selector         = string
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-      transforms       = list(string)
-    })), [])
+    # conditions
+    cookies_conditions             = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    device_conditions              = optional(list(object({ operator = string, match_values = string, negate_condition = bool })), [])
+    http_version_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])
+    post_arg_conditions            = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    query_string_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    remote_address_conditions      = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])
+    request_body_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    request_header_conditions      = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    request_method_conditions      = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])
+    request_scheme_conditions      = optional(list(object({ operator = string, match_values = string, negate_condition = bool })), [])
+    request_uri_conditions         = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    url_file_extension_conditions  = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    url_file_name_conditions       = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    url_path_conditions            = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
 
-    device_conditions           = optional(list(object({
-      operator         = string
-      match_values     = string
-      negate_condition = bool
-    })), [])
-
-    http_version_conditions     = optional(list(object({
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-    })), [])
-
-    post_arg_conditions         = optional(list(object({
-      selector         = string
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-      transforms       = list(string)
-    })), [])
-
-    query_string_conditions     = optional(list(object({
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-      transforms       = list(string)
-    })), [])
-
-    remote_address_conditions   = optional(list(object({
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-    })), [])
-
-    request_body_conditions     = optional(list(object({
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-      transforms       = list(string)
-    })), [])
-
-    request_header_conditions   = optional(list(object({
-      selector         = string
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-      transforms       = list(string)
-    })), [])
-
-    request_method_conditions   = optional(list(object({
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-    })), [])
-
-    request_scheme_conditions   = optional(list(object({
-      operator         = string
-      match_values     = string
-      negate_condition = bool
-    })), [])
-
-    request_uri_conditions      = optional(list(object({
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-      transforms       = list(string)
-    })), [])
-
-    url_file_extension_conditions = optional(list(object({
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-      transforms       = list(string)
-    })), [])
-
-    url_file_name_conditions   = optional(list(object({
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-      transforms       = list(string)
-    })), [])
-
-    url_path_conditions        = optional(list(object({
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-      transforms       = list(string)
-    })), [])
-    # end conditions
-
-    # start actions
-    cache_expiration_actions   = optional(list(object({
-      behavior = string
-      duration = string
-    })), [])
-
-    cache_key_query_string_actions = optional(list(object({
-      behavior   = string
-      parameters = string
-    })), [])
-
-    modify_request_header_actions = optional(list(object({
-      action = string
-      name   = string
-      value  = string
-    })), [])
-
-    modify_response_header_actions = optional(list(object({
-      action = string
-      name   = string
-      value  = string
-    })), [])
-
-    url_redirect_actions = optional(list(object({
-      redirect_type = string
-      protocol      = string
-      hostname      = string
-      path          = string
-      fragment      = string
-      query_string  = string
-    })), [])
-
-    url_rewrite_actions = optional(list(object({
-      source_pattern          = string
-      destination             = string
-      preserve_unmatched_path = string
-    })), [])
-    # end actions
+    # actions
+    cache_expiration_actions       = optional(list(object({ behavior = string, duration = string })), [])
+    cache_key_query_string_actions = optional(list(object({ behavior = string, parameters = string })), [])
+    modify_request_header_actions  = optional(list(object({ action = string, name = string, value = string })), [])
+    modify_response_header_actions = optional(list(object({ action = string, name = string, value = string })), [])
+    url_redirect_actions           = optional(list(object({ redirect_type = string, protocol = string, hostname = string, path = string, fragment = string, query_string = string })), [])
+    url_rewrite_actions            = optional(list(object({ source_pattern = string, destination = string, preserve_unmatched_path = string })), [])
   }))
   default = []
+
+  validation {
+    condition = alltrue([
+      for r in var.delivery_rule :
+      !(length(try(r.url_redirect_actions, [])) > 0 && length(try(r.url_rewrite_actions, [])) > 0)
+    ])
+    error_message = "A delivery_rule cannot define both url_redirect_actions and url_rewrite_actions at the same time."
+  }
 }
 
 #

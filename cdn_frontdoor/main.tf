@@ -559,7 +559,7 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = [for v in c.value.match_values : trimprefix(v, "/")] # no leading '/'
+        match_values     = [for v in c.value.match_values : trimprefix(v, "/")]
         negate_condition = try(c.value.negate_condition, false)
         transforms       = try(c.value.transforms, [])
       }
@@ -567,7 +567,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
   }
 
   actions {
-    # Response headers
     dynamic "response_header_action" {
       for_each = try(each.value.modify_response_header_actions, [])
       iterator = rha
@@ -578,7 +577,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # Request headers
     dynamic "request_header_action" {
       for_each = try(each.value.modify_request_header_actions, [])
       iterator = rqa
@@ -589,22 +587,20 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
-    # Cache TTL / behavior override
     dynamic "route_configuration_override_action" {
       for_each = try(each.value.cache_expiration_actions, [])
       iterator = c
       content {
         cache_behavior = lookup({
-          "Override"     = "OverrideAlways",
-          "SetIfMissing" = "OverrideIfOriginMissing",
-          "BypassCache"  = "Disabled",
+          "Override"     = "OverrideAlways"
+          "SetIfMissing" = "OverrideIfOriginMissing"
+          "BypassCache"  = "Disabled"
           "HonorOrigin"  = "HonorOrigin"
         }, c.value.behavior, "HonorOrigin")
         cache_duration = c.value.duration
       }
     }
 
-    # Query string caching behavior
     dynamic "route_configuration_override_action" {
       for_each = [for ck in try(each.value.cache_key_query_string_actions, []) : ck if contains(["IgnoreQueryString", "UseQueryString"], ck.behavior)]
       iterator = ck
@@ -619,6 +615,31 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       content {
         query_string_caching_behavior = ck.value.behavior
         query_string_parameters       = length(trimspace(ck.value.parameters)) > 0 ? split(",", trimspace(ck.value.parameters)) : []
+      }
+    }
+
+    # Mutual exclusion: se è presente url_redirect_actions, non pubblichiamo rewrite
+    dynamic "url_redirect_action" {
+      for_each = length(try(each.value.url_rewrite_actions, [])) == 0 ? try(each.value.url_redirect_actions, []) : []
+      iterator = c
+      content {
+        redirect_type        = c.value.redirect_type
+        redirect_protocol    = try(c.value.protocol, null)
+        destination_hostname = try(c.value.hostname, "")
+        destination_path     = try(c.value.path, "")
+        destination_fragment = try(c.value.fragment, "")
+        query_string         = try(c.value.query_string, "")
+      }
+    }
+
+    # Mutual exclusion: se è presente url_redirect_actions, rewrite resta vuoto
+    dynamic "url_rewrite_action" {
+      for_each = length(try(each.value.url_redirect_actions, [])) == 0 ? try(each.value.url_rewrite_actions, []) : []
+      iterator = c
+      content {
+        source_pattern          = c.value.source_pattern
+        destination             = c.value.destination
+        preserve_unmatched_path = try(tobool(c.value.preserve_unmatched_path), false)
       }
     }
   }
