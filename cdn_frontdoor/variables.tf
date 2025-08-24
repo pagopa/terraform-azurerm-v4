@@ -203,142 +203,142 @@ variable "delivery_rule" {
     name  = string
     order = number
 
-    // start conditions
-    cookies_conditions = list(object({
+    # start conditions
+    cookies_conditions          = optional(list(object({
       selector         = string
       operator         = string
       match_values     = list(string)
       negate_condition = bool
       transforms       = list(string)
-    }))
+    })), [])
 
-    device_conditions = list(object({
+    device_conditions           = optional(list(object({
       operator         = string
       match_values     = string
       negate_condition = bool
-    }))
+    })), [])
 
-    http_version_conditions = list(object({
+    http_version_conditions     = optional(list(object({
       operator         = string
       match_values     = list(string)
       negate_condition = bool
-    }))
+    })), [])
 
-    post_arg_conditions = list(object({
+    post_arg_conditions         = optional(list(object({
       selector         = string
       operator         = string
       match_values     = list(string)
       negate_condition = bool
       transforms       = list(string)
-    }))
+    })), [])
 
-    query_string_conditions = list(object({
+    query_string_conditions     = optional(list(object({
       operator         = string
       match_values     = list(string)
       negate_condition = bool
       transforms       = list(string)
-    }))
+    })), [])
 
-    remote_address_conditions = list(object({
+    remote_address_conditions   = optional(list(object({
       operator         = string
       match_values     = list(string)
       negate_condition = bool
-    }))
+    })), [])
 
-    request_body_conditions = list(object({
+    request_body_conditions     = optional(list(object({
       operator         = string
       match_values     = list(string)
       negate_condition = bool
       transforms       = list(string)
-    }))
+    })), [])
 
-    request_header_conditions = list(object({
+    request_header_conditions   = optional(list(object({
       selector         = string
       operator         = string
       match_values     = list(string)
       negate_condition = bool
       transforms       = list(string)
-    }))
+    })), [])
 
-    request_method_conditions = list(object({
+    request_method_conditions   = optional(list(object({
       operator         = string
       match_values     = list(string)
       negate_condition = bool
-    }))
+    })), [])
 
-    request_scheme_conditions = list(object({
+    request_scheme_conditions   = optional(list(object({
       operator         = string
       match_values     = string
       negate_condition = bool
-    }))
+    })), [])
 
-    request_uri_conditions = list(object({
+    request_uri_conditions      = optional(list(object({
       operator         = string
       match_values     = list(string)
       negate_condition = bool
       transforms       = list(string)
-    }))
+    })), [])
 
-    url_file_extension_conditions = list(object({
+    url_file_extension_conditions = optional(list(object({
       operator         = string
       match_values     = list(string)
       negate_condition = bool
       transforms       = list(string)
-    }))
+    })), [])
 
-    url_file_name_conditions = list(object({
+    url_file_name_conditions   = optional(list(object({
       operator         = string
       match_values     = list(string)
       negate_condition = bool
       transforms       = list(string)
-    }))
+    })), [])
 
-    url_path_conditions = list(object({
+    url_path_conditions        = optional(list(object({
       operator         = string
       match_values     = list(string)
       negate_condition = bool
       transforms       = list(string)
-    }))
-    // end conditions
+    })), [])
+    # end conditions
 
-    // start actions
-    cache_expiration_actions = list(object({
+    # start actions
+    cache_expiration_actions   = optional(list(object({
       behavior = string
       duration = string
-    }))
+    })), [])
 
-    cache_key_query_string_actions = list(object({
+    cache_key_query_string_actions = optional(list(object({
       behavior   = string
       parameters = string
-    }))
+    })), [])
 
-    modify_request_header_actions = list(object({
+    modify_request_header_actions = optional(list(object({
       action = string
       name   = string
       value  = string
-    }))
+    })), [])
 
-    modify_response_header_actions = list(object({
+    modify_response_header_actions = optional(list(object({
       action = string
       name   = string
       value  = string
-    }))
+    })), [])
 
-    url_redirect_actions = list(object({
+    url_redirect_actions = optional(list(object({
       redirect_type = string
       protocol      = string
       hostname      = string
       path          = string
       fragment      = string
       query_string  = string
-    }))
+    })), [])
 
-    url_rewrite_actions = list(object({
+    url_rewrite_actions = optional(list(object({
       source_pattern          = string
       destination             = string
       preserve_unmatched_path = string
-    }))
-    // end actions
+    })), [])
+    # end actions
   }))
   default = []
 }
