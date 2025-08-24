@@ -532,6 +532,26 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       }
     }
 
+    dynamic "request_uri_condition" {
+      for_each = flatten([
+        for c in try(each.value.url_path_conditions, []) : [
+          for v in try(c.match_values, []) : {
+            operator         = c.operator
+            match_value      = v
+            negate_condition = c.negate_condition
+            transforms       = try(c.transforms, [])
+          } if trimspace(v) == "/"
+        ]
+      ])
+      iterator = ur
+      content {
+        operator         = ur.value.operator
+        match_values     = [ur.value.match_value]
+        negate_condition = ur.value.negate_condition
+        transforms       = ur.value.transforms
+      }
+    }
+
     dynamic "url_file_extension_condition" {
       for_each = try(each.value.url_file_extension_conditions, [])
       iterator = c
@@ -555,11 +575,14 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
     }
 
     dynamic "url_path_condition" {
-      for_each = try(each.value.url_path_conditions, [])
+      for_each = [
+        for c in try(each.value.url_path_conditions, []) :
+        c if length(compact([for v in try(c.match_values, []) : trimprefix(v, "/")])) > 0
+      ]
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = [for v in c.value.match_values : trimprefix(v, "/")]
+        match_values     = compact([for v in c.value.match_values : trimprefix(v, "/")])
         negate_condition = try(c.value.negate_condition, false)
         transforms       = try(c.value.transforms, [])
       }
