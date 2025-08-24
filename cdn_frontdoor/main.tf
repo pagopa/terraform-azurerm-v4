@@ -1,30 +1,15 @@
-#############################################
-# Azure Front Door (Standard/Premium) module
-# Fixed & back-compat with classic CDN module
-# Provider: hashicorp/azurerm >= 4.41.0
-#############################################
-
 locals {
   name_prefix          = var.cdn_prefix_name
   cdn_location         = coalesce(var.cdn_location, var.location)
   storage_account_name = var.storage_account_name != null ? replace(var.storage_account_name, "-", "") : replace("${local.name_prefix}-sa", "-", "")
-
-  # DNS helpers
-  is_apex        = var.hostname == var.dns_zone_name
-  hostname_label = local.is_apex ? "" : trimsuffix(replace(var.hostname, var.dns_zone_name, ""), ".")
-  dns_txt_name   = local.hostname_label != "" ? "_dnsauth.${local.hostname_label}" : "_dnsauth"
-
-  # Naming
-  fd_profile_name   = "${local.name_prefix}-cdn-profile"
-  fd_endpoint_name  = "${local.name_prefix}-cdn-endpoint"
-  fd_origin_group   = "origin-group"
-  fd_origin_primary = "origin-group-primary"
-  fd_route_default  = "route-default"
-  fd_ruleset_global = replace("ruleset-global", "-", "")
-  fd_rule_global    = replace("rule-global", "-", "")
-  fd_diag_name      = "tf-diagnostics"
-  fd_secret_name    = "secret-certificate"
-  fd_customdom_name = replace(var.hostname, ".", "-")
+  fd_profile_name      = "${local.name_prefix}-cdn-profile"
+  fd_endpoint_name     = "${local.name_prefix}-cdn-endpoint"
+  fd_origin_group      = "origin-group"
+  fd_origin_primary    = "origin-group-primary"
+  fd_route_default     = "route-default"
+  fd_ruleset_global    = replace("ruleset-global", "-", "")
+  fd_rule_global       = replace("rule-global", "-", "")
+  fd_diag_name         = "tf-diagnostics"
 }
 
 ############################################################
@@ -33,9 +18,8 @@ locals {
 module "cdn_storage_account" {
   source = "../storage_account"
 
-  resource_group_name = var.resource_group_name
-  location            = var.location
-
+  resource_group_name             = var.resource_group_name
+  location                        = var.location
   name                            = local.storage_account_name
   account_kind                    = var.storage_account_kind
   account_tier                    = var.storage_account_tier
@@ -76,7 +60,6 @@ resource "azurerm_cdn_frontdoor_endpoint" "this" {
 resource "azurerm_cdn_frontdoor_origin_group" "this" {
   name                     = local.fd_origin_group
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-
   session_affinity_enabled = false
 
   health_probe {
@@ -96,7 +79,6 @@ resource "azurerm_cdn_frontdoor_origin_group" "this" {
 resource "azurerm_cdn_frontdoor_origin" "storage_web_host" {
   name                          = local.fd_origin_primary
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.this.id
-
   enabled                        = true
   host_name                      = module.cdn_storage_account.primary_web_host
   http_port                      = 80
@@ -178,7 +160,7 @@ resource "azurerm_cdn_frontdoor_rule" "url_path_cache" {
   conditions {
     url_path_condition {
       operator         = each.value.operator
-      match_values     = [for v in each.value.match_values : trimprefix(v, "/")] # no leading '/'
+      match_values     = [for v in each.value.match_values : trimprefix(v, "/")]
       negate_condition = false
       transforms       = []
     }
@@ -337,8 +319,8 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
       for_each = [for c in each.value.conditions : c if c.condition_type == "request_uri_condition"]
       iterator = c
       content {
-        operator         = c.value.operator        # Equal | RegEx | BeginsWith | EndsWith | Wildcard
-        match_values     = c.value.match_values    # e.g., ["/"], ["/portal/"], ["^/?$"]
+        operator         = c.value.operator
+        match_values     = c.value.match_values
         negate_condition = c.value.negate_condition
         transforms       = try(c.value.transforms, [])
       }
@@ -360,8 +342,8 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
       ])
       iterator = ur
       content {
-        operator         = ur.value.operator      # usually "Equal" for the root
-        match_values     = [ur.value.match_value] # ["/"]
+        operator         = ur.value.operator
+        match_values     = [ur.value.match_value]
         negate_condition = ur.value.negate_condition
         transforms       = ur.value.transforms
       }
@@ -600,7 +582,7 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = [for v in c.value.match_values : trimprefix(v, "/")] # no leading '/'
+        match_values     = [for v in c.value.match_values : trimprefix(v, "/")]
         negate_condition = try(c.value.negate_condition, false)
         transforms       = try(c.value.transforms, [])
       }
@@ -659,7 +641,7 @@ resource "azurerm_cdn_frontdoor_rule" "custom" {
       iterator = ck
       content {
         query_string_caching_behavior = ck.value.behavior
-        query_string_parameters       = length(trim(ck.value.parameters)) > 0 ? split(",", trim(ck.value.parameters)) : []
+        query_string_parameters       = length(trimspace(ck.value.parameters)) > 0 ? split(",", trimspace(ck.value.parameters)) : []
       }
     }
   }
@@ -678,13 +660,12 @@ resource "azurerm_cdn_frontdoor_route" "this" {
   name                          = local.fd_route_default
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.this.id
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.this.id
-
-  patterns_to_match      = ["/*"]
-  supported_protocols    = ["Http", "Https"]
-  https_redirect_enabled = var.https_rewrite_enabled
-  forwarding_protocol    = "MatchRequest"
-  link_to_default_domain = true
-  enabled                = true
+  patterns_to_match             = ["/*"]
+  supported_protocols           = ["Http", "Https"]
+  https_redirect_enabled        = var.https_rewrite_enabled
+  forwarding_protocol           = "MatchRequest"
+  link_to_default_domain        = true
+  enabled                       = true
 
   cdn_frontdoor_rule_set_ids = (
     length(var.global_delivery_rules) > 0
@@ -696,7 +677,7 @@ resource "azurerm_cdn_frontdoor_route" "this" {
   ) ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
 
   cdn_frontdoor_origin_ids        = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
-  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.this.id]
+  cdn_frontdoor_custom_domain_ids = [for d in azurerm_cdn_frontdoor_custom_domain.this : d.id]
 
   cache {
     query_string_caching_behavior = var.querystring_caching_behaviour
@@ -718,58 +699,68 @@ data "azurerm_dns_zone" "this" {
   resource_group_name = var.dns_zone_resource_group_name
 }
 
-
 locals {
-  keyvault_id        = var.keyvault_id
-  certificate_name   = replace(var.hostname, ".", "-")
-  use_kv_certificate = var.dns_zone_name == var.hostname || var.custom_hostname_kv_enabled
+  keyvault_id = var.keyvault_id
+
+  custom_domains = {
+    for h in var.customs_domains : h => {
+      is_apex   = h == var.dns_zone_name
+      label     = h == var.dns_zone_name ? "" : trimsuffix(replace(h, var.dns_zone_name, ""), ".")
+      txt_name  = h == var.dns_zone_name ? "_dnsauth" : "_dnsauth.${trimsuffix(replace(h, var.dns_zone_name, ""), ".")}"
+      cert_name = replace(h, ".", "-")
+      use_kv    = (h == var.dns_zone_name) || var.custom_hostname_kv_enabled
+    }
+  }
 }
 
 data "azurerm_key_vault_certificate" "custom_domain" {
-  count        = local.use_kv_certificate ? 1 : 0
-  name         = local.certificate_name
+  for_each     = { for k, v in local.custom_domains : k => v if v.use_kv }
+  name         = each.value.cert_name
   key_vault_id = local.keyvault_id
 }
 
-resource "azurerm_cdn_frontdoor_secret" "this" {
-  count                    = local.use_kv_certificate ? 1 : 0
-  name                     = local.fd_secret_name
+resource "azurerm_cdn_frontdoor_secret" "customer_certificate" {
+  for_each                 = { for k, v in local.custom_domains : k => v if v.use_kv }
+  name                     = "secret-${each.value.cert_name}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
 
   secret {
     customer_certificate {
-      key_vault_certificate_id = data.azurerm_key_vault_certificate.custom_domain[0].versionless_id
+      key_vault_certificate_id = data.azurerm_key_vault_certificate.custom_domain[each.key].versionless_id
     }
   }
 }
 
 resource "azurerm_cdn_frontdoor_custom_domain" "this" {
-  name                     = local.fd_customdom_name
+  for_each                 = local.custom_domains
+  name                     = replace(each.key, ".", "-")
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
   dns_zone_id              = data.azurerm_dns_zone.this.id
-  host_name                = var.hostname
+  host_name                = each.key
 
   tls {
-    certificate_type        = local.use_kv_certificate ? "CustomerCertificate" : "ManagedCertificate"
-    minimum_tls_version     = "TLS12"
-    cdn_frontdoor_secret_id = local.use_kv_certificate ? azurerm_cdn_frontdoor_secret.this[0].id : null
+    certificate_type        = each.value.use_kv ? "CustomerCertificate" : "ManagedCertificate"
+    cdn_frontdoor_secret_id = each.value.use_kv ? azurerm_cdn_frontdoor_secret.customer_certificate[each.key].id : null
   }
 }
 
 resource "azurerm_dns_txt_record" "domain_validation" {
-  name                = local.dns_txt_name
+  for_each            = local.custom_domains
+  name                = each.value.txt_name
   zone_name           = var.dns_zone_name
   resource_group_name = var.dns_zone_resource_group_name
   ttl                 = 3600
 
-  record { value = azurerm_cdn_frontdoor_custom_domain.this.validation_token }
+  record {
+    value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
+  }
 }
 
 ############################################################
 # DNS records
 ############################################################
 resource "azurerm_dns_a_record" "apex_hostname" {
-  count               = var.create_dns_record && local.is_apex ? 1 : 0
+  for_each            = { for k, v in local.custom_domains : k => v if v.is_apex && var.create_dns_record }
   name                = "@"
   zone_name           = var.dns_zone_name
   resource_group_name = var.dns_zone_resource_group_name
@@ -778,8 +769,8 @@ resource "azurerm_dns_a_record" "apex_hostname" {
 }
 
 resource "azurerm_dns_cname_record" "hostname" {
-  count               = var.create_dns_record && !local.is_apex ? 1 : 0
-  name                = local.hostname_label
+  for_each            = { for k, v in local.custom_domains : k => v if !v.is_apex && var.create_dns_record }
+  name                = trimsuffix(each.value.label, ".")
   zone_name           = var.dns_zone_name
   resource_group_name = var.dns_zone_resource_group_name
   ttl                 = 3600
@@ -807,7 +798,7 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings_cdn_profile" 
 # Key Vault Access Policy for AFD SP (if using KV cert)
 ############################################################
 resource "azurerm_key_vault_access_policy" "azure_cdn_frontdoor_policy" {
-  count = var.custom_hostname_kv_enabled ? 1 : 0
+  count = anytrue([for v in local.custom_domains : v.use_kv]) ? 1 : 0
 
   key_vault_id = local.keyvault_id
   tenant_id    = var.tenant_id
