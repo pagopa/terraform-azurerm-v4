@@ -784,7 +784,6 @@ resource "azurerm_cdn_frontdoor_custom_domain" "this" {
 
   tls {
     certificate_type        = local.use_kv_certificate ? "CustomerCertificate" : "ManagedCertificate"
-    minimum_tls_version     = "TLS12"
     cdn_frontdoor_secret_id = local.use_kv_certificate ? azurerm_cdn_frontdoor_secret.this[0].id : null
   }
 }
