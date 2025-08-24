@@ -50,3 +50,20 @@ variable "elastic_namespace" {
   description = "Elastic namespace used to store the apm data. defaults to 'default'"
   default     = "default"
 }
+
+
+variable "sampling" {
+  type = object({
+    enabled                    = bool
+    probes_sampling_percentage = optional(number, 1)
+    sampling_percentage        = optional(number, 50)
+    probe_paths                = optional(list(string), [])
+  })
+  description = "Sampling configuration for the OpenTelemetry collector traces"
+  default = {
+    enabled                    = false
+    probes_sampling_percentage = 1
+    sampling_percentage        = 50
+    probe_paths                = []
+  }
+}

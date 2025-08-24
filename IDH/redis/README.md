@@ -55,6 +55,7 @@ module "redis" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_alert_action_group_ids"></a> [alert\_action\_group\_ids](#input\_alert\_action\_group\_ids) | (Optional) List of action group ids to be used in alerts | `list(string)` | `[]` | no |
+| <a name="input_capacity"></a> [capacity](#input\_capacity) | (Required) The size of the Redis cache to deploy. Valid values are 0, 1, 2, 3, 4, 5 and 6 for Basic/Standard SKU and 1, 2, 3, 4 for Premium SKU. | `number` | `null` | no |
 | <a name="input_env"></a> [env](#input\_env) | (Required) Environment for which the resource will be created | `string` | n/a | yes |
 | <a name="input_idh_resource_tier"></a> [idh\_resource\_tier](#input\_idh\_resource\_tier) | (Required) The name od IDH resource key to be created. | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | The location of the resource group. | `string` | n/a | yes |

@@ -169,6 +169,7 @@ Also handles:
 | <a name="input_location"></a> [location](#input\_location) | (Required) The Azure Region where the PostgreSQL Flexible Server should exist. | `string` | n/a | yes |
 | <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id) | (Optional) Specifies the ID of a Log Analytics Workspace where Diagnostics Data should be sent. | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | (Required) The name which should be used for this PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created. | `string` | n/a | yes |
+| <a name="input_pg_bouncer_enabled"></a> [pg\_bouncer\_enabled](#input\_pg\_bouncer\_enabled) | (Optional) Enable or disable PgBouncer. Defaults to false (Server will be restarted on change!) | `bool` | `null` | no |
 | <a name="input_primary_user_assigned_identity_id"></a> [primary\_user\_assigned\_identity\_id](#input\_primary\_user\_assigned\_identity\_id) | Manages a User Assigned Identity | `string` | `null` | no |
 | <a name="input_private_dns_cname_record_ttl"></a> [private\_dns\_cname\_record\_ttl](#input\_private\_dns\_cname\_record\_ttl) | (Optional) if 'private\_dns\_registration' is true, defines the record TTL | `number` | `300` | no |
 | <a name="input_private_dns_record_cname"></a> [private\_dns\_record\_cname](#input\_private\_dns\_record\_cname) | (Optional) if 'private\_dns\_registration' is true, defines the private dns CNAME used to register this server FQDN | `string` | `null` | no |
@@ -180,6 +181,7 @@ Also handles:
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (Required) The name of the Resource Group where the PostgreSQL Flexible Server should exist. | `string` | n/a | yes |
 | <a name="input_storage_mb"></a> [storage\_mb](#input\_storage\_mb) | (Optional) The size of the storage in MB. Changing this forces a new PostgreSQL Flexible Server to be created. | `number` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | n/a | yes |
+| <a name="input_zone"></a> [zone](#input\_zone) | (Optional) The Availability Zone in which the PostgreSQL Flexible Server should be located. (1,2,3) | `number` | `null` | no |
 
 ## Outputs
 

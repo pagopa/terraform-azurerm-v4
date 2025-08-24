@@ -131,3 +131,9 @@ variable "cd_rbac_roles" {
 
   description = "Set of CD identity roles for the current subscription and the specified resource groups"
 }
+
+variable "identity_rg_name" {
+  type        = string
+  description = "Resource group name where the identity will be created"
+  default     = null
+}

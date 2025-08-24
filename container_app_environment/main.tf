@@ -4,6 +4,8 @@ resource "azurerm_container_app_environment" "container_app_environment" {
   resource_group_name = var.resource_group_name
 
   log_analytics_workspace_id = var.log_analytics_workspace_id
+  logs_destination           = var.log_analytics_workspace_id != null ? "log-analytics" : "azure-monitor"
+
 
   infrastructure_subnet_id       = var.subnet_id == null ? null : var.subnet_id
   zone_redundancy_enabled        = var.subnet_id == null ? null : var.zone_redundant

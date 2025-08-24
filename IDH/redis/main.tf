@@ -7,6 +7,10 @@ module "idh_loader" {
   idh_resource_type = "redis"
 }
 
+locals {
+  capacity = var.capacity != null ? var.capacity : module.idh_loader.idh_resource_configuration.capacity
+}
+
 # -----------------------------------------------
 # Redis Cache
 # -----------------------------------------------
@@ -16,7 +20,7 @@ module "redis" {
   name                          = var.name
   resource_group_name           = var.resource_group_name
   location                      = var.location
-  capacity                      = module.idh_loader.idh_resource_configuration.capacity
+  capacity                      = local.capacity
   enable_non_ssl_port           = module.idh_loader.idh_resource_configuration.enable_non_ssl_port
   family                        = module.idh_loader.idh_resource_configuration.family
   sku_name                      = module.idh_loader.idh_resource_configuration.sku_name

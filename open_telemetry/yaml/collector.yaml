@@ -25,6 +25,50 @@ spec:
         - key: data_stream.namespace
           value: ${elastic_namespace}
           action: upsert
+      tail_sampling:
+        decision_wait: 30s
+        policies: [
+          {
+            # always sample errors
+            name: trace-status-policy,
+            type: status_code,
+            status_code: { status_codes: [ERROR] }
+          },
+          {
+            # low sampling for readiness/liveness probes
+            name: downsample-readiness-policy,
+            type: and,
+            and:
+              {
+                and_sub_policy:
+                  [
+                    {
+                      # filter by route
+                      name: route-live-ready-policy,
+                      type: string_attribute,
+                      string_attribute:
+                        {
+                          key: http.route,
+                          values: [%{for probe_path in probe_paths}"${probe_path}",%{endfor}],
+                          enabled_regex_matching: true,
+                        },
+                    },
+                    {
+                      # apply probabilistic sampling
+                      name: probabilistic-policy,
+                      type: probabilistic,
+                      probabilistic: { sampling_percentage: ${probes_sampling_percentage} },
+                    }
+                  ]
+              }
+          },
+          {
+            # apply probabilistic sampling
+            name: probabilistic-policy,
+            type: probabilistic,
+            probabilistic: { sampling_percentage: ${sampling_percentage} },
+          }
+        ]
 
     exporters:
       logging:
@@ -41,7 +85,7 @@ spec:
       pipelines:
         traces:
           receivers: [otlp]
-          processors: [resource]
+          processors: [resource %{ if sampling_enabled }, tail_sampling%{endif}]
           exporters: [logging, otlphttp/elastic]
         metrics:
           receivers: [otlp]

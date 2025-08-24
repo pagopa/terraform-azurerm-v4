@@ -93,3 +93,13 @@ variable "patch_schedules" {
   default     = null
   description = "(Optional) List of day-time where Azure can start the maintenance activity"
 }
+
+variable "capacity" {
+  type        = number
+  default     = null
+  description = "(Required) The size of the Redis cache to deploy. Valid values are 0, 1, 2, 3, 4, 5 and 6 for Basic/Standard SKU and 1, 2, 3, 4 for Premium SKU."
+  validation {
+    condition     = var.capacity == null || contains([0, 1, 2, 3, 4, 5, 6], coalesce(var.capacity, -1))
+    error_message = "The capacity value must be one of: 0, 1, 2, 3, 4, 5, 6"
+  }
+}

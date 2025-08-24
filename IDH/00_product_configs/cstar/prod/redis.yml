@@ -1,4 +1,4 @@
-basic:
+standard:
   capacity: 1
   enable_non_ssl_port: false
   family: "C"
@@ -26,7 +26,7 @@ basic:
       start_hour_utc: 23
     - day_of_week: "Saturday"
       start_hour_utc: 23
-critical:
+premium:
   capacity: 1
   enable_non_ssl_port: false
   family: "P"
