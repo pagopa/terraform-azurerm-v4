@@ -64,11 +64,17 @@ resource "azurerm_cdn_frontdoor_custom_domain" "this" {
 }
 
 resource "azurerm_dns_txt_record" "validation" {
-  for_each            = { for k, v in local.domains : k => v if v.enable_dns_records }
+  for_each = {
+    for k, v in azurerm_cdn_frontdoor_custom_domain.this :
+    k => v
+    if try(v.validation_token, "") != "" && try(local.domains[k].enable_dns_records, true)
+  }
+
   name                = local.dns_txt_name[each.key]
-  zone_name           = each.value.dns_name
-  resource_group_name = each.value.dns_resource_group_name
-  ttl                 = each.value.ttl
+  zone_name           = local.domains[each.key].dns_name
+  resource_group_name = local.domains[each.key].dns_resource_group_name
+  ttl                 = try(local.domains[each.key].ttl, 3600)
+
   record { value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token }
 }
 
