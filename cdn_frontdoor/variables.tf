@@ -16,12 +16,6 @@ variable "location" {
   description = "Primary location (e.g., westeurope)."
 }
 
-variable "cdn_location" {
-  type        = string
-  default     = null
-  description = "Optional different location for the CDN resources."
-}
-
 variable "tags" {
   type        = map(string)
   description = "Resource tags."
@@ -120,46 +114,7 @@ variable "https_rewrite_enabled" {
 }
 
 ############################################################
-# Single-domain compatibility inputs
-############################################################
-variable "enable_custom_domain" {
-  type        = bool
-  default     = true
-  description = "Enable the custom domain configuration when using single-domain path."
-}
-
-variable "hostname" {
-  type    = string
-  default = ""
-  description = "Custom hostname (single-domain mode)."
-}
-
-variable "dns_zone_name" {
-  type    = string
-  default = ""
-  description = "DNS zone name (single-domain mode)."
-}
-
-variable "dns_zone_resource_group_name" {
-  type    = string
-  default = ""
-  description = "DNS zone RG (single-domain mode)."
-}
-
-variable "create_dns_record" {
-  type    = bool
-  default = true
-  description = "Create DNS records for the single-domain path."
-}
-
-variable "custom_hostname_kv_enabled" {
-  type        = bool
-  default     = false
-  description = "Kept for backward-compat; multi-domain logic prefers KV only on apex."
-}
-
-############################################################
-# Multi-domain priority inputs
+# Multi-domain inputs (only)
 ############################################################
 variable "custom_domains" {
   type = list(object({
@@ -170,13 +125,7 @@ variable "custom_domains" {
     enable_dns_records      = optional(bool, true)
   }))
   default     = []
-  description = "List of custom domains. If non-empty, overrides single-domain settings."
-}
-
-variable "cdn_route_id" {
-  type        = string
-  default     = null
-  description = "Optional route ID to associate all custom domains; falls back to the default route created by this module if null."
+  description = "List of custom domains."
 }
 
 ############################################################

@@ -3,7 +3,6 @@
 ############################################################
 locals {
   name_prefix          = var.cdn_prefix_name
-  cdn_location         = coalesce(var.cdn_location, var.location)
   storage_account_name = var.storage_account_name != null ? replace(var.storage_account_name, "-", "") : replace("${local.name_prefix}-sa", "-", "")
 
   # Naming
@@ -15,28 +14,16 @@ locals {
   fd_ruleset_global = replace("ruleset-global", "-", "")
   fd_rule_global    = replace("rule-global", "-", "")
   fd_diag_name      = "tf-diagnostics"
-  fd_secret_name    = "secret-certificate"
 
-  # Domains priority:
-  # 1) If custom_domains provided -> use them (multi-domain path)
-  # 2) Else if enable_custom_domain -> synthesize single domain entry
-  # 3) Else -> empty map (no custom domains)
-  synthesized_single = var.enable_custom_domain && length(var.custom_domains) == 0 ? [{
-    domain_name             = var.hostname
-    dns_name                = var.dns_zone_name
-    dns_resource_group_name = var.dns_zone_resource_group_name
-    ttl                     = 3600
-    enable_dns_records      = var.create_dns_record
-  }] : []
-
-  domains_list = length(var.custom_domains) > 0 ? var.custom_domains : local.synthesized_single
+  # Multi-domain only
+  domains_list = var.custom_domains
   domains      = { for d in local.domains_list : d.domain_name => d }
 
   is_apex        = { for k, v in local.domains : k => (v.domain_name == v.dns_name) }
   hostname_label = { for k, v in local.domains : k => (local.is_apex[k] ? "" : trimsuffix(replace(v.domain_name, v.dns_name, ""), ".")) }
   dns_txt_name   = { for k, v in local.domains : k => (local.is_apex[k] ? "_dnsauth" : "_dnsauth.${local.hostname_label[k]}") }
 
-  # Certificate helpers (KV certs applied only when apex, as in multi-domain logic)
+  # Certificate helpers (KV certs applied only when apex)
   keyvault_id = var.keyvault_id
 }
 
@@ -293,17 +280,6 @@ resource "azurerm_cdn_frontdoor_rule" "redirect" {
 
 # =============================================================
 # REWRITE-ONLY RULE (AFD Standard/Premium)
-# Goal: apply SPA/root rewrites without changing input schema
-# Context: url_path_condition disallows leading '/'; guard root "/"
-# Strategy:
-# 1) Pass-through request_uri_condition if provided.
-# 2) Convert url_path_condition == "/" into request_uri_condition == "/".
-# 3) Publish remaining url_path_condition stripping the leading '/'.
-# 4) Keep var.delivery_rule_rewrite schema unchanged.
-# Typical use-cases:
-# - Root SPA:        "/"  → "/app/index.html"
-# - SPA prefix:      "/portal/" → "/portal/index.html"
-# - Extension-less:  no ext → fallback to index.html
 # =============================================================
 resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
   for_each                  = { for r in var.delivery_rule_rewrite : r.order => r }
@@ -312,20 +288,6 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
   order                     = each.value.order
   behavior_on_match         = "Continue"
 
-  # -----------------------------------------------------------
-  # CONDITIONS
-  #   - request_uri_condition (pass-through):
-  #       If the caller already provided conditions on the full URI, publish
-  #       them as-is (leading slash allowed). Useful for root "/", regex, or
-  #       full-path matching (query excluded).
-  #   - request_uri_condition (auto-converted from url_path == "/"):
-  #       Intercept ONLY `url_path_condition` entries whose value is exactly
-  #       "/", and convert them to `request_uri_condition` with match "/".
-  #   - url_path_condition (normal entries):
-  #       Publish after stripping the leading slash; skip empty results.
-  #       Example: ["/portal/", "/app"] → ["portal/", "app"].
-  #   - url_file_extension_condition: pass-through (e.g., “no extension”).
-  # -----------------------------------------------------------
   conditions {
     dynamic "request_uri_condition" {
       for_each = [for c in each.value.conditions : c if c.condition_type == "request_uri_condition"]
@@ -338,9 +300,6 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
       }
     }
 
-    # 2) AUTO-CONVERSION: url_path_condition == "/" → request_uri_condition == "/"
-    #    Reason: url_path does not allow a leading slash; `"/"` would become "".
-    #    This avoids 400 without changing the variable schema.
     dynamic "request_uri_condition" {
       for_each = flatten([
         for c in each.value.conditions : [
@@ -361,7 +320,6 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
       }
     }
 
-    # 3) normal url_path values after trimming leading '/'
     dynamic "url_path_condition" {
       for_each = [for c in each.value.conditions : c if c.condition_type == "url_path_condition" && length(compact([for v in c.match_values : trimprefix(v, "/")])) > 0]
       iterator = c
@@ -385,294 +343,11 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
     }
   }
 
-  # -----------------------------------------------------------
-  # ACTIONS — URL REWRITE
-  #  - source_pattern: what to match (e.g., "/" or "/portal/")
-  #  - destination:    where to rewrite (e.g., "/portal/index.html")
-  #  - preserve_unmatched_path: false for classic SPA patterns
-  #    Examples:
-  #    - Root → SPA index:    "/" → "/portale-enti/index.html"
-  #    - SPA prefix:          "/portal/" → "/portal/index.html"
-  # -----------------------------------------------------------
   actions {
     url_rewrite_action {
       source_pattern          = each.value.url_rewrite_action.source_pattern
       destination             = each.value.url_rewrite_action.destination
       preserve_unmatched_path = try(tobool(each.value.url_rewrite_action.preserve_unmatched_path), false)
-    }
-  }
-
-  depends_on = [
-    azurerm_cdn_frontdoor_origin.storage_web_host,
-    azurerm_cdn_frontdoor_origin_group.this
-  ]
-}
-
-# -------------------------------------------------------------------
-# Generic custom rules (conditions superset)
-#   - headers
-#   - cache/qs override
-#   (No redirect/rewrite here per provider constraints)
-# -------------------------------------------------------------------
-resource "azurerm_cdn_frontdoor_rule" "custom" {
-  for_each                  = { for r in var.delivery_rule : r.name => r }
-  name                      = each.value.name
-  cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
-  order                     = each.value.order
-  behavior_on_match         = try(each.value.behavior_on_match, "Continue")
-
-  conditions {
-    dynamic "cookies_condition" {
-      for_each = try(each.value.cookies_conditions, [])
-      iterator = c
-      content {
-        cookie_name      = c.value.selector
-        operator         = c.value.operator
-        match_values     = try(c.value.match_values, [])
-        negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, [])
-      }
-    }
-
-    dynamic "is_device_condition" {
-      for_each = try(each.value.device_conditions, [])
-      iterator = c
-      content {
-        operator         = c.value.operator
-        match_values     = try(tostring(c.value.match_values), null) != null ? [c.value.match_values] : try(c.value.match_values, [])
-        negate_condition = try(c.value.negate_condition, false)
-      }
-    }
-
-    dynamic "http_version_condition" {
-      for_each = try(each.value.http_version_conditions, [])
-      iterator = c
-      content {
-        operator         = c.value.operator
-        match_values     = c.value.match_values
-        negate_condition = try(c.value.negate_condition, false)
-      }
-    }
-
-    dynamic "post_args_condition" {
-      for_each = try(each.value.post_arg_conditions, [])
-      iterator = c
-      content {
-        post_args_name   = c.value.selector
-        operator         = c.value.operator
-        match_values     = try(c.value.match_values, [])
-        negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, [])
-      }
-    }
-
-    dynamic "query_string_condition" {
-      for_each = try(each.value.query_string_conditions, [])
-      iterator = c
-      content {
-        operator         = c.value.operator
-        match_values     = try(c.value.match_values, [])
-        negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, [])
-      }
-    }
-
-    dynamic "remote_address_condition" {
-      for_each = try(each.value.remote_address_conditions, [])
-      iterator = c
-      content {
-        operator         = c.value.operator
-        match_values     = try(c.value.match_values, [])
-        negate_condition = try(c.value.negate_condition, false)
-      }
-    }
-
-    dynamic "request_body_condition" {
-      for_each = try(each.value.request_body_conditions, [])
-      iterator = c
-      content {
-        operator         = c.value.operator
-        match_values     = c.value.match_values
-        negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, [])
-      }
-    }
-
-    dynamic "request_header_condition" {
-      for_each = try(each.value.request_header_conditions, [])
-      iterator = c
-      content {
-        header_name      = c.value.selector
-        operator         = c.value.operator
-        match_values     = try(c.value.match_values, [])
-        negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, [])
-      }
-    }
-
-    dynamic "request_method_condition" {
-      for_each = try(each.value.request_method_conditions, [])
-      iterator = c
-      content {
-        operator         = c.value.operator
-        match_values     = c.value.match_values
-        negate_condition = try(c.value.negate_condition, false)
-      }
-    }
-
-    dynamic "request_scheme_condition" {
-      for_each = try(each.value.request_scheme_conditions, [])
-      iterator = c
-      content {
-        operator         = c.value.operator
-        match_values     = try(tolist(c.value.match_values), [c.value.match_values])
-        negate_condition = try(c.value.negate_condition, false)
-      }
-    }
-
-    dynamic "request_uri_condition" {
-      for_each = try(each.value.request_uri_conditions, [])
-      iterator = c
-      content {
-        operator         = c.value.operator
-        match_values     = c.value.match_values
-        negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, [])
-      }
-    }
-
-    dynamic "request_uri_condition" {
-      for_each = flatten([
-        for c in try(each.value.url_path_conditions, []) : [
-          for v in try(c.match_values, []) : {
-            operator         = c.operator
-            match_value      = v
-            negate_condition = c.negate_condition
-            transforms       = try(c.transforms, [])
-          } if trimspace(v) == "/"
-        ]
-      ])
-      iterator = ur
-      content {
-        operator         = ur.value.operator
-        match_values     = [ur.value.match_value]
-        negate_condition = ur.value.negate_condition
-        transforms       = ur.value.transforms
-      }
-    }
-
-    dynamic "url_file_extension_condition" {
-      for_each = try(each.value.url_file_extension_conditions, [])
-      iterator = c
-      content {
-        operator         = c.value.operator
-        match_values     = c.value.match_values
-        negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, [])
-      }
-    }
-
-    dynamic "url_filename_condition" {
-      for_each = try(each.value.url_file_name_conditions, [])
-      iterator = c
-      content {
-        operator         = c.value.operator
-        match_values     = try(c.value.match_values, [])
-        negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, [])
-      }
-    }
-
-    dynamic "url_path_condition" {
-      for_each = [
-        for c in try(each.value.url_path_conditions, []) :
-        c if length(compact([for v in try(c.match_values, []) : trimprefix(v, "/")])) > 0
-      ]
-      iterator = c
-      content {
-        operator         = c.value.operator
-        match_values     = compact([for v in c.value.match_values : trimprefix(v, "/")])
-        negate_condition = try(c.value.negate_condition, false)
-        transforms       = try(c.value.transforms, [])
-      }
-    }
-  }
-
-  actions {
-    dynamic "response_header_action" {
-      for_each = try(each.value.modify_response_header_actions, [])
-      iterator = rha
-      content {
-        header_action = rha.value.action
-        header_name   = rha.value.name
-        value         = rha.value.value
-      }
-    }
-
-    dynamic "request_header_action" {
-      for_each = try(each.value.modify_request_header_actions, [])
-      iterator = rqa
-      content {
-        header_action = rqa.value.action
-        header_name   = rqa.value.name
-        value         = rqa.value.value
-      }
-    }
-
-    dynamic "route_configuration_override_action" {
-      for_each = try(each.value.cache_expiration_actions, [])
-      iterator = c
-      content {
-        cache_behavior = lookup({
-          "Override"     = "OverrideAlways"
-          "SetIfMissing" = "OverrideIfOriginMissing"
-          "BypassCache"  = "Disabled"
-          "HonorOrigin"  = "HonorOrigin"
-        }, c.value.behavior, "HonorOrigin")
-        cache_duration = c.value.duration
-      }
-    }
-
-    dynamic "route_configuration_override_action" {
-      for_each = [for ck in try(each.value.cache_key_query_string_actions, []) : ck if contains(["IgnoreQueryString", "UseQueryString"], ck.behavior)]
-      iterator = ck
-      content {
-        query_string_caching_behavior = ck.value.behavior
-      }
-    }
-
-    dynamic "route_configuration_override_action" {
-      for_each = [for ck in try(each.value.cache_key_query_string_actions, []) : ck if contains(["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"], ck.behavior)]
-      iterator = ck
-      content {
-        query_string_caching_behavior = ck.value.behavior
-        query_string_parameters       = length(trimspace(ck.value.parameters)) > 0 ? split(",", trimspace(ck.value.parameters)) : []
-      }
-    }
-
-    # Mutual exclusion: se è presente url_redirect_actions, non pubblichiamo rewrite
-    dynamic "url_redirect_action" {
-      for_each = length(try(each.value.url_rewrite_actions, [])) == 0 ? try(each.value.url_redirect_actions, []) : []
-      iterator = c
-      content {
-        redirect_type        = c.value.redirect_type
-        redirect_protocol    = try(c.value.protocol, null)
-        destination_hostname = try(c.value.hostname, "")
-        destination_path     = try(c.value.path, "")
-        destination_fragment = try(c.value.fragment, "")
-        query_string         = try(c.value.query_string, "")
-      }
-    }
-
-    # Mutual exclusion: se è presente url_redirect_actions, rewrite resta vuoto
-    dynamic "url_rewrite_action" {
-      for_each = length(try(each.value.url_redirect_actions, [])) == 0 ? try(each.value.url_rewrite_actions, []) : []
-      iterator = c
-      content {
-        source_pattern          = c.value.source_pattern
-        destination             = c.value.destination
-        preserve_unmatched_path = try(tobool(c.value.preserve_unmatched_path), false)
-      }
     }
   }
 
@@ -706,7 +381,7 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
     || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0
   ) ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
 
-  cdn_frontdoor_origin_ids = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
+  cdn_frontdoor_origin_ids        = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
   cdn_frontdoor_custom_domain_ids = [for d in azurerm_cdn_frontdoor_custom_domain.this : d.id]
 
   cache {
@@ -715,7 +390,7 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
 }
 
 ############################################################
-# Multi-domain (priority) and single-domain compatibility
+# Multi-domain resources
 ############################################################
 data "azurerm_dns_zone" "zones" {
   for_each            = local.domains
@@ -723,7 +398,7 @@ data "azurerm_dns_zone" "zones" {
   resource_group_name = each.value.dns_resource_group_name
 }
 
-# KV certificates only for apex domains (multi-domain rule)
+# KV certificates only for apex domains
 data "azurerm_key_vault_certificate" "certs" {
   for_each     = { for k, v in local.domains : k => v if local.is_apex[k] && var.keyvault_id != null }
   name         = replace(each.key, ".", "-")
@@ -731,7 +406,7 @@ data "azurerm_key_vault_certificate" "certs" {
   depends_on   = [azurerm_key_vault_access_policy.afd_policy]
 }
 
-# KV access policy for AFD to read certs (only if KV provided and at least 1 domain)
+# KV access policy for AFD identity
 resource "azurerm_key_vault_access_policy" "afd_policy" {
   count                   = length(local.domains) > 0 && var.keyvault_id != null ? 1 : 0
   key_vault_id            = local.keyvault_id
@@ -740,7 +415,6 @@ resource "azurerm_key_vault_access_policy" "afd_policy" {
   secret_permissions      = ["Get"]
   certificate_permissions = ["Get"]
 }
-
 
 resource "azurerm_cdn_frontdoor_secret" "cert_secrets" {
   for_each                 = data.azurerm_key_vault_certificate.certs
@@ -766,7 +440,7 @@ resource "azurerm_cdn_frontdoor_custom_domain" "this" {
   }
 }
 
-# DNS validation TXT
+# DNS validation TXT (solo se token non vuoto)
 resource "azurerm_dns_txt_record" "validation" {
   for_each = {
     for k, v in local.domains :
