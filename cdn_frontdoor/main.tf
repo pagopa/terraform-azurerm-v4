@@ -698,7 +698,6 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
   ) ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
 
   cdn_frontdoor_origin_ids        = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
-  cdn_frontdoor_custom_domain_ids = var.enable_custom_domain ? [azurerm_cdn_frontdoor_custom_domain.this[0].id] : []
 
   cache {
     query_string_caching_behavior = var.querystring_caching_behaviour
