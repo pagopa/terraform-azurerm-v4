@@ -4,10 +4,10 @@ locals {
   fd_endpoint_name = "${local.name_prefix}-cdn-endpoint"
   keyvault_id      = var.keyvault_id
 
-  domains          = { for d in var.custom_domains : d.domain_name => d }
-  is_apex          = { for k, v in local.domains : k => (v.domain_name == v.dns_name) }
-  hostname_label   = { for k, v in local.domains : k => (local.is_apex[k] ? "" : trimsuffix(replace(v.domain_name, v.dns_name, ""), ".")) }
-  dns_txt_name     = { for k, v in local.domains : k => (local.is_apex[k] ? "_dnsauth" : "_dnsauth.${local.hostname_label[k]}") }
+  domains        = { for d in var.custom_domains : d.domain_name => d }
+  is_apex        = { for k, v in local.domains : k => (v.domain_name == v.dns_name) }
+  hostname_label = { for k, v in local.domains : k => (local.is_apex[k] ? "" : trimsuffix(replace(v.domain_name, v.dns_name, ""), ".")) }
+  dns_txt_name   = { for k, v in local.domains : k => (local.is_apex[k] ? "_dnsauth" : "_dnsauth.${local.hostname_label[k]}") }
 }
 
 #----------------------------------------------------------------------------------------

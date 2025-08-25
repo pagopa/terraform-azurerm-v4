@@ -33,8 +33,8 @@ locals {
 module "cdn_storage_account" {
   source = "../storage_account"
 
-  resource_group_name             = var.resource_group_name
-  location                        = var.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
 
   name                            = local.storage_account_name
   account_kind                    = var.storage_account_kind
@@ -371,7 +371,7 @@ data "azurerm_key_vault_certificate" "certs" {
   for_each     = { for k, v in local.domains : k => v if local.is_apex[k] && var.keyvault_id != null }
   name         = replace(each.key, ".", "-")
   key_vault_id = local.keyvault_id
-  depends_on   = [
+  depends_on = [
     azurerm_key_vault_access_policy.afd_policy,
     azurerm_cdn_frontdoor_profile.this,
   ]
@@ -386,8 +386,8 @@ resource "azurerm_key_vault_access_policy" "afd_policy" {
   secret_permissions      = ["Get"]
   certificate_permissions = ["Get"]
 
-    depends_on = [azurerm_cdn_frontdoor_profile.this,
-    ]
+  depends_on = [azurerm_cdn_frontdoor_profile.this,
+  ]
 
 }
 
@@ -401,7 +401,7 @@ resource "azurerm_cdn_frontdoor_secret" "cert_secrets" {
     }
   }
 
-    depends_on = [azurerm_cdn_frontdoor_profile.this,]
+  depends_on = [azurerm_cdn_frontdoor_profile.this, ]
 
 }
 
@@ -417,29 +417,29 @@ resource "azurerm_cdn_frontdoor_custom_domain" "this" {
     cdn_frontdoor_secret_id = contains(keys(azurerm_cdn_frontdoor_secret.cert_secrets), each.key) ? azurerm_cdn_frontdoor_secret.cert_secrets[each.key].id : null
   }
 
-    depends_on = [azurerm_cdn_frontdoor_profile.this, ]
+  depends_on = [azurerm_cdn_frontdoor_profile.this, ]
 
 }
 
 # DNS validation TXT (solo se token non vuoto)
-# resource "azurerm_dns_txt_record" "validation" {
-#   for_each = {
-#     for k, v in local.domains :
-#     k => v
-#     if try(azurerm_cdn_frontdoor_custom_domain.this[k].validation_token, "") != "" && try(v.enable_dns_records, true)
-#   }
-#
-#   name                = local.dns_txt_name[each.key]
-#   zone_name           = local.domains[each.key].dns_name
-#   resource_group_name = local.domains[each.key].dns_resource_group_name
-#   ttl                 = try(local.domains[each.key].ttl, 3600)
-#
-#   record {
-#     value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
-#   }
-#
-#     depends_on = [azurerm_cdn_frontdoor_profile.this,]
-# }
+resource "azurerm_dns_txt_record" "validation" {
+  for_each = {
+    for k, v in local.domains :
+    k => v
+    if try(azurerm_cdn_frontdoor_custom_domain.this[k].validation_token, "") != "" && try(v.enable_dns_records, true)
+  }
+
+  name                = local.dns_txt_name[each.key]
+  zone_name           = local.domains[each.key].dns_name
+  resource_group_name = local.domains[each.key].dns_resource_group_name
+  ttl                 = try(local.domains[each.key].ttl, 3600)
+
+  record {
+    value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
+  }
+
+  depends_on = [azurerm_cdn_frontdoor_profile.this, ]
+}
 
 # DNS apex A-record to endpoint
 resource "azurerm_dns_a_record" "apex" {
@@ -450,7 +450,7 @@ resource "azurerm_dns_a_record" "apex" {
   ttl                 = try(each.value.ttl, 3600)
   target_resource_id  = azurerm_cdn_frontdoor_endpoint.this.id
 
-    depends_on = [azurerm_cdn_frontdoor_profile.this, ]
+  depends_on = [azurerm_cdn_frontdoor_profile.this, ]
 
 }
 
@@ -463,7 +463,7 @@ resource "azurerm_dns_cname_record" "subdomain" {
   ttl                 = try(each.value.ttl, 3600)
   record              = azurerm_cdn_frontdoor_endpoint.this.host_name
 
-    depends_on = [azurerm_cdn_frontdoor_profile.this, ]
+  depends_on = [azurerm_cdn_frontdoor_profile.this, ]
 
 }
 
@@ -502,7 +502,7 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
   depends_on = [
     azurerm_cdn_frontdoor_secret.cert_secrets,
     azurerm_cdn_frontdoor_custom_domain.this,
-    # azurerm_dns_txt_record.validation,
+    azurerm_dns_txt_record.validation,
     azurerm_dns_a_record.apex,
     azurerm_dns_cname_record.subdomain,
 
@@ -517,6 +517,6 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings_cdn_profile" 
   target_resource_id         = azurerm_cdn_frontdoor_profile.this.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
-  enabled_log   { category_group = "allLogs" }
-  enabled_metric{ category       = "AllMetrics" }
+  enabled_log { category_group = "allLogs" }
+  enabled_metric { category = "AllMetrics" }
 }
