@@ -421,37 +421,35 @@ resource "azurerm_cdn_frontdoor_custom_domain" "this" {
 
 }
 
-# DNS validation TXT (solo se token non vuoto)
+#------------------------------------------------------------
+# Validation (DNS TXT + A/CNAME records)
+#------------------------------------------------------------
+resource "azapi_resource_action" "afd_refresh_validation_token" {
+  for_each = azurerm_cdn_frontdoor_custom_domain.this
+
+  type        = "Microsoft.Cdn/profiles/customDomains@2025-04-15"
+  resource_id = each.value.id
+  action      = "refreshValidationToken"
+  method      = "POST"
+
+  depends_on = [azurerm_cdn_frontdoor_custom_domain.this]
+}
+
 resource "azurerm_dns_txt_record" "validation" {
-  for_each = {
-    for k, v in local.domains :
-    k => v
-    if try(v.enable_dns_records, true)
-  }
+  for_each = { for k, v in local.domains : k => v if try(v.enable_dns_records, true) }
 
   name                = local.dns_txt_name[each.key]
-  zone_name           = local.domains[each.key].dns_name
-  resource_group_name = local.domains[each.key].dns_resource_group_name
-  ttl                 = try(local.domains[each.key].ttl, 3600)
+  zone_name           = each.value.dns_name
+  resource_group_name = each.value.dns_resource_group_name
+  ttl                 = try(each.value.ttl, 3600)
 
   record {
     value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
   }
 
   depends_on = [
-    azurerm_cdn_frontdoor_custom_domain.this
+    azapi_resource_action.afd_refresh_validation_token
   ]
-
-  lifecycle {
-    replace_triggered_by = [
-      azurerm_cdn_frontdoor_custom_domain.this[each.key].id
-    ]
-
-    precondition {
-      condition     = try(azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token, "") != ""
-      error_message = "Validation token non disponibile per ${each.key}."
-    }
-  }
 }
 
 # DNS apex A-record to endpoint
