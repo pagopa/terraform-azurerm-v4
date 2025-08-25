@@ -723,6 +723,14 @@ data "azurerm_dns_zone" "zones" {
   resource_group_name = each.value.dns_resource_group_name
 }
 
+# KV certificates only for apex domains (multi-domain rule)
+data "azurerm_key_vault_certificate" "certs" {
+  for_each     = { for k, v in local.domains : k => v if local.is_apex[k] && var.keyvault_id != null }
+  name         = replace(each.key, ".", "-")
+  key_vault_id = local.keyvault_id
+  depends_on   = [azurerm_key_vault_access_policy.afd_policy]
+}
+
 # KV access policy for AFD to read certs (only if KV provided and at least 1 domain)
 resource "azurerm_key_vault_access_policy" "afd_policy" {
   count                   = length(local.domains) > 0 && var.keyvault_id != null ? 1 : 0
@@ -733,13 +741,6 @@ resource "azurerm_key_vault_access_policy" "afd_policy" {
   certificate_permissions = ["Get"]
 }
 
-# KV certificates only for apex domains (multi-domain rule)
-data "azurerm_key_vault_certificate" "certs" {
-  for_each     = { for k, v in local.domains : k => v if local.is_apex[k] && var.keyvault_id != null }
-  name         = replace(each.key, ".", "-")
-  key_vault_id = local.keyvault_id
-  depends_on   = [azurerm_key_vault_access_policy.afd_policy]
-}
 
 resource "azurerm_cdn_frontdoor_secret" "cert_secrets" {
   for_each                 = data.azurerm_key_vault_certificate.certs
@@ -768,9 +769,9 @@ resource "azurerm_cdn_frontdoor_custom_domain" "this" {
 # DNS validation TXT
 resource "azurerm_dns_txt_record" "validation" {
   for_each = {
-    for k, v in azurerm_cdn_frontdoor_custom_domain.this :
+    for k, v in local.domains :
     k => v
-    if try(v.validation_token, "") != "" && try(local.domains[k].enable_dns_records, true)
+    if try(azurerm_cdn_frontdoor_custom_domain.this[k].validation_token, "") != "" && try(v.enable_dns_records, true)
   }
 
   name                = local.dns_txt_name[each.key]
@@ -778,7 +779,9 @@ resource "azurerm_dns_txt_record" "validation" {
   resource_group_name = local.domains[each.key].dns_resource_group_name
   ttl                 = try(local.domains[each.key].ttl, 3600)
 
-  record { value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token }
+  record {
+    value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
+  }
 }
 
 # DNS apex A-record to endpoint
