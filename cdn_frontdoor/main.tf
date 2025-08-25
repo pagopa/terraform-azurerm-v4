@@ -504,7 +504,6 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
   depends_on = [
     azurerm_cdn_frontdoor_secret.cert_secrets,
     azurerm_cdn_frontdoor_custom_domain.this,
-    azurerm_dns_txt_record.validation,
     azurerm_dns_a_record.apex,
     azurerm_dns_cname_record.subdomain,
 
