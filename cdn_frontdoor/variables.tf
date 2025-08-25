@@ -1,70 +1,54 @@
+############################################################
+# Core naming, location, RG, tags
+############################################################
 variable "cdn_prefix_name" {
   type        = string
-  description = "Prefix used for naming resources (e.g. myprefix-myapp)"
+  description = "Prefix used for naming resources (e.g. myprefix-myapp)."
 }
 
-variable "tenant_id" {
-  type    = string
-  default = null
+variable "resource_group_name" {
+  type        = string
+  description = "Resource group name where the Front Door profile will be created."
 }
 
 variable "location" {
-  type = string
+  type        = string
+  description = "Primary location (e.g., westeurope)."
 }
 
 variable "cdn_location" {
   type        = string
   default     = null
-  description = "If the location of the CDN needs to be different from that of the storage account, set this variable to the location where the CDN should be created. For example, cdn_location = westeurope and location = northitaly"
+  description = "Optional different location for the CDN resources."
 }
 
 variable "tags" {
-  type = map(string)
+  type        = map(string)
+  description = "Resource tags."
 }
 
-variable "resource_group_name" {
-  type = string
-}
-
-variable enable_custom_domain {
-  type    = bool
-  default = true
-  description = "Enable the custom domain configuration on the Front Door"
-}
-
+############################################################
+# Front Door profile
+############################################################
 variable "frontdoor_sku_name" {
   type        = string
-  description = "SKU name for the Azure Front Door profile"
+  description = "SKU name for the Azure Front Door profile."
   default     = "Standard_AzureFrontDoor"
 }
 
-
-#
-# KV
-#
-# variable "keyvault_resource_group_name" {
-#   type        = string
-#   description = "Key vault resource group name"
-# }
-#
-# variable "keyvault_vault_name" {
-#   type        = string
-#   description = "Key vault name"
-# }
-
-variable "keyvault_id" {
+variable "tenant_id" {
   type        = string
-  description = "Key vault id"
   default     = null
+  description = "Tenant ID for KV access policy."
 }
 
-#
-# Storage
-#
+############################################################
+# Storage configuration (static website)
+############################################################
 variable "storage_account_name" {
   type        = string
-  description = "(Optional) The storage account name used by the CDN"
   default     = null
+  description = "Optional storage account name; if null, computed from prefix."
 }
 
 variable "storage_account_advanced_threat_protection_enabled" {
@@ -75,7 +59,7 @@ variable "storage_account_advanced_threat_protection_enabled" {
 variable "storage_account_nested_items_public" {
   type        = bool
   default     = true
-  description = "(Optional) reflects to property 'allow_nested_items_to_be_public' on storage account module"
+  description = "Reflects 'allow_nested_items_to_be_public' on the storage account."
 }
 
 variable "storage_account_kind" {
@@ -101,20 +85,112 @@ variable "storage_access_tier" {
 variable "storage_public_network_access_enabled" {
   type        = bool
   default     = true
-  description = "Flag to set public public network for storage account"
+  description = "Enable public network for the storage account."
 }
 
-#
-# Logs
-#
+variable "storage_account_index_document" {
+  type        = string
+  description = "Index document for static website."
+}
+
+variable "storage_account_error_404_document" {
+  type        = string
+  description = "404 document for static website."
+}
+
+############################################################
+# Diagnostics
+############################################################
 variable "log_analytics_workspace_id" {
   type        = string
-  description = "Log Analytics Workspace id to send logs to"
+  description = "Log Analytics Workspace id to send Front Door logs/metrics."
 }
 
-#
-# Rules
-#
+############################################################
+# Routing and caching defaults
+############################################################
+variable "querystring_caching_behaviour" {
+  type    = string
+  default = "IgnoreQueryString"
+}
+
+variable "https_rewrite_enabled" {
+  type    = bool
+  default = true
+}
+
+############################################################
+# Single-domain compatibility inputs
+############################################################
+variable "enable_custom_domain" {
+  type        = bool
+  default     = true
+  description = "Enable the custom domain configuration when using single-domain path."
+}
+
+variable "hostname" {
+  type    = string
+  default = ""
+  description = "Custom hostname (single-domain mode)."
+}
+
+variable "dns_zone_name" {
+  type    = string
+  default = ""
+  description = "DNS zone name (single-domain mode)."
+}
+
+variable "dns_zone_resource_group_name" {
+  type    = string
+  default = ""
+  description = "DNS zone RG (single-domain mode)."
+}
+
+variable "create_dns_record" {
+  type    = bool
+  default = true
+  description = "Create DNS records for the single-domain path."
+}
+
+variable "custom_hostname_kv_enabled" {
+  type        = bool
+  default     = false
+  description = "Kept for backward-compat; multi-domain logic prefers KV only on apex."
+}
+
+############################################################
+# Multi-domain priority inputs
+############################################################
+variable "custom_domains" {
+  type = list(object({
+    domain_name             = string
+    dns_name                = string
+    dns_resource_group_name = string
+    ttl                     = optional(number, 3600)
+    enable_dns_records      = optional(bool, true)
+  }))
+  default     = []
+  description = "List of custom domains. If non-empty, overrides single-domain settings."
+}
+
+variable "cdn_route_id" {
+  type        = string
+  default     = null
+  description = "Optional route ID to associate all custom domains; falls back to the default route created by this module if null."
+}
+
+############################################################
+# Key Vault (certificates for apex domains)
+############################################################
+variable "keyvault_id" {
+  type        = string
+  default     = null
+  description = "Key Vault ID containing certificates (used for apex domains)."
+}
+
+############################################################
+# Rules inputs
+############################################################
 variable "global_delivery_rules" {
   type = list(object({
     order                         = number
@@ -125,7 +201,6 @@ variable "global_delivery_rules" {
   }))
   default = []
 }
-
 
 variable "delivery_rule_url_path_condition_cache_expiration_action" {
   type = list(object({
@@ -203,7 +278,6 @@ variable "delivery_rule" {
     name  = string
     order = number
 
-    # conditions
     cookies_conditions             = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
     device_conditions              = optional(list(object({ operator = string, match_values = string, negate_condition = bool })), [])
     http_version_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])
@@ -219,7 +293,6 @@ variable "delivery_rule" {
     url_file_name_conditions       = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
     url_path_conditions            = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
 
-    # actions
     cache_expiration_actions       = optional(list(object({ behavior = string, duration = string })), [])
     cache_key_query_string_actions = optional(list(object({ behavior = string, parameters = string })), [])
     modify_request_header_actions  = optional(list(object({ action = string, name = string, value = string })), [])
@@ -236,51 +309,4 @@ variable "delivery_rule" {
     ])
     error_message = "A delivery_rule cannot define both url_redirect_actions and url_rewrite_actions at the same time."
   }
-}
-
-#
-# CDN Configuration
-#
-variable "querystring_caching_behaviour" {
-  type    = string
-  default = "IgnoreQueryString"
-}
-
-variable "https_rewrite_enabled" {
-  type    = bool
-  default = true
-}
-
-variable "hostname" {
-  type = string
-  default = ""
-}
-
-variable "storage_account_index_document" {
-  type = string
-}
-
-variable "storage_account_error_404_document" {
-  type = string
-}
-
-variable "custom_hostname_kv_enabled" {
-  type        = bool
-  default     = false
-  description = "Flag required to enable the association between KV certificate and CDN when the hostname is different from the APEX"
-}
-
-variable "dns_zone_name" {
-  type = string
-  default = ""
-}
-
-variable "dns_zone_resource_group_name" {
-  type = string
-  default = ""
-}
-
-variable "create_dns_record" {
-  type    = bool
-  default = true
 }

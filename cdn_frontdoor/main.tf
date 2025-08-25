@@ -1,15 +1,10 @@
 ############################################################
-# Locals (naming, helpers)
+# Locals (naming, helpers, domain resolution)
 ############################################################
 locals {
   name_prefix          = var.cdn_prefix_name
   cdn_location         = coalesce(var.cdn_location, var.location)
   storage_account_name = var.storage_account_name != null ? replace(var.storage_account_name, "-", "") : replace("${local.name_prefix}-sa", "-", "")
-
-  # DNS helpers computed only when custom domain is enabled
-  is_apex        = var.enable_custom_domain ? var.hostname == var.dns_zone_name : false
-  hostname_label = var.enable_custom_domain ? (local.is_apex ? "" : trimsuffix(replace(var.hostname, var.dns_zone_name, ""), ".")) : ""
-  dns_txt_name   = var.enable_custom_domain ? (local.hostname_label != "" ? "_dnsauth.${local.hostname_label}" : "_dnsauth") : ""
 
   # Naming
   fd_profile_name   = "${local.name_prefix}-cdn-profile"
@@ -21,12 +16,28 @@ locals {
   fd_rule_global    = replace("rule-global", "-", "")
   fd_diag_name      = "tf-diagnostics"
   fd_secret_name    = "secret-certificate"
-  fd_customdom_name = var.enable_custom_domain ? replace(var.hostname, ".", "-") : ""
 
-  # Certificate helpers
-  keyvault_id        = var.keyvault_id
-  certificate_name   = var.enable_custom_domain ? replace(var.hostname, ".", "-") : ""
-  use_kv_certificate = var.enable_custom_domain ? (var.dns_zone_name == var.hostname || var.custom_hostname_kv_enabled) : false
+  # Domains priority:
+  # 1) If custom_domains provided -> use them (multi-domain path)
+  # 2) Else if enable_custom_domain -> synthesize single domain entry
+  # 3) Else -> empty map (no custom domains)
+  synthesized_single = var.enable_custom_domain && length(var.custom_domains) == 0 ? [{
+    domain_name             = var.hostname
+    dns_name                = var.dns_zone_name
+    dns_resource_group_name = var.dns_zone_resource_group_name
+    ttl                     = 3600
+    enable_dns_records      = var.create_dns_record
+  }] : []
+
+  domains_list = length(var.custom_domains) > 0 ? var.custom_domains : local.synthesized_single
+  domains      = { for d in local.domains_list : d.domain_name => d }
+
+  is_apex        = { for k, v in local.domains : k => (v.domain_name == v.dns_name) }
+  hostname_label = { for k, v in local.domains : k => (local.is_apex[k] ? "" : trimsuffix(replace(v.domain_name, v.dns_name, ""), ".")) }
+  dns_txt_name   = { for k, v in local.domains : k => (local.is_apex[k] ? "_dnsauth" : "_dnsauth.${local.hostname_label[k]}") }
+
+  # Certificate helpers (KV certs applied only when apex, as in multi-domain logic)
+  keyvault_id = var.keyvault_id
 }
 
 ############################################################
@@ -177,7 +188,7 @@ resource "azurerm_cdn_frontdoor_rule" "url_path_cache" {
   conditions {
     url_path_condition {
       operator         = each.value.operator
-      match_values     = [for v in each.value.match_values : trimprefix(v, "/")] # no leading '/'
+      match_values     = [for v in each.value.match_values : trimprefix(v, "/")]
       negate_condition = false
       transforms       = []
     }
@@ -316,7 +327,6 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
   #   - url_file_extension_condition: pass-through (e.g., “no extension”).
   # -----------------------------------------------------------
   conditions {
-    # 1) pass-through of request_uri_condition
     dynamic "request_uri_condition" {
       for_each = [for c in each.value.conditions : c if c.condition_type == "request_uri_condition"]
       iterator = c
@@ -363,7 +373,6 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
       }
     }
 
-    # 4) optional extension filters
     dynamic "url_file_extension_condition" {
       for_each = [for c in each.value.conditions : c if c.condition_type == "url_file_extension_condition"]
       iterator = c
@@ -697,85 +706,98 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
     || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0
   ) ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
 
-  cdn_frontdoor_origin_ids        = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
+  cdn_frontdoor_origin_ids = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
+  cdn_frontdoor_custom_domain_ids = [for d in azurerm_cdn_frontdoor_custom_domain.this : d.id]
 
   cache {
     query_string_caching_behavior = var.querystring_caching_behaviour
   }
-
 }
 
 ############################################################
-# 🌐 Custom domain + TLS (managed or KV) — conditional
+# Multi-domain (priority) and single-domain compatibility
 ############################################################
-# Entire block is skipped when enable_custom_domain = false.
-# Also skips DNS data source and records in that case.
-
-data "azurerm_dns_zone" "this" {
-  count               = var.enable_custom_domain ? 1 : 0
-  name                = var.dns_zone_name
-  resource_group_name = var.dns_zone_resource_group_name
+data "azurerm_dns_zone" "zones" {
+  for_each            = local.domains
+  name                = each.value.dns_name
+  resource_group_name = each.value.dns_resource_group_name
 }
 
-data "azurerm_key_vault_certificate" "custom_domain" {
-  count        = var.enable_custom_domain && local.use_kv_certificate ? 1 : 0
-  name         = local.certificate_name
+# KV access policy for AFD to read certs (only if KV provided and at least 1 domain)
+resource "azurerm_key_vault_access_policy" "afd_policy" {
+  count                   = length(local.domains) > 0 && var.keyvault_id != null ? 1 : 0
+  key_vault_id            = local.keyvault_id
+  tenant_id               = var.tenant_id
+  object_id               = azurerm_cdn_frontdoor_profile.this.identity[0].principal_id
+  secret_permissions      = ["Get"]
+  certificate_permissions = ["Get"]
+}
+
+# KV certificates only for apex domains (multi-domain rule)
+data "azurerm_key_vault_certificate" "certs" {
+  for_each     = { for k, v in local.domains : k => v if local.is_apex[k] && var.keyvault_id != null }
+  name         = replace(each.key, ".", "-")
   key_vault_id = local.keyvault_id
+  depends_on   = [azurerm_key_vault_access_policy.afd_policy]
 }
 
-resource "azurerm_cdn_frontdoor_secret" "this" {
-  count                    = var.enable_custom_domain && local.use_kv_certificate ? 1 : 0
-  name                     = local.fd_secret_name
+resource "azurerm_cdn_frontdoor_secret" "cert_secrets" {
+  for_each                 = data.azurerm_key_vault_certificate.certs
+  name                     = replace(each.key, ".", "-")
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-
   secret {
     customer_certificate {
-      key_vault_certificate_id = data.azurerm_key_vault_certificate.custom_domain[0].versionless_id
+      key_vault_certificate_id = each.value.versionless_id
     }
   }
 }
 
 resource "azurerm_cdn_frontdoor_custom_domain" "this" {
-  count                    = var.enable_custom_domain ? 1 : 0
-  name                     = local.fd_customdom_name
+  for_each                 = local.domains
+  name                     = replace(each.key, ".", "-")
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  dns_zone_id              = var.enable_custom_domain ? data.azurerm_dns_zone.this[0].id : null
-  host_name                = var.hostname
+  dns_zone_id              = data.azurerm_dns_zone.zones[each.key].id
+  host_name                = each.key
 
   tls {
-    certificate_type        = local.use_kv_certificate ? "CustomerCertificate" : "ManagedCertificate"
-    cdn_frontdoor_secret_id = var.enable_custom_domain && local.use_kv_certificate ? azurerm_cdn_frontdoor_secret.this[0].id : null
+    certificate_type        = contains(keys(azurerm_cdn_frontdoor_secret.cert_secrets), each.key) ? "CustomerCertificate" : "ManagedCertificate"
+    cdn_frontdoor_secret_id = contains(keys(azurerm_cdn_frontdoor_secret.cert_secrets), each.key) ? azurerm_cdn_frontdoor_secret.cert_secrets[each.key].id : null
   }
 }
 
-resource "azurerm_dns_txt_record" "domain_validation" {
-  count               = var.enable_custom_domain ? 1 : 0
-  name                = local.dns_txt_name
-  zone_name           = var.dns_zone_name
-  resource_group_name = var.dns_zone_resource_group_name
-  ttl                 = 3600
+# DNS validation TXT
+resource "azurerm_dns_txt_record" "validation" {
+  for_each = {
+    for k, v in azurerm_cdn_frontdoor_custom_domain.this :
+    k => v
+    if try(v.validation_token, "") != "" && try(local.domains[k].enable_dns_records, true)
+  }
 
-  record { value = azurerm_cdn_frontdoor_custom_domain.this[0].validation_token }
+  name                = local.dns_txt_name[each.key]
+  zone_name           = local.domains[each.key].dns_name
+  resource_group_name = local.domains[each.key].dns_resource_group_name
+  ttl                 = try(local.domains[each.key].ttl, 3600)
+
+  record { value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token }
 }
 
-############################################################
-# DNS records (Apex A-record or subdomain CNAME) — conditional
-############################################################
-resource "azurerm_dns_a_record" "apex_hostname" {
-  count               = var.enable_custom_domain && local.is_apex && var.create_dns_record ? 1 : 0
+# DNS apex A-record to endpoint
+resource "azurerm_dns_a_record" "apex" {
+  for_each            = { for k, v in local.domains : k => v if local.is_apex[k] && try(v.enable_dns_records, true) }
   name                = "@"
-  zone_name           = var.dns_zone_name
-  resource_group_name = var.dns_zone_resource_group_name
-  ttl                 = 3600
+  zone_name           = each.value.dns_name
+  resource_group_name = each.value.dns_resource_group_name
+  ttl                 = try(each.value.ttl, 3600)
   target_resource_id  = azurerm_cdn_frontdoor_endpoint.this.id
 }
 
-resource "azurerm_dns_cname_record" "hostname" {
-  count               = var.enable_custom_domain && !local.is_apex && var.create_dns_record ? 1 : 0
-  name                = local.hostname_label
-  zone_name           = var.dns_zone_name
-  resource_group_name = var.dns_zone_resource_group_name
-  ttl                 = 3600
+# DNS subdomain CNAME to endpoint hostname
+resource "azurerm_dns_cname_record" "subdomain" {
+  for_each            = { for k, v in local.domains : k => v if !local.is_apex[k] && try(v.enable_dns_records, true) }
+  name                = local.hostname_label[each.key]
+  zone_name           = each.value.dns_name
+  resource_group_name = each.value.dns_resource_group_name
+  ttl                 = try(each.value.ttl, 3600)
   record              = azurerm_cdn_frontdoor_endpoint.this.host_name
 }
 
@@ -787,20 +809,6 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings_cdn_profile" 
   target_resource_id         = azurerm_cdn_frontdoor_profile.this.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
-  enabled_log { category_group = "allLogs" }
-  enabled_metric { category = "AllMetrics" }
-}
-
-############################################################
-# Key Vault Access Policy for AFD SP (if using KV cert) — conditional
-############################################################
-resource "azurerm_key_vault_access_policy" "azure_cdn_frontdoor_policy" {
-  count = var.enable_custom_domain && var.custom_hostname_kv_enabled ? 1 : 0
-
-  key_vault_id = local.keyvault_id
-  tenant_id    = var.tenant_id
-  object_id    = azurerm_cdn_frontdoor_profile.this.identity[0].principal_id
-
-  secret_permissions      = ["Get"]
-  certificate_permissions = ["Get"]
+  enabled_log   { category_group = "allLogs" }
+  enabled_metric{ category       = "AllMetrics" }
 }
