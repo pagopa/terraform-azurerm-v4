@@ -1,18 +1,21 @@
+output "profile_id" {
+  value = azurerm_cdn_frontdoor_profile.this.id
+}
+
+output "profile_name" {
+  value = azurerm_cdn_frontdoor_profile.this.name
+}
+
 output "endpoint_id" {
   value = azurerm_cdn_frontdoor_endpoint.this.id
 }
 
-output "id" {
-  value       = azurerm_cdn_frontdoor_endpoint.this.id
-  description = "Deprecated, use endpoint_id instead."
-}
-
-output "name" {
+output "endpoint_name" {
   value = azurerm_cdn_frontdoor_endpoint.this.name
 }
 
-output "profile_id" {
-  value = azurerm_cdn_frontdoor_profile.this.id
+output "route_id" {
+  value = azurerm_cdn_frontdoor_route.default_route.id
 }
 
 output "hostname" {
