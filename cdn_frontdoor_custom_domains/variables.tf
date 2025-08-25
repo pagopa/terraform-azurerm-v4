@@ -1,64 +1,41 @@
 variable "cdn_prefix_name" {
   type        = string
-  description = "Prefix used for naming resources (e.g. myprefix-myapp)"
+  description = "Prefix for Front Door naming (e.g. myapp-prod)."
 }
 
 variable "tenant_id" {
-  type    = string
-  default = null
+  type        = string
+  description = "Tenant ID."
 }
 
 variable "location" {
-  type = string
+  type        = string
+  description = "Azure location."
 }
 
 variable "tags" {
-  type = map(string)
+  type        = map(string)
+  description = "Common tags."
 }
 
 variable "resource_group_name" {
-  type = string
+  type        = string
+  description = "Resource group of the Front Door profile."
 }
-
-variable enable_custom_domain {
-  type    = bool
-  default = true
-  description = "Enable the custom domain configuration on the Front Door"
-}
-
-
-#
-# KV
-#
 
 variable "keyvault_id" {
   type        = string
-  description = "Key vault id"
   default     = null
+  description = "Key Vault ID containing certificates."
 }
 
-variable "hostname" {
-  type = string
-  default = ""
-}
-
-variable "custom_hostname_kv_enabled" {
-  type        = bool
-  default     = false
-  description = "Flag required to enable the association between KV certificate and CDN when the hostname is different from the APEX"
-}
-
-variable "dns_zone_name" {
-  type = string
-  default = ""
-}
-
-variable "dns_zone_resource_group_name" {
-  type = string
-  default = ""
-}
-
-variable "create_dns_record" {
-  type    = bool
-  default = true
+variable "custom_domains" {
+  type = list(object({
+    domain_name             = string
+    dns_name                = string
+    dns_resource_group_name = string
+    enable_dns_records      = optional(bool, true)
+  }))
+  default     = []
+  description = "List of custom domains with DNS zone and per-domain control for DNS records."
 }
