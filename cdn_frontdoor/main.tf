@@ -426,7 +426,7 @@ resource "azurerm_dns_txt_record" "validation" {
   for_each = {
     for k, v in local.domains :
     k => v
-    if try(azurerm_cdn_frontdoor_custom_domain.this[k].validation_token, "") != "" && try(v.enable_dns_records, true)
+    if try(v.enable_dns_records, true)
   }
 
   name                = local.dns_txt_name[each.key]
@@ -438,7 +438,20 @@ resource "azurerm_dns_txt_record" "validation" {
     value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
   }
 
-  depends_on = [azurerm_cdn_frontdoor_profile.this, ]
+  depends_on = [
+    azurerm_cdn_frontdoor_custom_domain.this
+  ]
+
+  lifecycle {
+    replace_triggered_by = [
+      azurerm_cdn_frontdoor_custom_domain.this[each.key].id
+    ]
+
+    precondition {
+      condition     = try(azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token, "") != ""
+      error_message = "Validation token non disponibile per ${each.key}."
+    }
+  }
 }
 
 # DNS apex A-record to endpoint
