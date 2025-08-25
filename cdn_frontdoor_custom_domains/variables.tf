@@ -3,6 +3,11 @@ variable "cdn_prefix_name" {
   description = "Prefix for Front Door naming (e.g. myapp-prod)."
 }
 
+variable "cdn_route_id" {
+  type        = string
+  description = "ID della route Front Door a cui associare tutti i custom domains."
+}
+
 variable "tenant_id" {
   type        = string
   description = "Tenant ID."

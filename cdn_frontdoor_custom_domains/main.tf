@@ -2,7 +2,6 @@ locals {
   name_prefix      = var.cdn_prefix_name
   fd_profile_name  = "${local.name_prefix}-cdn-profile"
   fd_endpoint_name = "${local.name_prefix}-cdn-endpoint"
-  fd_secret_name   = "secret-certificate"
   keyvault_id      = var.keyvault_id
 
   domains          = { for d in var.custom_domains : d.domain_name => d }
@@ -43,7 +42,7 @@ data "azurerm_key_vault_certificate" "certs" {
 #----------------------------------------------------------------------------------------
 resource "azurerm_cdn_frontdoor_secret" "cert_secrets" {
   for_each                 = data.azurerm_key_vault_certificate.certs
-  name                     = local.fd_secret_name
+  name                     = replace(each.key, ".", "-")
   cdn_frontdoor_profile_id = data.azurerm_cdn_frontdoor_profile.cdn.id
   secret {
     customer_certificate {
@@ -89,6 +88,15 @@ resource "azurerm_dns_cname_record" "subdomain" {
   resource_group_name = each.value.dns_resource_group_name
   ttl                 = each.value.ttl
   record              = data.azurerm_cdn_frontdoor_endpoint.cdn_endpoint.host_name
+}
+
+#----------------------------------------------------------------------------------------
+# Association to Route
+#----------------------------------------------------------------------------------------
+resource "azurerm_cdn_frontdoor_custom_domain_association" "this" {
+  for_each                       = local.domains
+  cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.this[each.key].id
+  cdn_frontdoor_route_ids        = [var.cdn_route_id]
 }
 
 #----------------------------------------------------------------------------------------
