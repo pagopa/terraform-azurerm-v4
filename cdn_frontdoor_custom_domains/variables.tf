@@ -23,6 +23,7 @@ variable "custom_domains" {
     domain_name             = string
     dns_name                = string
     dns_resource_group_name = string
+    ttl                     = optional(number, 3600)
     enable_dns_records      = optional(bool, true)
   }))
   description = "List of custom domains with DNS zone and per-domain control for DNS records."

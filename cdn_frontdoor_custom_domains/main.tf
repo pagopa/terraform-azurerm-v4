@@ -69,7 +69,7 @@ resource "azurerm_dns_txt_record" "validation" {
   name                = local.dns_txt_name[each.key]
   zone_name           = each.value.dns_name
   resource_group_name = each.value.dns_resource_group_name
-  ttl                 = 3600
+  ttl                 = each.value.ttl
   record { value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token }
 }
 
@@ -78,7 +78,7 @@ resource "azurerm_dns_a_record" "apex" {
   name                = "@"
   zone_name           = each.value.dns_name
   resource_group_name = each.value.dns_resource_group_name
-  ttl                 = 3600
+  ttl                 = each.value.ttl
   target_resource_id  = data.azurerm_cdn_frontdoor_endpoint.cdn_endpoint.id
 }
 
@@ -87,7 +87,7 @@ resource "azurerm_dns_cname_record" "subdomain" {
   name                = local.hostname_label[each.key]
   zone_name           = each.value.dns_name
   resource_group_name = each.value.dns_resource_group_name
-  ttl                 = 3600
+  ttl                 = each.value.ttl
   record              = data.azurerm_cdn_frontdoor_endpoint.cdn_endpoint.host_name
 }
 
