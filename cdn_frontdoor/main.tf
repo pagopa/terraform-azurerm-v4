@@ -358,6 +358,117 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
 }
 
 ############################################################
+# Multi-domain resources
+############################################################
+data "azurerm_dns_zone" "zones" {
+  for_each            = local.domains
+  name                = each.value.dns_name
+  resource_group_name = each.value.dns_resource_group_name
+}
+
+# KV certificates only for apex domains
+data "azurerm_key_vault_certificate" "certs" {
+  for_each     = { for k, v in local.domains : k => v if local.is_apex[k] && var.keyvault_id != null }
+  name         = replace(each.key, ".", "-")
+  key_vault_id = local.keyvault_id
+  depends_on   = [
+    azurerm_key_vault_access_policy.afd_policy,
+    azurerm_cdn_frontdoor_profile.this,
+  ]
+}
+
+# KV access policy for AFD identity
+resource "azurerm_key_vault_access_policy" "afd_policy" {
+  count                   = length(local.domains) > 0 && var.keyvault_id != null ? 1 : 0
+  key_vault_id            = local.keyvault_id
+  tenant_id               = var.tenant_id
+  object_id               = azurerm_cdn_frontdoor_profile.this.identity[0].principal_id
+  secret_permissions      = ["Get"]
+  certificate_permissions = ["Get"]
+
+    depends_on = [azurerm_cdn_frontdoor_profile.this,
+    ]
+
+}
+
+resource "azurerm_cdn_frontdoor_secret" "cert_secrets" {
+  for_each                 = data.azurerm_key_vault_certificate.certs
+  name                     = replace(each.key, ".", "-")
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
+  secret {
+    customer_certificate {
+      key_vault_certificate_id = each.value.versionless_id
+    }
+  }
+
+    depends_on = [azurerm_cdn_frontdoor_profile.this,]
+
+}
+
+resource "azurerm_cdn_frontdoor_custom_domain" "this" {
+  for_each                 = local.domains
+  name                     = replace(each.key, ".", "-")
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
+  dns_zone_id              = data.azurerm_dns_zone.zones[each.key].id
+  host_name                = each.key
+
+  tls {
+    certificate_type        = contains(keys(azurerm_cdn_frontdoor_secret.cert_secrets), each.key) ? "CustomerCertificate" : "ManagedCertificate"
+    cdn_frontdoor_secret_id = contains(keys(azurerm_cdn_frontdoor_secret.cert_secrets), each.key) ? azurerm_cdn_frontdoor_secret.cert_secrets[each.key].id : null
+  }
+
+    depends_on = [azurerm_cdn_frontdoor_profile.this, ]
+
+}
+
+# DNS validation TXT (solo se token non vuoto)
+# resource "azurerm_dns_txt_record" "validation" {
+#   for_each = {
+#     for k, v in local.domains :
+#     k => v
+#     if try(azurerm_cdn_frontdoor_custom_domain.this[k].validation_token, "") != "" && try(v.enable_dns_records, true)
+#   }
+#
+#   name                = local.dns_txt_name[each.key]
+#   zone_name           = local.domains[each.key].dns_name
+#   resource_group_name = local.domains[each.key].dns_resource_group_name
+#   ttl                 = try(local.domains[each.key].ttl, 3600)
+#
+#   record {
+#     value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
+#   }
+#
+#     depends_on = [azurerm_cdn_frontdoor_profile.this,]
+# }
+
+# DNS apex A-record to endpoint
+resource "azurerm_dns_a_record" "apex" {
+  for_each            = { for k, v in local.domains : k => v if local.is_apex[k] && try(v.enable_dns_records, true) }
+  name                = "@"
+  zone_name           = each.value.dns_name
+  resource_group_name = each.value.dns_resource_group_name
+  ttl                 = try(each.value.ttl, 3600)
+  target_resource_id  = azurerm_cdn_frontdoor_endpoint.this.id
+
+    depends_on = [azurerm_cdn_frontdoor_profile.this, ]
+
+}
+
+# DNS subdomain CNAME to endpoint hostname
+resource "azurerm_dns_cname_record" "subdomain" {
+  for_each            = { for k, v in local.domains : k => v if !local.is_apex[k] && try(v.enable_dns_records, true) }
+  name                = local.hostname_label[each.key]
+  zone_name           = each.value.dns_name
+  resource_group_name = each.value.dns_resource_group_name
+  ttl                 = try(each.value.ttl, 3600)
+  record              = azurerm_cdn_frontdoor_endpoint.this.host_name
+
+    depends_on = [azurerm_cdn_frontdoor_profile.this, ]
+
+}
+
+
+############################################################
 # Default Route
 ############################################################
 resource "azurerm_cdn_frontdoor_route" "default_route" {
@@ -387,95 +498,15 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
   cache {
     query_string_caching_behavior = var.querystring_caching_behaviour
   }
-}
 
-############################################################
-# Multi-domain resources
-############################################################
-data "azurerm_dns_zone" "zones" {
-  for_each            = local.domains
-  name                = each.value.dns_name
-  resource_group_name = each.value.dns_resource_group_name
-}
+  depends_on = [
+    azurerm_cdn_frontdoor_secret.cert_secrets,
+    azurerm_cdn_frontdoor_custom_domain.this,
+    # azurerm_dns_txt_record.validation,
+    azurerm_dns_a_record.apex,
+    azurerm_dns_cname_record.subdomain,
 
-# KV certificates only for apex domains
-data "azurerm_key_vault_certificate" "certs" {
-  for_each     = { for k, v in local.domains : k => v if local.is_apex[k] && var.keyvault_id != null }
-  name         = replace(each.key, ".", "-")
-  key_vault_id = local.keyvault_id
-  depends_on   = [azurerm_key_vault_access_policy.afd_policy]
-}
-
-# KV access policy for AFD identity
-resource "azurerm_key_vault_access_policy" "afd_policy" {
-  count                   = length(local.domains) > 0 && var.keyvault_id != null ? 1 : 0
-  key_vault_id            = local.keyvault_id
-  tenant_id               = var.tenant_id
-  object_id               = azurerm_cdn_frontdoor_profile.this.identity[0].principal_id
-  secret_permissions      = ["Get"]
-  certificate_permissions = ["Get"]
-}
-
-resource "azurerm_cdn_frontdoor_secret" "cert_secrets" {
-  for_each                 = data.azurerm_key_vault_certificate.certs
-  name                     = replace(each.key, ".", "-")
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  secret {
-    customer_certificate {
-      key_vault_certificate_id = each.value.versionless_id
-    }
-  }
-}
-
-resource "azurerm_cdn_frontdoor_custom_domain" "this" {
-  for_each                 = local.domains
-  name                     = replace(each.key, ".", "-")
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  dns_zone_id              = data.azurerm_dns_zone.zones[each.key].id
-  host_name                = each.key
-
-  tls {
-    certificate_type        = contains(keys(azurerm_cdn_frontdoor_secret.cert_secrets), each.key) ? "CustomerCertificate" : "ManagedCertificate"
-    cdn_frontdoor_secret_id = contains(keys(azurerm_cdn_frontdoor_secret.cert_secrets), each.key) ? azurerm_cdn_frontdoor_secret.cert_secrets[each.key].id : null
-  }
-}
-
-# DNS validation TXT (solo se token non vuoto)
-resource "azurerm_dns_txt_record" "validation" {
-  for_each = {
-    for k, v in local.domains :
-    k => v
-    if try(azurerm_cdn_frontdoor_custom_domain.this[k].validation_token, "") != "" && try(v.enable_dns_records, true)
-  }
-
-  name                = local.dns_txt_name[each.key]
-  zone_name           = local.domains[each.key].dns_name
-  resource_group_name = local.domains[each.key].dns_resource_group_name
-  ttl                 = try(local.domains[each.key].ttl, 3600)
-
-  record {
-    value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
-  }
-}
-
-# DNS apex A-record to endpoint
-resource "azurerm_dns_a_record" "apex" {
-  for_each            = { for k, v in local.domains : k => v if local.is_apex[k] && try(v.enable_dns_records, true) }
-  name                = "@"
-  zone_name           = each.value.dns_name
-  resource_group_name = each.value.dns_resource_group_name
-  ttl                 = try(each.value.ttl, 3600)
-  target_resource_id  = azurerm_cdn_frontdoor_endpoint.this.id
-}
-
-# DNS subdomain CNAME to endpoint hostname
-resource "azurerm_dns_cname_record" "subdomain" {
-  for_each            = { for k, v in local.domains : k => v if !local.is_apex[k] && try(v.enable_dns_records, true) }
-  name                = local.hostname_label[each.key]
-  zone_name           = each.value.dns_name
-  resource_group_name = each.value.dns_resource_group_name
-  ttl                 = try(each.value.ttl, 3600)
-  record              = azurerm_cdn_frontdoor_endpoint.this.host_name
+  ]
 }
 
 ############################################################
