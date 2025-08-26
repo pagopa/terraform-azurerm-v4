@@ -109,7 +109,7 @@ resource "azurerm_cdn_frontdoor_origin" "storage_web_host" {
 # Rule Set (global) + Rules (global/custom)
 ############################################################
 resource "azurerm_cdn_frontdoor_rule_set" "this" {
-  count                    = length(var.global_delivery_rules) > 0 || length(var.delivery_rule) > 0 || length(var.delivery_rule_redirect) > 0 || length(var.delivery_rule_rewrite) > 0 || length(var.delivery_rule_request_scheme_condition) > 0 || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0 ? 1 : 0
+  count                    = length(var.global_delivery_rules) > 0 || length(var.delivery_rule) > 0 || length(var.delivery_rule_redirects) > 0 || length(var.delivery_rule_rewrite) > 0 || length(var.delivery_rule_request_scheme_condition) > 0 || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0 ? 1 : 0
   name                     = local.fd_ruleset_global
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
 }
@@ -246,29 +246,51 @@ resource "azurerm_cdn_frontdoor_rule" "rule_scheme_redirect" {
 # Redirect by Request URI (back-compat)
 # -------------------------------------------------------------------
 resource "azurerm_cdn_frontdoor_rule" "rule_redirect" {
-  for_each                  = { for r in var.delivery_rule_redirect : r.order => r }
+  for_each                  = { for r in var.delivery_rule_redirects : r.order => r }
   name                      = each.value.name
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
   order                     = each.value.order
-  behavior_on_match         = "Continue"
+  behavior_on_match         = each.value.behavior_on_match
 
   conditions {
-    request_uri_condition {
-      operator         = each.value.operator
-      match_values     = each.value.match_values
-      negate_condition = false
-      transforms       = []
+    dynamic "request_uri_condition" {
+      for_each = try(each.value.request_uri_conditions, [])
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = c.value.match_values
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
+    }
+
+    dynamic "url_path_condition" {
+      for_each = [
+        for c in try(each.value.url_path_conditions, []) :
+        c if length(compact([for v in try(c.match_values, []) : trimprefix(v, "/")])) > 0
+      ]
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = compact([for v in c.value.match_values : trimprefix(v, "/")])
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
     }
   }
 
   actions {
-    url_redirect_action {
-      redirect_type        = each.value.url_redirect_action.redirect_type
-      redirect_protocol    = try(each.value.url_redirect_action.protocol, null)
-      destination_hostname = try(each.value.url_redirect_action.hostname, "")
-      destination_path     = try(each.value.url_redirect_action.path, "")
-      destination_fragment = try(each.value.url_redirect_action.fragment, "")
-      query_string         = try(each.value.url_redirect_action.query_string, "")
+    dynamic "url_redirect_action" {
+      for_each = each.value.url_redirect_actions
+      iterator = c
+      content {
+        redirect_type        = c.value.redirect_type
+        redirect_protocol    = try(c.value.protocol, null)
+        destination_hostname = try(c.value.hostname, "")
+        destination_path     = try(c.value.path, "")
+        destination_fragment = try(c.value.fragment, "")
+        query_string         = try(c.value.query_string, "")
+      }
     }
   }
 
@@ -487,26 +509,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
         match_values     = c.value.match_values
         negate_condition = try(c.value.negate_condition, false)
         transforms       = try(c.value.transforms, [])
-      }
-    }
-
-    dynamic "request_uri_condition" {
-      for_each = flatten([
-        for c in try(each.value.url_path_conditions, []) : [
-          for v in try(c.match_values, []) : {
-            operator         = c.operator
-            match_value      = v
-            negate_condition = c.negate_condition
-            transforms       = try(c.transforms, [])
-          } if trimspace(v) == "/"
-        ]
-      ])
-      iterator = ur
-      content {
-        operator         = ur.value.operator
-        match_values     = [ur.value.match_value]
-        negate_condition = ur.value.negate_condition
-        transforms       = ur.value.transforms
       }
     }
 
@@ -738,7 +740,7 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
   cdn_frontdoor_rule_set_ids = (
     length(var.global_delivery_rules) > 0
     || length(var.delivery_rule) > 0
-    || length(var.delivery_rule_redirect) > 0
+    || length(var.delivery_rule_redirects) > 0
     || length(var.delivery_rule_rewrite) > 0
     || length(var.delivery_rule_request_scheme_condition) > 0
     || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0

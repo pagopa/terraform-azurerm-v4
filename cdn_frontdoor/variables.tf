@@ -184,22 +184,25 @@ variable "delivery_rule_request_scheme_condition" {
   default = []
 }
 
-variable "delivery_rule_redirect" {
+variable "delivery_rule_redirects" {
   type = list(object({
-    name         = string
-    order        = number
-    operator     = string
-    match_values = list(string)
-    url_redirect_action = object({
-      redirect_type = string
-      protocol      = string
-      hostname      = string
-      path          = string
-      fragment      = string
-      query_string  = string
-    })
+    name  = string
+    order = number
+    behavior_on_match = string
+
+    # conditions
+    request_uri_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    url_path_conditions           = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+
+    # actions
+    url_redirect_actions           = list(object({ redirect_type = string, protocol = string, hostname = string, path = string, fragment = string, query_string = string }))
   }))
   default = []
+
+  validation {
+    condition     = contains(["Continue", "Stop"], var.delivery_rule_redirects[*].behavior_on_match...)
+    error_message = "behavior_on_match deve essere 'Continue' oppure 'Stop'."
+  }
 }
 
 variable "delivery_rule_rewrite" {
