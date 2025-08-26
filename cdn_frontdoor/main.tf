@@ -117,7 +117,7 @@ resource "azurerm_cdn_frontdoor_rule_set" "this" {
 # -------------------------------------------------------------------
 # Global Rule (headers + cache/qs override)
 # -------------------------------------------------------------------
-resource "azurerm_cdn_frontdoor_rule" "global" {
+resource "azurerm_cdn_frontdoor_rule" "rule_global" {
   for_each                  = { for r in var.global_delivery_rules : tostring(r.order) => r }
   name                      = format("%s%04d", local.fd_rule_global, each.value.order)
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
@@ -165,7 +165,7 @@ resource "azurerm_cdn_frontdoor_rule" "global" {
 # -------------------------------------------------------------------
 # URL path -> cache TTL + optional response header (back-compat)
 # -------------------------------------------------------------------
-resource "azurerm_cdn_frontdoor_rule" "url_path_cache" {
+resource "azurerm_cdn_frontdoor_rule" "rule_url_path_cache" {
   for_each                  = { for r in var.delivery_rule_url_path_condition_cache_expiration_action : r.order => r }
   name                      = each.value.name
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
@@ -210,7 +210,7 @@ resource "azurerm_cdn_frontdoor_rule" "url_path_cache" {
 # -------------------------------------------------------------------
 # Scheme redirect (HTTP<->HTTPS) (back-compat)
 # -------------------------------------------------------------------
-resource "azurerm_cdn_frontdoor_rule" "scheme_redirect" {
+resource "azurerm_cdn_frontdoor_rule" "rule_scheme_redirect" {
   for_each                  = { for r in var.delivery_rule_request_scheme_condition : r.order => r }
   name                      = each.value.name
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
@@ -245,7 +245,7 @@ resource "azurerm_cdn_frontdoor_rule" "scheme_redirect" {
 # -------------------------------------------------------------------
 # Redirect by Request URI (back-compat)
 # -------------------------------------------------------------------
-resource "azurerm_cdn_frontdoor_rule" "redirect" {
+resource "azurerm_cdn_frontdoor_rule" "rule_redirect" {
   for_each                  = { for r in var.delivery_rule_redirect : r.order => r }
   name                      = each.value.name
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
@@ -632,38 +632,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
 }
 
 ############################################################
-# Default Route
-############################################################
-resource "azurerm_cdn_frontdoor_route" "default_route" {
-  name                          = local.fd_route_default
-  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.this.id
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.this.id
-
-  patterns_to_match      = ["/*"]
-  supported_protocols    = ["Http", "Https"]
-  https_redirect_enabled = var.https_rewrite_enabled
-  forwarding_protocol    = "MatchRequest"
-  link_to_default_domain = true
-  enabled                = true
-
-  cdn_frontdoor_rule_set_ids = (
-    length(var.global_delivery_rules) > 0
-    || length(var.delivery_rule) > 0
-    || length(var.delivery_rule_redirect) > 0
-    || length(var.delivery_rule_rewrite) > 0
-    || length(var.delivery_rule_request_scheme_condition) > 0
-    || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0
-  ) ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
-
-  cdn_frontdoor_origin_ids        = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
-  cdn_frontdoor_custom_domain_ids = [for d in azurerm_cdn_frontdoor_custom_domain.this : d.id]
-
-  cache {
-    query_string_caching_behavior = var.querystring_caching_behaviour
-  }
-}
-
-############################################################
 # Multi-domain resources
 ############################################################
 data "azurerm_dns_zone" "zones" {
@@ -750,6 +718,38 @@ resource "azurerm_dns_cname_record" "subdomain" {
   resource_group_name = each.value.dns_resource_group_name
   ttl                 = try(each.value.ttl, 3600)
   record              = azurerm_cdn_frontdoor_endpoint.this.host_name
+}
+
+############################################################
+# Default Route
+############################################################
+resource "azurerm_cdn_frontdoor_route" "default_route" {
+  name                          = local.fd_route_default
+  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.this.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.this.id
+
+  patterns_to_match      = ["/*"]
+  supported_protocols    = ["Http", "Https"]
+  https_redirect_enabled = var.https_rewrite_enabled
+  forwarding_protocol    = "MatchRequest"
+  link_to_default_domain = true
+  enabled                = true
+
+  cdn_frontdoor_rule_set_ids = (
+    length(var.global_delivery_rules) > 0
+    || length(var.delivery_rule) > 0
+    || length(var.delivery_rule_redirect) > 0
+    || length(var.delivery_rule_rewrite) > 0
+    || length(var.delivery_rule_request_scheme_condition) > 0
+    || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0
+  ) ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []
+
+  cdn_frontdoor_origin_ids        = [azurerm_cdn_frontdoor_origin.storage_web_host.id]
+  cdn_frontdoor_custom_domain_ids = [for d in azurerm_cdn_frontdoor_custom_domain.this : d.id]
+
+  cache {
+    query_string_caching_behavior = var.querystring_caching_behaviour
+  }
 }
 
 ############################################################
