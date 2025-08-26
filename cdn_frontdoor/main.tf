@@ -33,8 +33,8 @@ locals {
 module "cdn_storage_account" {
   source = "../storage_account"
 
-  resource_group_name = var.resource_group_name
-  location            = var.location
+  resource_group_name             = var.resource_group_name
+  location                        = var.location
 
   name                            = local.storage_account_name
   account_kind                    = var.storage_account_kind
@@ -357,118 +357,279 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
   ]
 }
 
-############################################################
-# Multi-domain resources
-############################################################
-data "azurerm_dns_zone" "zones" {
-  for_each            = local.domains
-  name                = each.value.dns_name
-  resource_group_name = each.value.dns_resource_group_name
-}
+# -------------------------------------------------------------------
+# Generic custom rules (conditions superset)
+#   - headers
+#   - cache/qs override
+#   (No redirect/rewrite here per provider constraints)
+# -------------------------------------------------------------------
+resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
+  for_each                  = { for r in var.delivery_rule : r.name => r }
+  name                      = each.value.name
+  cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
+  order                     = each.value.order
+  behavior_on_match         = try(each.value.behavior_on_match, "Continue")
 
-# KV certificates only for apex domains
-data "azurerm_key_vault_certificate" "certs" {
-  for_each     = { for k, v in local.domains : k => v if local.is_apex[k] && var.keyvault_id != null }
-  name         = replace(each.key, ".", "-")
-  key_vault_id = local.keyvault_id
-  depends_on = [
-    azurerm_key_vault_access_policy.afd_policy,
-    azurerm_cdn_frontdoor_profile.this,
-  ]
-}
+  conditions {
+    dynamic "cookies_condition" {
+      for_each = try(each.value.cookies_conditions, [])
+      iterator = c
+      content {
+        cookie_name      = c.value.selector
+        operator         = c.value.operator
+        match_values     = try(c.value.match_values, [])
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
+    }
 
-# KV access policy for AFD identity
-resource "azurerm_key_vault_access_policy" "afd_policy" {
-  count                   = length(local.domains) > 0 && var.keyvault_id != null ? 1 : 0
-  key_vault_id            = local.keyvault_id
-  tenant_id               = var.tenant_id
-  object_id               = azurerm_cdn_frontdoor_profile.this.identity[0].principal_id
-  secret_permissions      = ["Get"]
-  certificate_permissions = ["Get"]
+    dynamic "is_device_condition" {
+      for_each = try(each.value.device_conditions, [])
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = try(tostring(c.value.match_values), null) != null ? [c.value.match_values] : try(c.value.match_values, [])
+        negate_condition = try(c.value.negate_condition, false)
+      }
+    }
 
-  depends_on = [azurerm_cdn_frontdoor_profile.this,
-  ]
+    dynamic "http_version_condition" {
+      for_each = try(each.value.http_version_conditions, [])
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = c.value.match_values
+        negate_condition = try(c.value.negate_condition, false)
+      }
+    }
 
-}
+    dynamic "post_args_condition" {
+      for_each = try(each.value.post_arg_conditions, [])
+      iterator = c
+      content {
+        post_args_name   = c.value.selector
+        operator         = c.value.operator
+        match_values     = try(c.value.match_values, [])
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
+    }
 
-resource "azurerm_cdn_frontdoor_secret" "cert_secrets" {
-  for_each                 = data.azurerm_key_vault_certificate.certs
-  name                     = replace(each.key, ".", "-")
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  secret {
-    customer_certificate {
-      key_vault_certificate_id = each.value.versionless_id
+    dynamic "query_string_condition" {
+      for_each = try(each.value.query_string_conditions, [])
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = try(c.value.match_values, [])
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
+    }
+
+    dynamic "remote_address_condition" {
+      for_each = try(each.value.remote_address_conditions, [])
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = try(c.value.match_values, [])
+        negate_condition = try(c.value.negate_condition, false)
+      }
+    }
+
+    dynamic "request_body_condition" {
+      for_each = try(each.value.request_body_conditions, [])
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = c.value.match_values
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
+    }
+
+    dynamic "request_header_condition" {
+      for_each = try(each.value.request_header_conditions, [])
+      iterator = c
+      content {
+        header_name      = c.value.selector
+        operator         = c.value.operator
+        match_values     = try(c.value.match_values, [])
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
+    }
+
+    dynamic "request_method_condition" {
+      for_each = try(each.value.request_method_conditions, [])
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = c.value.match_values
+        negate_condition = try(c.value.negate_condition, false)
+      }
+    }
+
+    dynamic "request_scheme_condition" {
+      for_each = try(each.value.request_scheme_conditions, [])
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = try(tolist(c.value.match_values), [c.value.match_values])
+        negate_condition = try(c.value.negate_condition, false)
+      }
+    }
+
+    dynamic "request_uri_condition" {
+      for_each = try(each.value.request_uri_conditions, [])
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = c.value.match_values
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
+    }
+
+    dynamic "request_uri_condition" {
+      for_each = flatten([
+        for c in try(each.value.url_path_conditions, []) : [
+          for v in try(c.match_values, []) : {
+            operator         = c.operator
+            match_value      = v
+            negate_condition = c.negate_condition
+            transforms       = try(c.transforms, [])
+          } if trimspace(v) == "/"
+        ]
+      ])
+      iterator = ur
+      content {
+        operator         = ur.value.operator
+        match_values     = [ur.value.match_value]
+        negate_condition = ur.value.negate_condition
+        transforms       = ur.value.transforms
+      }
+    }
+
+    dynamic "url_file_extension_condition" {
+      for_each = try(each.value.url_file_extension_conditions, [])
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = c.value.match_values
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
+    }
+
+    dynamic "url_filename_condition" {
+      for_each = try(each.value.url_file_name_conditions, [])
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = try(c.value.match_values, [])
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
+    }
+
+    dynamic "url_path_condition" {
+      for_each = [
+        for c in try(each.value.url_path_conditions, []) :
+        c if length(compact([for v in try(c.match_values, []) : trimprefix(v, "/")])) > 0
+      ]
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = compact([for v in c.value.match_values : trimprefix(v, "/")])
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
     }
   }
 
-  depends_on = [azurerm_cdn_frontdoor_profile.this, ]
+  actions {
+    dynamic "response_header_action" {
+      for_each = try(each.value.modify_response_header_actions, [])
+      iterator = rha
+      content {
+        header_action = rha.value.action
+        header_name   = rha.value.name
+        value         = rha.value.value
+      }
+    }
 
-}
+    dynamic "request_header_action" {
+      for_each = try(each.value.modify_request_header_actions, [])
+      iterator = rqa
+      content {
+        header_action = rqa.value.action
+        header_name   = rqa.value.name
+        value         = rqa.value.value
+      }
+    }
 
-resource "azurerm_cdn_frontdoor_custom_domain" "this" {
-  for_each                 = local.domains
-  name                     = replace(each.key, ".", "-")
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  dns_zone_id              = data.azurerm_dns_zone.zones[each.key].id
-  host_name                = each.key
+    dynamic "route_configuration_override_action" {
+      for_each = try(each.value.cache_expiration_actions, [])
+      iterator = c
+      content {
+        cache_behavior = lookup({
+          "Override"     = "OverrideAlways"
+          "SetIfMissing" = "OverrideIfOriginMissing"
+          "BypassCache"  = "Disabled"
+          "HonorOrigin"  = "HonorOrigin"
+        }, c.value.behavior, "HonorOrigin")
+        cache_duration = c.value.duration
+      }
+    }
 
-  tls {
-    certificate_type        = contains(keys(azurerm_cdn_frontdoor_secret.cert_secrets), each.key) ? "CustomerCertificate" : "ManagedCertificate"
-    cdn_frontdoor_secret_id = contains(keys(azurerm_cdn_frontdoor_secret.cert_secrets), each.key) ? azurerm_cdn_frontdoor_secret.cert_secrets[each.key].id : null
+    dynamic "route_configuration_override_action" {
+      for_each = [for ck in try(each.value.cache_key_query_string_actions, []) : ck if contains(["IgnoreQueryString", "UseQueryString"], ck.behavior)]
+      iterator = ck
+      content {
+        query_string_caching_behavior = ck.value.behavior
+      }
+    }
+
+    dynamic "route_configuration_override_action" {
+      for_each = [for ck in try(each.value.cache_key_query_string_actions, []) : ck if contains(["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"], ck.behavior)]
+      iterator = ck
+      content {
+        query_string_caching_behavior = ck.value.behavior
+        query_string_parameters       = length(trimspace(ck.value.parameters)) > 0 ? split(",", trimspace(ck.value.parameters)) : []
+      }
+    }
+
+    # Mutual exclusion: se è presente url_redirect_actions, non pubblichiamo rewrite
+    dynamic "url_redirect_action" {
+      for_each = length(try(each.value.url_rewrite_actions, [])) == 0 ? try(each.value.url_redirect_actions, []) : []
+      iterator = c
+      content {
+        redirect_type        = c.value.redirect_type
+        redirect_protocol    = try(c.value.protocol, null)
+        destination_hostname = try(c.value.hostname, "")
+        destination_path     = try(c.value.path, "")
+        destination_fragment = try(c.value.fragment, "")
+        query_string         = try(c.value.query_string, "")
+      }
+    }
+
+    # Mutual exclusion: se è presente url_redirect_actions, rewrite resta vuoto
+    dynamic "url_rewrite_action" {
+      for_each = length(try(each.value.url_redirect_actions, [])) == 0 ? try(each.value.url_rewrite_actions, []) : []
+      iterator = c
+      content {
+        source_pattern          = c.value.source_pattern
+        destination             = c.value.destination
+        preserve_unmatched_path = try(tobool(c.value.preserve_unmatched_path), false)
+      }
+    }
   }
 
-  depends_on = [azurerm_cdn_frontdoor_profile.this, ]
-
+  depends_on = [
+    azurerm_cdn_frontdoor_origin.storage_web_host,
+    azurerm_cdn_frontdoor_origin_group.this
+  ]
 }
-
-#------------------------------------------------------------
-# Validation (DNS TXT + A/CNAME records)
-#------------------------------------------------------------
-resource "azurerm_dns_txt_record" "dns_txt_validation" {
-  for_each = {
-    for k, v in local.domains :
-    k => v
-    if try(v.enable_dns_records, true) && !local.is_apex[k]
-  }
-
-  name                = local.dns_txt_name[each.key]
-  zone_name           = each.value.dns_name
-  resource_group_name = each.value.dns_resource_group_name
-  ttl                 = try(each.value.ttl, 3600)
-
-  record {
-    value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
-  }
-
-  depends_on = [azurerm_cdn_frontdoor_custom_domain.this, ]
-}
-
-# DNS apex A-record to endpoint
-resource "azurerm_dns_a_record" "apex" {
-  for_each            = { for k, v in local.domains : k => v if local.is_apex[k] && try(v.enable_dns_records, true) }
-  name                = "@"
-  zone_name           = each.value.dns_name
-  resource_group_name = each.value.dns_resource_group_name
-  ttl                 = try(each.value.ttl, 3600)
-  target_resource_id  = azurerm_cdn_frontdoor_endpoint.this.id
-
-  depends_on = [azurerm_cdn_frontdoor_profile.this, ]
-
-}
-
-# DNS subdomain CNAME to endpoint hostname
-resource "azurerm_dns_cname_record" "subdomain" {
-  for_each            = { for k, v in local.domains : k => v if !local.is_apex[k] && try(v.enable_dns_records, true) }
-  name                = local.hostname_label[each.key]
-  zone_name           = each.value.dns_name
-  resource_group_name = each.value.dns_resource_group_name
-  ttl                 = try(each.value.ttl, 3600)
-  record              = azurerm_cdn_frontdoor_endpoint.this.host_name
-
-  depends_on = [azurerm_cdn_frontdoor_profile.this, ]
-
-}
-
 
 ############################################################
 # Default Route
@@ -500,14 +661,95 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
   cache {
     query_string_caching_behavior = var.querystring_caching_behaviour
   }
+}
 
-  depends_on = [
-    azurerm_cdn_frontdoor_secret.cert_secrets,
-    azurerm_cdn_frontdoor_custom_domain.this,
-    azurerm_dns_a_record.apex,
-    azurerm_dns_cname_record.subdomain,
+############################################################
+# Multi-domain resources
+############################################################
+data "azurerm_dns_zone" "zones" {
+  for_each            = local.domains
+  name                = each.value.dns_name
+  resource_group_name = each.value.dns_resource_group_name
+}
 
-  ]
+# KV certificates only for apex domains
+data "azurerm_key_vault_certificate" "certs" {
+  for_each     = { for k, v in local.domains : k => v if local.is_apex[k] && var.keyvault_id != null }
+  name         = replace(each.key, ".", "-")
+  key_vault_id = local.keyvault_id
+  depends_on   = [azurerm_key_vault_access_policy.afd_policy]
+}
+
+# KV access policy for AFD identity
+resource "azurerm_key_vault_access_policy" "afd_policy" {
+  count                   = length(local.domains) > 0 && var.keyvault_id != null ? 1 : 0
+  key_vault_id            = local.keyvault_id
+  tenant_id               = var.tenant_id
+  object_id               = azurerm_cdn_frontdoor_profile.this.identity[0].principal_id
+  secret_permissions      = ["Get"]
+  certificate_permissions = ["Get"]
+}
+
+resource "azurerm_cdn_frontdoor_secret" "cert_secrets" {
+  for_each                 = data.azurerm_key_vault_certificate.certs
+  name                     = replace(each.key, ".", "-")
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
+  secret {
+    customer_certificate {
+      key_vault_certificate_id = each.value.versionless_id
+    }
+  }
+}
+
+resource "azurerm_cdn_frontdoor_custom_domain" "this" {
+  for_each                 = local.domains
+  name                     = replace(each.key, ".", "-")
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
+  dns_zone_id              = data.azurerm_dns_zone.zones[each.key].id
+  host_name                = each.key
+
+  tls {
+    certificate_type        = contains(keys(azurerm_cdn_frontdoor_secret.cert_secrets), each.key) ? "CustomerCertificate" : "ManagedCertificate"
+    cdn_frontdoor_secret_id = contains(keys(azurerm_cdn_frontdoor_secret.cert_secrets), each.key) ? azurerm_cdn_frontdoor_secret.cert_secrets[each.key].id : null
+  }
+}
+
+# DNS validation TXT (solo se token non vuoto)
+resource "azurerm_dns_txt_record" "validation" {
+  for_each = {
+    for k, v in local.domains :
+    k => v
+    if try(azurerm_cdn_frontdoor_custom_domain.this[k].validation_token, "") != "" && try(v.enable_dns_records, true)
+  }
+
+  name                = local.dns_txt_name[each.key]
+  zone_name           = local.domains[each.key].dns_name
+  resource_group_name = local.domains[each.key].dns_resource_group_name
+  ttl                 = try(local.domains[each.key].ttl, 3600)
+
+  record {
+    value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
+  }
+}
+
+# DNS apex A-record to endpoint
+resource "azurerm_dns_a_record" "apex" {
+  for_each            = { for k, v in local.domains : k => v if local.is_apex[k] && try(v.enable_dns_records, true) }
+  name                = "@"
+  zone_name           = each.value.dns_name
+  resource_group_name = each.value.dns_resource_group_name
+  ttl                 = try(each.value.ttl, 3600)
+  target_resource_id  = azurerm_cdn_frontdoor_endpoint.this.id
+}
+
+# DNS subdomain CNAME to endpoint hostname
+resource "azurerm_dns_cname_record" "subdomain" {
+  for_each            = { for k, v in local.domains : k => v if !local.is_apex[k] && try(v.enable_dns_records, true) }
+  name                = local.hostname_label[each.key]
+  zone_name           = each.value.dns_name
+  resource_group_name = each.value.dns_resource_group_name
+  ttl                 = try(each.value.ttl, 3600)
+  record              = azurerm_cdn_frontdoor_endpoint.this.host_name
 }
 
 ############################################################
@@ -518,6 +760,6 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings_cdn_profile" 
   target_resource_id         = azurerm_cdn_frontdoor_profile.this.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
-  enabled_log { category_group = "allLogs" }
-  enabled_metric { category = "AllMetrics" }
+  enabled_log   { category_group = "allLogs" }
+  enabled_metric{ category       = "AllMetrics" }
 }
