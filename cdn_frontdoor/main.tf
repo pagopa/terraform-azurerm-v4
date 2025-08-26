@@ -322,7 +322,8 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
     }
 
     dynamic "url_path_condition" {
-      for_each = [for c in each.value.conditions : c if c.condition_type == "url_path_condition" && length(compact([for v in c.match_values : trimprefix(v, "/")])) > 0]      iterator = c
+      for_each = [for c in each.value.conditions : c if c.condition_type == "url_path_condition" && length(compact([for v in c.match_values : trimprefix(v, "/")])) > 0]
+      iterator = c
       content {
         operator         = c.value.operator
         match_values     = compact([for v in c.value.match_values : trimprefix(v, "/")])
