@@ -109,7 +109,7 @@ resource "azurerm_cdn_frontdoor_origin" "storage_web_host" {
 # Rule Set (global) + Rules (global/custom)
 ############################################################
 resource "azurerm_cdn_frontdoor_rule_set" "this" {
-  count                    = length(var.global_delivery_rules) > 0 || length(var.delivery_rule) > 0 || length(var.delivery_rule_redirects) > 0 || length(var.delivery_rule_rewrite) > 0 || length(var.delivery_rule_request_scheme_condition) > 0 || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0 ? 1 : 0
+  count                    = length(var.global_delivery_rules) > 0 || length(var.delivery_custom_rules) > 0 || length(var.delivery_rule_redirects) > 0 || length(var.delivery_rule_rewrite) > 0 || length(var.delivery_rule_request_scheme_condition) > 0 || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0 ? 1 : 0
   name                     = local.fd_ruleset_global
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
 }
@@ -386,7 +386,7 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
 #   (No redirect/rewrite here per provider constraints)
 # -------------------------------------------------------------------
 resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
-  for_each                  = { for r in var.delivery_rule : r.name => r }
+  for_each                  = { for r in var.delivery_custom_rules : r.name => r }
   name                      = each.value.name
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
   order                     = each.value.order
@@ -739,7 +739,7 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
 
   cdn_frontdoor_rule_set_ids = (
     length(var.global_delivery_rules) > 0
-    || length(var.delivery_rule) > 0
+    || length(var.delivery_custom_rules) > 0
     || length(var.delivery_rule_redirects) > 0
     || length(var.delivery_rule_rewrite) > 0
     || length(var.delivery_rule_request_scheme_condition) > 0

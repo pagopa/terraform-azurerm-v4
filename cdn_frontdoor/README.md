@@ -16,6 +16,9 @@ This module provisions an Azure Front Door (Standard/Premium) profile with an Az
 - `error_404_document` -> `storage_account_error_404_document`
 - `keyvault_resource_group_name` & `keyvault_vault_name` -> `keyvault_id`
 - `querystring_caching_behaviour` -> default values now is `IgnoreQueryString
+- `delivery_rule_redirect` -> `delivery_rule_redirects` now have a list of nested objects (request_uri_conditions,url_path_conditions, url_redirect_actions) to allow to define multiple conditions for the redirect
+  - and have a new parameter `behavior_on_match` that is mandatory now
+- `delivery_rules` -> `delivery_custom_rules` 
 
 ## Usage
 

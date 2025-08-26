@@ -225,7 +225,7 @@ variable "delivery_rule_rewrite" {
   default = []
 }
 
-variable "delivery_rule" {
+variable "delivery_custom_rules" {
   type = list(object({
     name  = string
     order = number
@@ -256,7 +256,7 @@ variable "delivery_rule" {
 
   validation {
     condition = alltrue([
-      for r in var.delivery_rule :
+      for r in var.delivery_custom_rules :
       !(length(try(r.url_redirect_actions, [])) > 0 && length(try(r.url_rewrite_actions, [])) > 0)
     ])
     error_message = "A delivery_rule cannot define both url_redirect_actions and url_rewrite_actions at the same time."
