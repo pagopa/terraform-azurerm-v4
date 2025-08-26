@@ -200,14 +200,6 @@ variable "delivery_rule_redirects" {
   default = []
 
   validation {
-    condition = anytrue([
-      length(try(var.delivery_rule_redirects[*].request_uri_conditions, [])) > 0,
-      length(try(var.delivery_rule_redirects[*].url_path_conditions, [])) > 0
-    ])
-    error_message = "At least one of request_uri conditions or url_path_conditions must be set."
-  }
-
-  validation {
     condition     = contains(["Continue", "Stop"], var.delivery_rule_redirects[*].behavior_on_match...)
     error_message = "behavior_on_match must be 'Continue' or 'Stop'."
   }
