@@ -266,7 +266,7 @@ resource "azurerm_cdn_frontdoor_rule" "rule_redirect" {
 
     dynamic "url_path_condition" {
       for_each = [
-        for c in try(each.value.url_path_conditions, []) :
+        for c in each.value.url_path_conditions :
         c if length(compact([for v in try(c.match_values, []) : trimprefix(v, "/")])) > 0
       ]
       iterator = c
@@ -536,8 +536,7 @@ resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
 
     dynamic "url_path_condition" {
       for_each = [
-        for c in try(each.value.url_path_conditions, []) :
-        c if length(compact([for v in try(c.match_values, []) : trimprefix(v, "/")])) > 0
+        for c in try(each.value.url_path_conditions, []) : c
       ]
       iterator = c
       content {
