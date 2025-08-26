@@ -266,13 +266,12 @@ resource "azurerm_cdn_frontdoor_rule" "rule_redirect" {
 
     dynamic "url_path_condition" {
       for_each = [
-        for c in each.value.url_path_conditions :
-        c if length(compact([for v in try(c.match_values, []) : trimprefix(v, "/")])) > 0
+        for c in each.value.url_path_conditions : c
       ]
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = compact([for v in c.value.match_values : trimprefix(v, "/")])
+        match_values     = compact([for v in c.value.match_values : v])
         negate_condition = try(c.value.negate_condition, false)
         transforms       = try(c.value.transforms, [])
       }
@@ -322,28 +321,8 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
       }
     }
 
-    dynamic "request_uri_condition" {
-      for_each = flatten([
-        for c in each.value.conditions : [
-          for v in c.match_values : {
-            operator         = c.operator
-            match_value      = v
-            negate_condition = c.negate_condition
-            transforms       = try(c.transforms, [])
-          } if c.condition_type == "url_path_condition" && trimspace(v) == "/"
-        ]
-      ])
-      iterator = ur
-      content {
-        operator         = ur.value.operator
-        match_values     = [ur.value.match_value]
-        negate_condition = ur.value.negate_condition
-        transforms       = ur.value.transforms
-      }
-    }
-
     dynamic "url_path_condition" {
-      for_each = [for c in each.value.conditions : c if c.condition_type == "url_path_condition" && length(compact([for v in c.match_values : trimprefix(v, "/")])) > 0]
+      for_each = [for c in each.value.conditions : c ]
       iterator = c
       content {
         operator         = c.value.operator
