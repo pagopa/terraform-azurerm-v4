@@ -198,11 +198,6 @@ variable "delivery_rule_redirects" {
     url_redirect_actions           = list(object({ redirect_type = string, protocol = string, hostname = string, path = string, fragment = string, query_string = string }))
   }))
   default = []
-
-  validation {
-    condition     = contains(["Continue", "Stop"], var.delivery_rule_redirects[*].behavior_on_match...)
-    error_message = "behavior_on_match must be 'Continue' or 'Stop'."
-  }
 }
 
 variable "delivery_rule_rewrite" {
