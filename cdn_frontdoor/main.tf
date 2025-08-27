@@ -333,7 +333,9 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
     }
 
     dynamic "url_path_condition" {
-      for_each = each.value.url_path_conditions
+      for_each = [
+        for c in try(each.value.url_path_conditions, []) : c
+      ]
       iterator = c
       content {
         operator         = c.value.operator
