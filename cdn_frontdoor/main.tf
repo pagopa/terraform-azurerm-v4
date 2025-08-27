@@ -109,7 +109,7 @@ resource "azurerm_cdn_frontdoor_origin" "storage_web_host" {
 # Rule Set (global) + Rules (global/custom)
 ############################################################
 resource "azurerm_cdn_frontdoor_rule_set" "this" {
-  count                    = length(var.global_delivery_rules) > 0 || length(var.delivery_custom_rules) > 0 || length(var.delivery_rule_redirects) > 0 || length(var.delivery_rule_rewrite) > 0 || length(var.delivery_rule_request_scheme_condition) > 0 || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0 ? 1 : 0
+  count                    = length(var.global_delivery_rules) > 0 || length(var.delivery_custom_rules) > 0 || length(var.delivery_rule_redirects) > 0 || length(var.delivery_rule_rewrites) > 0 || length(var.delivery_rule_request_scheme_condition) > 0 || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0 ? 1 : 0
   name                     = local.fd_ruleset_global
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
 }
@@ -126,7 +126,7 @@ resource "azurerm_cdn_frontdoor_rule" "rule_global" {
 
   actions {
     dynamic "request_header_action" {
-      for_each = try(each.value.modify_request_header_action, [])
+      for_each = try(each.value.modify_request_header_actions, [])
       iterator = rq
       content {
         header_action = rq.value.action
@@ -136,7 +136,7 @@ resource "azurerm_cdn_frontdoor_rule" "rule_global" {
     }
 
     dynamic "response_header_action" {
-      for_each = try(each.value.modify_response_header_action, [])
+      for_each = try(each.value.modify_response_header_actions, [])
       iterator = rh
       content {
         header_action = rh.value.action
@@ -146,12 +146,14 @@ resource "azurerm_cdn_frontdoor_rule" "rule_global" {
     }
 
     dynamic "route_configuration_override_action" {
-      for_each = (length(try(each.value.cache_expiration_action, [])) > 0 || length(try(each.value.cache_key_query_string_action, [])) > 0) ? [1] : []
+      for_each = (length(try(each.value.cache_expiration_actions, [])) > 0 || length(try(each.value.cache_key_query_string_actions, [])) > 0) ? [1] : []
       content {
-        cache_behavior                = lookup({ Override = "OverrideAlways", SetIfMissing = "OverrideIfOriginMissing", BypassCache = "Disabled", HonorOrigin = "HonorOrigin" }, try(each.value.cache_expiration_action[0].behavior, "HonorOrigin"), "HonorOrigin")
-        cache_duration                = try(each.value.cache_expiration_action[0].duration, null)
-        query_string_caching_behavior = try(each.value.cache_key_query_string_action[0].behavior, null)
-        query_string_parameters       = contains(["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"], try(each.value.cache_key_query_string_action[0].behavior, "")) && length(trimspace(try(each.value.cache_key_query_string_action[0].parameters, ""))) > 0 ? split(",", trimspace(each.value.cache_key_query_string_action[0].parameters)) : null
+        cache_behavior                = lookup({ Override = "OverrideAlways", SetIfMissing = "OverrideIfOriginMissing", BypassCache = "Disabled", HonorOrigin = "HonorOrigin" }, try(each.value.cache_expiration_actions[0].behavior, "HonorOrigin"), "HonorOrigin")
+        cache_duration                = try(each.value.cache_expiration_actions[0].duration, null)
+        query_string_caching_behavior = try(each.value.cache_key_query_string_actions[0].behavior, null)
+        query_string_parameters       = contains(
+          ["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"],
+          try(each.value.cache_key_query_string_actions[0].behavior, "")) && length(trimspace(try(each.value.cache_key_query_string_actions[0].parameters, ""))) > 0 ? split(",", trimspace(each.value.cache_key_query_string_actions[0].parameters)) : null
       }
     }
   }
@@ -303,7 +305,7 @@ resource "azurerm_cdn_frontdoor_rule" "rule_redirect" {
 # REWRITE-ONLY RULE (AFD Standard/Premium)
 # =============================================================
 resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
-  for_each                  = { for r in var.delivery_rule_rewrite : r.order => r }
+  for_each                  = { for r in var.delivery_rule_rewrites : r.order => r }
   name                      = each.value.name
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
   order                     = each.value.order
@@ -738,7 +740,7 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
     length(var.global_delivery_rules) > 0
     || length(var.delivery_custom_rules) > 0
     || length(var.delivery_rule_redirects) > 0
-    || length(var.delivery_rule_rewrite) > 0
+    || length(var.delivery_rule_rewrites) > 0
     || length(var.delivery_rule_request_scheme_condition) > 0
     || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0
   ) ? [azurerm_cdn_frontdoor_rule_set.this[0].id] : []

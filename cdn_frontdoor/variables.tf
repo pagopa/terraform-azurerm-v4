@@ -143,10 +143,10 @@ variable "keyvault_id" {
 variable "global_delivery_rules" {
   type = list(object({
     order                         = number
-    cache_expiration_action       = optional(list(object({ behavior = string, duration = string })), [])
-    cache_key_query_string_action = optional(list(object({ behavior = string, parameters = string })), [])
-    modify_request_header_action  = optional(list(object({ action = string, name = string, value = string })), [])
-    modify_response_header_action = optional(list(object({ action = string, name = string, value = string })), [])
+    cache_expiration_actions       = optional(list(object({ behavior = string, duration = string })), [])
+    cache_key_query_string_actions = optional(list(object({ behavior = string, parameters = string })), [])
+    modify_request_header_actions  = optional(list(object({ action = string, name = string, value = string })), [])
+    modify_response_header_actions = optional(list(object({ action = string, name = string, value = string })), [])
   }))
   default = []
 }
@@ -200,7 +200,7 @@ variable "delivery_rule_redirects" {
   default = []
 }
 
-variable "delivery_rule_rewrite" {
+variable "delivery_rule_rewrites" {
   type = list(object({
     name  = string
     order = number
