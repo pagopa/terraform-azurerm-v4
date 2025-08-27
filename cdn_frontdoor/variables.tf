@@ -204,18 +204,13 @@ variable "delivery_rule_rewrite" {
   type = list(object({
     name  = string
     order = number
-    conditions = list(object({
-      condition_type   = string
-      operator         = string
-      match_values     = list(string)
-      negate_condition = bool
-      transforms       = list(string)
-    }))
-    url_rewrite_action = object({
-      source_pattern          = string
-      destination             = string
-      preserve_unmatched_path = string
-    })
+    behavior_on_match = optional(string)
+
+    request_uri_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    url_file_extension_conditions = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    url_path_conditions           = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+
+    url_rewrite_actions            = optional(list(object({ source_pattern = string, destination = string, preserve_unmatched_path = string })), [])
   }))
   default = []
 }
@@ -224,6 +219,7 @@ variable "delivery_custom_rules" {
   type = list(object({
     name  = string
     order = number
+    behavior_on_match = optional(string)
 
     cookies_conditions            = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
     device_conditions             = optional(list(object({ operator = string, match_values = string, negate_condition = bool })), [])

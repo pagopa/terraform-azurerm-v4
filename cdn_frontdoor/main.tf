@@ -307,48 +307,53 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
   name                      = each.value.name
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.this[0].id
   order                     = each.value.order
-  behavior_on_match         = "Continue"
+  behavior_on_match         = try(each.value.behavior_on_match, "Continue")
 
   conditions {
     dynamic "request_uri_condition" {
-      for_each = [for c in each.value.conditions : c if c.condition_type == "request_uri_condition"]
+      for_each = try(each.value.request_uri_conditions, [])
       iterator = c
       content {
         operator         = c.value.operator
         match_values     = c.value.match_values
-        negate_condition = c.value.negate_condition
-        transforms       = try(c.value.transforms, [])
-      }
-    }
-
-    dynamic "url_path_condition" {
-      for_each = [for c in each.value.conditions : c if c.condition_type == "url_path_condition" && length(compact([for v in c.match_values : trimprefix(v, "/")])) > 0]
-      iterator = c
-      content {
-        operator         = c.value.operator
-        match_values     = compact([for v in c.value.match_values : trimprefix(v, "/")])
-        negate_condition = c.value.negate_condition
+        negate_condition = try(c.value.negate_condition, false)
         transforms       = try(c.value.transforms, [])
       }
     }
 
     dynamic "url_file_extension_condition" {
-      for_each = [for c in each.value.conditions : c if c.condition_type == "url_file_extension_condition"]
+      for_each = try(each.value.url_file_extension_conditions, [])
       iterator = c
       content {
         operator         = c.value.operator
         match_values     = c.value.match_values
-        negate_condition = c.value.negate_condition
+        negate_condition = try(c.value.negate_condition, false)
         transforms       = try(c.value.transforms, [])
       }
     }
+
+    dynamic "url_path_condition" {
+      for_each = each.value.url_path_conditions
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = compact([for v in c.value.match_values : trimprefix(v, "/")])
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
+    }
+
   }
 
   actions {
-    url_rewrite_action {
-      source_pattern          = each.value.url_rewrite_action.source_pattern
-      destination             = each.value.url_rewrite_action.destination
-      preserve_unmatched_path = try(tobool(each.value.url_rewrite_action.preserve_unmatched_path), false)
+    dynamic "url_rewrite_action" {
+      for_each = each.value.url_rewrite_actions
+      iterator = c
+      content {
+        source_pattern          = c.value.source_pattern
+        destination             = c.value.destination
+        preserve_unmatched_path = try(tobool(c.value.preserve_unmatched_path), false)
+      }
     }
   }
 
