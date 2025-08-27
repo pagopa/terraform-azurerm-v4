@@ -339,7 +339,7 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = compact([for v in c.value.match_values : trimprefix(v, "/")])
+        match_values     = compact([for v in c.value.match_values : v])
         negate_condition = try(c.value.negate_condition, false)
         transforms       = try(c.value.transforms, [])
       }
