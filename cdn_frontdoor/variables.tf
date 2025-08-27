@@ -21,19 +21,20 @@ variable "tags" {
   description = "Resource tags."
 }
 
-############################################################
-# Front Door profile
-############################################################
-variable "frontdoor_sku_name" {
-  type        = string
-  description = "SKU name for the Azure Front Door profile."
-  default     = "Standard_AzureFrontDoor"
-}
-
 variable "tenant_id" {
   type        = string
   default     = null
   description = "Tenant ID for KV access policy."
+}
+
+############################################################
+# Front Door profile
+############################################################
+
+variable "frontdoor_sku_name" {
+  type        = string
+  description = "SKU name for the Azure Front Door profile."
+  default     = "Standard_AzureFrontDoor"
 }
 
 ############################################################

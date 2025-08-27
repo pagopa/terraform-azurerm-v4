@@ -4,20 +4,29 @@ This module provisions an Azure Front Door (Standard/Premium) profile with an Az
     
 ## Migration notes
 
+*New Parameters*
+
+- `cdn_prefix_name` -> allow to configure profile and endpoint names
+
 *Removed parameters:*
 
 - `advanced_threat_protection_enabled`
 - `keyvault_subscription_id`
-- `cdn_location` -> use `var.location` 
+- `cdn_location` -> use `var.location`
+- `keyvault_resource_group_name` & `keyvault_vault_name` & `keyvault_subscription_id` -> now use `keyvault_id`
+- `dns_prefix_name`
+- `hostname`, `dns_zone_name`, `dns_zone_resource_group_name`  -> now use `custom_domains` to configure multiple domains
 
 *Changed names:*
 
 - `index_document` -> `storage_account_index_document`
 - `error_404_document` -> `storage_account_error_404_document`
-- `keyvault_resource_group_name` & `keyvault_vault_name` -> `keyvault_id`
-- `querystring_caching_behaviour` -> default values now is `IgnoreQueryString
-- `delivery_rule_redirect` -> `delivery_rule_redirects` now have a list of nested objects (request_uri_conditions,url_path_conditions, url_redirect_actions) to allow to define multiple conditions for the redirect
-  - and have a new parameter `behavior_on_match` that is mandatory now
+- `querystring_caching_behaviour` -> default values now is `IgnoreQueryString`
+- `delivery_rule_redirect` -> `delivery_rule_redirects` now have a list of nested objects, to allow to define multiple conditions for the redirect
+  - request_uri_conditions
+  - url_path_conditions
+  - url_redirect_actions
+  - and have a new parameter `behavior_on_match` that is mandatory now and can be `Continue` or `Stop`
 - `delivery_rules` -> `delivery_custom_rules` 
 - `delivery_rule_rewrite` -> `delivery_rule_rewrites`
 
@@ -30,74 +39,274 @@ This module provisions an Azure Front Door (Standard/Premium) profile with an Az
   - `modify_response_header_actions` 
 - `delivery_rule_redirects` -> use the new structure
 - `delivery_rule_rewrite` -> use the new structure
+- `custom_domains` -> now is a list of nested objects to allow to configure multiple domains
 
-## Usage
+## Usage Example
 
 ```hcl
-module "cdn_frontdoor" {
-  source = "../cdn_frontdoor"
+locals {
+  # CDN Configuration Constants
+  cdn_storage_account_name = "${local.project}bonuscdnsa"
+  cdn_index_document       = "index.html"
+  cdn_error_document       = "error.html"
 
-  dns_prefix_name    = "myprefix-myapp"
-  resource_group_name = azurerm_resource_group.example.name
-  location            = "westeurope"
+  # DNS Zone Key for the main CDN (the one configured in the module)
+  dns_zone_key = var.env_short != "p" ? "${var.env}.bonuselettrodomestici.it" : "bonuselettrodomestici.it"
 
-  hostname           = "example.com"
-  index_document     = "index.html"
-  error_404_document = "error.html"
-  tags               = {
-    Environment = "dev"
-  }
+  # All bonus elettrodomestici zones apex
+  all_bonus_zones_apex = data.azurerm_dns_zone.bonus_elettrodomestici_apex
+
+  custom_domains = [for z in local.all_bonus_zones_apex : {
+    domain_name             = z.name
+    dns_name                = z.name
+    dns_resource_group_name = z.resource_group_name
+    ttl                     = var.env != "p" ? 300 : 3600
+  }]
+
+  #--------------------------------------------------
+  # ⚠️ Redirect Rules - Handles root URL redirection to main domain
+  #--------------------------------------------------
+  bonus_redirect_urls = [
+    {
+      name              = "RootRedirect"
+      order             = 0
+      behavior_on_match = "Stop"
+
+      // conditions
+      url_path_conditions = [
+        {
+          operator         = "Equal"
+          match_values     = ["/"]
+          negate_condition = false
+          transforms       = null
+        }
+      ]
+
+      // actions
+      url_redirect_actions = [
+        {
+          redirect_type = "Found"
+          protocol      = "Https"
+          hostname      = "ioapp.it"
+          path          = "/"
+          fragment      = ""
+          query_string  = ""
+        }
+      ]
+    }
+  ]
+
+  # Security Headers - Applied globally to all responses
+  # These headers enhance security by preventing common attacks
+  global_delivery_rules = [
+    {
+      order = 1
+      modify_response_header_actions = [
+        {
+          action = "Overwrite"
+          name   = contains(["d"], var.env_short) ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy"
+          value  = "default-src 'self'; object-src 'none'; connect-src 'self' https://api-io.${var.dns_zone_prefix}.${var.external_domain}/ https://api-eu.mixpanel.com/track/ https://${var.mcshared_dns_zone_prefix}.${var.prefix}.${var.external_domain}/; "
+        },
+        {
+          action = "Append"
+          name   = contains(["d"], var.env_short) ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy"
+          value  = "script-src 'self'; style-src 'self' 'unsafe-inline' https://${local.selfare_subdomain}.pagopa.it/assets/font/selfhostedfonts.css; worker-src 'none'; font-src 'self' https://${local.selfare_subdomain}.pagopa.it/assets/font/; "
+        },
+        {
+          action = "Append"
+          name   = contains(["d"], var.env_short) ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy"
+          value  = "img-src 'self' https://assets.cdn.io.italia.it https://${module.cdn_idpay_bonuselettrodomestici.storage_primary_web_host}; "
+        },
+      ]
+    },
+    {
+      order = 2
+      modify_response_header_actions = [
+        {
+          action = "Overwrite"
+          name   = "Strict-Transport-Security"
+          value  = "max-age=31536000"
+        },
+        {
+          action = "Append"
+          name   = "X-Content-Type-Options"
+          value  = "nosniff"
+        },
+        {
+          action = "Overwrite"
+          name   = "X-Frame-Options"
+          value  = "SAMEORIGIN"
+        }
+      ]
+  }]
+
+  # Application Delivery Rules - URL Rewrite Rules
+  # These rules handle routing for different frontend applications
+  # by rewriting URLs to serve the correct index.html files
+  app_delivery_rules = concat([
+    # Cittadino Application Rule - Handles citizen portal routing
+    {
+      name  = "RewriteUtenteCittadinoApplication"
+      order = 10
+
+      url_path_conditions = [{
+          operator         = "BeginsWith"
+          match_values     = ["/utente"]
+          negate_condition = false
+          transforms       = null
+      }]
+
+      url_file_extension_conditions = [{
+          operator         = "LessThanOrEqual"
+          match_values     = ["0"]
+          negate_condition = false
+          transforms       = []
+      }]
+
+      url_file_extension_conditions = [{
+          operator         = "BeginsWith"
+          match_values     = ["/utente/assets"]
+          negate_condition = true
+          transforms       = []
+      }]
+
+      url_rewrite_actions = [{
+        source_pattern          = "/utente"
+        destination             = "/utente/index.html"
+        preserve_unmatched_path = false
+      }]
+    },
+    # Esercenti Application Rule - Handles merchant portal routing
+    {
+      name  = "RewritePortaleEsercentiApplication"
+      order = 11
+
+      url_path_conditions = [{
+          operator         = "BeginsWith"
+          match_values     = ["/esercente"]
+          negate_condition = false
+          transforms       = null
+      }]
+
+      url_path_conditions = [{
+          operator         = "BeginsWith"
+          match_values     = ["/esercente/assets"]
+          negate_condition = true
+          transforms       = []
+      }]
+
+      url_file_extension_conditions = [{
+          operator         = "LessThanOrEqual"
+          match_values     = ["0"]
+          negate_condition = false
+          transforms       = []
+      }]
+
+      url_rewrite_actions = [{
+        source_pattern          = "/esercente"
+        destination             = "/esercente/index.html"
+        preserve_unmatched_path = false
+      }]
+    }
+    ],
+  )
+
+  # Calculate the total number of rewrite rules for subsequent order calculations
+  total_rewrite_rules = length(local.app_delivery_rules)
+
+  # Additional Delivery Rules - Non-rewrite rules (redirects, headers, caching)
+  delivery_custom_rules = [
+    {
+      name  = "robotsNoIndex"
+      order = 20 + local.total_rewrite_rules + 2
+
+      // conditions
+      url_path_conditions = [
+        {
+          operator         = "Equal"
+          match_values     = try(length(var.robots_indexed_paths) > 0 ? var.robots_indexed_paths : ["dummy"], ["dummy"])
+          negate_condition = true
+          transforms       = null
+        }
+      ]
+
+      // actions
+      modify_response_header_actions = [
+        {
+          action = "Overwrite"
+          name   = "X-Robots-Tag"
+          value  = "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      name  = "microcomponentsNoCache"
+      order = 20 + local.total_rewrite_rules + 3
+
+      // conditions
+
+      url_file_name_conditions = [
+        {
+          operator         = "Equal"
+          match_values     = ["remoteEntry.js"]
+          negate_condition = false
+          transforms       = null
+        }
+      ]
+
+      // actions
+      modify_response_header_actions = [
+        {
+          action = "Overwrite"
+          name   = "Cache-Control"
+          value  = "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        }
+      ]
+    },
+  ]
 }
-```
 
-### Migration from legacy `cdn` module
-
-The snippet below shows how to replace the previous Azure CDN Classic module with this Front Door module:
-
-```hcl
-# Public CDN to serve frontend - main domain
+// Public CDN to serve frontend - main domain
 module "cdn_idpay_bonuselettrodomestici" {
-  source = "./.terraform/modules/__v4__/cdn_frontdoor"
+  # source = "./.terraform/modules/__v4__/cdn"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v4.git//cdn_frontdoor?ref=PAYMCLOUD-477-v-4-creazione-modulo-cdn-front-door-per-sostituire-cdn-classic-deprecata"
 
-  dns_prefix_name           = "${local.project_weu}-bonus"
-  resource_group_name       = data.azurerm_resource_group.idpay_data_rg.name
-  location                  = var.location
-  cdn_location              = var.location_weu
+  # Basic Configuration
+  cdn_prefix_name     = "${local.project}-bonus"
+  resource_group_name = data.azurerm_resource_group.idpay_data_rg.name
+  location            = var.location
 
-  hostname                  = local.bonus_dns_zone.name
+  # Storage Configuration
+  storage_account_name               = local.cdn_storage_account_name
+  storage_account_replication_type   = var.idpay_cdn_storage_account_replication_type
+  storage_account_index_document     = local.cdn_index_document
+  storage_account_error_404_document = local.cdn_error_document
 
-  # DNS is managed separately for multi-domain setup
-  dns_zone_name                = "dummy"
-  dns_zone_resource_group_name = "dummy"
-  create_dns_record            = false
+  # Key Vault Configuration
+  keyvault_id = data.azurerm_key_vault.domain_kv.id
+  tenant_id   = data.azurerm_client_config.current.tenant_id
 
-  storage_account_name             = local.cdn_storage_account_name
-  storage_account_replication_type = var.idpay_cdn_storage_account_replication_type
-  index_document                   = local.cdn_index_document
-  error_404_document               = local.cdn_error_document
-
-  https_rewrite_enabled              = true
-  advanced_threat_protection_enabled = var.idpay_cdn_sa_advanced_threat_protection_enabled
-
-  keyvault_resource_group_name = local.idpay_kv_rg_name
-  keyvault_subscription_id     = data.azurerm_subscription.current.subscription_id
-  keyvault_vault_name          = local.idpay_kv_name
-
-  querystring_caching_behaviour = "BypassCaching"
+  # Caching Configuration
+  querystring_caching_behaviour = "IgnoreQueryString"
   log_analytics_workspace_id    = data.azurerm_log_analytics_workspace.core_log_analytics.id
 
-  global_delivery_rule = {
-    cache_expiration_action       = []
-    cache_key_query_string_action = []
-    modify_request_header_action  = []
-    modify_response_header_action = local.security_headers
-  }
+  delivery_rule_redirects = local.bonus_redirect_urls
 
-  delivery_rule_rewrite = local.app_delivery_rules
-  delivery_rule         = local.additional_delivery_rules
+  # Global Delivery Rules
+  global_delivery_rules = local.global_delivery_rules
+
+  # Application-specific Delivery Rules (rewrite only)
+  delivery_rule_rewrites = local.app_delivery_rules
+
+  # Generic Delivery Rules (including redirects)
+  delivery_custom_rules = local.delivery_custom_rules
+
+  # Domain Configuration
+  custom_domains = local.custom_domains
 
   tags = module.tag_config.tags
 }
+
 ```
 
 <!-- BEGIN_TF_DOCS -->
