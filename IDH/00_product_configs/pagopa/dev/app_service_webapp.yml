@@ -12,6 +12,7 @@ basic:
   autoscale_enabled: false
   autoscale_default_capacity: 1
   autoscale_min_capacity: 1
+  plan_type: "internal"
 cpu_optimized:
   vnet_integration: true
   sku: B3
@@ -26,3 +27,4 @@ cpu_optimized:
   autoscale_enabled: false
   autoscale_default_capacity: 1
   autoscale_min_capacity: 1
+  plan_type: "internal"

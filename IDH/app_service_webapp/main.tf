@@ -8,7 +8,6 @@ module "idh_loader" {
 }
 
 
-
 module "main_slot" {
   source = "../../app_service"
 
@@ -16,7 +15,7 @@ module "main_slot" {
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  plan_type = "external"
+  plan_type = module.idh_loader.idh_resource_configuration.plan_type
   # App service plan vars
   plan_name = var.app_service_plan_name
 
