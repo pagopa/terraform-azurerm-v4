@@ -48,8 +48,7 @@ variable "subnet_id" {
 
 variable "app_service_plan_name" {
   type        = string
-  description = "(Optional) Specifies the name of the App Service Plan component. Changing this forces a new resource to be created."
-  default     = null
+  description = "(Required) Specifies the name of the App Service Plan component. Changing this forces a new resource to be created."
 }
 variable "always_on" {
   type        = bool
@@ -58,7 +57,7 @@ variable "always_on" {
 }
 variable "app_settings" {
   type    = map(string)
-  default = ""
+  default = {}
 }
 variable "allowed_subnet_ids" {
   type        = list(string)
