@@ -66,7 +66,7 @@ module "main_slot" {
 }
 
 module "staging_slot" {
-  count = module.idh_loader.idh_resource_configuration.slot_staging_enabled
+  count = module.idh_loader.idh_resource_configuration.slot_staging_enabled ? 1 : 0
 
   source = "../../app_service_slot"
 
@@ -124,7 +124,7 @@ module "staging_slot" {
 
 
 resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
-  count = module.idh_loader.idh_resource_configuration.autoscale_enabled
+  count = module.idh_loader.idh_resource_configuration.autoscale_enabled ? 1 : 0
 
 
   name                = "${var.name}-autoscale-settings"
