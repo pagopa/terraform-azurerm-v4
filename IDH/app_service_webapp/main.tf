@@ -4,7 +4,7 @@ module "idh_loader" {
   product_name      = var.product_name
   env               = var.env
   idh_resource_tier = var.idh_resource_tier
-  idh_resource_type = "app_service"
+  idh_resource_type = "app_service_webapp"
 }
 
 
