@@ -1,0 +1,28 @@
+basic:
+  vnet_integration: true
+  sku: B1
+  zone_balancing_enabled: false
+  https_only: true
+  minimum_tls_version: "1.3"
+  public_network_access_enabled: false
+  client_cert_enabled: false
+  premium_plan_auto_scale_enabled: false
+  ip_restriction_default_action: "Deny"
+  slot_staging_enabled: false
+  autoscale_enabled: false
+  autoscale_default_capacity: 1
+  autoscale_min_capacity: 1
+cpu_optimized:
+  vnet_integration: true
+  sku: B3
+  zone_balancing_enabled: false
+  https_only: true
+  minimum_tls_version: "1.3"
+  public_network_access_enabled: false
+  client_cert_enabled: false
+  premium_plan_auto_scale_enabled: false
+  ip_restriction_default_action: "Deny"
+  slot_staging_enabled: false
+  autoscale_enabled: false
+  autoscale_default_capacity: 1
+  autoscale_min_capacity: 1
