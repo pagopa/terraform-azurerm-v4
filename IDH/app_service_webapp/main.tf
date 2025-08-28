@@ -49,6 +49,7 @@ module "main_slot" {
   subnet_id           = var.subnet_id
   docker_image        = var.docker_image
   docker_image_tag    = var.docker_image_tag
+  docker_registry_url = var.docker_registry_url
   dotnet_version      = var.dotnet_version
   go_version          = var.go_version
   java_server         = var.java_server

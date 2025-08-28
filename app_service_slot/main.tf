@@ -28,6 +28,7 @@ resource "azurerm_linux_web_app_slot" "this" {
     use_32_bit_worker = var.use_32_bit_worker_process
     application_stack {
       docker_image_name = local.docker_image_name
+      docker_registry_url = var.docker_registry_url != null ? var.docker_registry_url : null
 
       dotnet_version      = var.dotnet_version
       python_version      = var.python_version

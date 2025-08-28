@@ -132,6 +132,10 @@ variable "docker_image_tag" {
   type    = string
   default = null
 }
+variable "docker_registry_url" {
+  type    = string
+  default = null
+}
 variable "dotnet_version" {
   type    = string
   default = null
