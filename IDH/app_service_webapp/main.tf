@@ -285,3 +285,50 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
     }
   }
 }
+
+
+resource "azurerm_private_endpoint" "main_slot_private_endpoint" {
+  count = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? 1 : 0
+
+  name                = "${var.name}-main-private-endpoint"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.private_endpoint_subnet_id
+
+  private_dns_zone_group {
+    name                 = "${var.name}-main-dns-zone-group"
+    private_dns_zone_ids = [var.private_endpoint_dns_zone_id]
+  }
+
+  private_service_connection {
+    name                           = "${var.name}-main-service-connection"
+    private_connection_resource_id = module.main_slot.id
+    is_manual_connection           = false
+    subresource_names              = ["sites"]
+  }
+
+  tags = var.tags
+}
+
+resource "azurerm_private_endpoint" "staging_slot_private_endpoint" {
+  count = module.idh_loader.idh_resource_configuration.private_endpoint_enabled  && module.idh_loader.idh_resource_configuration.slot_staging_enabled? 1 : 0
+
+  name                = "${var.name}-staging-private-endpoint"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.private_endpoint_subnet_id
+
+  private_dns_zone_group {
+    name                 = "${var.name}-staging-dns-zone-group"
+    private_dns_zone_ids = [var.private_endpoint_dns_zone_id]
+  }
+
+  private_service_connection {
+    name                           = "${var.name}-staging-service-connection"
+    private_connection_resource_id = module.main_slot.id #issue https://github.com/hashicorp/terraform-provider-azurerm/issues/11147
+    is_manual_connection           = false
+    subresource_names              = ["sites-staging"]
+  }
+
+  tags = var.tags
+}
