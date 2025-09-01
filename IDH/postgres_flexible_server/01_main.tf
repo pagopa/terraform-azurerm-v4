@@ -122,7 +122,7 @@ resource "azurerm_postgresql_flexible_server_configuration" "shared_preoload_lib
 resource "azurerm_postgresql_flexible_server_configuration" "azure_extensions" {
   name      = "azure.extensions"
   server_id = module.pgflex.id
-  value     = module.idh_loader.idh_resource_configuration.server_parameters.azure_extensions
+  value     = length(var.additional_azure_extensions) > 0 ? join(",", [module.idh_loader.idh_resource_configuration.server_parameters.azure_extensions, join(",", var.additional_azure_extensions)] ) : module.idh_loader.idh_resource_configuration.server_parameters.azure_extensions
 }
 
 
