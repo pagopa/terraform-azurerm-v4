@@ -193,7 +193,7 @@ variable "autoscale_settings" {
 
   validation {
     error_message = "If scale_up_response_time_threshold is defined, also scale_down_response_time_threshold must be defined"
-    condition     = (var.autoscale_settings == null) || ((var.autoscale_settings.scale_up_requests_threshold != null && var.autoscale_settings.scale_down_response_time_threshold != null) || (var.autoscale_settings.scale_up_requests_threshold == null && var.autoscale_settings.scale_down_response_time_threshold == null))
+    condition     = (var.autoscale_settings == null) || ((var.autoscale_settings.scale_up_response_time_threshold != null && var.autoscale_settings.scale_down_response_time_threshold != null) || (var.autoscale_settings.scale_up_response_time_threshold == null && var.autoscale_settings.scale_down_response_time_threshold == null))
   }
 
   validation {
