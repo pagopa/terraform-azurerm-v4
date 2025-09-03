@@ -14,7 +14,7 @@ basic:
   autoscale_min_capacity: 1
   plan_type: "internal"
   private_endpoint_enabled: true
-basic_cpu_optimized:
+basic_high_performance:
   vnet_integration: true
   sku: B3
   zone_balancing_enabled: false
