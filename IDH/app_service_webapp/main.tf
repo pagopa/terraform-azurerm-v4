@@ -199,8 +199,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
     # Supported metrics for Microsoft.Web/sites
     # 👀 https://learn.microsoft.com/en-us/azure/azure-monitor/reference/supported-metrics/microsoft-web-sites-metrics
     dynamic "rule" {
-      for_each = var.autoscale_settings.scale_up_response_time_threshold != null
-        ? [1] : []
+      for_each = var.autoscale_settings.scale_up_response_time_threshold != null ? [1] : []
       content {
         metric_trigger {
           metric_name              = "HttpResponseTime"
