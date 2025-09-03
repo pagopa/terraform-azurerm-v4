@@ -169,8 +169,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
     }
 
     dynamic "rule" {
-      for_each = var.autoscale_settings.scale_down_requests_threshold != null ?
-        [1] : []
+      for_each = var.autoscale_settings.scale_down_requests_threshold != null ? [1] : []
       content {
         metric_trigger {
           metric_name              = "Requests"
