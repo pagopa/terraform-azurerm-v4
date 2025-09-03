@@ -176,12 +176,12 @@ variable "ruby_version" {
 variable "autoscale_settings" {
   type = object({
     max_capacity                       = number # maximum capacity for this app service
-    scale_up_requests_threshold        = number # request count threshold which triggers scale up
-    scale_down_requests_threshold      = number # request count threshold which triggers scale down
-    scale_up_response_time_threshold   = number # response time threshold which triggers scale up
-    scale_down_response_time_threshold = number # response time threshold which triggers scale down
-    scale_up_cpu_threshold             = number # cpu threshold which triggers scale up
-    scale_down_cpu_threshold           = number # cpu threshold which triggers scale down
+    scale_up_requests_threshold        = optional(number, null) # request count threshold which triggers scale up
+    scale_down_requests_threshold      = optional(number, null) # request count threshold which triggers scale down
+    scale_up_response_time_threshold   = optional(number, null) # response time threshold which triggers scale up
+    scale_down_response_time_threshold = optional(number, null) # response time threshold which triggers scale down
+    scale_up_cpu_threshold             = optional(number, null) # cpu threshold which triggers scale up
+    scale_down_cpu_threshold           = optional(number, null) # cpu threshold which triggers scale down
   })
   default     = null
   description = "(Optional) Autoscale configuration"
