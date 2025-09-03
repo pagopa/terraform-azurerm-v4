@@ -4,7 +4,7 @@
 | 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |
 |:-------------:|:----------------:|:---------:|:----------------|
 | pagopa | dev |  basic | SKU: B1, zone balancing: False, public network access: False, private endpoint enabled: True ip restriction default action: Deny, staging slot: False, autoscale enabled: False, plan type: internal |
-| pagopa | dev |  basic_cpu_optimized | SKU: B3, zone balancing: False, public network access: True, private endpoint enabled: True ip restriction default action: Deny, staging slot: False, autoscale enabled: False, plan type: internal |
+| pagopa | dev |  basic_high_performance | SKU: B3, zone balancing: False, public network access: True, private endpoint enabled: True ip restriction default action: Deny, staging slot: False, autoscale enabled: False, plan type: internal |
 |---|---|---|---|
 | pagopa | prod |  basic | SKU: B1, zone balancing: True, public network access: False, private endpoint enabled: True ip restriction default action: Deny, staging slot: True, autoscale enabled: True, plan type: internal |
 | pagopa | prod |  basic_high_performance | SKU: B3, zone balancing: True, public network access: True, private endpoint enabled: True ip restriction default action: Deny, staging slot: True, autoscale enabled: True, plan type: internal |
