@@ -185,6 +185,21 @@ variable "autoscale_settings" {
   })
   default     = null
   description = "(Optional) Autoscale configuration"
+
+  validation {
+    error_message = "If scale_up_request_threshold is defined, also scale_down_request_threshold must be defined"
+    condition     = (var.autoscale_settings == null) || ((var.autoscale_settings.scale_up_requests_threshold != null && var.autoscale_settings.scale_down_requests_threshold != null) || (var.autoscale_settings.scale_up_requests_threshold == null && var.autoscale_settings.scale_down_requests_threshold == null))
+  }
+
+  validation {
+    error_message = "If scale_up_response_time_threshold is defined, also scale_down_response_time_threshold must be defined"
+    condition     = (var.autoscale_settings == null) || ((var.autoscale_settings.scale_up_requests_threshold != null && var.autoscale_settings.scale_down_response_time_threshold != null) || (var.autoscale_settings.scale_up_requests_threshold == null && var.autoscale_settings.scale_down_response_time_threshold == null))
+  }
+
+  validation {
+    error_message = "If scale_up_cpu_threshold is defined, also scale_down_cpu_threshold must be defined"
+    condition     = (var.autoscale_settings == null) || ((var.autoscale_settings.scale_up_cpu_threshold != null && var.autoscale_settings.scale_down_cpu_threshold != null) || (var.autoscale_settings.scale_up_cpu_threshold == null && var.autoscale_settings.scale_down_cpu_threshold == null))
+  }
 }
 
 variable "private_endpoint_subnet_id" {
