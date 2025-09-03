@@ -77,7 +77,7 @@ module "app_service" {
 | <a name="input_java_server_version"></a> [java\_server\_version](#input\_java\_server\_version) | n/a | `string` | `null` | no |
 | <a name="input_java_version"></a> [java\_version](#input\_java\_version) | n/a | `string` | `null` | no |
 | <a name="input_location"></a> [location](#input\_location) | n/a | `string` | n/a | yes |
-| <a name="input_name"></a> [name](#input\_name) | Eventhub namespace description. | `string` | n/a | yes |
+| <a name="input_name"></a> [name](#input\_name) | App service name, used as prefix in resource names | `string` | n/a | yes |
 | <a name="input_node_version"></a> [node\_version](#input\_node\_version) | n/a | `string` | `null` | no |
 | <a name="input_php_version"></a> [php\_version](#input\_php\_version) | n/a | `string` | `null` | no |
 | <a name="input_private_endpoint_dns_zone_id"></a> [private\_endpoint\_dns\_zone\_id](#input\_private\_endpoint\_dns\_zone\_id) | (Optional) Private DNS Zone ID to link to the private endpoint | `string` | `null` | no |

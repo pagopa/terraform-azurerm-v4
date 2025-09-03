@@ -21,7 +21,7 @@ variable "idh_resource_tier" {
 
 variable "name" {
   type        = string
-  description = "Eventhub namespace description."
+  description = "App service name, used as prefix in resource names"
 }
 
 variable "location" {
