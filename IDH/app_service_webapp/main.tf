@@ -311,7 +311,7 @@ resource "azurerm_private_endpoint" "main_slot_private_endpoint" {
 }
 
 resource "azurerm_private_endpoint" "staging_slot_private_endpoint" {
-  count = module.idh_loader.idh_resource_configuration.private_endpoint_enabled  && module.idh_loader.idh_resource_configuration.slot_staging_enabled? 1 : 0
+  count = module.idh_loader.idh_resource_configuration.private_endpoint_enabled && module.idh_loader.idh_resource_configuration.slot_staging_enabled ? 1 : 0
 
   name                = "${var.name}-staging-private-endpoint"
   location            = var.location

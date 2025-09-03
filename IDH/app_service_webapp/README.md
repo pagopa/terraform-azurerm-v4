@@ -46,6 +46,8 @@ module "app_service" {
 | Name | Type |
 |------|------|
 | [azurerm_monitor_autoscale_setting.autoscale_settings](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_autoscale_setting) | resource |
+| [azurerm_private_endpoint.main_slot_private_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
+| [azurerm_private_endpoint.staging_slot_private_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
 
 ## Inputs
 
@@ -55,14 +57,15 @@ module "app_service" {
 | <a name="input_allowed_service_tags"></a> [allowed\_service\_tags](#input\_allowed\_service\_tags) | (Optional) List of service tags allowed to call the appserver endpoint. | `list(string)` | `[]` | no |
 | <a name="input_allowed_subnet_ids"></a> [allowed\_subnet\_ids](#input\_allowed\_subnet\_ids) | (Optional) List of subnet allowed to call the appserver endpoint. | `list(string)` | `[]` | no |
 | <a name="input_always_on"></a> [always\_on](#input\_always\_on) | (Optional) Should the app be loaded at all times? Defaults to false. | `bool` | `false` | no |
-| <a name="input_app_service_plan_name"></a> [app\_service\_plan\_name](#input\_app\_service\_plan\_name) | (Optional) Specifies the name of the App Service Plan component. Changing this forces a new resource to be created. | `string` | `null` | no |
-| <a name="input_app_settings"></a> [app\_settings](#input\_app\_settings) | n/a | `map(string)` | `""` | no |
+| <a name="input_app_service_plan_name"></a> [app\_service\_plan\_name](#input\_app\_service\_plan\_name) | (Required) Specifies the name of the App Service Plan component. Changing this forces a new resource to be created. | `string` | n/a | yes |
+| <a name="input_app_settings"></a> [app\_settings](#input\_app\_settings) | n/a | `map(string)` | `{}` | no |
 | <a name="input_auto_heal_enabled"></a> [auto\_heal\_enabled](#input\_auto\_heal\_enabled) | (Optional) True to enable the auto heal on the app service | `bool` | `false` | no |
 | <a name="input_auto_heal_settings"></a> [auto\_heal\_settings](#input\_auto\_heal\_settings) | (Optional) Auto heal settings | <pre>object({<br/>    startup_time           = string<br/>    slow_requests_count    = number<br/>    slow_requests_interval = string<br/>    slow_requests_time     = string<br/>  })</pre> | `null` | no |
 | <a name="input_autoscale_settings"></a> [autoscale\_settings](#input\_autoscale\_settings) | (Optional) Autoscale configuration | <pre>object({<br/>    max_capacity                       = number # maximum capacity for this app service<br/>    scale_up_requests_threshold        = number # request count threshold which triggers scale up<br/>    scale_down_requests_threshold      = number # request count threshold which triggers scale down<br/>    scale_up_response_time_threshold   = number # response time threshold which triggers scale up<br/>    scale_down_response_time_threshold = number # response time threshold which triggers scale down<br/>    scale_up_cpu_threshold             = number # cpu threshold which triggers scale up<br/>    scale_down_cpu_threshold           = number # cpu threshold which triggers scale down<br/>  })</pre> | `null` | no |
 | <a name="input_client_affinity_enabled"></a> [client\_affinity\_enabled](#input\_client\_affinity\_enabled) | (Optional) Should the App Service send session affinity cookies, which route client requests in the same session to the same instance? Defaults to false. | `bool` | `false` | no |
 | <a name="input_docker_image"></a> [docker\_image](#input\_docker\_image) | Framework choice | `string` | `null` | no |
 | <a name="input_docker_image_tag"></a> [docker\_image\_tag](#input\_docker\_image\_tag) | n/a | `string` | `null` | no |
+| <a name="input_docker_registry_url"></a> [docker\_registry\_url](#input\_docker\_registry\_url) | n/a | `string` | `null` | no |
 | <a name="input_dotnet_version"></a> [dotnet\_version](#input\_dotnet\_version) | n/a | `string` | `null` | no |
 | <a name="input_env"></a> [env](#input\_env) | (Required) Environment for which the resource will be created | `string` | n/a | yes |
 | <a name="input_ftps_state"></a> [ftps\_state](#input\_ftps\_state) | (Optional) Enable FTPS connection ( Default: Disabled ) | `string` | `"Disabled"` | no |
@@ -77,6 +80,8 @@ module "app_service" {
 | <a name="input_name"></a> [name](#input\_name) | Eventhub namespace description. | `string` | n/a | yes |
 | <a name="input_node_version"></a> [node\_version](#input\_node\_version) | n/a | `string` | `null` | no |
 | <a name="input_php_version"></a> [php\_version](#input\_php\_version) | n/a | `string` | `null` | no |
+| <a name="input_private_endpoint_dns_zone_id"></a> [private\_endpoint\_dns\_zone\_id](#input\_private\_endpoint\_dns\_zone\_id) | (Optional) Private DNS Zone ID to link to the private endpoint | `string` | `null` | no |
+| <a name="input_private_endpoint_subnet_id"></a> [private\_endpoint\_subnet\_id](#input\_private\_endpoint\_subnet\_id) | (Optional) Subnet id where to save the private endpoint | `string` | `null` | no |
 | <a name="input_product_name"></a> [product\_name](#input\_product\_name) | (Required) prefix used to identify the platform for which the resource will be created | `string` | n/a | yes |
 | <a name="input_python_version"></a> [python\_version](#input\_python\_version) | n/a | `string` | `null` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Resource Group | `string` | n/a | yes |

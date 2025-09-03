@@ -188,13 +188,13 @@ variable "autoscale_settings" {
 }
 
 variable "private_endpoint_subnet_id" {
-  type = string
+  type        = string
   description = "(Optional) Subnet id where to save the private endpoint"
-  default = null
+  default     = null
 }
 
 variable "private_endpoint_dns_zone_id" {
-  type = string
+  type        = string
   description = "(Optional) Private DNS Zone ID to link to the private endpoint"
-  default = null
+  default     = null
 }
