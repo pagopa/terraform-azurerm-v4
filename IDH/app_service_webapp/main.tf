@@ -147,24 +147,24 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
       for_each = var.autoscale_settings.scale_up_requests_threshold != null ? [1] : []
       content {
         metric_trigger {
-        metric_name              = "Requests"
-        metric_resource_id       = module.main_slot.id
-        metric_namespace         = "microsoft.web/sites"
-        time_grain               = "PT1M"
-        statistic                = "Average"
-        time_window              = "PT5M"
-        time_aggregation         = "Average"
-        operator                 = "GreaterThan"
-        threshold                = var.autoscale_settings.scale_up_requests_threshold
-        divide_by_instance_count = false
-      }
+          metric_name              = "Requests"
+          metric_resource_id       = module.main_slot.id
+          metric_namespace         = "microsoft.web/sites"
+          time_grain               = "PT1M"
+          statistic                = "Average"
+          time_window              = "PT5M"
+          time_aggregation         = "Average"
+          operator                 = "GreaterThan"
+          threshold                = var.autoscale_settings.scale_up_requests_threshold
+          divide_by_instance_count = false
+        }
 
-      scale_action {
-        direction = "Increase"
-        type      = "ChangeCount"
-        value     = "2"
-        cooldown  = "PT5M"
-      }
+        scale_action {
+          direction = "Increase"
+          type      = "ChangeCount"
+          value     = "2"
+          cooldown  = "PT5M"
+        }
       }
     }
 
@@ -201,15 +201,15 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
       for_each = var.autoscale_settings.scale_up_response_time_threshold != null ? [1] : []
       content {
         metric_trigger {
-          metric_name              = "HttpResponseTime"
-          metric_resource_id       = module.main_slot.id
-          metric_namespace         = "microsoft.web/sites"
-          time_grain               = "PT1M"
-          statistic                = "Average"
-          time_window              = "PT5M"
-          time_aggregation         = "Average"
-          operator                 = "GreaterThan"
-          threshold = var.autoscale_settings.scale_up_response_time_threshold
+          metric_name        = "HttpResponseTime"
+          metric_resource_id = module.main_slot.id
+          metric_namespace   = "microsoft.web/sites"
+          time_grain         = "PT1M"
+          statistic          = "Average"
+          time_window        = "PT5M"
+          time_aggregation   = "Average"
+          operator           = "GreaterThan"
+          threshold          = var.autoscale_settings.scale_up_response_time_threshold
           #sec
           divide_by_instance_count = false
         }
@@ -226,25 +226,25 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
       for_each = var.autoscale_settings.scale_down_response_time_threshold != null ? [1] : []
       content {
         metric_trigger {
-        metric_name              = "HttpResponseTime"
-        metric_resource_id       = module.main_slot.id
-        metric_namespace         = "microsoft.web/sites"
-        time_grain               = "PT1M"
-        statistic                = "Average"
-        time_window              = "PT5M"
-        time_aggregation         = "Average"
-        operator                 = "LessThan"
-        threshold                = var.autoscale_settings.scale_down_response_time_threshold #sec
-        divide_by_instance_count = false
-      }
+          metric_name              = "HttpResponseTime"
+          metric_resource_id       = module.main_slot.id
+          metric_namespace         = "microsoft.web/sites"
+          time_grain               = "PT1M"
+          statistic                = "Average"
+          time_window              = "PT5M"
+          time_aggregation         = "Average"
+          operator                 = "LessThan"
+          threshold                = var.autoscale_settings.scale_down_response_time_threshold #sec
+          divide_by_instance_count = false
+        }
 
-      scale_action {
-        direction = "Decrease"
-        type      = "ChangeCount"
-        value     = "1"
-        cooldown  = "PT20M"
+        scale_action {
+          direction = "Decrease"
+          type      = "ChangeCount"
+          value     = "1"
+          cooldown  = "PT20M"
+        }
       }
-    }
     }
 
 
@@ -253,28 +253,28 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
 
     # Supported metrics for Microsoft.Web/sites
     # 👀 https://learn.microsoft.com/en-us/azure/azure-monitor/reference/supported-metrics/microsoft-web-sites-metrics
-   dynamic "rule" {
+    dynamic "rule" {
       for_each = var.autoscale_settings.scale_up_cpu_threshold != null ? [1] : []
       content {
         metric_trigger {
-            metric_name              = "CpuPercentage"
-        metric_resource_id       = module.main_slot.plan_id
-        metric_namespace         = "microsoft.web/serverfarms"
-        time_grain               = "PT1M"
-        statistic                = "Average"
-        time_window              = "PT5M"
-        time_aggregation         = "Average"
-        operator                 = "GreaterThan"
-        threshold                = var.autoscale_settings.scale_up_cpu_threshold
-        divide_by_instance_count = false
-      }
+          metric_name              = "CpuPercentage"
+          metric_resource_id       = module.main_slot.plan_id
+          metric_namespace         = "microsoft.web/serverfarms"
+          time_grain               = "PT1M"
+          statistic                = "Average"
+          time_window              = "PT5M"
+          time_aggregation         = "Average"
+          operator                 = "GreaterThan"
+          threshold                = var.autoscale_settings.scale_up_cpu_threshold
+          divide_by_instance_count = false
+        }
 
-      scale_action {
-        direction = "Increase"
-        type      = "ChangeCount"
-        value     = "2"
-        cooldown  = "PT5M"
-      }
+        scale_action {
+          direction = "Increase"
+          type      = "ChangeCount"
+          value     = "2"
+          cooldown  = "PT5M"
+        }
       }
     }
 
@@ -282,24 +282,24 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
       for_each = var.autoscale_settings.scale_down_cpu_threshold != null ? [1] : []
       content {
         metric_trigger {
-        metric_name              = "CpuPercentage"
-        metric_resource_id       = module.main_slot.plan_id
-        metric_namespace         = "microsoft.web/serverfarms"
-        time_grain               = "PT1M"
-        statistic                = "Average"
-        time_window              = "PT5M"
-        time_aggregation         = "Average"
-        operator                 = "LessThan"
-        threshold                = var.autoscale_settings.scale_down_cpu_threshold
-        divide_by_instance_count = false
-      }
+          metric_name              = "CpuPercentage"
+          metric_resource_id       = module.main_slot.plan_id
+          metric_namespace         = "microsoft.web/serverfarms"
+          time_grain               = "PT1M"
+          statistic                = "Average"
+          time_window              = "PT5M"
+          time_aggregation         = "Average"
+          operator                 = "LessThan"
+          threshold                = var.autoscale_settings.scale_down_cpu_threshold
+          divide_by_instance_count = false
+        }
 
-      scale_action {
-        direction = "Decrease"
-        type      = "ChangeCount"
-        value     = "1"
-        cooldown  = "PT20M"
-      }
+        scale_action {
+          direction = "Decrease"
+          type      = "ChangeCount"
+          value     = "1"
+          cooldown  = "PT20M"
+        }
       }
     }
 
@@ -307,24 +307,24 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
       for_each = var.autoscale_settings.scale_down_cpu_threshold != null ? [1] : []
       content {
         metric_trigger {
-        metric_name              = "CpuPercentage"
-        metric_resource_id       = module.main_slot.plan_id
-        metric_namespace         = "microsoft.web/serverfarms"
-        time_grain               = "PT1M"
-        statistic                = "Average"
-        time_window              = "PT5M"
-        time_aggregation         = "Average"
-        operator                 = "LessThan"
-        threshold                = var.autoscale_settings.scale_down_cpu_threshold
-        divide_by_instance_count = false
-      }
+          metric_name              = "CpuPercentage"
+          metric_resource_id       = module.main_slot.plan_id
+          metric_namespace         = "microsoft.web/serverfarms"
+          time_grain               = "PT1M"
+          statistic                = "Average"
+          time_window              = "PT5M"
+          time_aggregation         = "Average"
+          operator                 = "LessThan"
+          threshold                = var.autoscale_settings.scale_down_cpu_threshold
+          divide_by_instance_count = false
+        }
 
-      scale_action {
-        direction = "Decrease"
-        type      = "ChangeCount"
-        value     = "1"
-        cooldown  = "PT20M"
-      }
+        scale_action {
+          direction = "Decrease"
+          type      = "ChangeCount"
+          value     = "1"
+          cooldown  = "PT20M"
+        }
       }
     }
   }
