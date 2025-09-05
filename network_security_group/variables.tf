@@ -266,11 +266,11 @@ variable "custom_security_group" {
     condition = var.custom_security_group == null ? true : alltrue(flatten([
       for nsg in var.custom_security_group : [
         for rule in concat(nsg.inbound_rules, nsg.outbound_rules) : (
-          contains(["Tcp", "Udp", "Icmp", "Esp", "Ah", "*"], title(rule.protocol))
+          rule.protocol != null ? contains(["Tcp", "Udp", "Icmp", "Esp", "Ah", "*"], title(rule.protocol)) : rule.target_service != null
         )
       ]
     ]))
-    error_message = "inbound and outbound rules: protocol must be one of ['Tcp', 'Udp', 'Icmp', 'Esp', 'Ah', '*']"
+    error_message = "inbound and outbound rules: protocol must be one of ['Tcp', 'Udp', 'Icmp', 'Esp', 'Ah', '*'] or target_service must be used"
   }
 }
 
