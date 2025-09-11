@@ -258,3 +258,13 @@ variable "zone" {
   default     = null
   description = "(Optional) The Availability Zone in which the PostgreSQL Flexible Server should be located. (1,2,3)"
 }
+
+variable "additional_azure_extensions" {
+  type        = list(string)
+  default     = []
+  description = "(Optional) List of additional azure extensions to be installed on the server"
+  validation {
+    condition     = alltrue([for ext in var.additional_azure_extensions : !contains(split(",", module.idh_loader.idh_resource_configuration.server_parameters.azure_extensions), ext)])
+    error_message = "At least one of the additional_azure_extensions is already included in the preconfigured extensions: ${module.idh_loader.idh_resource_configuration.server_parameters.azure_extensions}"
+  }
+}

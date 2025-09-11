@@ -151,6 +151,7 @@ Also handles:
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_additional_azure_extensions"></a> [additional\_azure\_extensions](#input\_additional\_azure\_extensions) | (Optional) List of additional azure extensions to be installed on the server | `list(string)` | `[]` | no |
 | <a name="input_administrator_login"></a> [administrator\_login](#input\_administrator\_login) | Flexible PostgreSql server administrator\_login | `string` | n/a | yes |
 | <a name="input_administrator_password"></a> [administrator\_password](#input\_administrator\_password) | Flexible PostgreSql server administrator\_password | `string` | n/a | yes |
 | <a name="input_alert_action"></a> [alert\_action](#input\_alert\_action) | The ID of the Action Group and optional map of custom string properties to include with the post webhook operation. | <pre>set(object(<br/>    {<br/>      action_group_id    = string<br/>      webhook_properties = map(string)<br/>    }<br/>  ))</pre> | `[]` | no |
