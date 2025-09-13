@@ -1,6 +1,7 @@
 ############################################################
 # Locals (naming, helpers, domain resolution)
 ############################################################
+/* Defines naming helpers, domain-derived maps, and Key Vault reference for certs */
 locals {
   name_prefix          = var.cdn_prefix_name
   storage_account_name = var.storage_account_name != null ? replace(var.storage_account_name, "-", "") : replace("${local.name_prefix}-sa", "-", "")
@@ -30,6 +31,7 @@ locals {
 ############################################################
 # Storage Account (static website)
 ############################################################
+/* Provisions a secure Storage Account configured for static website hosting */
 module "cdn_storage_account" {
   source = "../storage_account"
 
@@ -53,6 +55,7 @@ module "cdn_storage_account" {
 ############################################################
 # Front Door profile & endpoint
 ############################################################
+/* Creates the Azure Front Door Standard/Premium profile with managed identity */
 resource "azurerm_cdn_frontdoor_profile" "this" {
   name                = local.fd_profile_name
   resource_group_name = var.resource_group_name
@@ -62,6 +65,7 @@ resource "azurerm_cdn_frontdoor_profile" "this" {
   identity { type = "SystemAssigned" }
 }
 
+/* Exposes an AFD endpoint to serve traffic for routes and custom domains */
 resource "azurerm_cdn_frontdoor_endpoint" "this" {
   name                     = local.fd_endpoint_name
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
@@ -71,6 +75,7 @@ resource "azurerm_cdn_frontdoor_endpoint" "this" {
 ############################################################
 # Origin Group & Origin (Static Website)
 ############################################################
+/* Defines health probing and load-balancing policy for origins */
 resource "azurerm_cdn_frontdoor_origin_group" "this" {
   name                     = local.fd_origin_group
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
@@ -91,6 +96,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "this" {
   }
 }
 
+/* Registers the Storage static website host as the primary origin */
 resource "azurerm_cdn_frontdoor_origin" "storage_web_host" {
   name                          = local.fd_origin_primary
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.this.id
@@ -108,15 +114,14 @@ resource "azurerm_cdn_frontdoor_origin" "storage_web_host" {
 ############################################################
 # Rule Set (global) + Rules (global/custom)
 ############################################################
+/* Container for global delivery rules attached to routes */
 resource "azurerm_cdn_frontdoor_rule_set" "this" {
   count                    = length(var.global_delivery_rules) > 0 || length(var.delivery_custom_rules) > 0 || length(var.delivery_rule_redirects) > 0 || length(var.delivery_rule_rewrites) > 0 || length(var.delivery_rule_request_scheme_condition) > 0 || length(var.delivery_rule_url_path_condition_cache_expiration_action) > 0 ? 1 : 0
   name                     = local.fd_ruleset_global
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
 }
 
-# -------------------------------------------------------------------
-# Global Rule (headers + cache/qs override)
-# -------------------------------------------------------------------
+/* Applies global header mutations and cache/querystring overrides */
 resource "azurerm_cdn_frontdoor_rule" "rule_global" {
   for_each                  = { for r in var.global_delivery_rules : tostring(r.order) => r }
   name                      = format("%s%04d", local.fd_rule_global, each.value.order)
@@ -151,9 +156,7 @@ resource "azurerm_cdn_frontdoor_rule" "rule_global" {
         cache_behavior                = lookup({ Override = "OverrideAlways", SetIfMissing = "OverrideIfOriginMissing", BypassCache = "Disabled", HonorOrigin = "HonorOrigin" }, try(each.value.cache_expiration_actions[0].behavior, "HonorOrigin"), "HonorOrigin")
         cache_duration                = try(each.value.cache_expiration_actions[0].duration, null)
         query_string_caching_behavior = try(each.value.cache_key_query_string_actions[0].behavior, null)
-        query_string_parameters       = contains(
-          ["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"],
-          try(each.value.cache_key_query_string_actions[0].behavior, "")) && length(trimspace(try(each.value.cache_key_query_string_actions[0].parameters, ""))) > 0 ? split(",", trimspace(each.value.cache_key_query_string_actions[0].parameters)) : null
+        query_string_parameters       = contains(["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"], try(each.value.cache_key_query_string_actions[0].behavior, "")) && length(trimspace(try(each.value.cache_key_query_string_actions[0].parameters, ""))) > 0 ? split(",", trimspace(each.value.cache_key_query_string_actions[0].parameters)) : null
       }
     }
   }
@@ -164,9 +167,7 @@ resource "azurerm_cdn_frontdoor_rule" "rule_global" {
   ]
 }
 
-# -------------------------------------------------------------------
-# URL path -> cache TTL + optional response header (back-compat)
-# -------------------------------------------------------------------
+/* Sets per-path caching TTL and optional response header */
 resource "azurerm_cdn_frontdoor_rule" "rule_url_path_cache" {
   for_each                  = { for r in var.delivery_rule_url_path_condition_cache_expiration_action : r.order => r }
   name                      = each.value.name
@@ -190,9 +191,7 @@ resource "azurerm_cdn_frontdoor_rule" "rule_url_path_cache" {
         "SetIfMissing" = "OverrideIfOriginMissing",
         "BypassCache"  = "Disabled",
         "HonorOrigin"  = "HonorOrigin"
-        },
-        "HonorOrigin",
-      each.value.behavior)
+      }, each.value.behavior, "HonorOrigin")
       cache_duration = each.value.duration
     }
 
@@ -209,9 +208,7 @@ resource "azurerm_cdn_frontdoor_rule" "rule_url_path_cache" {
   ]
 }
 
-# -------------------------------------------------------------------
-# Scheme redirect (HTTP<->HTTPS) (back-compat)
-# -------------------------------------------------------------------
+/* Redirects based on request scheme (e.g., force HTTPS) */
 resource "azurerm_cdn_frontdoor_rule" "rule_scheme_redirect" {
   for_each                  = { for r in var.delivery_rule_request_scheme_condition : r.order => r }
   name                      = each.value.name
@@ -244,9 +241,7 @@ resource "azurerm_cdn_frontdoor_rule" "rule_scheme_redirect" {
   ]
 }
 
-# -------------------------------------------------------------------
-# Redirect by Request URI (back-compat)
-# -------------------------------------------------------------------
+/* Redirects based on Request URI and/or URL path patterns */
 resource "azurerm_cdn_frontdoor_rule" "rule_redirect" {
   for_each                  = { for r in var.delivery_rule_redirects : r.order => r }
   name                      = each.value.name
@@ -267,9 +262,7 @@ resource "azurerm_cdn_frontdoor_rule" "rule_redirect" {
     }
 
     dynamic "url_path_condition" {
-      for_each = [
-        for c in each.value.url_path_conditions : c
-      ]
+      for_each = [for c in each.value.url_path_conditions : c]
       iterator = c
       content {
         operator         = c.value.operator
@@ -301,9 +294,7 @@ resource "azurerm_cdn_frontdoor_rule" "rule_redirect" {
   ]
 }
 
-# =============================================================
-# REWRITE-ONLY RULE (AFD Standard/Premium)
-# =============================================================
+/* Rewrites URLs (no redirect) based on URI/path/file conditions */
 resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
   for_each                  = { for r in var.delivery_rule_rewrites : r.order => r }
   name                      = each.value.name
@@ -335,9 +326,7 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
     }
 
     dynamic "url_path_condition" {
-      for_each = [
-        for c in try(each.value.url_path_conditions, []) : c
-      ]
+      for_each = [for c in try(each.value.url_path_conditions, []) : c]
       iterator = c
       content {
         operator         = c.value.operator
@@ -346,7 +335,6 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
         transforms       = try(c.value.transforms, [])
       }
     }
-
   }
 
   actions {
@@ -367,12 +355,7 @@ resource "azurerm_cdn_frontdoor_rule" "rewrite_only" {
   ]
 }
 
-# -------------------------------------------------------------------
-# Generic custom rules (conditions superset)
-#   - headers
-#   - cache/qs override
-#   (No redirect/rewrite here per provider constraints)
-# -------------------------------------------------------------------
+/* Generic custom rules for headers/cache/qs (no redirect/rewrite) */
 resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
   for_each                  = { for r in var.delivery_custom_rules : r.name => r }
   name                      = each.value.name
@@ -523,9 +506,7 @@ resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
     }
 
     dynamic "url_path_condition" {
-      for_each = [
-        for c in try(each.value.url_path_conditions, []) : c
-      ]
+      for_each = [for c in try(each.value.url_path_conditions, []) : c]
       iterator = c
       content {
         operator         = c.value.operator
@@ -562,9 +543,9 @@ resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
       iterator = c
       content {
         cache_behavior = lookup({
-          "Override"     = "OverrideAlways"
-          "SetIfMissing" = "OverrideIfOriginMissing"
-          "BypassCache"  = "Disabled"
+          "Override"     = "OverrideAlways",
+          "SetIfMissing" = "OverrideIfOriginMissing",
+          "BypassCache"  = "Disabled",
           "HonorOrigin"  = "HonorOrigin"
         }, c.value.behavior, "HonorOrigin")
         cache_duration = c.value.duration
@@ -588,7 +569,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
       }
     }
 
-    # Mutual exclusion: se è presente url_redirect_actions, non pubblichiamo rewrite
     dynamic "url_redirect_action" {
       for_each = length(try(each.value.url_rewrite_actions, [])) == 0 ? try(each.value.url_redirect_actions, []) : []
       iterator = c
@@ -602,7 +582,6 @@ resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
       }
     }
 
-    # Mutual exclusion: se è presente url_redirect_actions, rewrite resta vuoto
     dynamic "url_rewrite_action" {
       for_each = length(try(each.value.url_redirect_actions, [])) == 0 ? try(each.value.url_rewrite_actions, []) : []
       iterator = c
@@ -623,13 +602,14 @@ resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
 ############################################################
 # Multi-domain resources
 ############################################################
+/* Resolves DNS zones for each configured domain */
 data "azurerm_dns_zone" "zones" {
   for_each            = local.domains
   name                = each.value.dns_name
   resource_group_name = each.value.dns_resource_group_name
 }
 
-# KV certificates only for apex domains
+/* Retrieves Key Vault certificates for apex domains */
 data "azurerm_key_vault_certificate" "certs" {
   for_each     = { for k, v in local.domains : k => v if local.is_apex[k] && var.keyvault_id != null }
   name         = replace(each.key, ".", "-")
@@ -637,7 +617,7 @@ data "azurerm_key_vault_certificate" "certs" {
   depends_on   = [azurerm_key_vault_access_policy.afd_policy]
 }
 
-# KV access policy for AFD identity
+/* Grants AFD managed identity read access to KV secrets/certs */
 resource "azurerm_key_vault_access_policy" "afd_policy" {
   count                   = length(local.domains) > 0 && var.keyvault_id != null ? 1 : 0
   key_vault_id            = local.keyvault_id
@@ -647,6 +627,7 @@ resource "azurerm_key_vault_access_policy" "afd_policy" {
   certificate_permissions = ["Get"]
 }
 
+/* Publishes customer or managed TLS certificates to AFD */
 resource "azurerm_cdn_frontdoor_secret" "cert_secrets" {
   for_each                 = data.azurerm_key_vault_certificate.certs
   name                     = replace(each.key, ".", "-")
@@ -658,6 +639,7 @@ resource "azurerm_cdn_frontdoor_secret" "cert_secrets" {
   }
 }
 
+/* Creates AFD custom domains with TLS settings (managed or customer) */
 resource "azurerm_cdn_frontdoor_custom_domain" "this" {
   for_each                 = local.domains
   name                     = replace(each.key, ".", "-")
@@ -674,9 +656,8 @@ resource "azurerm_cdn_frontdoor_custom_domain" "this" {
 #--------------------------------------------------------------------------------------------
 # DNS records (only if enabled in domain config)
 #--------------------------------------------------------------------------------------------
+/* Creates TXT validation record for non-apex domains when needed */
 resource "azurerm_dns_txt_record" "validation" {
-  # This for_each loop is now deterministic at plan-time. It decides to create a resource
-  # instance based on static configuration (is it a non-apex domain? are dns records enabled?).
   for_each = {
     for k, v in local.domains : k => v
     if try(v.enable_dns_records, true) && !local.is_apex[k]
@@ -691,9 +672,6 @@ resource "azurerm_dns_txt_record" "validation" {
     value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
   }
 
-  # This lifecycle block moves the validation logic to the apply phase.
-  # Terraform will plan to create the resource, but will only proceed if this condition is met.
-  # This correctly handles the dependency on the dynamically generated validation_token.
   lifecycle {
     precondition {
       condition     = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token != null && length(trimspace(azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token)) > 0
@@ -704,7 +682,7 @@ resource "azurerm_dns_txt_record" "validation" {
   depends_on = [azurerm_cdn_frontdoor_custom_domain.this]
 }
 
-# DNS apex A-record to endpoint
+/* Points apex domains to AFD endpoint via A record */
 resource "azurerm_dns_a_record" "apex" {
   for_each            = { for k, v in local.domains : k => v if local.is_apex[k] && try(v.enable_dns_records, true) }
   name                = "@"
@@ -714,7 +692,7 @@ resource "azurerm_dns_a_record" "apex" {
   target_resource_id  = azurerm_cdn_frontdoor_endpoint.this.id
 }
 
-# DNS subdomain CNAME to endpoint hostname
+/* Points subdomains to AFD endpoint hostname via CNAME */
 resource "azurerm_dns_cname_record" "subdomain" {
   for_each            = { for k, v in local.domains : k => v if !local.is_apex[k] && try(v.enable_dns_records, true) }
   name                = local.hostname_label[each.key]
@@ -727,6 +705,7 @@ resource "azurerm_dns_cname_record" "subdomain" {
 ############################################################
 # Default Route
 ############################################################
+/* Wires endpoint to origin group, attaches ruleset and domains */
 resource "azurerm_cdn_frontdoor_route" "default_route" {
   name                          = local.fd_route_default
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.this.id
@@ -759,6 +738,7 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
 ############################################################
 # Diagnostics
 ############################################################
+/* Sends AFD profile logs and metrics to Log Analytics */
 resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings_cdn_profile" {
   name                       = local.fd_diag_name
   target_resource_id         = azurerm_cdn_frontdoor_profile.this.id

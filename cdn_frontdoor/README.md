@@ -1,7 +1,7 @@
 # CDN Front Door
 
 This module provisions an Azure Front Door (Standard/Premium) profile with an Azure Storage static website as origin. It replaces the legacy `cdn` module based on Azure CDN Classic.
-    
+
 ## Migration notes
 
 *New Parameters*
