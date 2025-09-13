@@ -671,6 +671,9 @@ resource "azurerm_cdn_frontdoor_custom_domain" "this" {
   }
 }
 
+#--------------------------------------------------------------------------------------------
+# DNS records (only if enabled in domain config)
+#--------------------------------------------------------------------------------------------
 resource "azurerm_dns_txt_record" "validation" {
   # This for_each loop is now deterministic at plan-time. It decides to create a resource
   # instance based on static configuration (is it a non-apex domain? are dns records enabled?).
