@@ -16,6 +16,7 @@ This module provisions an Azure Front Door (Standard/Premium) profile with an Az
 - `keyvault_resource_group_name` & `keyvault_vault_name` & `keyvault_subscription_id` -> now use `keyvault_id`
 - `dns_prefix_name`
 - `hostname`, `dns_zone_name`, `dns_zone_resource_group_name`  -> now use `custom_domains` to configure multiple domains
+- `prefix` -> now use `cdn_prefix_name`
 
 *Changed names:*
 
