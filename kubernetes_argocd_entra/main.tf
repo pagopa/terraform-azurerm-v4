@@ -1,3 +1,9 @@
+// ⚠️ Manual step required after apply:
+// ⚠️ Manual step required after apply:
+// ⚠️ Manual step required after apply:
+// Application > API permissions > Microsoft Graph > User.Read > Grant admin consent
+# -----------------------------------------------------------------------------
+
 locals {
   app_display_name = "argocd-${var.name_identifier}"
 }
