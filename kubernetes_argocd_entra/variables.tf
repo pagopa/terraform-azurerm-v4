@@ -9,12 +9,12 @@ variable "argocd_hostname" {
   type        = string
 }
 
-variable "owners_object_ids" {
+variable "entra_app_owners_object_ids" {
   description = "Object IDs for Entra app owners"
   type        = list(string)
 }
 
-variable "group_display_names" {
+variable "entra_group_display_names" {
   description = "Entra group display names to assign to the Enterprise App"
   type        = list(string)
   default     = []

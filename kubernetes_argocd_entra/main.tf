@@ -18,7 +18,7 @@ data "azurerm_kubernetes_cluster" "aks" {
 
 # Resolve group object IDs from display names if provided
 data "azuread_group" "argocd_groups" {
-  for_each     = toset(var.group_display_names)
+  for_each     = toset(var.entra_group_display_names)
   display_name = each.value
 }
 
@@ -27,7 +27,7 @@ data "azuread_group" "argocd_groups" {
 # -----------------------------------------------------------------------------
 resource "azuread_application" "argocd" {
   display_name = local.app_display_name
-  owners       = var.owners_object_ids
+  owners       = var.entra_app_owners_object_ids
 
   web {
     redirect_uris = ["https://${var.argocd_hostname}/auth/callback"]
@@ -64,7 +64,7 @@ resource "azuread_application" "argocd" {
 
 resource "azuread_service_principal" "sp_argocd" {
   client_id = azuread_application.argocd.client_id
-  owners    = var.owners_object_ids
+  owners    = var.entra_app_owners_object_ids
 }
 
 # -----------------------------------------------------------------------------
