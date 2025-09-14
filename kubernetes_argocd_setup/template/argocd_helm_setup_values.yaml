@@ -1,0 +1,331 @@
+terraform:
+  force: ${FORCE_REINSTALL}
+
+global:
+  addPrometheusAnnotations: true
+  securityContext:
+    runAsUser: 999
+    runAsGroup: 999
+    fsGroup: 999
+    runAsNonRoot: true
+  containerSecurityContext:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
+
+configs:
+  params:
+    application.namespaces: "${join(",", ARGOCD_APPLICATION_NAMESPACES)}"
+    server.insecure: false
+  cm:
+    oidc.config: |
+      name: Azure
+      issuer: https://login.microsoftonline.com/${TENANT_ID}/v2.0
+      clientID: ${APP_CLIENT_ID}
+      azure:
+        useWorkloadIdentity: true
+      requestedIDTokenClaims:
+        groups:
+          essential: true
+        preferred_username:
+          essential: true
+        email:
+          essential: true
+      requestedScopes:
+        - openid
+        - profile
+        - email
+    timeout.reconciliation: 30s
+    application.resourceTrackingMethod: annotation
+    exec.enabled: false
+    admin.enabled: true
+    statusbadge.enabled: true
+    url: https://${ARGOCD_INTERNAL_URL}
+    server.rbac.disableApplicationFineGrainedRBACInheritance: "false"
+  rbac:
+    policy.default: role:guest
+    scopes: "[preferred_username, email, groups]"
+    policy.csv: |
+      # ------------------------------------------------------------------------
+      # Macro‑roles hierarchy
+      #   admin     – full access to everything
+      #   developer – manage applications only (CRUD + sync)
+      #   reader    – read‑only on applications
+      #   guest     – can log‑in, sees nothing
+      # ------------------------------------------------------------------------
+      # --- Admin role ---------------------------------------------------------
+      p, role:admin, *, *, */*, allow
+      p, role:admin, logs, get, */*, allow
+
+      # --- Developer role -----------------------------------------------------
+      p, role:developer, applications, get, */*, allow
+      p, role:developer, applications, create, */*, allow
+      p, role:developer, applications, update, */*, allow
+      p, role:developer, applications, delete, */*, allow
+      p, role:developer, applications, sync, */*, allow
+      p, role:developer, applications, override, */*, allow
+      p, role:developer, logs, get, */*, allow
+      # Note: NO access to projects, clusters, repositories, accounts
+
+      # --- Reader role --------------------------------------------------------
+      p, role:reader, applications, get, */*, allow
+      p, role:reader, applications, logs, */*, allow
+      p, role:reader, applications, get, */secrets, deny
+      # Note: NO access to projects, clusters, repositories, accounts
+
+      # --- Guest role ---------------------------------------------------------
+      p, role:guest, applications, get, */*, deny
+      p, role:guest, accounts, get, *, deny
+
+      # ------------------------------------------------------------------------
+      # Group bindings (Azure Entra ID object IDs)
+      # ------------------------------------------------------------------------
+%{ if ENTRA_ADMIN_GROUP_OBJECT_IDS != null && length(ENTRA_ADMIN_GROUP_OBJECT_IDS) > 0 ~}
+%{   for group_id in ENTRA_ADMIN_GROUP_OBJECT_IDS ~}
+      g, ${group_id}, role:admin
+%{   endfor ~}
+%{ endif ~}
+%{ if ENTRA_DEVELOPER_GROUP_OBJECT_IDS != null && length(ENTRA_DEVELOPER_GROUP_OBJECT_IDS) > 0 ~}
+%{   for group_id in ENTRA_DEVELOPER_GROUP_OBJECT_IDS ~}
+      g, ${group_id}, role:developer
+%{   endfor ~}
+%{ endif ~}
+%{ if ENTRA_READER_GROUP_OBJECT_IDS != null && length(ENTRA_READER_GROUP_OBJECT_IDS) > 0 ~}
+%{   for group_id in ENTRA_READER_GROUP_OBJECT_IDS ~}
+      g, ${group_id}, role:reader
+%{   endfor ~}
+%{ endif ~}
+%{ if ENTRA_GUEST_GROUP_OBJECT_IDS != null && length(ENTRA_GUEST_GROUP_OBJECT_IDS) > 0 ~}
+%{   for group_id in ENTRA_GUEST_GROUP_OBJECT_IDS ~}
+      g, ${group_id}, role:guest
+%{   endfor ~}
+%{ endif ~}
+
+
+
+#
+# Server configuration
+#
+server:
+  replicas: 1
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 180
+      scaleUp:
+        stabilizationWindowSeconds: 60
+        policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 60
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  pdb:
+    enabled: true
+    minAvailable: 1
+  resources:
+    requests:
+      cpu: 500m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  ingress:
+    enabled: true
+    controller: generic
+    ingressClassName: nginx
+    hostname: ${ARGOCD_INTERNAL_URL}
+    path: /
+    pathType: Prefix
+    annotations:
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "90"
+    extraTls:
+      - hosts:
+          - ${ARGOCD_INTERNAL_URL}
+        secretName: ${ARGOCD_INGRESS_TLS_SECRET_NAME}
+
+  serviceAccount:
+    create: true
+    annotations:
+      azure.workload.identity/client-id: ${APP_CLIENT_ID}
+
+  podLabels:
+    azure.workload.identity/use: "true"
+
+#
+# Redis configuration
+#
+redis:
+  enabled: true
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi
+  service:
+    port: 6379
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  containerPorts:
+    metrics: 9121
+    redis: 6379
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    timeoutSeconds: 15
+    successThreshold: 1
+    failureThreshold: 5
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    timeoutSeconds: 15
+    successThreshold: 1
+    failureThreshold: 5
+
+#
+# Controller configuration
+#
+controller:
+  replicas: 1
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 180
+      scaleUp:
+        stabilizationWindowSeconds: 60
+        policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 60
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  pdb:
+    enabled: true
+    minAvailable: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+#
+# Repo Server configuration
+#
+repoServer:
+  replicas: 1
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 180
+      scaleUp:
+        stabilizationWindowSeconds: 60
+        policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 60
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  pdb:
+    enabled: true
+    minAvailable: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+#
+# Application Set configuration
+#
+applicationSet:
+  replicas: 1
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 180
+      scaleUp:
+        stabilizationWindowSeconds: 60
+        policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 60
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  pdb:
+    enabled: true
+    minAvailable: 1
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+#
+# Dex configuration
+#
+dex:
+  enabled: false
