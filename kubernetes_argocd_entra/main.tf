@@ -91,7 +91,7 @@ resource "azuread_app_role_assignment" "argocd_group_assignments" {
 # -----------------------------------------------------------------------------
 resource "azuread_application_federated_identity_credential" "argocd" {
   application_id = azuread_application.argocd.id
-  display_name   = "${var.project}-argocd-server-federated-credential"
+  display_name   = "${var.prefix}-argocd-server-federated-credential"
   description    = "Federated credential for the ArgoCD server service account"
   audiences      = ["api://AzureADTokenExchange"]
   issuer         = data.azurerm_kubernetes_cluster.aks.oidc_issuer_url

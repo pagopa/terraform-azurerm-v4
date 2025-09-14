@@ -20,11 +20,6 @@ variable "entra_group_display_names" {
   default     = []
 }
 
-variable "project" {
-  description = "Project string used in federated identity credential display name"
-  type        = string
-}
-
 variable "aks_name" {
   description = "AKS cluster name (to resolve OIDC issuer)"
   type        = string
