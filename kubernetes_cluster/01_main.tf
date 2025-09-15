@@ -89,7 +89,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 
   upgrade_override {
     force_upgrade_enabled = var.force_upgrade_enabled
-    effective_until       = timeadd(timestamp(), "336h")
+    effective_until       = var.upgrade_override_effective_until
   }
 
   # managed identity type: https://docs.microsoft.com/en-us/azure/aks/use-managed-identity

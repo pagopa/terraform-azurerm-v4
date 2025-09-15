@@ -268,10 +268,17 @@ variable "node_os_upgrade_channel" {
   default     = "None"
 }
 
+### Cluster auto upgrade
 variable "force_upgrade_enabled" {
   type        = bool
   description = "(Optional) If set to true, cluster will be forced to upgrade even if the latest version of the control plane and agents is not available."
   default     = false
+}
+
+variable "upgrade_override_effective_until" {
+  type        = string
+  description = "(Optional) The time duration until which the upgrade override is effective. The time duration should be in RFC3339 format."
+  default     = "2024-09-20T22:00:00Z"
 }
 
 variable "network_profile" {
