@@ -167,3 +167,9 @@ variable "enable_private_dns_a_record" {
   type        = bool
   default     = true
 }
+
+variable "tags" {
+  type = map(any)
+  description = "A map of tags to assign to the resource."
+  default = {}
+}

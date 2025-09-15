@@ -66,11 +66,15 @@ resource "azuread_application" "argocd" {
       source    = null
     }
   }
+
+  tags = var.tags
 }
 
 resource "azuread_service_principal" "sp_argocd" {
   client_id = azuread_application.argocd.client_id
   owners    = var.entra_app_owners_object_ids
+
+  tags = var.tags
 }
 
 # -----------------------------------------------------------------------------
@@ -111,10 +115,14 @@ resource "azurerm_key_vault_secret" "argocd_entra_app_client_id" {
   key_vault_id = var.key_vault_id
   name         = var.kv_secret_app_client_id_name
   value        = azuread_application.argocd.client_id
+
+  tags = var.tags
 }
 
 resource "azurerm_key_vault_secret" "argocd_entra_app_service_account_name" {
   key_vault_id = var.key_vault_id
   name         = var.kv_secret_service_account_name
   value        = var.argocd_service_account_name
+
+  tags = var.tags
 }

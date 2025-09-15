@@ -3,7 +3,6 @@ variable "name_identifier" {
   type        = string
 }
 
-
 variable "argocd_hostname" {
   description = "FQDN used by ArgoCD (internal/external)"
   type        = string
@@ -57,4 +56,10 @@ variable "kv_secret_service_account_name" {
   description = "Key Vault secret name for the ArgoCD service account name"
   type        = string
   default     = "argocd-entra-app-workload-service-account-name"
+}
+
+variable "tags" {
+  type = map(any)
+  description = "A map of tags to assign to the resource."
+  default = {}
 }

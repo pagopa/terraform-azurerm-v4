@@ -47,6 +47,8 @@ resource "azurerm_key_vault_secret" "argocd_admin_username" {
   key_vault_id = var.kv_id
   name         = "argocd-admin-username"
   value        = "admin"
+
+  tags = var.tags
 }
 
 resource "azurerm_key_vault_secret" "argocd_admin_password" {
@@ -54,6 +56,8 @@ resource "azurerm_key_vault_secret" "argocd_admin_password" {
   key_vault_id = var.kv_id
   name         = "argocd-admin-password"
   value        = local.effective_admin_password
+
+  tags = var.tags
 }
 
 resource "null_resource" "argocd_change_admin_password" {
@@ -104,6 +108,8 @@ module "argocd_workload_identity_init" {
   workload_identity_name_prefix         = "argocd"
   workload_identity_resource_group_name = var.workload_identity_resource_group_name
   workload_identity_location            = var.location
+
+  tags = var.tags
 }
 
 module "argocd_workload_identity_configuration" {

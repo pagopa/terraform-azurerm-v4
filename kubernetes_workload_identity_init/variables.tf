@@ -28,3 +28,9 @@ variable "enable_lock" {
   description = "Allow to enable of disable lock for managed identity"
   default     = true
 }
+
+variable "tags" {
+  type = map(any)
+  description = "A map of tags to assign to the resource."
+  default = {}
+}
