@@ -6,7 +6,7 @@ variable "namespace" {
 variable "argocd_helm_release_version" {
   description = "ArgoCD helm chart release version"
   type        = string
-  default = "8.3.7" #3.1.5+
+  default     = "8.3.7" #3.1.5+
 }
 
 variable "argocd_application_namespaces" {
