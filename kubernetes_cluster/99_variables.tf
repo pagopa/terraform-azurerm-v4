@@ -275,12 +275,6 @@ variable "force_upgrade_enabled" {
   default     = false
 }
 
-variable "upgrade_override_effective_until" {
-  type        = string
-  description = "(Optional) The time duration until which the upgrade override is effective. The time duration should be in RFC3339 format."
-  default     = "2024-09-20T22:00:00Z"
-}
-
 variable "network_profile" {
   type = object({
     dns_service_ip          = optional(string, "10.2.0.10")    # e.g. '10.2.0.10'. IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns)
@@ -472,4 +466,15 @@ variable "maintenance_windows_node_os" {
     utc_offset   = "+00:00"
     week_index   = "First"
   }
+}
+
+variable workload_autoscaler_profile_keda_enabled {
+  type        = bool
+  description = "(Optional) Enable or disable KEDA autoscaler"
+  default     = false
+}
+variable workload_autoscaler_profile_vertical_pod_autoscaler_enabled {
+  type        = bool
+  description = "(Optional) Enable or disable Vertical Pod Autoscaler"
+  default     = false
 }

@@ -83,13 +83,18 @@ resource "azurerm_kubernetes_cluster" "this" {
       start_date   = var.maintenance_windows_node_os.start_date
       start_time   = var.maintenance_windows_node_os.start_time
       utc_offset   = var.maintenance_windows_node_os.utc_offset
-      week_index   = var.maintenance_windows_node_os.week_index
+      # week_index   = var.maintenance_windows_node_os.week_index
     }
+  }
+
+  workload_autoscaler_profile {
+    keda_enabled                    = var.workload_autoscaler_profile_keda_enabled
+    vertical_pod_autoscaler_enabled = var.workload_autoscaler_profile_vertical_pod_autoscaler_enabled
   }
 
   upgrade_override {
     force_upgrade_enabled = var.force_upgrade_enabled
-    effective_until       = var.upgrade_override_effective_until
+    effective_until       = timeadd(timestamp(), "336h")
   }
 
   # managed identity type: https://docs.microsoft.com/en-us/azure/aks/use-managed-identity
