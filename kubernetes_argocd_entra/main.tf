@@ -6,6 +6,7 @@
 
 locals {
   app_display_name = "argocd-${var.name_identifier}"
+  tags_for_apps = toset([for k, v in var.tags : "${k}=${tostring(v)}"]) # applications and service principal accepts only set of string
 }
 
 # Microsoft Graph SP (for required_resource_access + delegated grant)
@@ -67,14 +68,14 @@ resource "azuread_application" "argocd" {
     }
   }
 
-  tags = var.tags
+  tags =  local.tags_for_apps
 }
 
 resource "azuread_service_principal" "sp_argocd" {
   client_id = azuread_application.argocd.client_id
   owners    = var.entra_app_owners_object_ids
 
-  tags = var.tags
+  tags = local.tags_for_apps
 }
 
 # -----------------------------------------------------------------------------
