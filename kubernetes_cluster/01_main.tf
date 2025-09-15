@@ -59,7 +59,7 @@ resource "azurerm_kubernetes_cluster" "this" {
     vnet_subnet_id         = var.vnet_subnet_id
     node_public_ip_enabled = false
 
-    temporary_name_for_rotation = "tmp${var.system_node_pool_name}"
+    temporary_name_for_rotation = substr("tmp${var.system_node_pool_name}", 0, 12)
 
     upgrade_settings {
       max_surge                = var.upgrade_settings_max_surge
@@ -83,8 +83,13 @@ resource "azurerm_kubernetes_cluster" "this" {
       start_date   = var.maintenance_windows_node_os.start_date
       start_time   = var.maintenance_windows_node_os.start_time
       utc_offset   = var.maintenance_windows_node_os.utc_offset
-      week_index   = var.maintenance_windows_node_os.week_index
+      # week_index   = var.maintenance_windows_node_os.week_index
     }
+  }
+
+  workload_autoscaler_profile {
+    keda_enabled                    = var.workload_autoscaler_profile_keda_enabled
+    vertical_pod_autoscaler_enabled = var.workload_autoscaler_profile_vertical_pod_autoscaler_enabled
   }
 
   upgrade_override {
