@@ -24,6 +24,20 @@ variable "tier" {
   }
 }
 
+variable "global_tolerations" {
+  description = "List of tolerations appended under global.tolerations for all Argo CD workloads"
+  # Example: [{ key = "dedicated", operator = "Equal", value = "argocd", effect = "NoSchedule" }]
+  type    = list(any)
+  default = []
+}
+
+variable "global_affinity_match_expressions" {
+  description = "Node affinity matchExpressions injected into global.affinity when provided"
+  # Example: [{ key = "nodepool", operator = "In", values = ["argocd"] }]
+  type    = list(any)
+  default = []
+}
+
 variable "argocd_force_reinstall_version" {
   description = "Change this value to force the reinstallation of ArgoCD"
   type        = string

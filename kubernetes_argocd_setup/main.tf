@@ -34,20 +34,22 @@ resource "helm_release" "argocd" {
 
   values = [
     templatefile("${path.module}/template/argocd_helm_setup_values.yaml", {
-      ARGOCD_APPLICATION_NAMESPACES    = var.argocd_application_namespaces
-      TENANT_ID                        = var.tenant_id
-      APP_CLIENT_ID                    = var.entra_app_client_id
-      ENTRA_ADMIN_GROUP_OBJECT_IDS     = var.entra_admin_group_object_ids
-      ENTRA_DEVELOPER_GROUP_OBJECT_IDS = var.entra_developer_group_object_ids
-      ENTRA_READER_GROUP_OBJECT_IDS    = var.entra_reader_group_object_ids
-      ENTRA_GUEST_GROUP_OBJECT_IDS     = var.entra_guest_group_object_ids
-      ARGOCD_INTERNAL_URL              = var.argocd_internal_url
-      ARGOCD_INGRESS_TLS_SECRET_NAME   = local.tls_secret_name
-      FORCE_REINSTALL                  = var.argocd_force_reinstall_version
-      AUTO_SCALE_MIN_REPLICAS          = local.selected_tier_config.autoScaleMinReplicas
-      AUTO_SCALE_MAX_REPLICAS          = local.selected_tier_config.autoScaleMaxReplicas
-      PDB_MIN_AVAILABLE                = local.selected_tier_config.pdbMinAvailable
-      ENABLE_ADMIN_LOGIN               = var.enable_admin_login
+      ARGOCD_APPLICATION_NAMESPACES          = var.argocd_application_namespaces
+      TENANT_ID                              = var.tenant_id
+      APP_CLIENT_ID                          = var.entra_app_client_id
+      ENTRA_ADMIN_GROUP_OBJECT_IDS           = var.entra_admin_group_object_ids
+      ENTRA_DEVELOPER_GROUP_OBJECT_IDS       = var.entra_developer_group_object_ids
+      ENTRA_READER_GROUP_OBJECT_IDS          = var.entra_reader_group_object_ids
+      ENTRA_GUEST_GROUP_OBJECT_IDS           = var.entra_guest_group_object_ids
+      ARGOCD_INTERNAL_URL                    = var.argocd_internal_url
+      ARGOCD_INGRESS_TLS_SECRET_NAME         = local.tls_secret_name
+      FORCE_REINSTALL                        = var.argocd_force_reinstall_version
+      AUTO_SCALE_MIN_REPLICAS                = local.selected_tier_config.autoScaleMinReplicas
+      AUTO_SCALE_MAX_REPLICAS                = local.selected_tier_config.autoScaleMaxReplicas
+      PDB_MIN_AVAILABLE                      = local.selected_tier_config.pdbMinAvailable
+      ENABLE_ADMIN_LOGIN                     = var.enable_admin_login
+      GLOBAL_TOLERATIONS                     = var.global_tolerations
+      GLOBAL_NODE_AFFINITY_MATCH_EXPRESSIONS = var.global_affinity_match_expressions
     })
   ]
 }

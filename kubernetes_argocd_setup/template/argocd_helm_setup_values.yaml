@@ -17,17 +17,18 @@ global:
     capabilities:
       drop:
         - ALL
-  # -- Default tolerations for all components
-  tolerations: [ ]
-
-  # Default affinity preset for all components
+%{ if GLOBAL_TOLERATIONS != null && length(GLOBAL_TOLERATIONS) > 0 ~}
+  tolerations:
+${indent(4, yamlencode(GLOBAL_TOLERATIONS))}
+%{ endif ~}
+%{ if GLOBAL_NODE_AFFINITY_MATCH_EXPRESSIONS != null && length(GLOBAL_NODE_AFFINITY_MATCH_EXPRESSIONS) > 0 ~}
   affinity:
-    # -- Default pod anti-affinity rules. Either: `none`, `soft` or `hard`
-    podAntiAffinity: soft
-    # Node affinity rules
     nodeAffinity:
-      type: hard
-      matchExpressions: [ ]
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+${indent(12, yamlencode(GLOBAL_NODE_AFFINITY_MATCH_EXPRESSIONS))}
+%{ endif ~}
 
 #-------------------------------------------------------------------------------
 # ArgoCD configuration
