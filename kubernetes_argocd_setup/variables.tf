@@ -146,7 +146,7 @@ variable "enable_helm_release" {
 variable "enable_admin_login" {
   description = "Enable ArgoCD admin login"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_change_admin_password" {
