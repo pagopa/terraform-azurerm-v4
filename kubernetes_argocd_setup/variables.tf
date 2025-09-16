@@ -14,6 +14,17 @@ variable "argocd_application_namespaces" {
   type        = list(string)
 }
 
+variable "tier" {
+  description = "Deployment tier (dev, uat, prod) used to derive default autoscaling and PDB settings"
+  type        = string
+  default     = "prod"
+
+  validation {
+    condition     = contains(["dev", "uat", "prod"], var.tier)
+    error_message = "The tier value must be one of: dev, uat, prod."
+  }
+}
+
 variable "argocd_force_reinstall_version" {
   description = "Change this value to force the reinstallation of ArgoCD"
   type        = string
@@ -132,6 +143,12 @@ variable "enable_helm_release" {
   default     = true
 }
 
+variable "enable_admin_login" {
+  description = "Enable ArgoCD admin login"
+  type        = bool
+  default     = true
+}
+
 variable "enable_change_admin_password" {
   description = "Enable patching of ArgoCD admin password"
   type        = bool
@@ -169,7 +186,7 @@ variable "enable_private_dns_a_record" {
 }
 
 variable "tags" {
-  type = map(any)
+  type        = map(any)
   description = "A map of tags to assign to the resource."
-  default = {}
+  default     = {}
 }

@@ -1,4 +1,24 @@
 locals {
+  tier_config = {
+    dev = {
+      autoScaleMinReplicas = 1
+      autoScaleMaxReplicas = 3
+      pdbMinAvailable      = 0
+    }
+    uat = {
+      autoScaleMinReplicas = 1
+      autoScaleMaxReplicas = 3
+      pdbMinAvailable      = 0
+    }
+    prod = {
+      autoScaleMinReplicas = 3
+      autoScaleMaxReplicas = 6
+      pdbMinAvailable      = 1
+    }
+  }
+
+  selected_tier_config = local.tier_config[var.tier]
+
   tls_secret_name = coalesce(var.ingress_tls_secret_name, replace(var.argocd_internal_url, ".", "-"))
   effective_admin_password = (
     var.admin_password != null && var.admin_password != ""
@@ -24,6 +44,10 @@ resource "helm_release" "argocd" {
       ARGOCD_INTERNAL_URL              = var.argocd_internal_url
       ARGOCD_INGRESS_TLS_SECRET_NAME   = local.tls_secret_name
       FORCE_REINSTALL                  = var.argocd_force_reinstall_version
+      AUTO_SCALE_MIN_REPLICAS          = local.selected_tier_config.autoScaleMinReplicas
+      AUTO_SCALE_MAX_REPLICAS          = local.selected_tier_config.autoScaleMaxReplicas
+      PDB_MIN_AVAILABLE                = local.selected_tier_config.pdbMinAvailable
+      ENABLE_ADMIN_LOGIN               = var.enable_admin_login
     })
   ]
 }

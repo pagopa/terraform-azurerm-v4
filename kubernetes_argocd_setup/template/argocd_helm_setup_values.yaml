@@ -46,7 +46,7 @@ configs:
     timeout.reconciliation: 30s
     application.resourceTrackingMethod: annotation
     exec.enabled: false
-    admin.enabled: true
+    admin.enabled: ${ENABLE_ADMIN_LOGIN}
     statusbadge.enabled: true
     url: https://${ARGOCD_INTERNAL_URL}
     server.rbac.disableApplicationFineGrainedRBACInheritance: "false"
@@ -113,11 +113,11 @@ configs:
 # Server configuration
 #-------------------------------------------------------------------------------
 server:
-  replicas: 1
+  replicas: ${AUTO_SCALE_MIN_REPLICAS}
   autoscaling:
     enabled: true
-    minReplicas: 1
-    maxReplicas: 3
+    minReplicas: ${AUTO_SCALE_MIN_REPLICAS}
+    maxReplicas: ${AUTO_SCALE_MAX_REPLICAS}
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
     behavior:
@@ -139,7 +139,7 @@ server:
       enabled: true
   pdb:
     enabled: true
-    minAvailable: 1
+    minAvailable: ${PDB_MIN_AVAILABLE}
   resources:
     requests:
       cpu: 500m
@@ -212,11 +212,11 @@ redis:
 # Controller configuration
 #-------------------------------------------------------------------------------
 controller:
-  replicas: 1
+  replicas: ${AUTO_SCALE_MIN_REPLICAS}
   autoscaling:
     enabled: true
-    minReplicas: 1
-    maxReplicas: 3
+    minReplicas: ${AUTO_SCALE_MIN_REPLICAS}
+    maxReplicas: ${AUTO_SCALE_MAX_REPLICAS}
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
     behavior:
@@ -238,7 +238,7 @@ controller:
       enabled: true
   pdb:
     enabled: true
-    minAvailable: 1
+    minAvailable: ${PDB_MIN_AVAILABLE}
   resources:
     limits:
       cpu: 1000m
@@ -251,11 +251,11 @@ controller:
 # Repo Server configuration
 #-------------------------------------------------------------------------------
 repoServer:
-  replicas: 1
+  replicas: ${AUTO_SCALE_MIN_REPLICAS}
   autoscaling:
     enabled: true
-    minReplicas: 1
-    maxReplicas: 3
+    minReplicas: ${AUTO_SCALE_MIN_REPLICAS}
+    maxReplicas: ${AUTO_SCALE_MAX_REPLICAS}
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
     behavior:
@@ -277,7 +277,7 @@ repoServer:
       enabled: true
   pdb:
     enabled: true
-    minAvailable: 1
+    minAvailable: ${PDB_MIN_AVAILABLE}
   resources:
     limits:
       cpu: 1000m
@@ -290,11 +290,11 @@ repoServer:
 # Application Set configuration
 #-------------------------------------------------------------------------------
 applicationSet:
-  replicas: 1
+  replicas: ${AUTO_SCALE_MIN_REPLICAS}
   autoscaling:
     enabled: true
-    minReplicas: 1
-    maxReplicas: 3
+    minReplicas: ${AUTO_SCALE_MIN_REPLICAS}
+    maxReplicas: ${AUTO_SCALE_MAX_REPLICAS}
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
     behavior:
@@ -316,7 +316,7 @@ applicationSet:
       enabled: true
   pdb:
     enabled: true
-    minAvailable: 1
+    minAvailable: ${PDB_MIN_AVAILABLE}
   resources:
     limits:
       cpu: 500m
