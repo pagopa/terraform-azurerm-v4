@@ -19,7 +19,9 @@ global:
         - ALL
 %{ if GLOBAL_TOLERATIONS != null && length(GLOBAL_TOLERATIONS) > 0 ~}
   tolerations:
-${indent(4, yamlencode(GLOBAL_TOLERATIONS))}
+%{   for line in split("\n", trimspace(yamlencode(GLOBAL_TOLERATIONS))) ~}
+    ${line}
+%{   endfor ~}
 %{ endif ~}
 %{ if GLOBAL_NODE_AFFINITY_MATCH_EXPRESSIONS != null && length(GLOBAL_NODE_AFFINITY_MATCH_EXPRESSIONS) > 0 ~}
   affinity:
@@ -27,7 +29,9 @@ ${indent(4, yamlencode(GLOBAL_TOLERATIONS))}
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
           - matchExpressions:
-${indent(12, yamlencode(GLOBAL_NODE_AFFINITY_MATCH_EXPRESSIONS))}
+%{           for line in split("\n", trimspace(yamlencode(GLOBAL_NODE_AFFINITY_MATCH_EXPRESSIONS))) ~}
+            ${line}
+%{           endfor ~}
 %{ endif ~}
 
 #-------------------------------------------------------------------------------
