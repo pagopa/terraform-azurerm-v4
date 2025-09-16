@@ -23,6 +23,18 @@ locals {
   effective_admin_password = (
     var.admin_password != null && var.admin_password != ""
   ) ? var.admin_password : random_password.argocd_admin_password[0].result
+
+  global_tolerations = (
+    trimspace(var.global_tolerations) != ""
+    ? yamldecode(var.global_tolerations)
+    : []
+  )
+
+  global_node_affinity_match_expressions = (
+    trimspace(var.global_affinity_match_expressions) != ""
+    ? yamldecode(var.global_affinity_match_expressions)
+    : []
+  )
 }
 
 resource "helm_release" "argocd" {
@@ -48,8 +60,8 @@ resource "helm_release" "argocd" {
       AUTO_SCALE_MAX_REPLICAS                = local.selected_tier_config.autoScaleMaxReplicas
       PDB_MIN_AVAILABLE                      = local.selected_tier_config.pdbMinAvailable
       ENABLE_ADMIN_LOGIN                     = var.enable_admin_login
-      GLOBAL_TOLERATIONS                     = var.global_tolerations
-      GLOBAL_NODE_AFFINITY_MATCH_EXPRESSIONS = var.global_affinity_match_expressions
+      GLOBAL_TOLERATIONS                     = local.global_tolerations
+      GLOBAL_NODE_AFFINITY_MATCH_EXPRESSIONS = local.global_node_affinity_match_expressions
     })
   ]
 }
