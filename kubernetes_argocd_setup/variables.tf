@@ -15,9 +15,8 @@ variable "argocd_application_namespaces" {
 }
 
 variable "tier" {
-  description = "Deployment tier (dev, uat, prod) used to derive default autoscaling and PDB settings"
+  description = "(Required) Deployment tier (dev, uat, prod) used to derive default autoscaling and PDB settings"
   type        = string
-  default     = "prod"
 
   validation {
     condition     = contains(["dev", "uat", "prod"], var.tier)
