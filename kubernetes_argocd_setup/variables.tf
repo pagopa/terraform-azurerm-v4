@@ -25,29 +25,42 @@ variable "tier" {
 }
 
 variable "global_tolerations" {
-  description = "YAML list of tolerations appended under global.tolerations for all Argo CD workloads"
+  description = "List of toleration objects appended under global.tolerations for all Argo CD workloads"
   # Example usage:
-  # global_tolerations = <<-EOT
-  # - key: dedicated
-  #   operator: Equal
-  #   value: argocd
-  #   effect: NoSchedule
-  # EOT
-  type    = string
-  default = ""
+  # global_tolerations = [
+  #   {
+  #     key      = "dedicated"
+  #     operator = "Equal"
+  #     value    = "argocd"
+  #     effect   = "NoSchedule"
+  #   }
+  # ]
+  type = list(object({
+    key               = optional(string)
+    operator          = optional(string)
+    value             = optional(string)
+    effect            = optional(string)
+    tolerationSeconds = optional(number)
+  }))
+  default = []
 }
 
 variable "global_affinity_match_expressions" {
-  description = "YAML list of node affinity matchExpressions injected into global.affinity when provided"
+  description = "List of node affinity matchExpressions injected into global.affinity when provided"
   # Example usage:
-  # global_affinity_match_expressions = <<-EOT
-  # - key: nodepool
-  #   operator: In
-  #   values:
-  #     - argocd
-  # EOT
-  type    = string
-  default = ""
+  # global_affinity_match_expressions = [
+  #   {
+  #     key      = "nodepool"
+  #     operator = "In"
+  #     values   = ["argocd"]
+  #   }
+  # ]
+  type = list(object({
+    key      = string
+    operator = string
+    values   = optional(list(string))
+  }))
+  default = []
 }
 
 variable "argocd_force_reinstall_version" {
