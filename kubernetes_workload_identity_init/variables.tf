@@ -30,7 +30,7 @@ variable "enable_lock" {
 }
 
 variable "tags" {
-  type = map(any)
+  type        = map(any)
   description = "A map of tags to assign to the resource."
-  default = {}
+  default     = {}
 }

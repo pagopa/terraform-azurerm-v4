@@ -98,7 +98,7 @@ variable "key_vault_certificate_permissions" {
 }
 
 variable "tags" {
-  type = map(any)
+  type        = map(any)
   description = "A map of tags to assign to the resource."
-  default = {}
+  default     = {}
 }

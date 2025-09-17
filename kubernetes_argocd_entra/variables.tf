@@ -59,7 +59,7 @@ variable "kv_secret_service_account_name" {
 }
 
 variable "tags" {
-  type = map(any)
+  type        = map(any)
   description = "A map of tags to assign to the resource."
-  default = {}
+  default     = {}
 }

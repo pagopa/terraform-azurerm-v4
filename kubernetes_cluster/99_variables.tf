@@ -468,12 +468,12 @@ variable "maintenance_windows_node_os" {
   }
 }
 
-variable workload_autoscaler_profile_keda_enabled {
+variable "workload_autoscaler_profile_keda_enabled" {
   type        = bool
   description = "(Optional) Enable or disable KEDA autoscaler"
   default     = false
 }
-variable workload_autoscaler_profile_vertical_pod_autoscaler_enabled {
+variable "workload_autoscaler_profile_vertical_pod_autoscaler_enabled" {
   type        = bool
   description = "(Optional) Enable or disable Vertical Pod Autoscaler"
   default     = false

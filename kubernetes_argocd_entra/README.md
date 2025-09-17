@@ -48,6 +48,7 @@ No modules.
 | <a name="input_kv_secret_app_client_id_name"></a> [kv\_secret\_app\_client\_id\_name](#input\_kv\_secret\_app\_client\_id\_name) | Key Vault secret name for the ArgoCD Entra app client id | `string` | `"argocd-entra-app-workload-client-id"` | no |
 | <a name="input_kv_secret_service_account_name"></a> [kv\_secret\_service\_account\_name](#input\_kv\_secret\_service\_account\_name) | Key Vault secret name for the ArgoCD service account name | `string` | `"argocd-entra-app-workload-service-account-name"` | no |
 | <a name="input_name_identifier"></a> [name\_identifier](#input\_name\_identifier) | Project prefix (e.g., cstar) | `string` | n/a | yes |
+| <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the resource. | `map(any)` | `{}` | no |
 
 ## Outputs
 

@@ -51,6 +51,7 @@ Notes
 | <a name="input_argocd_helm_release_version"></a> [argocd\_helm\_release\_version](#input\_argocd\_helm\_release\_version) | ArgoCD helm chart release version | `string` | `"8.3.7"` | no |
 | <a name="input_argocd_internal_url"></a> [argocd\_internal\_url](#input\_argocd\_internal\_url) | Internal DNS hostname for ArgoCD | `string` | n/a | yes |
 | <a name="input_dns_record_name_for_ingress"></a> [dns\_record\_name\_for\_ingress](#input\_dns\_record\_name\_for\_ingress) | DNS A record name for the ArgoCD ingress | `string` | `"argocd"` | no |
+| <a name="input_enable_admin_login"></a> [enable\_admin\_login](#input\_enable\_admin\_login) | Enable ArgoCD admin login | `bool` | `false` | no |
 | <a name="input_enable_change_admin_password"></a> [enable\_change\_admin\_password](#input\_enable\_change\_admin\_password) | Enable patching of ArgoCD admin password | `bool` | `true` | no |
 | <a name="input_enable_helm_release"></a> [enable\_helm\_release](#input\_enable\_helm\_release) | Enable ArgoCD helm release | `bool` | `true` | no |
 | <a name="input_enable_private_dns_a_record"></a> [enable\_private\_dns\_a\_record](#input\_enable\_private\_dns\_a\_record) | Enable creation of Private DNS A record for ArgoCD | `bool` | `true` | no |
@@ -64,6 +65,8 @@ Notes
 | <a name="input_entra_developer_group_object_ids"></a> [entra\_developer\_group\_object\_ids](#input\_entra\_developer\_group\_object\_ids) | Azure Entra ID developer group object IDs | `list(string)` | `[]` | no |
 | <a name="input_entra_guest_group_object_ids"></a> [entra\_guest\_group\_object\_ids](#input\_entra\_guest\_group\_object\_ids) | Azure Entra ID guest group object IDs | `list(string)` | `[]` | no |
 | <a name="input_entra_reader_group_object_ids"></a> [entra\_reader\_group\_object\_ids](#input\_entra\_reader\_group\_object\_ids) | Azure Entra ID reader group object IDs | `list(string)` | `[]` | no |
+| <a name="input_global_affinity_match_expressions"></a> [global\_affinity\_match\_expressions](#input\_global\_affinity\_match\_expressions) | List of node affinity matchExpressions injected into global.affinity when provided | <pre>list(object({<br/>    key      = string<br/>    operator = string<br/>    values   = optional(list(string))<br/>  }))</pre> | `[]` | no |
+| <a name="input_global_tolerations"></a> [global\_tolerations](#input\_global\_tolerations) | List of toleration objects appended under global.tolerations for all Argo CD workloads | <pre>list(object({<br/>    key               = optional(string)<br/>    operator          = optional(string)<br/>    value             = optional(string)<br/>    effect            = optional(string)<br/>    tolerationSeconds = optional(number)<br/>  }))</pre> | `[]` | no |
 | <a name="input_ingress_load_balancer_ip"></a> [ingress\_load\_balancer\_ip](#input\_ingress\_load\_balancer\_ip) | Ingress Controller Load Balancer IP | `string` | n/a | yes |
 | <a name="input_ingress_tls_secret_name"></a> [ingress\_tls\_secret\_name](#input\_ingress\_tls\_secret\_name) | TLS secret name for ArgoCD ingress | `string` | `null` | no |
 | <a name="input_internal_dns_zone_name"></a> [internal\_dns\_zone\_name](#input\_internal\_dns\_zone\_name) | Internal Private DNS Zone name | `string` | n/a | yes |
@@ -71,7 +74,9 @@ Notes
 | <a name="input_kv_id"></a> [kv\_id](#input\_kv\_id) | Key Vault id | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | Azure location | `string` | n/a | yes |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Kubernetes namespace where ArgoCD is installed | `string` | n/a | yes |
+| <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the resource. | `map(any)` | `{}` | no |
 | <a name="input_tenant_id"></a> [tenant\_id](#input\_tenant\_id) | Azure tenant id | `string` | n/a | yes |
+| <a name="input_tier"></a> [tier](#input\_tier) | (Required) Deployment tier (dev, uat, prod) used to derive default autoscaling and PDB settings | `string` | n/a | yes |
 | <a name="input_workload_identity_resource_group_name"></a> [workload\_identity\_resource\_group\_name](#input\_workload\_identity\_resource\_group\_name) | Resource group for workload identity resources | `string` | n/a | yes |
 
 ## Outputs
