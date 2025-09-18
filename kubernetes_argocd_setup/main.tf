@@ -166,4 +166,6 @@ resource "azurerm_private_dns_a_record" "argocd_ingress" {
   resource_group_name = var.internal_dns_zone_resource_group_name
   ttl                 = 3600
   records             = [var.ingress_load_balancer_ip]
+
+  tags = var.tags
 }
