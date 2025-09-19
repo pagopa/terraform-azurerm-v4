@@ -20,11 +20,15 @@ locals {
   selected_tier_config = local.tier_config[var.tier]
 
   tls_secret_name = coalesce(var.ingress_tls_secret_name, replace(var.argocd_internal_url, ".", "-"))
+
   effective_admin_password = (
     var.admin_password != null && var.admin_password != ""
   ) ? var.admin_password : random_password.argocd_admin_password[0].result
 }
 
+#-------------------------------------------------------------------------------
+# 🎯 Deploy ArgoCD via Helm
+#-------------------------------------------------------------------------------
 resource "helm_release" "argocd" {
   count     = var.enable_helm_release ? 1 : 0
   name      = "argo"
