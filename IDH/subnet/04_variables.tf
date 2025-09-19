@@ -14,12 +14,12 @@ variable "env" {
 
 variable "name" {
   type        = string
-  description = "(Required) The name which should be used for this PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created."
+  description = "(Required) Name of the subnet to be created"
 }
 
 variable "resource_group_name" {
   type        = string
-  description = "(Required) The name of the Resource Group where the PostgreSQL Flexible Server should exist."
+  description = "(Required) The name of the Resource Group where the subnet should exist."
 }
 
 
@@ -31,6 +31,7 @@ variable "idh_resource_tier" {
 
 variable "virtual_network_name" {
   type = string
+  description = "(Required) Name of the virtual network where the subnet will be created."
 }
 
 variable "service_endpoints" {
