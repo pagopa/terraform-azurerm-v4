@@ -30,7 +30,7 @@ variable "idh_resource_tier" {
 
 
 variable "virtual_network_name" {
-  type = string
+  type        = string
   description = "(Required) Name of the virtual network where the subnet will be created."
 }
 
