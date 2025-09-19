@@ -35,8 +35,8 @@ locals {
 module "cdn_storage_account" {
   source = "../storage_account"
 
-  resource_group_name             = var.resource_group_name
-  location                        = var.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
 
   name                            = local.storage_account_name
   account_kind                    = var.storage_account_kind
@@ -744,6 +744,6 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings_cdn_profile" 
   target_resource_id         = azurerm_cdn_frontdoor_profile.this.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
-  enabled_log   { category_group = "allLogs" }
-  enabled_metric{ category       = "AllMetrics" }
+  enabled_log { category_group = "allLogs" }
+  enabled_metric { category = "AllMetrics" }
 }

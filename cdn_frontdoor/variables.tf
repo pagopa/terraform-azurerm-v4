@@ -143,7 +143,7 @@ variable "keyvault_id" {
 ############################################################
 variable "global_delivery_rules" {
   type = list(object({
-    order                         = number
+    order                          = number
     cache_expiration_actions       = optional(list(object({ behavior = string, duration = string })), [])
     cache_key_query_string_actions = optional(list(object({ behavior = string, parameters = string })), [])
     modify_request_header_actions  = optional(list(object({ action = string, name = string, value = string })), [])
@@ -187,39 +187,39 @@ variable "delivery_rule_request_scheme_condition" {
 
 variable "delivery_rule_redirects" {
   type = list(object({
-    name  = string
-    order = number
+    name              = string
+    order             = number
     behavior_on_match = string
 
     # conditions
-    request_uri_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
-    url_path_conditions           = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    request_uri_conditions = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    url_path_conditions    = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
 
     # actions
-    url_redirect_actions           = list(object({ redirect_type = string, protocol = string, hostname = string, path = string, fragment = string, query_string = string }))
+    url_redirect_actions = list(object({ redirect_type = string, protocol = string, hostname = string, path = string, fragment = string, query_string = string }))
   }))
   default = []
 }
 
 variable "delivery_rule_rewrites" {
   type = list(object({
-    name  = string
-    order = number
+    name              = string
+    order             = number
     behavior_on_match = optional(string)
 
     request_uri_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
     url_file_extension_conditions = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
     url_path_conditions           = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
 
-    url_rewrite_actions            = optional(list(object({ source_pattern = string, destination = string, preserve_unmatched_path = string })), [])
+    url_rewrite_actions = optional(list(object({ source_pattern = string, destination = string, preserve_unmatched_path = string })), [])
   }))
   default = []
 }
 
 variable "delivery_custom_rules" {
   type = list(object({
-    name  = string
-    order = number
+    name              = string
+    order             = number
     behavior_on_match = optional(string)
 
     cookies_conditions            = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])

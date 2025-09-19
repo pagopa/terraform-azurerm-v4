@@ -45,6 +45,10 @@ This module provisions an Azure Front Door (Standard/Premium) profile with an Az
 ## Usage Example
 
 ```hcl
+/**
+ * CDN
+ */
+
 locals {
   # CDN Configuration Constants
   cdn_storage_account_name = "${local.project}bonuscdnsa"
@@ -106,18 +110,18 @@ locals {
         {
           action = "Overwrite"
           name   = contains(["d"], var.env_short) ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy"
-          value  = "default-src 'self'; object-src 'none'; connect-src 'self' https://api-io.${var.dns_zone_prefix}.${var.external_domain}/ https://api-eu.mixpanel.com/track/ https://${var.mcshared_dns_zone_prefix}.${var.prefix}.${var.external_domain}/; "
+          value  = "default-src 'self'; object-src 'none'; frame-src 'self' https://api-io.${var.dns_zone_prefix}.${var.external_domain}/ https://${var.mcshared_dns_zone_prefix}.${var.prefix}.${var.external_domain}/; connect-src 'self' https://selfcare.pagopa.it https://api-io.${var.dns_zone_prefix}.${var.external_domain}/ https://${var.mcshared_dns_zone_prefix}.${var.prefix}.${var.external_domain}/ https://api-eu.mixpanel.com/track/;"
         },
         {
           action = "Append"
           name   = contains(["d"], var.env_short) ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy"
-          value  = "script-src 'self'; style-src 'self' 'unsafe-inline' https://${local.selfare_subdomain}.pagopa.it/assets/font/selfhostedfonts.css; worker-src 'none'; font-src 'self' https://${local.selfare_subdomain}.pagopa.it/assets/font/; "
+          value  = "script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://${local.selfare_subdomain}.pagopa.it/assets/font/selfhostedfonts.css; worker-src 'none'; font-src 'self' https://${local.selfare_subdomain}.pagopa.it/assets/font/;"
         },
         {
           action = "Append"
           name   = contains(["d"], var.env_short) ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy"
-          value  = "img-src 'self' https://assets.cdn.io.italia.it https://${module.cdn_idpay_bonuselettrodomestici.storage_primary_web_host}; "
-        },
+          value  = "img-src 'self' https://assets.cdn.io.italia.it https://${module.cdn_idpay_bonuselettrodomestici.storage_primary_web_host};"
+        }
       ]
     },
     {
@@ -150,25 +154,26 @@ locals {
       name  = "RewriteUtenteCittadinoApplication"
       order = 10
 
-      url_path_conditions = [{
+      url_path_conditions = [
+        {
+          operator         = "BeginsWith"
+          match_values     = ["/utente/assets"]
+          negate_condition = true
+          transforms       = null
+        },
+        {
           operator         = "BeginsWith"
           match_values     = ["/utente"]
           negate_condition = false
           transforms       = null
-      }]
+        }
+      ]
 
       url_file_extension_conditions = [{
-          operator         = "LessThanOrEqual"
-          match_values     = ["0"]
-          negate_condition = false
-          transforms       = []
-      }]
-
-      url_file_extension_conditions = [{
-          operator         = "BeginsWith"
-          match_values     = ["/utente/assets"]
-          negate_condition = true
-          transforms       = []
+        operator         = "LessThanOrEqual"
+        match_values     = ["0"]
+        negate_condition = false
+        transforms       = []
       }]
 
       url_rewrite_actions = [{
@@ -180,27 +185,28 @@ locals {
     # Esercenti Application Rule - Handles merchant portal routing
     {
       name  = "RewritePortaleEsercentiApplication"
-      order = 11
+      order = 15
 
-      url_path_conditions = [{
-          operator         = "BeginsWith"
-          match_values     = ["/esercente"]
-          negate_condition = false
-          transforms       = null
-      }]
-
-      url_path_conditions = [{
+      url_path_conditions = [
+        {
           operator         = "BeginsWith"
           match_values     = ["/esercente/assets"]
           negate_condition = true
           transforms       = []
-      }]
+        },
+        {
+          operator         = "BeginsWith"
+          match_values     = ["/esercente"]
+          negate_condition = false
+          transforms       = null
+        }
+      ]
 
       url_file_extension_conditions = [{
-          operator         = "LessThanOrEqual"
-          match_values     = ["0"]
-          negate_condition = false
-          transforms       = []
+        operator         = "LessThanOrEqual"
+        match_values     = ["0"]
+        negate_condition = false
+        transforms       = []
       }]
 
       url_rewrite_actions = [{
@@ -334,11 +340,12 @@ module "cdn_idpay_bonuselettrodomestici" {
 | [azurerm_cdn_frontdoor_origin_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_origin_group) | resource |
 | [azurerm_cdn_frontdoor_profile.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_profile) | resource |
 | [azurerm_cdn_frontdoor_route.default_route](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_route) | resource |
-| [azurerm_cdn_frontdoor_rule.global](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule) | resource |
-| [azurerm_cdn_frontdoor_rule.redirect](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule) | resource |
+| [azurerm_cdn_frontdoor_rule.custom_rules](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule) | resource |
 | [azurerm_cdn_frontdoor_rule.rewrite_only](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule) | resource |
-| [azurerm_cdn_frontdoor_rule.scheme_redirect](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule) | resource |
-| [azurerm_cdn_frontdoor_rule.url_path_cache](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule) | resource |
+| [azurerm_cdn_frontdoor_rule.rule_global](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule) | resource |
+| [azurerm_cdn_frontdoor_rule.rule_redirect](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule) | resource |
+| [azurerm_cdn_frontdoor_rule.rule_scheme_redirect](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule) | resource |
+| [azurerm_cdn_frontdoor_rule.rule_url_path_cache](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule) | resource |
 | [azurerm_cdn_frontdoor_rule_set.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule_set) | resource |
 | [azurerm_cdn_frontdoor_secret.cert_secrets](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_secret) | resource |
 | [azurerm_dns_a_record.apex](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dns_a_record) | resource |
@@ -355,13 +362,13 @@ module "cdn_idpay_bonuselettrodomestici" {
 |------|-------------|------|---------|:--------:|
 | <a name="input_cdn_prefix_name"></a> [cdn\_prefix\_name](#input\_cdn\_prefix\_name) | Prefix used for naming resources (e.g. myprefix-myapp). | `string` | n/a | yes |
 | <a name="input_custom_domains"></a> [custom\_domains](#input\_custom\_domains) | List of custom domains. | <pre>list(object({<br/>    domain_name             = string<br/>    dns_name                = string<br/>    dns_resource_group_name = string<br/>    ttl                     = optional(number, 3600)<br/>    enable_dns_records      = optional(bool, true)<br/>  }))</pre> | `[]` | no |
-| <a name="input_delivery_rule"></a> [delivery\_rule](#input\_delivery\_rule) | n/a | <pre>list(object({<br/>    name  = string<br/>    order = number<br/><br/>    cookies_conditions            = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    device_conditions             = optional(list(object({ operator = string, match_values = string, negate_condition = bool })), [])<br/>    http_version_conditions       = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])<br/>    post_arg_conditions           = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    query_string_conditions       = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    remote_address_conditions     = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])<br/>    request_body_conditions       = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    request_header_conditions     = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    request_method_conditions     = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])<br/>    request_scheme_conditions     = optional(list(object({ operator = string, match_values = string, negate_condition = bool })), [])<br/>    request_uri_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    url_file_extension_conditions = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    url_file_name_conditions      = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    url_path_conditions           = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/><br/>    cache_expiration_actions       = optional(list(object({ behavior = string, duration = string })), [])<br/>    cache_key_query_string_actions = optional(list(object({ behavior = string, parameters = string })), [])<br/>    modify_request_header_actions  = optional(list(object({ action = string, name = string, value = string })), [])<br/>    modify_response_header_actions = optional(list(object({ action = string, name = string, value = string })), [])<br/>    url_redirect_actions           = optional(list(object({ redirect_type = string, protocol = string, hostname = string, path = string, fragment = string, query_string = string })), [])<br/>    url_rewrite_actions            = optional(list(object({ source_pattern = string, destination = string, preserve_unmatched_path = string })), [])<br/>  }))</pre> | `[]` | no |
-| <a name="input_delivery_rule_redirect"></a> [delivery\_rule\_redirect](#input\_delivery\_rule\_redirect) | n/a | <pre>list(object({<br/>    name         = string<br/>    order        = number<br/>    operator     = string<br/>    match_values = list(string)<br/>    url_redirect_action = object({<br/>      redirect_type = string<br/>      protocol      = string<br/>      hostname      = string<br/>      path          = string<br/>      fragment      = string<br/>      query_string  = string<br/>    })<br/>  }))</pre> | `[]` | no |
+| <a name="input_delivery_custom_rules"></a> [delivery\_custom\_rules](#input\_delivery\_custom\_rules) | n/a | <pre>list(object({<br/>    name              = string<br/>    order             = number<br/>    behavior_on_match = optional(string)<br/><br/>    cookies_conditions            = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    device_conditions             = optional(list(object({ operator = string, match_values = string, negate_condition = bool })), [])<br/>    http_version_conditions       = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])<br/>    post_arg_conditions           = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    query_string_conditions       = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    remote_address_conditions     = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])<br/>    request_body_conditions       = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    request_header_conditions     = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    request_method_conditions     = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])<br/>    request_scheme_conditions     = optional(list(object({ operator = string, match_values = string, negate_condition = bool })), [])<br/>    request_uri_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    url_file_extension_conditions = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    url_file_name_conditions      = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    url_path_conditions           = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/><br/>    cache_expiration_actions       = optional(list(object({ behavior = string, duration = string })), [])<br/>    cache_key_query_string_actions = optional(list(object({ behavior = string, parameters = string })), [])<br/>    modify_request_header_actions  = optional(list(object({ action = string, name = string, value = string })), [])<br/>    modify_response_header_actions = optional(list(object({ action = string, name = string, value = string })), [])<br/>    url_redirect_actions           = optional(list(object({ redirect_type = string, protocol = string, hostname = string, path = string, fragment = string, query_string = string })), [])<br/>    url_rewrite_actions            = optional(list(object({ source_pattern = string, destination = string, preserve_unmatched_path = string })), [])<br/>  }))</pre> | `[]` | no |
+| <a name="input_delivery_rule_redirects"></a> [delivery\_rule\_redirects](#input\_delivery\_rule\_redirects) | n/a | <pre>list(object({<br/>    name              = string<br/>    order             = number<br/>    behavior_on_match = string<br/><br/>    # conditions<br/>    request_uri_conditions = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    url_path_conditions    = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/><br/>    # actions<br/>    url_redirect_actions = list(object({ redirect_type = string, protocol = string, hostname = string, path = string, fragment = string, query_string = string }))<br/>  }))</pre> | `[]` | no |
 | <a name="input_delivery_rule_request_scheme_condition"></a> [delivery\_rule\_request\_scheme\_condition](#input\_delivery\_rule\_request\_scheme\_condition) | n/a | <pre>list(object({<br/>    name         = string<br/>    order        = number<br/>    operator     = string<br/>    match_values = list(string)<br/>    url_redirect_action = object({<br/>      redirect_type = string<br/>      protocol      = string<br/>      hostname      = string<br/>      path          = string<br/>      fragment      = string<br/>      query_string  = string<br/>    })<br/>  }))</pre> | `[]` | no |
-| <a name="input_delivery_rule_rewrite"></a> [delivery\_rule\_rewrite](#input\_delivery\_rule\_rewrite) | n/a | <pre>list(object({<br/>    name  = string<br/>    order = number<br/>    conditions = list(object({<br/>      condition_type   = string<br/>      operator         = string<br/>      match_values     = list(string)<br/>      negate_condition = bool<br/>      transforms       = list(string)<br/>    }))<br/>    url_rewrite_action = object({<br/>      source_pattern          = string<br/>      destination             = string<br/>      preserve_unmatched_path = string<br/>    })<br/>  }))</pre> | `[]` | no |
+| <a name="input_delivery_rule_rewrites"></a> [delivery\_rule\_rewrites](#input\_delivery\_rule\_rewrites) | n/a | <pre>list(object({<br/>    name              = string<br/>    order             = number<br/>    behavior_on_match = optional(string)<br/><br/>    request_uri_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    url_file_extension_conditions = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    url_path_conditions           = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/><br/>    url_rewrite_actions = optional(list(object({ source_pattern = string, destination = string, preserve_unmatched_path = string })), [])<br/>  }))</pre> | `[]` | no |
 | <a name="input_delivery_rule_url_path_condition_cache_expiration_action"></a> [delivery\_rule\_url\_path\_condition\_cache\_expiration\_action](#input\_delivery\_rule\_url\_path\_condition\_cache\_expiration\_action) | n/a | <pre>list(object({<br/>    name            = string<br/>    order           = number<br/>    operator        = string<br/>    match_values    = list(string)<br/>    behavior        = string<br/>    duration        = string<br/>    response_action = string<br/>    response_name   = string<br/>    response_value  = string<br/>  }))</pre> | `[]` | no |
 | <a name="input_frontdoor_sku_name"></a> [frontdoor\_sku\_name](#input\_frontdoor\_sku\_name) | SKU name for the Azure Front Door profile. | `string` | `"Standard_AzureFrontDoor"` | no |
-| <a name="input_global_delivery_rules"></a> [global\_delivery\_rules](#input\_global\_delivery\_rules) | ########################################################### Rules inputs ########################################################### | <pre>list(object({<br/>    order                         = number<br/>    cache_expiration_action       = optional(list(object({ behavior = string, duration = string })), [])<br/>    cache_key_query_string_action = optional(list(object({ behavior = string, parameters = string })), [])<br/>    modify_request_header_action  = optional(list(object({ action = string, name = string, value = string })), [])<br/>    modify_response_header_action = optional(list(object({ action = string, name = string, value = string })), [])<br/>  }))</pre> | `[]` | no |
+| <a name="input_global_delivery_rules"></a> [global\_delivery\_rules](#input\_global\_delivery\_rules) | ########################################################### Rules inputs ########################################################### | <pre>list(object({<br/>    order                          = number<br/>    cache_expiration_actions       = optional(list(object({ behavior = string, duration = string })), [])<br/>    cache_key_query_string_actions = optional(list(object({ behavior = string, parameters = string })), [])<br/>    modify_request_header_actions  = optional(list(object({ action = string, name = string, value = string })), [])<br/>    modify_response_header_actions = optional(list(object({ action = string, name = string, value = string })), [])<br/>  }))</pre> | `[]` | no |
 | <a name="input_https_rewrite_enabled"></a> [https\_rewrite\_enabled](#input\_https\_rewrite\_enabled) | n/a | `bool` | `true` | no |
 | <a name="input_keyvault_id"></a> [keyvault\_id](#input\_keyvault\_id) | Key Vault ID containing certificates (used for apex domains). | `string` | `null` | no |
 | <a name="input_location"></a> [location](#input\_location) | Primary location (e.g., westeurope). | `string` | n/a | yes |
