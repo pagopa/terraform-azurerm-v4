@@ -45,7 +45,7 @@ No modules.
 | <a name="input_argocd_namespace"></a> [argocd\_namespace](#input\_argocd\_namespace) | Kubernetes namespace of ArgoCD server | `string` | `"argocd"` | no |
 | <a name="input_argocd_service_account_name"></a> [argocd\_service\_account\_name](#input\_argocd\_service\_account\_name) | ServiceAccount name used by ArgoCD server | `string` | `"argocd-server"` | no |
 | <a name="input_entra_app_owners_object_ids"></a> [entra\_app\_owners\_object\_ids](#input\_entra\_app\_owners\_object\_ids) | Object IDs for Entra app owners | `list(string)` | n/a | yes |
-| <a name="input_entra_group_display_names"></a> [entra\_group\_display\_names](#input\_entra\_group\_display\_names) | Entra group display names to assign to the Enterprise App | `list(string)` | `[]` | no |
+| <a name="input_entra_sp_groups_with_user_role"></a> [entra\_sp\_groups\_with\_user\_role](#input\_entra\_sp\_groups\_with\_user\_role) | Entra group to assign to the Enterprise App with 'User' role | `list(string)` | `[]` | no |
 | <a name="input_key_vault_id"></a> [key\_vault\_id](#input\_key\_vault\_id) | Key Vault ID where to store outputs | `string` | n/a | yes |
 | <a name="input_kv_secret_app_client_id_name"></a> [kv\_secret\_app\_client\_id\_name](#input\_kv\_secret\_app\_client\_id\_name) | Key Vault secret name for the ArgoCD Entra app client id | `string` | `"argocd-entra-app-workload-client-id"` | no |
 | <a name="input_kv_secret_service_account_name"></a> [kv\_secret\_service\_account\_name](#input\_kv\_secret\_service\_account\_name) | Key Vault secret name for the ArgoCD service account name | `string` | `"argocd-entra-app-workload-service-account-name"` | no |

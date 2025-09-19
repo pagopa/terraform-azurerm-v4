@@ -13,8 +13,8 @@ variable "entra_app_owners_object_ids" {
   type        = list(string)
 }
 
-variable "entra_group_display_names" {
-  description = "Entra group display names to assign to the Enterprise App"
+variable "entra_sp_groups_with_user_role" {
+  description = "Entra group to assign to the Enterprise App with 'User' role"
   type        = list(string)
   default     = []
 }

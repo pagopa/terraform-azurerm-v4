@@ -25,7 +25,7 @@ data "azurerm_kubernetes_cluster" "aks" {
 
 # Resolve group object IDs from display names if provided
 data "azuread_group" "argocd_groups" {
-  for_each     = toset(var.entra_group_display_names)
+  for_each     = toset(var.entra_sp_groups_with_user_role)
   display_name = each.value
 }
 
