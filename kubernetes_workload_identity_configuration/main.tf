@@ -91,6 +91,8 @@ resource "azurerm_key_vault_secret" "workload_identity_client_id" {
   key_vault_id = var.key_vault_id
   name         = local.workload_identity_client_id_secret_name_title
   value        = data.azurerm_user_assigned_identity.this.client_id
+
+  tags = var.tags
 }
 
 #tfsec:ignore:azure-keyvault-ensure-secret-expiry tfsec:ignore:azure-keyvault-content-type-for-secret
@@ -100,4 +102,6 @@ resource "azurerm_key_vault_secret" "workload_identity_service_account_name" {
   key_vault_id = var.key_vault_id
   name         = local.workload_identity_service_account_name_title
   value        = local.workload_identity_name
+
+  tags = var.tags
 }

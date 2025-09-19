@@ -3,6 +3,8 @@ resource "azurerm_user_assigned_identity" "this" {
 
   resource_group_name = var.workload_identity_resource_group_name
   location            = var.workload_identity_location
+
+  tags = var.tags
 }
 
 resource "azurerm_management_lock" "managed_identity_lock" {
@@ -12,4 +14,5 @@ resource "azurerm_management_lock" "managed_identity_lock" {
   scope      = azurerm_user_assigned_identity.this.id
   lock_level = "CanNotDelete"
   notes      = "Locked because it's needed by terraform"
+
 }
