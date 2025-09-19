@@ -7,6 +7,8 @@ Manual steps after apply
 - Grant admin consent: in Azure Portal open the Enterprise Application, go to
   > API permissions > Microsoft Graph > User.Read and click “Grant admin consent”.
 
+![Grant admin consent](docs/entra_grant_admin_consent.png)
+
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
