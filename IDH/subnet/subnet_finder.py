@@ -33,15 +33,15 @@ def find_next_available_cidr(used_cidrs: list[str], desired_subnet_size: str, st
         )
 
         if not is_overlapping:
-            return str(candidate)
+            return str(candidate), str(candidate[4]), str(candidate[-2])  # Restituisci il CIDR disponibile e i primi/ultimi IP utilizzabili (esclude ip riservati da Azure)
 
     raise ValueError("Nessun CIDR disponibile trovato nel range specificato")
 
 
 def main(query):
   used_cidrs = json.loads(query['used_cidrs'])
-  target_cidr = find_next_available_cidr(used_cidrs, query['desired_prefix'], query['starting_cidr'])
-  print('{"cidr": "' + target_cidr + '"}')
+  target_cidr, first_ip, last_ip = find_next_available_cidr(used_cidrs, query['desired_prefix'], query['starting_cidr'])
+  print('{"cidr": "' + target_cidr + '", "first": "' + first_ip + '", "last": "' + last_ip + '"}')
 
 
 if __name__ == "__main__":

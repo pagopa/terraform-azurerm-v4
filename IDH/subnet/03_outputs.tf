@@ -25,3 +25,13 @@ output "virtual_network_name" {
 output "resource_group_name" {
   value = module.subnet.resource_group_name
 }
+
+output "first_ip_address" {
+  value       = data.external.subnet_cidr.result.first
+  description = "First usable ip address in the subnet"
+}
+
+output "last_ip_address" {
+  value       = data.external.subnet_cidr.result.last
+  description = "Last usable ip address in the subnet"
+}
