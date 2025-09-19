@@ -627,6 +627,8 @@ No modules.
 | <a name="input_vnet_id"></a> [vnet\_id](#input\_vnet\_id) | (Required) Virtual network id, where the k8s cluster is deployed. | `string` | n/a | yes |
 | <a name="input_vnet_subnet_id"></a> [vnet\_subnet\_id](#input\_vnet\_subnet\_id) | (Optional) The ID of a Subnet where the Kubernetes Node Pool should exist. Changing this forces a new resource to be created. | `string` | `null` | no |
 | <a name="input_vnet_user_subnet_id"></a> [vnet\_user\_subnet\_id](#input\_vnet\_user\_subnet\_id) | (Optional) The ID of a Subnet where the Kubernetes User Node Pool should exist. Changing this forces a new resource to be created. | `string` | `null` | no |
+| <a name="input_workload_autoscaler_profile_keda_enabled"></a> [workload\_autoscaler\_profile\_keda\_enabled](#input\_workload\_autoscaler\_profile\_keda\_enabled) | (Optional) Enable or disable KEDA autoscaler | `bool` | `false` | no |
+| <a name="input_workload_autoscaler_profile_vertical_pod_autoscaler_enabled"></a> [workload\_autoscaler\_profile\_vertical\_pod\_autoscaler\_enabled](#input\_workload\_autoscaler\_profile\_vertical\_pod\_autoscaler\_enabled) | (Optional) Enable or disable Vertical Pod Autoscaler | `bool` | `false` | no |
 | <a name="input_workload_identity_enabled"></a> [workload\_identity\_enabled](#input\_workload\_identity\_enabled) | (Optional) Specifies whether Azure AD Workload Identity should be enabled for the Cluster. Defaults to false. | `bool` | `false` | no |
 
 ## Outputs

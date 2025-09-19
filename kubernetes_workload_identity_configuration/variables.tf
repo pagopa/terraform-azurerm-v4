@@ -96,3 +96,9 @@ variable "key_vault_certificate_permissions" {
   description = "(Required) API permissions of the identity to access certificates, must be one or more from the following: Backup, Create, Delete, DeleteIssuers, Get, GetIssuers, Import, List, ListIssuers, ManageContacts, ManageIssuers, Purge, Recover, Restore, SetIssuers and Update."
   default     = null
 }
+
+variable "tags" {
+  type        = map(any)
+  description = "A map of tags to assign to the resource."
+  default     = {}
+}

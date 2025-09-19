@@ -268,6 +268,7 @@ variable "node_os_upgrade_channel" {
   default     = "None"
 }
 
+### Cluster auto upgrade
 variable "force_upgrade_enabled" {
   type        = bool
   description = "(Optional) If set to true, cluster will be forced to upgrade even if the latest version of the control plane and agents is not available."
@@ -465,4 +466,15 @@ variable "maintenance_windows_node_os" {
     utc_offset   = "+00:00"
     week_index   = "First"
   }
+}
+
+variable "workload_autoscaler_profile_keda_enabled" {
+  type        = bool
+  description = "(Optional) Enable or disable KEDA autoscaler"
+  default     = false
+}
+variable "workload_autoscaler_profile_vertical_pod_autoscaler_enabled" {
+  type        = bool
+  description = "(Optional) Enable or disable Vertical Pod Autoscaler"
+  default     = false
 }

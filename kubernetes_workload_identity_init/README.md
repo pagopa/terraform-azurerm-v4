@@ -44,6 +44,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_enable_lock"></a> [enable\_lock](#input\_enable\_lock) | Allow to enable of disable lock for managed identity | `bool` | `true` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the resource. | `map(any)` | `{}` | no |
 | <a name="input_workload_identity_location"></a> [workload\_identity\_location](#input\_workload\_identity\_location) | (Required) The Azure Region where the User Assigned Identity should exist. Changing this forces a new User Assigned Identity to be created. | `string` | n/a | yes |
 | <a name="input_workload_identity_name"></a> [workload\_identity\_name](#input\_workload\_identity\_name) | (Optional) The full name for the user assigned identity and Workload identity. Changing this forces a new identity to be created. | `string` | `null` | no |
 | <a name="input_workload_identity_name_prefix"></a> [workload\_identity\_name\_prefix](#input\_workload\_identity\_name\_prefix) | (Required) The name prefix of the user assigned identity and Workload identity. Changing this forces a new identity to be created. | `string` | n/a | yes |
