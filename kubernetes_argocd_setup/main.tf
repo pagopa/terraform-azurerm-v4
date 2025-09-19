@@ -99,7 +99,7 @@ resource "null_resource" "argocd_change_admin_password" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl -n ${var.namespace} patch secret argocd-secret -p '{\"stringData\": {\"admin.password\":  \"${bcrypt(local.effective_admin_password)}\", \"admin.passwordMtime\": \"'$(date +%FT%T%Z)'\"}}'"
+    command = "kubectl -context ${var.aks_name} -n ${var.namespace} patch secret argocd-secret -p '{\"stringData\": {\"admin.password\":  \"${bcrypt(local.effective_admin_password)}\", \"admin.passwordMtime\": \"'$(date +%FT%T%Z)'\"}}'"
   }
 
   depends_on = [
@@ -119,7 +119,7 @@ resource "null_resource" "restart_argocd_server" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl -n ${var.namespace} rollout restart deployment/argo-argocd-server"
+    command = "kubectl --context ${var.aks_name} -n ${var.namespace} rollout restart deployment/argo-argocd-server"
   }
 
   depends_on = [
