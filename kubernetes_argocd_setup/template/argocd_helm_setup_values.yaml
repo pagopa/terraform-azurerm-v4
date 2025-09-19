@@ -2,6 +2,8 @@ terraform:
   force: ${FORCE_REINSTALL}
 
 global:
+  logging:
+    level: warn
   addPrometheusAnnotations: true
   securityContext:
     runAsUser: 999
@@ -301,8 +303,7 @@ repoServer:
     requests:
       cpu: 500m
       memory: 512Mi
-  extraArgs:
-    - --loglevel=warn
+
 #-------------------------------------------------------------------------------
 # Application Set configuration
 #-------------------------------------------------------------------------------
