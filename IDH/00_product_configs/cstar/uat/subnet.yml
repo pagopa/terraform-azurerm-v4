@@ -42,3 +42,11 @@ gateway:
   prefix_length: 24
   private_endpoint_network_policies: Disabled
   private_link_service_network_policies_enabled: true
+slash28_privatelink_false:
+  prefix_length: 28
+  private_endpoint_network_policies: Disabled
+  private_link_service_network_policies_enabled: false
+slash28_privatelink_true:
+  prefix_length: 28
+  private_endpoint_network_policies: Disabled
+  private_link_service_network_policies_enabled: true
