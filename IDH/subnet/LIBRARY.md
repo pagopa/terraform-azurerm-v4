@@ -10,6 +10,7 @@
 | cstar | dev |  gateway | Prefix length: 24, delegation: - |
 | cstar | dev |  postgres_flexible | Prefix length: 28, delegation: Microsoft.DBforPostgreSQL/flexibleServers |
 | cstar | dev |  private_endpoint | Prefix length: 28, delegation: - |
+| cstar | dev |  slash28_privatelink | Prefix length: 28, delegation: - |
 |---|---|---|---|
 | cstar | prod |  aks_overlay | Prefix length: 24, delegation: - |
 | cstar | prod |  app_service | Prefix length: 27, delegation: Microsoft.Web/serverFarms |
@@ -18,6 +19,7 @@
 | cstar | prod |  gateway | Prefix length: 24, delegation: - |
 | cstar | prod |  postgres_flexible | Prefix length: 28, delegation: Microsoft.DBforPostgreSQL/flexibleServers |
 | cstar | prod |  private_endpoint | Prefix length: 28, delegation: - |
+| cstar | prod |  slash28_privatelink | Prefix length: 28, delegation: - |
 |---|---|---|---|
 | cstar | uat |  aks_overlay | Prefix length: 24, delegation: - |
 | cstar | uat |  app_service | Prefix length: 27, delegation: Microsoft.Web/serverFarms |
@@ -26,6 +28,7 @@
 | cstar | uat |  gateway | Prefix length: 24, delegation: - |
 | cstar | uat |  postgres_flexible | Prefix length: 28, delegation: Microsoft.DBforPostgreSQL/flexibleServers |
 | cstar | uat |  private_endpoint | Prefix length: 28, delegation: - |
+| cstar | uat |  slash28_privatelink | Prefix length: 28, delegation: - |
 ## dvopla
 | 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |
 |:-------------:|:----------------:|:---------:|:----------------|
