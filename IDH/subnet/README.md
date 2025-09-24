@@ -46,6 +46,8 @@ module "postgres_flexible_snet" {
 | Name | Type |
 |------|------|
 | [terraform_data.subnet_cidr](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [terraform_data.subnet_first_ip](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [terraform_data.subnet_last_ip](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [azurerm_subnet.subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subnet) | data source |
 | [azurerm_virtual_network.vnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/virtual_network) | data source |
 | [external_external.subnet_cidr](https://registry.terraform.io/providers/hashicorp/external/latest/docs/data-sources/external) | data source |
