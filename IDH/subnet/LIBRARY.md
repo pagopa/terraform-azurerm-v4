@@ -50,6 +50,8 @@
 | pagopa | dev |  gateway | Prefix length: 24, delegation: - |
 | pagopa | dev |  postgres_flexible | Prefix length: 28, delegation: Microsoft.DBforPostgreSQL/flexibleServers |
 | pagopa | dev |  private_endpoint | Prefix length: 26, delegation: - |
+| pagopa | dev |  slash28_privatelink_false | Prefix length: 28, delegation: - |
+| pagopa | dev |  slash28_privatelink_true | Prefix length: 28, delegation: - |
 |---|---|---|---|
 | pagopa | prod |  aks_overlay | Prefix length: 24, delegation: - |
 | pagopa | prod |  app_service | Prefix length: 27, delegation: Microsoft.Web/serverFarms |
@@ -57,6 +59,8 @@
 | pagopa | prod |  gateway | Prefix length: 24, delegation: - |
 | pagopa | prod |  postgres_flexible | Prefix length: 28, delegation: Microsoft.DBforPostgreSQL/flexibleServers |
 | pagopa | prod |  private_endpoint | Prefix length: 26, delegation: - |
+| pagopa | prod |  slash28_privatelink_false | Prefix length: 28, delegation: - |
+| pagopa | prod |  slash28_privatelink_true | Prefix length: 28, delegation: - |
 |---|---|---|---|
 | pagopa | uat |  aks_overlay | Prefix length: 24, delegation: - |
 | pagopa | uat |  app_service | Prefix length: 27, delegation: Microsoft.Web/serverFarms |
@@ -64,3 +68,5 @@
 | pagopa | uat |  gateway | Prefix length: 24, delegation: - |
 | pagopa | uat |  postgres_flexible | Prefix length: 28, delegation: Microsoft.DBforPostgreSQL/flexibleServers |
 | pagopa | uat |  private_endpoint | Prefix length: 26, delegation: - |
+| pagopa | uat |  slash28_privatelink_false | Prefix length: 28, delegation: - |
+| pagopa | uat |  slash28_privatelink_true | Prefix length: 28, delegation: - |
