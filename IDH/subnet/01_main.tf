@@ -39,6 +39,24 @@ data "external" "subnet_cidr" {
 # this resource is used to store the cidr used to create the subnet in the state file
 # and change it only when the vnet or the product_name length has changed
 resource "terraform_data" "subnet_cidr" {
+  input = data.external.subnet_cidr.result.cidr
+
+
+  # use a new cidr only if the vnet or the product_name length has changed
+  triggers_replace = [
+    data.azurerm_virtual_network.vnet.address_space[0],
+    module.idh_loader.idh_resource_configuration.prefix_length
+  ]
+
+  # ignore changes to the cidr value because it is calculated everyrun, even after the subnet has already been created
+  lifecycle {
+    ignore_changes = [input]
+  }
+}
+
+# this resource is used to store the cidr used to create the subnet in the state file
+# and change it only when the vnet or the product_name length has changed
+resource "terraform_data" "subnet_info" {
   input = {
    cidr = data.external.subnet_cidr.result.cidr
    first = data.external.subnet_cidr.result.first
@@ -68,7 +86,7 @@ module "subnet" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.virtual_network_name
 
-  address_prefixes = [terraform_data.subnet_cidr.input.cidr]
+  address_prefixes = [terraform_data.subnet_info.input.cidr]
 
   delegation = lookup(module.idh_loader.idh_resource_configuration, "delegation", null) != null ? {
     name = "delegation"

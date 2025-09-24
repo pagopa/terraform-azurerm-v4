@@ -27,11 +27,11 @@ output "resource_group_name" {
 }
 
 output "first_ip_address" {
-  value       = terraform_data.subnet_cidr.output.first
+  value       = terraform_data.subnet_info.output.first
   description = "First usable ip address in the subnet"
 }
 
 output "last_ip_address" {
-  value       = terraform_data.subnet_cidr.output.last
+  value       = terraform_data.subnet_info.output.last
   description = "Last usable ip address in the subnet"
 }
