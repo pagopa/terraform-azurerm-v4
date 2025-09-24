@@ -1,0 +1,4 @@
+basic:
+  kind: Linux
+  sku_tier: "Basic"
+  sku_size: "B1"

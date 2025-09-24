@@ -1,6 +1,6 @@
 # AppService
 
-This module allows the creation of an App service function main slot and the staging slot if needed, with the required autoscale settings
+This module allows the creation of an App service main function slot and the staging slot if needed, with the required autoscale settings
 
 ## IDH resources available
 [Here's](./LIBRARY.md) the list of `idh_resources_tiers` available for this module

@@ -4,123 +4,172 @@ module "idh_loader" {
   product_name      = var.product_name
   env               = var.env
   idh_resource_tier = var.idh_resource_tier
-  idh_resource_type = "app_service_webapp"
+  idh_resource_type = "app_service_function"
 }
 
 
-module "main_slot" {
-  source = "../../app_service"
-
-  vnet_integration    = module.idh_loader.idh_resource_configuration.vnet_integration
-  resource_group_name = var.resource_group_name
+resource "azurerm_app_service_plan" "function_service_plan" {
+  name                = var.app_service_plan_name
   location            = var.location
+  resource_group_name = var.resource_group_name
 
-  plan_type = module.idh_loader.idh_resource_configuration.plan_type
-  # App service plan vars
-  plan_name = var.app_service_plan_name
+  kind     = module.idh_loader.idh_resource_configuration.plan.kind
+  reserved = module.idh_loader.idh_resource_configuration.plan.kind == "Linux" ? true : false
 
-  sku_name               = module.idh_loader.idh_resource_configuration.sku
-  zone_balancing_enabled = module.idh_loader.idh_resource_configuration.zone_balancing_enabled
+  zone_redundant = module.idh_loader.idh_resource_configuration.plan.zone_balancing_enabled
 
-  https_only                    = module.idh_loader.idh_resource_configuration.https_only
-  client_affinity_enabled       = var.client_affinity_enabled
-  ftps_state                    = var.ftps_state
-  minimum_tls_version           = module.idh_loader.idh_resource_configuration.minimum_tls_version
-  public_network_access_enabled = module.idh_loader.idh_resource_configuration.public_network_access_enabled
+  maximum_elastic_worker_count = module.idh_loader.idh_resource_configuration.plan.kind == "elastic" ? module.idh_loader.idh_resource_configuration.plan.maximum_elastic_worker_count : null
 
-  # App service plan
-  name                = var.name
-  client_cert_enabled = module.idh_loader.idh_resource_configuration.client_cert_enabled
-  always_on           = var.always_on
+  sku {
+    tier     = module.idh_loader.idh_resource_configuration.plan.sku_tier
+    size     = module.idh_loader.idh_resource_configuration.plan.sku_size
+    capacity = 1
+  }
+
+  tags = var.tags
+}
 
 
-  health_check_path               = var.health_check_path
-  health_check_maxpingfailures    = var.health_check_maxpingfailures
-  app_settings                    = var.app_settings
-  sticky_settings                 = var.sticky_settings
-  premium_plan_auto_scale_enabled = module.idh_loader.idh_resource_configuration.premium_plan_auto_scale_enabled
-  ip_restriction_default_action   = module.idh_loader.idh_resource_configuration.ip_restriction_default_action
-  allowed_subnets                 = var.allowed_subnet_ids
-  allowed_ips                     = var.allowed_ips
-  allowed_service_tags            = var.allowed_service_tags
-  auto_heal_enabled               = var.auto_heal_enabled
-  auto_heal_settings              = var.auto_heal_settings
 
-  subnet_id           = var.subnet_id
-  docker_image        = var.docker_image
-  docker_image_tag    = var.docker_image_tag
-  docker_registry_url = var.docker_registry_url
-  dotnet_version      = var.dotnet_version
-  go_version          = var.go_version
-  java_server         = var.java_server
-  java_server_version = var.java_server_version
-  java_version        = var.java_version
-  node_version        = var.node_version
-  php_version         = var.php_version
-  python_version      = var.python_version
-  ruby_version        = var.ruby_version
+## Function reporting_analysis
+module "main_slot" {
+  source = "../../function_app"
+
+  resource_group_name  = var.resource_group_name
+  name                 = var.name
+  storage_account_name = replace("${var.name}-st", "-", "")
+  location             = var.location
+  health_check_path    = var.health_check_path
+  subnet_id       = var.subnet_id
+  runtime_version = module.idh_loader.idh_resource_configuration.runtime_version
+  docker = {
+    registry_url      = var.docker_registry_url
+    image_name        = var.docker_image
+    image_tag         = var.docker_image_tag
+    registry_username = null
+    registry_password = null
+  }
+
+  internal_storage = var.internal_storage
+  storage_account_info = {
+    account_kind                      = module.idh_loader.idh_resource_configuration.storage_account.account_kind
+    account_tier                      = module.idh_loader.idh_resource_configuration.storage_account.account_tier
+    account_replication_type          = module.idh_loader.idh_resource_configuration.storage_account.replication_type
+    access_tier                       = module.idh_loader.idh_resource_configuration.storage_account.access_tier
+    advanced_threat_protection_enable = module.idh_loader.idh_resource_configuration.storage_account.advanced_threat_protection_enabled
+    public_network_access_enabled     = module.idh_loader.idh_resource_configuration.storage_account.public_network_access_enabled
+    use_legacy_defender_version       = module.idh_loader.idh_resource_configuration.storage_account.use_legacy_defender_version
+  }
+  always_on                                = var.always_on
+  application_insights_instrumentation_key = var.application_insights_instrumentation_key
+  app_service_plan_id                      = azurerm_app_service_plan.function_service_plan.id
+  app_settings                             = var.app_settings
+
+  allowed_subnets = var.allowed_subnet_ids
+  allowed_ips     = var.allowed_ips
+  allowed_service_tags = var.allowed_service_tags
+
+  action = var.action
+
+  app_service_logs = var.app_service_logs
+
+  client_certificate_enabled = var.client_certificate_enabled
+  client_certificate_mode = ""
+  cors = {}
+  domain = ""
+  dotnet_version = ""
+  enable_function_app_public_network_access = true
+  enable_healthcheck = true
+  export_keys = true
+  health_check_maxpingfailures = 10
+  healthcheck_threshold = 10
+  https_only = true
+  internal_storage_account_info = {}
+  ip_restriction_default_action = ""
+  java_version = ""
+  minimum_tls_version = ""
+  node_version = ""
+  powershell_core_version = ""
+  pre_warmed_instance_count = 2
+  python_version = ""
+  sticky_app_setting_names = []
+  sticky_connection_string_names = []
+  storage_account_durable_name = ""
+  system_identity_enabled = true
+  use_32_bit_worker_process = true
+  use_custom_runtime = ""
+  use_dotnet_isolated_runtime = ""
+  vnet_integration = true
+
 
 
   tags = var.tags
 
-
 }
 
-module "staging_slot" {
+
+module "reporting_analysis_function_slot_staging" {
   count = module.idh_loader.idh_resource_configuration.slot_staging_enabled ? 1 : 0
 
-  source = "../../app_service_slot"
+  source = "../../function_app_slot"
 
-  # App service plan
-  # app_service_plan_id = module.printit_pdf_engine_app_service.plan_id
-  app_service_id   = module.main_slot.id
-  app_service_name = module.main_slot.name
+  app_service_plan_id                      = azurerm_app_service_plan.function_service_plan.id
+  function_app_id                          = module.main_slot.id
+  storage_account_name                     = module.main_slot.storage_account_name
+  storage_account_access_key               = module.main_slot.storage_account.primary_access_key
+  name                                     = "staging"
+  resource_group_name                      = var.resource_group_name
+  location                                 = var.location
+  application_insights_instrumentation_key = var.application_insights_instrumentation_key
 
-  # App service
-  name                = "staging"
-  resource_group_name = var.resource_group_name
-  location            = var.location
+  always_on         = var.always_on
+  health_check_path = var.health_check_path
+  runtime_version   = module.idh_loader.idh_resource_configuration.runtime_version
 
-  https_only                    = module.idh_loader.idh_resource_configuration.https_only
-  client_certificate_enabled    = module.idh_loader.idh_resource_configuration.client_cert_enabled
-  public_network_access_enabled = module.idh_loader.idh_resource_configuration.public_network_access_enabled
-  minimum_tls_version           = module.idh_loader.idh_resource_configuration.minimum_tls_version
-  ip_restriction_default_action = module.idh_loader.idh_resource_configuration.ip_restriction_default_action
-  vnet_integration              = module.idh_loader.idh_resource_configuration.vnet_integration
-
-  client_affinity_enabled = var.client_affinity_enabled
-
-  always_on           = var.always_on
-  docker_image        = var.docker_image
-  docker_image_tag    = var.docker_image_tag
-  dotnet_version      = var.dotnet_version
-  go_version          = var.go_version
-  java_server         = var.java_server
-  java_server_version = var.java_server_version
-  java_version        = var.java_version
-  node_version        = var.node_version
-  php_version         = var.php_version
-  python_version      = var.python_version
-  ruby_version        = var.ruby_version
-  health_check_path   = var.health_check_path
-
-  allowed_subnets              = var.allowed_subnet_ids
-  allowed_ips                  = var.allowed_ips
-  allowed_service_tags         = var.allowed_service_tags
-  health_check_maxpingfailures = var.health_check_maxpingfailures
-
-  ftps_state = var.ftps_state
   # App settings
   app_settings = var.app_settings
 
-  subnet_id = var.subnet_id
+  docker = {
+    registry_url      = var.docker_registry_url
+    image_name        = var.docker_image
+    image_tag         = var.docker_image_tag
+    registry_username = null
+    registry_password = null
+  }
 
-  auto_heal_enabled  = var.auto_heal_enabled
-  auto_heal_settings = var.auto_heal_settings
+  allowed_subnets = var.allowed_subnet_ids
+  allowed_ips     = var.allowed_ips
+  allowed_service_tags = var.allowed_service_tags
 
+  subnet_id       = var.subnet_id
 
   tags = var.tags
+
+  auto_swap_slot_name = ""
+  client_certificate_enabled = true
+  cors = {}
+  dotnet_version = ""
+  enable_function_app_public_network_access = true
+  export_keys = true
+  health_check_maxpingfailures = 10
+  https_only = true
+  internal_storage_connection_string = ""
+  ip_restriction_default_action = ""
+  java_version = ""
+  minimum_tls_version = ""
+  node_version = ""
+  os_type = ""
+  powershell_core_version = ""
+  pre_warmed_instance_count = 10
+  python_version = ""
+  system_identity_enabled = true
+  use_32_bit_worker_process = true
+  use_custom_runtime = ""
+  use_dotnet_isolated_runtime = ""
+  vnet_integration = true
 }
+
+
 
 
 
@@ -131,7 +180,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
   name                = "${var.name}-autoscale-settings"
   resource_group_name = var.resource_group_name
   location            = var.location
-  target_resource_id  = module.main_slot.plan_id
+  target_resource_id  = azurerm_app_service_plan.function_service_plan.id
   enabled             = module.idh_loader.idh_resource_configuration.autoscale_enabled
 
   profile {
@@ -162,7 +211,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
         scale_action {
           direction = "Increase"
           type      = "ChangeCount"
-          value     = "2"
+          value     = "1"
           cooldown  = "PT5M"
         }
       }
@@ -217,7 +266,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
         scale_action {
           direction = "Increase"
           type      = "ChangeCount"
-          value     = "2"
+          value     = "1"
           cooldown  = "PT5M"
         }
       }
@@ -272,7 +321,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
         scale_action {
           direction = "Increase"
           type      = "ChangeCount"
-          value     = "2"
+          value     = "1"
           cooldown  = "PT5M"
         }
       }
