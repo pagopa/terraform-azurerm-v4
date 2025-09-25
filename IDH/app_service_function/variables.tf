@@ -79,22 +79,6 @@ variable "allowed_service_tags" {
 variable "tags" {
   default = ""
 }
-variable "sticky_settings" {
-  type        = list(string)
-  description = "(Optional) A list of app_setting names that the Linux Function App will not swap between Slots when a swap operation is triggered"
-  default     = []
-}
-
-variable "client_affinity_enabled" {
-  type        = bool
-  description = "(Optional) Should the App Service send session affinity cookies, which route client requests in the same session to the same instance? Defaults to false."
-  default     = false
-}
-variable "ftps_state" {
-  type        = string
-  description = "(Optional) Enable FTPS connection ( Default: Disabled )"
-  default     = "Disabled"
-}
 
 variable "health_check_maxpingfailures" {
   type        = number
@@ -107,22 +91,6 @@ variable "health_check_maxpingfailures" {
   }
 }
 
-variable "auto_heal_enabled" {
-  type        = bool
-  description = "(Optional) True to enable the auto heal on the app service"
-  default     = false
-}
-
-variable "auto_heal_settings" {
-  type = object({
-    startup_time           = string
-    slow_requests_count    = number
-    slow_requests_interval = string
-    slow_requests_time     = string
-  })
-  description = "(Optional) Auto heal settings"
-  default     = null
-}
 # Framework choice
 variable "docker_image" {
   type    = string
@@ -140,15 +108,7 @@ variable "dotnet_version" {
   type    = string
   default = null
 }
-variable "go_version" {
-  type    = string
-  default = null
-}
-variable "java_server" {
-  type    = string
-  default = null
-}
-variable "java_server_version" {
+variable "use_dotnet_isolated_runtime" {
   type    = string
   default = null
 }
@@ -160,19 +120,18 @@ variable "node_version" {
   type    = string
   default = null
 }
-variable "php_version" {
-  type    = string
-  default = null
-}
 variable "python_version" {
   type    = string
   default = null
 }
-variable "ruby_version" {
+variable "powershell_core_version" {
   type    = string
   default = null
 }
-
+variable "use_custom_runtime" {
+  type    = string
+  default = null
+}
 variable "autoscale_settings" {
   type = object({
     max_capacity                       = number                 # maximum capacity for this app service
@@ -264,8 +223,46 @@ variable "internal_storage" {
 }
 
 
-variable "client_certificate_enabled" {
-  type        = bool
-  description = "Should the function app use Client Certificates"
-  default     = false
+variable "cors" {
+  type = object({
+    allowed_origins = list(string) # A list of origins which should be able to make cross-origin calls. * can be used to allow all calls.
+  })
+  default = null
+}
+
+variable "domain" {
+  type        = string
+  description = "Specifies the domain of the Function App."
+  default     = null
+}
+
+variable "healthcheck_threshold" {
+  type        = number
+  description = "The healthcheck threshold. If metric average is under this value, the alert will be triggered. Default is 50"
+  default     = 50
+}
+
+variable "pre_warmed_instance_count" {
+  type        = number
+  description = "The number of pre-warmed instances for this function app. Only affects apps on the Premium plan."
+  default     = 1
+}
+
+
+variable "sticky_app_setting_names" {
+  type        = list(string)
+  description = "(Optional) A list of app_setting names that the Linux Function App will not swap between Slots when a swap operation is triggered"
+  default     = []
+}
+
+variable "sticky_connection_string_names" {
+  type        = list(string)
+  description = "(Optional) A list of connection string names that the Linux Function App will not swap between Slots when a swap operation is triggered"
+  default     = null
+}
+
+variable "storage_account_durable_name" {
+  type        = string
+  description = "Storage account name only used by the durable function. If null it will be 'computed'"
+  default     = null
 }

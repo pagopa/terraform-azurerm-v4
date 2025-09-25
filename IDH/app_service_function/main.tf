@@ -41,7 +41,7 @@ module "main_slot" {
   location             = var.location
   health_check_path    = var.health_check_path
   subnet_id       = var.subnet_id
-  runtime_version = module.idh_loader.idh_resource_configuration.runtime_version
+
   docker = {
     registry_url      = var.docker_registry_url
     image_name        = var.docker_image
@@ -51,6 +51,37 @@ module "main_slot" {
   }
 
   internal_storage = var.internal_storage
+
+  always_on                                = var.always_on
+  application_insights_instrumentation_key = var.application_insights_instrumentation_key
+  app_service_plan_id                      = azurerm_app_service_plan.function_service_plan.id
+  app_settings                             = var.app_settings
+
+  allowed_subnets = var.allowed_subnet_ids
+  allowed_ips     = var.allowed_ips
+  allowed_service_tags = var.allowed_service_tags
+  action = var.action
+  app_service_logs = var.app_service_logs
+
+  health_check_maxpingfailures = var.health_check_maxpingfailures
+  healthcheck_threshold = var.healthcheck_threshold
+  cors = var.cors
+  domain = var.domain
+  dotnet_version = var.dotnet_version
+  java_version = var.java_version
+  node_version = var.node_version
+  powershell_core_version = var.powershell_core_version
+  pre_warmed_instance_count = var.pre_warmed_instance_count
+  python_version = var.python_version
+  sticky_app_setting_names = var.sticky_app_setting_names
+  sticky_connection_string_names = var.sticky_connection_string_names
+  storage_account_durable_name = var.storage_account_durable_name
+  use_custom_runtime = var.use_custom_runtime
+  use_dotnet_isolated_runtime = var.use_dotnet_isolated_runtime
+
+  export_keys = true
+
+  runtime_version = module.idh_loader.idh_resource_configuration.runtime_version
   storage_account_info = {
     account_kind                      = module.idh_loader.idh_resource_configuration.storage_account.account_kind
     account_tier                      = module.idh_loader.idh_resource_configuration.storage_account.account_tier
@@ -60,47 +91,25 @@ module "main_slot" {
     public_network_access_enabled     = module.idh_loader.idh_resource_configuration.storage_account.public_network_access_enabled
     use_legacy_defender_version       = module.idh_loader.idh_resource_configuration.storage_account.use_legacy_defender_version
   }
-  always_on                                = var.always_on
-  application_insights_instrumentation_key = var.application_insights_instrumentation_key
-  app_service_plan_id                      = azurerm_app_service_plan.function_service_plan.id
-  app_settings                             = var.app_settings
-
-  allowed_subnets = var.allowed_subnet_ids
-  allowed_ips     = var.allowed_ips
-  allowed_service_tags = var.allowed_service_tags
-
-  action = var.action
-
-  app_service_logs = var.app_service_logs
-
-  client_certificate_enabled = var.client_certificate_enabled
-  client_certificate_mode = ""
-  cors = {}
-  domain = ""
-  dotnet_version = ""
-  enable_function_app_public_network_access = true
-  enable_healthcheck = true
-  export_keys = true
-  health_check_maxpingfailures = 10
-  healthcheck_threshold = 10
-  https_only = true
-  internal_storage_account_info = {}
-  ip_restriction_default_action = ""
-  java_version = ""
-  minimum_tls_version = ""
-  node_version = ""
-  powershell_core_version = ""
-  pre_warmed_instance_count = 2
-  python_version = ""
-  sticky_app_setting_names = []
-  sticky_connection_string_names = []
-  storage_account_durable_name = ""
-  system_identity_enabled = true
-  use_32_bit_worker_process = true
-  use_custom_runtime = ""
-  use_dotnet_isolated_runtime = ""
-  vnet_integration = true
-
+  client_certificate_enabled = module.idh_loader.idh_resource_configuration.client_cert_enabled
+  client_certificate_mode = module.idh_loader.idh_resource_configuration.client_cert_mode
+  enable_function_app_public_network_access = module.idh_loader.idh_resource_configuration.public_network_access_enabled
+  enable_healthcheck = module.idh_loader.idh_resource_configuration.enable_healthcheck
+  https_only = module.idh_loader.idh_resource_configuration.https_only
+  internal_storage_account_info = {
+    account_kind                      = module.idh_loader.idh_resource_configuration.internal_storage_account.account_kind
+    account_tier                      = module.idh_loader.idh_resource_configuration.internal_storage_account.account_tier
+    account_replication_type          = module.idh_loader.idh_resource_configuration.internal_storage_account.replication_type
+    access_tier                       = module.idh_loader.idh_resource_configuration.internal_storage_account.access_tier
+    advanced_threat_protection_enable = module.idh_loader.idh_resource_configuration.internal_storage_account.advanced_threat_protection_enabled
+    use_legacy_defender_version       = module.idh_loader.idh_resource_configuration.internal_storage_account.use_legacy_defender_version
+    public_network_access_enabled     = module.idh_loader.idh_resource_configuration.internal_storage_account.public_network_access_enabled
+  }
+  ip_restriction_default_action = module.idh_loader.idh_resource_configuration.ip_restriction_default_action
+  minimum_tls_version = module.idh_loader.idh_resource_configuration.minimum_tls_version
+  system_identity_enabled = module.idh_loader.idh_resource_configuration.system_identity_enabled
+  use_32_bit_worker_process = module.idh_loader.idh_resource_configuration.use_32_bit_worker_process
+  vnet_integration = module.idh_loader.idh_resource_configuration.vnet_integration
 
 
   tags = var.tags
@@ -145,28 +154,32 @@ module "reporting_analysis_function_slot_staging" {
 
   tags = var.tags
 
-  auto_swap_slot_name = ""
-  client_certificate_enabled = true
-  cors = {}
-  dotnet_version = ""
-  enable_function_app_public_network_access = true
+  auto_swap_slot_name = try(module.idh_loader.idh_resource_configuration.auto_swap_slot_name, null)
+  client_certificate_enabled = module.idh_loader.idh_resource_configuration.client_cert_enabled
+  cors = var.cors
+  dotnet_version = var.dotnet_version
+  enable_function_app_public_network_access = module.idh_loader.idh_resource_configuration.public_network_access_enabled
   export_keys = true
-  health_check_maxpingfailures = 10
-  https_only = true
-  internal_storage_connection_string = ""
-  ip_restriction_default_action = ""
-  java_version = ""
-  minimum_tls_version = ""
-  node_version = ""
-  os_type = ""
-  powershell_core_version = ""
-  pre_warmed_instance_count = 10
-  python_version = ""
-  system_identity_enabled = true
-  use_32_bit_worker_process = true
-  use_custom_runtime = ""
-  use_dotnet_isolated_runtime = ""
-  vnet_integration = true
+  health_check_maxpingfailures = var.health_check_maxpingfailures
+  https_only = module.idh_loader.idh_resource_configuration.https_only
+
+  internal_storage_connection_string = var.internal_storage.enable ? module.main_slot.storage_account_internal_function.primary_connection_string : null
+
+  java_version = var.java_version
+  node_version = var.node_version
+  powershell_core_version = var.powershell_core_version
+  pre_warmed_instance_count = var.pre_warmed_instance_count
+  python_version = var.python_version
+  use_custom_runtime = var.use_custom_runtime
+  use_dotnet_isolated_runtime = var.use_dotnet_isolated_runtime
+
+  ip_restriction_default_action = module.idh_loader.idh_resource_configuration.ip_restriction_default_action
+  minimum_tls_version = module.idh_loader.idh_resource_configuration.minimum_tls_version
+  system_identity_enabled = module.idh_loader.idh_resource_configuration.system_identity_enabled
+  use_32_bit_worker_process = module.idh_loader.idh_resource_configuration.use_32_bit_worker_process
+  vnet_integration = module.idh_loader.idh_resource_configuration.vnet_integration
+
+
 }
 
 
