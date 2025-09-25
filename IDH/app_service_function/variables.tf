@@ -174,7 +174,7 @@ variable "private_endpoint_dns_zone_id" {
 }
 
 variable "application_insights_instrumentation_key" {
-  type = string
+  type        = string
   description = "(Required) The Instrumentation Key of an Application Insights component."
 }
 

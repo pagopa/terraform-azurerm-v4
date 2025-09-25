@@ -345,7 +345,7 @@ variable "use_custom_runtime" {
 }
 
 variable "app_service_plan_type" {
-  type = string
+  type        = string
   description = "(Required) The type of App Service Plan. Possible values are 'internal', 'external'"
   validation {
     condition     = var.app_service_plan_type == "internal" || var.app_service_plan_type == "external"
