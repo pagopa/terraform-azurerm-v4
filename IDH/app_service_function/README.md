@@ -9,42 +9,56 @@ This module allows the creation of an App service main function slot and the sta
 ## How to use
 
 ```hcl
-module "metabase_app_service" {
-  source              = "./.terraform/modules/__v4__/IDH/app_service_webapp"
+
+module "my_function" {
+  source              = "./.terraform/modules/__v4__/IDH/app_service_function"
   env                 = var.env
-  idh_resource_tier   = var.metabase_plan_idh_tier
+  idh_resource_tier   = "basic"
   location            = var.location
-  name                = "${local.project}-metabase-webapp"
+  name                = "pagopa-d-function"
   product_name        = var.prefix
   resource_group_name = azurerm_resource_group.metabase_rg.name
 
-  app_service_plan_name = "${local.project}-metabase-plan"
+  app_service_plan_name = "${local.project}-test-plan"
   app_settings = {
-    # my application env variables
-    MB_DB_USER           = module.secret_core.values["metabase-db-admin-login"].value
-    MB_DB_PASS           = module.secret_core.values["metabase-db-admin-password"].value
-    MB_DB_CONNECTION_URI = "jdbc:postgresql://${module.metabase_postgres_db.fqdn}:5432/metabase?ssl=true&sslmode=require"
+    PROPERTY_1           = "..."
+    PROPERTY_2           = "..."
+    PROPERTY_3           = "..."
+
   }
-  docker_image        = "metabase/metabase"
+  docker_image        = "my_image/image_name"
   docker_image_tag    = "latest"
   docker_registry_url = "https://index.docker.io"
-  subnet_id           = module.app_service_snet.subnet_id
+  subnet_id           = module.function_app_service_snet.subnet_id
   tags                = module.tag_config.tags
-  
-  # which subnet is allowed to reach this app service
+
   allowed_subnet_ids = [data.azurerm_subnet.vpn_subnet.id]
 
   private_endpoint_dns_zone_id = data.azurerm_private_dns_zone.azurewebsites.id
   private_endpoint_subnet_id   = data.azurerm_subnet.private_endpoint_subnet.id
 
+  application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
+  #optional
+  internal_storage = {
+    enable = true
+    blobs_retention_days = 1
+    containers = []
+    private_dns_zone_blob_ids = []
+    private_dns_zone_queue_ids = []
+    private_dns_zone_table_ids = []
+    private_endpoint_subnet_id = module.function_app_service_snet.id
+    queues = []
+  }
   autoscale_settings = {
     max_capacity                  = 3
     scale_up_requests_threshold   = 250
     scale_down_requests_threshold = 150
+
   }
 
-  always_on  = true
+  always_on = true
 }
+
 ```
 
 <!-- markdownlint-disable -->
