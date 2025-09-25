@@ -7,8 +7,8 @@ basic:
   runtime_version: "~4"
   storage_account:
     account_kind: "StorageV2"
-    account_tier: ""
-    replication_type: ""
+    account_tier: "Standard"
+    replication_type: "LRS"
     access_tier: "Hot"
     advanced_threat_protection_enabled: false
     public_network_access_enabled: false
@@ -20,14 +20,14 @@ basic:
   https_only: true
   internal_storage_account:
     account_kind: "StorageV2"
-    account_tier: ""
-    replication_type: ""
+    account_tier: "Standard"
+    replication_type: "LRS"
     access_tier: "Hot"
     advanced_threat_protection_enabled: false
     public_network_access_enabled: false
     use_legacy_defender_version: false
   ip_restriction_default_action: "Deny"
-  minimum_tls_version: ""
+  minimum_tls_version: "1.3"
   system_identity_enabled: false
   use_32_bit_worker_process: false
   vnet_integration: true
