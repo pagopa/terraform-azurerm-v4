@@ -55,6 +55,7 @@ module "main_slot" {
   always_on                                = var.always_on
   application_insights_instrumentation_key = var.application_insights_instrumentation_key
   app_service_plan_id                      = azurerm_app_service_plan.function_service_plan.id
+  app_service_plan_type = module.idh_loader.idh_resource_configuration.plan_type
   app_settings                             = var.app_settings
 
   allowed_subnets = var.allowed_subnet_ids
@@ -122,7 +123,6 @@ module "reporting_analysis_function_slot_staging" {
 
   source = "../../function_app_slot"
 
-  app_service_plan_id                      = azurerm_app_service_plan.function_service_plan.id
   function_app_id                          = module.main_slot.id
   storage_account_name                     = module.main_slot.storage_account_name
   storage_account_access_key               = module.main_slot.storage_account.primary_access_key

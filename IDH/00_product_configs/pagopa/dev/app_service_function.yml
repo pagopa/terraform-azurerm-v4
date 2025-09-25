@@ -36,3 +36,4 @@ basic:
   autoscale_default_capacity: 1
   autoscale_min_capacity: 1
   private_endpoint_enabled: false
+  plan_type: "external"
