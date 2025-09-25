@@ -14,7 +14,7 @@ basic:
     public_network_access_enabled: false
     use_legacy_defender_version: false
   client_cert_enabled: false
-  client_cert_mode: ""
+  client_cert_mode: "Optional"
   public_network_access_enabled: true
   enable_healthcheck: true
   https_only: true
