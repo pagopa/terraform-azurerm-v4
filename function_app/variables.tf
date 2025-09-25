@@ -343,3 +343,17 @@ variable "use_custom_runtime" {
   type    = string
   default = null
 }
+
+variable "app_service_plan_type" {
+  type = string
+  description = "(Required) The type of App Service Plan. Possible values are 'internal', 'external'"
+  validation {
+    condition     = var.app_service_plan_type == "internal" || var.app_service_plan_type == "external"
+    error_message = "Possible values are 'internal' and 'external'"
+  }
+
+  validation {
+    condition     = (var.app_service_plan_type == "internal" && var.app_service_plan_id == null) || (var.app_service_plan_type == "external" && var.app_service_plan_id != null)
+    error_message = "If app_service_plan_type is 'internal' app_service_plan_id must be null, if app_service_plan_type is 'external' app_service_plan_id must be not null"
+  }
+}

@@ -20,12 +20,6 @@ variable "runtime_version" {
   default = "~4"
 }
 
-variable "app_service_plan_id" {
-  type        = string
-  description = "The app service plan id to associate to the function."
-  default     = null
-}
-
 variable "pre_warmed_instance_count" {
   type    = number
   default = 1
@@ -94,11 +88,6 @@ variable "vnet_integration" {
   default     = true
 }
 
-variable "os_type" {
-  type        = string
-  description = "(Optional) A string indicating the Operating System type for this function app. This value will be linux for Linux derivatives, or an empty string for Windows (default). When set to linux you must also set azurerm_app_service_plan arguments as kind = Linux and reserved = true"
-  default     = null
-}
 
 variable "minimum_tls_version" {
   default     = "1.3"
