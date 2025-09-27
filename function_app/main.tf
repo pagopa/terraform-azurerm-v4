@@ -205,7 +205,7 @@ resource "azurerm_monitor_metric_alert" "function_app_health_check" {
 }
 
 resource "azurerm_service_plan" "this" {
-  count = var.app_service_plan_id == null ? 1 : 0
+  count = var.app_service_plan_type == "internal" ? 1 : 0
 
   name                         = var.app_service_plan_name != null ? var.app_service_plan_name : format("%s-plan", var.name)
   location                     = var.location
@@ -226,7 +226,7 @@ resource "azurerm_linux_function_app" "this" {
   resource_group_name         = var.resource_group_name
   location                    = var.location
   functions_extension_version = var.runtime_version
-  service_plan_id             = var.app_service_plan_id != null ? var.app_service_plan_id : azurerm_service_plan.this[0].id
+  service_plan_id             = var.app_service_plan_type == "external" ? var.app_service_plan_id : azurerm_service_plan.this[0].id
   #  The backend storage account name which will be used by this Function App (such as the dashboard, logs)
   storage_account_name          = module.storage_account.name
   storage_account_access_key    = module.storage_account.primary_access_key

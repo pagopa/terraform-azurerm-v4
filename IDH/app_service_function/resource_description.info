@@ -1,0 +1,1 @@
+SKU: {plan_sku_tier} {plan_sku_size}, zone balancing: {plan_zone_balancing_enabled}, public network access: {public_network_access_enabled}, private endpoint enabled: {private_endpoint_enabled}, ip restriction default action: {ip_restriction_default_action}, staging slot: {slot_staging_enabled}, autoscale enabled: {autoscale_enabled}, plan type: {plan_type}
