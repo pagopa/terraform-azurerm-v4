@@ -258,7 +258,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
       content {
         metric_trigger {
           metric_name              = "CpuPercentage"
-          metric_resource_id       = module.main_slot.plan_id
+          metric_resource_id       = module.main_slot.id
           metric_namespace         = "microsoft.web/serverfarms"
           time_grain               = "PT1M"
           statistic                = "Average"
@@ -283,7 +283,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
       content {
         metric_trigger {
           metric_name              = "CpuPercentage"
-          metric_resource_id       = module.main_slot.plan_id
+          metric_resource_id       = module.main_slot.id
           metric_namespace         = "microsoft.web/serverfarms"
           time_grain               = "PT1M"
           statistic                = "Average"
@@ -308,7 +308,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
       content {
         metric_trigger {
           metric_name              = "CpuPercentage"
-          metric_resource_id       = module.main_slot.plan_id
+          metric_resource_id       = module.main_slot.id
           metric_namespace         = "microsoft.web/serverfarms"
           time_grain               = "PT1M"
           statistic                = "Average"
