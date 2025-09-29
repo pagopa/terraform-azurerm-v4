@@ -53,6 +53,40 @@ resource "terraform_data" "subnet_cidr" {
   }
 }
 
+# this resource is used to store the first usable ip
+# and change it only when the vnet or the product_name length has changed
+resource "terraform_data" "subnet_first_ip" {
+  input = data.external.subnet_cidr.result.first
+
+  # use a new cidr only if the vnet or the product_name length has changed
+  triggers_replace = [
+    data.azurerm_virtual_network.vnet.address_space[0],
+    module.idh_loader.idh_resource_configuration.prefix_length
+  ]
+
+  # ignore changes to the cidr value because it is calculated everyrun, even after the subnet has already been created
+  lifecycle {
+    ignore_changes = [input]
+  }
+}
+
+# this resource is used to store the last usable ip
+# and change it only when the vnet or the product_name length has changed
+resource "terraform_data" "subnet_last_ip" {
+  input = data.external.subnet_cidr.result.last
+
+  # use a new cidr only if the vnet or the product_name length has changed
+  triggers_replace = [
+    data.azurerm_virtual_network.vnet.address_space[0],
+    module.idh_loader.idh_resource_configuration.prefix_length
+  ]
+
+  # ignore changes to the cidr value because it is calculated everyrun, even after the subnet has already been created
+  lifecycle {
+    ignore_changes = [input]
+  }
+}
+
 #
 # Subnet
 #

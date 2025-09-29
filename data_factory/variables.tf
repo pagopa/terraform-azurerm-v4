@@ -16,6 +16,7 @@ variable "name" {
 variable "custom_domain_enabled" {
   description = "If not null enables custom domain for the private endpoint"
   type        = string
+  default     = null
 }
 
 variable "github_conf" {
@@ -27,6 +28,7 @@ variable "github_conf" {
     repository_name = string
     root_folder     = string
   })
+  default = null
 }
 
 variable "private_endpoint" {
@@ -45,6 +47,7 @@ variable "private_endpoint" {
 variable "resources_managed_private_enpoint" {
   description = "Map of resource to which a data factory must connect via managed private endpoint"
   type        = map(string)
+  default     = {}
 }
 
 variable "tags" {
