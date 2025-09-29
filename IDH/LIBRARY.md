@@ -3,6 +3,7 @@
 | 📦 Module | 📄 Documentation |
 |-----------|------------------|
 | 📦 aks_node_pool | [📄 README](aks_node_pool/README.md) |
+| 📦 app_service_function | [📄 README](app_service_function/README.md) |
 | 📦 app_service_webapp | [📄 README](app_service_webapp/README.md) |
 | 📦 cosmosdb_account | [📄 README](cosmosdb_account/README.md) |
 | 📦 event_hub | [📄 README](event_hub/README.md) |
