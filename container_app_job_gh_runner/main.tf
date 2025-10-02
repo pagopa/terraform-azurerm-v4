@@ -62,6 +62,10 @@ resource "azurerm_container_app_job" "container_app_job" {
   }
 
   tags = var.tags
+
+  lifecycle {
+    ignore_changes = [workload_profile_name]
+  }
 }
 
 resource "azurerm_key_vault_access_policy" "keyvault_containerapp" {
