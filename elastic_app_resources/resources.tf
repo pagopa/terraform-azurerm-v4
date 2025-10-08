@@ -85,6 +85,10 @@ resource "elasticstack_kibana_data_view" "kibana_data_view" {
 
     runtime_field_map = length(local.runtime_fields) != 0 ? local.runtime_fields : null
   }
+
+  lifecycle {
+    ignore_changes = [data_view.field_attrs]
+  }
 }
 
 resource "elasticstack_kibana_data_view" "kibana_apm_data_view" {
@@ -94,6 +98,9 @@ resource "elasticstack_kibana_data_view" "kibana_apm_data_view" {
     name            = "APM ${local.application_id}"
     title           = length(var.configuration.apmDataView.indexIdentifiers) > 0 ? join(",", [for i in var.configuration.apmDataView.indexIdentifiers : "traces-apm*${i}*-${local.elastic_namespace},apm-*${i}*-${local.elastic_namespace},traces-*${i}*.otel-*-${local.elastic_namespace},logs-apm*${i}*-${local.elastic_namespace},apm-*${i}*-${local.elastic_namespace},logs-*${i}*.otel-*,metrics-apm*${i}*-${local.elastic_namespace},apm-*${i}*-${local.elastic_namespace},metrics-*${i}*.otel-*-${local.elastic_namespace}"]) : "traces-apm*-${local.elastic_namespace},apm-*-${local.elastic_namespace},traces-*.otel-*-${local.elastic_namespace},logs-apm*,apm-*-${local.elastic_namespace},logs-*.otel-*-${local.elastic_namespace},metrics-apm*-${local.elastic_namespace},apm-*-${local.elastic_namespace},metrics-*.otel-*-${local.elastic_namespace}"
     time_field_name = "@timestamp"
+  }
+  lifecycle {
+    ignore_changes = [data_view.field_attrs]
   }
 }
 
