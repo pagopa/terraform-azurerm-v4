@@ -535,6 +535,37 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       }
     }
   }
+
+  #webhook cloudo
+  dynamic "actions" {
+    for_each = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name != "" ? [1] : []
+    content {
+      id = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
+      params = jsonencode({"params": {
+        "body": "{\n    \"foo\": \"{{context.hits}}\"\n}"
+      }})
+      frequency {
+        notify_when = "onActionGroupChange"
+        summary     = false
+      }
+    }
+  }
+
+  #webhook cloudo close
+  dynamic "actions" {
+    for_each = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name != "" ? [1] : []
+    content {
+      group = "recovered"
+      id    = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
+      params = jsonencode({"params": {
+        "body": "{\n    \"foo\": \"{{context.hits}}\"\n}"
+      }})
+      frequency {
+        notify_when = "onActionGroupChange"
+        summary     = false
+      }
+    }
+  }
 }
 
 
