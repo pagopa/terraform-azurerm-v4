@@ -169,6 +169,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "cloudo type must be defined and be one of 'aks'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
+     precondition {
+      condition     = var.alert_channels.cloudo.enabled ? lookup(each.value.notification_channels, "cloudo", { rule : "" }).rule != "" : true
+      error_message = "cloudo rule must be defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
     precondition {
       condition     = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.type, "")  == "aks" ? try(each.value.notification_channels.cloudo.attributes.namespace, "") != "" : true
       error_message = "cloudo attributes.namespace must be defined when using type 'aks'. used by alert '${each.key}' in '${var.application_name}' application"
@@ -566,7 +571,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     content {
       id = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
       params = jsonencode({"params": {
-        "body": "{\"foo\": \"{{context.hits}}\", \"type\": \"${each.value.notification_channels.cloudo.type}\", "\"attributes\": ${jsonencode(each.value.notification_channels.cloudo.attributes)} }"
+        "body": "{\"logs\": \"{{context.hits}}\", \"alertRule\": \"${each.value.notification_channels.cloudo.rule}\", \"type\": \"${each.value.notification_channels.cloudo.type}\", "\"attributes\": ${jsonencode(each.value.notification_channels.cloudo.attributes)} }"
       }})
       frequency {
         notify_when = "onActionGroupChange"
@@ -582,7 +587,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       group = "recovered"
       id    = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
       params = jsonencode({"params": {
-        "body": "{\"foo\": \"{{context.hits}}\", \"type\": \"${each.value.notification_channels.cloudo.type}\", \"attributes\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}"
+        "body": "{\"alertRule\": \"${each.value.notification_channels.cloudo.rule}\", \"type\": \"${each.value.notification_channels.cloudo.type}\", \"attributes\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}"
       }})
       frequency {
         notify_when = "onActionGroupChange"
