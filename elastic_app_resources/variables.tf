@@ -139,7 +139,7 @@ variable "alert_channels" {
       enabled    = false
       connectors = {}
     })
-    webhook = optional(object({
+    cloudo = optional(object({
       enabled    = bool
       connectors = map(string)
       }), {
@@ -162,7 +162,7 @@ variable "alert_channels" {
       enabled    = false
       connectors = {}
     }
-    webhook = {
+    cloudo = {
       enabled    = false
       connectors = {}
     }
@@ -179,5 +179,9 @@ variable "alert_channels" {
   validation {
     condition     = var.alert_channels.opsgenie.enabled == false || length(var.alert_channels.opsgenie.connectors) > 0
     error_message = "Opsgenie connectors must be defined if opsgenie alert channel is enabled."
+  }
+  validation {
+    condition     = var.alert_channels.cloudo.enabled == false || length(var.alert_channels.cloudo.connectors) > 0
+    error_message = "ClouDO connectors must be defined if clouDO alert channel is enabled."
   }
 }
