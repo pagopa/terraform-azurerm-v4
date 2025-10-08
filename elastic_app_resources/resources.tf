@@ -150,6 +150,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
+      condition     = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.cloudo.connectors), lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name) : true
+      error_message = "opsgenie connector name '${lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
       condition     = var.alert_channels.slack.enabled && lookup(lookup(each.value, "notification_channels", {}), "slack", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
       error_message = "slack connector name '${lookup(lookup(each.value, "notification_channels", {}), "slack", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application"
     }
@@ -157,6 +162,16 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     precondition {
       condition     = var.alert_channels.email.enabled && lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name != "" ? contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name) : true
       error_message = "email list name '${lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name}' must be defined in var.email_recipients. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", { type : "" }).type != "" ? contains(["aks"], each.value.notification_channels.type) : false
+      error_message = "cloudo type must be defined and be one of 'aks'. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.type, "")  == "aks" ? try(each.value.notification_channels.cloudo.attributes.namespace, "") != "" : false
+      error_message = "cloudo attributes.namespace must be defined when using type 'aks'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
@@ -335,6 +350,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       condition     = can(each.value.custom_threshold) ? lookup(each.value.custom_threshold, "equation", null) != null : true
       error_message = "custom_threshold must have equation defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
+
+
 
 
   }
@@ -545,9 +562,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #webhook cloudo
   dynamic "actions" {
-    for_each = var.alert_channels.webhook.enabled && lookup(each.value.notification_channels, "webhook", { connector_name : "" }).connector_name != "" ? [1] : []
+    for_each = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name != "" ? [1] : []
     content {
-      id = var.alert_channels.webhook.connectors[each.value.notification_channels.webhook.connector_name]
+      id = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
       params = jsonencode({"params": {
         "body": "{\n    \"foo\": \"{{context.hits}}\"\n}"
       }})
@@ -560,12 +577,12 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #webhook cloudo close
   dynamic "actions" {
-    for_each = var.alert_channels.webhook.enabled && lookup(each.value.notification_channels, "webhook", { connector_name : "" }).connector_name != "" ? [1] : []
+    for_each = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name != "" ? [1] : []
     content {
       group = "recovered"
-      id    = var.alert_channels.webhook.connectors[each.value.notification_channels.webhook.connector_name]
+      id    = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
       params = jsonencode({"params": {
-        "body": "{\"foo\": \"{{context.hits}}\", \"attributes\": ${jsonencode(each.value.notification_channels.webhook.attributes)}"
+        "body": "{\"foo\": \"{{context.hits}}\", \"attributes\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}"
       }})
       frequency {
         notify_when = "onActionGroupChange"
