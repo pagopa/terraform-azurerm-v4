@@ -165,12 +165,12 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", { type : "" }).type != "" ? contains(["aks"], each.value.notification_channels.type) : false
+      condition     = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", { type : "" }).type != "" ? contains(["aks"], each.value.notification_channels.cloudo.type) : true
       error_message = "cloudo type must be defined and be one of 'aks'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.type, "")  == "aks" ? try(each.value.notification_channels.cloudo.attributes.namespace, "") != "" : false
+      condition     = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.type, "")  == "aks" ? try(each.value.notification_channels.cloudo.attributes.namespace, "") != "" : true
       error_message = "cloudo attributes.namespace must be defined when using type 'aks'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
