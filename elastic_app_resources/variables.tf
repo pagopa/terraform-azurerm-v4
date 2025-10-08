@@ -139,7 +139,7 @@ variable "alert_channels" {
       enabled    = false
       connectors = {}
     })
-    cloudo = optional(object({
+    webhook = optional(object({
       enabled    = bool
       connectors = map(string)
       }), {
@@ -162,7 +162,7 @@ variable "alert_channels" {
       enabled    = false
       connectors = {}
     }
-    cloudo = {
+    webhook = {
       enabled    = false
       connectors = {}
     }
