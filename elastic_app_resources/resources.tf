@@ -571,7 +571,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     content {
       id = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
       params = jsonencode({"params": {
-        "body": "{\"logs\": \"{{context.hits}}\", \"alertRule\": \"${each.value.notification_channels.cloudo.rule}\", \"type\": \"${each.value.notification_channels.cloudo.type}\", "\"attributes\": ${jsonencode(each.value.notification_channels.cloudo.attributes)} }"
+        "body": "{  \"data\": {    \"essentials\": {      \"alertRule\": \"${each.value.notification_channels.cloudo.rule}\",      \"severity\": \"${each.value.notification_channels.cloudo.severity}\",      \"monitorCondition\": \"Fired\",      \"logs\": \"{{context.hits}}\",      \"type\": \"${each.value.notification_channels.cloudo.type}\"    },    \"alertContext\": {      \"labels\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}    }  }}"
       }})
       frequency {
         notify_when = "onActionGroupChange"
@@ -587,7 +587,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       group = "recovered"
       id    = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
       params = jsonencode({"params": {
-        "body": "{\"alertRule\": \"${each.value.notification_channels.cloudo.rule}\", \"type\": \"${each.value.notification_channels.cloudo.type}\", \"attributes\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}"
+        "body": "{  \"data\": {    \"essentials\": {      \"alertRule\": \"${each.value.notification_channels.cloudo.rule}\",      \"severity\": \"${each.value.notification_channels.cloudo.severity}\",      \"monitorCondition\": \"Resolved\",          \"type\": \"${each.value.notification_channels.cloudo.type}\"    },    \"alertContext\": {      \"labels\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}    }  }}"
       }})
       frequency {
         notify_when = "onActionGroupChange"
