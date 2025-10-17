@@ -11,6 +11,7 @@
 | cstar | prod |  backup7_public | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: True, PiT restore: True, PiT Retention: 7, sftp: False |
 | cstar | prod |  basic | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: False, PiT restore: True, PiT Retention: 7, sftp: False |
 | cstar | prod |  basic_audit | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: False, PiT restore: False, PiT Retention: 0, sftp: False |
+| cstar | prod |  basic_public | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: True, PiT restore: True, PiT Retention: 7, sftp: False |
 |---|---|---|---|
 | cstar | uat |  basic | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: False, PiT restore: False, PiT Retention: 0, sftp: False |
 | cstar | uat |  basic_public | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: True, PiT restore: False, PiT Retention: 0, sftp: False |
