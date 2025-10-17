@@ -5,8 +5,8 @@
 |:-------------:|:----------------:|:---------:|:----------------|
 | cstar | dev |  basic | Sku: Basic, version: 6, capacity: 0, public: False, private endpoint: True, zones: [], alert enabled: False |
 |---|---|---|---|
-| cstar | prod |  premium | Sku: Premium, version: 6, capacity: 1, public: False, private endpoint: True, zones: [1, 2, 3], alert enabled: True |
-| cstar | prod |  standard | Sku: Standard, version: 6, capacity: 1, public: False, private endpoint: True, zones: [], alert enabled: True |
+| cstar | prod |  premium_P | Sku: Premium, version: 6, capacity: 1, public: False, private endpoint: True, zones: [1, 2, 3], alert enabled: True |
+| cstar | prod |  standard_C | Sku: Standard, version: 6, capacity: 1, public: False, private endpoint: True, zones: [], alert enabled: True |
 |---|---|---|---|
 | cstar | uat |  basic | Sku: Basic, version: 6, capacity: 1, public: True, private endpoint: True, zones: [], alert enabled: False |
 ## dvopla
