@@ -208,6 +208,7 @@ data:
           package:
             name: system
             version: ${system_package_version}
+      %{~ if kubernetes_metric_collection ~}
       - id: kubernetes/metrics-kubelet-${kubernetes_id}
         revision: 1
         name: ${kubernetes_name}
@@ -286,53 +287,6 @@ data:
           package:
             name: kubernetes
             version: ${kubernetes_package_version}
-      - id: journald-system-${system_id}
-        revision: 10
-        name: ${system_name}
-        type: journald
-        data_stream:
-          namespace: ${target_namespace}
-        use_output: default
-        package_policy_id: ${system_id}
-        streams:
-          - id: journald-system.auth-${system_id}
-            data_stream:
-              type: logs
-              dataset: system.auth
-            type: journald
-            facilities:
-              - 4
-              - 10
-            condition: >-
-              $${host.os_version} == "12 (bookworm)" or ($${host.os_platform} ==
-              "amzn" and $${host.os_version} == "2023")
-            tags: null
-          - id: journald-system.syslog-${system_id}
-            data_stream:
-              type: logs
-              dataset: system.syslog
-            type: journald
-            facilities:
-              - 0
-              - 1
-              - 2
-              - 3
-              - 5
-              - 6
-              - 7
-              - 8
-              - 9
-              - 11
-              - 12
-              - 15
-            condition: >-
-              $${host.os_version} == "12 (bookworm)" or ($${host.os_platform} ==
-              "amzn" and $${host.os_version} == "2023")
-            tags: null
-        meta:
-          package:
-            name: system
-            version: ${system_package_version}
       - id: >-
           kubernetes/metrics-kube-state-metrics-${kubernetes_id}
         revision: 1
@@ -594,6 +548,54 @@ data:
           package:
             name: kubernetes
             version: ${kubernetes_package_version}
+      %{~ endif ~}
+      - id: journald-system-${system_id}
+        revision: 10
+        name: ${system_name}
+        type: journald
+        data_stream:
+          namespace: ${target_namespace}
+        use_output: default
+        package_policy_id: ${system_id}
+        streams:
+          - id: journald-system.auth-${system_id}
+            data_stream:
+              type: logs
+              dataset: system.auth
+            type: journald
+            facilities:
+              - 4
+              - 10
+            condition: >-
+              $${host.os_version} == "12 (bookworm)" or ($${host.os_platform} ==
+              "amzn" and $${host.os_version} == "2023")
+            tags: null
+          - id: journald-system.syslog-${system_id}
+            data_stream:
+              type: logs
+              dataset: system.syslog
+            type: journald
+            facilities:
+              - 0
+              - 1
+              - 2
+              - 3
+              - 5
+              - 6
+              - 7
+              - 8
+              - 9
+              - 11
+              - 12
+              - 15
+            condition: >-
+              $${host.os_version} == "12 (bookworm)" or ($${host.os_platform} ==
+              "amzn" and $${host.os_version} == "2023")
+            tags: null
+        meta:
+          package:
+            name: system
+            version: ${system_package_version}
       - id: filestream-container-logs-${kubernetes_id}
         revision: 1
         name: ${kubernetes_name}
@@ -863,6 +865,7 @@ data:
               privileges: *ref_0
         ${kubernetes_id}:
           indices:
+            %{~ if kubernetes_metric_collection ~}
             - names:
                 - metrics-kubernetes.container-${target_namespace}
               privileges: *ref_0
@@ -932,6 +935,7 @@ data:
             - names:
                 - metrics-kubernetes.event-${target_namespace}
               privileges: *ref_0
+            %{~ endif ~}
             - names:
                 - logs-*-*
               privileges: *ref_0

@@ -104,3 +104,9 @@ variable "unmanaged_prometheus_namespace" {
   description = "Namespace where the prometheus-kube-state-metrics is installed"
   default     = "ND"
 }
+
+variable "k8s_metric_collection" {
+  type = bool
+  default = true
+  description = "Enables the collection of kubernetes metrics"
+}
