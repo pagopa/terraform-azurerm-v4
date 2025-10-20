@@ -16,6 +16,9 @@ locals {
   oidc_issuer_enabled = var.workload_identity_enabled ? true : var.oidc_issuer_enabled
 }
 
+#--------------------------------------------------------------------------------
+# AKS
+#--------------------------------------------------------------------------------
 #tfsec:ignore:AZU008
 #tfsec:ignore:azure-container-logging addon_profile is deprecated, false positive
 resource "azurerm_kubernetes_cluster" "this" {
@@ -87,9 +90,12 @@ resource "azurerm_kubernetes_cluster" "this" {
     }
   }
 
-  workload_autoscaler_profile {
-    keda_enabled                    = var.workload_autoscaler_profile_keda_enabled
-    vertical_pod_autoscaler_enabled = var.workload_autoscaler_profile_vertical_pod_autoscaler_enabled
+  dynamic "workload_autoscaler_profile" {
+    for_each = var.workload_autoscaler_profile_keda_enabled || var.workload_autoscaler_profile_vertical_pod_autoscaler_enabled ? [1] : []
+    content {
+      keda_enabled                    = var.workload_autoscaler_profile_keda_enabled
+      vertical_pod_autoscaler_enabled = var.workload_autoscaler_profile_vertical_pod_autoscaler_enabled
+    }
   }
 
   upgrade_override {
@@ -202,13 +208,17 @@ resource "azurerm_kubernetes_cluster" "this" {
     ignore_changes = [
       default_node_pool[0].node_count,
       network_profile[0].load_balancer_profile[0].idle_timeout_in_minutes,
-      upgrade_override[0].effective_until
+      upgrade_override[0].effective_until,
+      workload_autoscaler_profile
     ]
   }
 
   tags = var.tags
 }
 
+#-------------------------------------------------------------------------------
+# User node pool (Internal)
+#-------------------------------------------------------------------------------
 resource "azurerm_kubernetes_cluster_node_pool" "this" {
   count = var.user_node_pool_enabled ? 1 : 0
 
