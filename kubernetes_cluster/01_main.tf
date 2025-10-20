@@ -16,6 +16,9 @@ locals {
   oidc_issuer_enabled = var.workload_identity_enabled ? true : var.oidc_issuer_enabled
 }
 
+#--------------------------------------------------------------------------------
+# AKS
+#--------------------------------------------------------------------------------
 #tfsec:ignore:AZU008
 #tfsec:ignore:azure-container-logging addon_profile is deprecated, false positive
 resource "azurerm_kubernetes_cluster" "this" {
