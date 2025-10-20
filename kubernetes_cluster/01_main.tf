@@ -202,13 +202,18 @@ resource "azurerm_kubernetes_cluster" "this" {
     ignore_changes = [
       default_node_pool[0].node_count,
       network_profile[0].load_balancer_profile[0].idle_timeout_in_minutes,
-      upgrade_override[0].effective_until
+      upgrade_override[0].effective_until,
+      workload_autoscaler_profile.0.keda_enabled,
+      workload_autoscaler_profile.0.vertical_pod_autoscaler_enabled
     ]
   }
 
   tags = var.tags
 }
 
+#-------------------------------------------------------------------------------
+# User node pool (Internal)
+#-------------------------------------------------------------------------------
 resource "azurerm_kubernetes_cluster_node_pool" "this" {
   count = var.user_node_pool_enabled ? 1 : 0
 
