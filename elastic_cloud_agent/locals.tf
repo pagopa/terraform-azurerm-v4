@@ -8,12 +8,13 @@ locals {
     system_id                   = var.system_integration_policy.id
     system_revision             = 1
     system_package_version      = var.system_package_version
+    system_metric_collection = var.enabled_metric_collection.system
 
     kubernetes_name            = var.k8s_integration_policy.name
     kubernetes_id              = var.k8s_integration_policy.id
     kubernetes_revision        = 1
     kubernetes_package_version = var.k8s_package_version
-    kubernetes_metric_collection = var.k8s_metric_collection
+    kubernetes_metric_collection = var.enabled_metric_collection.k8s
 
     apm_name            = var.apm_integration_policy.name
     apm_id              = var.apm_integration_policy.id
@@ -28,6 +29,7 @@ locals {
 
     elasticsearch_api_key = var.elasticsearch_api_key
     elastic_agent_version = "8.17.1"
+    elastic_agent_metric_collection = var.enabled_metric_collection.elastic_agent
 
     tolerated_taints = var.tolerated_taints
     prometheus_url   = var.use_managed_prometheus ? "ama-metrics-ksm.kube-system.svc.cluster.local:8080" : "prometheus-kube-state-metrics.${var.unmanaged_prometheus_namespace}.svc.cluster.local:8080"

@@ -17,6 +17,7 @@ data:
         api_key: $${API_KEY}
         preset: balanced
     inputs:
+      %{~ if system_metric_collection ~}
       - id: logfile-system-${system_id}
         revision: 1
         name: ${system_name}
@@ -208,6 +209,7 @@ data:
           package:
             name: system
             version: ${system_package_version}
+      %{~ endif ~}
       %{~ if kubernetes_metric_collection ~}
       - id: kubernetes/metrics-kubelet-${kubernetes_id}
         revision: 1
@@ -722,6 +724,7 @@ data:
     namespaces: []
     output_permissions:
       default:
+        %{~ if elastic_agent_metric_collection ~}
         _elastic_agent_monitoring:
           indices:
             - names:
@@ -813,6 +816,8 @@ data:
         _elastic_agent_checks:
           cluster:
             - monitor
+        %{~ endif ~}
+        %{~ if system_metric_collection ~}
         ${system_id}:
           indices:
             - names:
@@ -863,6 +868,7 @@ data:
             - names:
                 - metrics-system.uptime-${target_namespace}
               privileges: *ref_0
+        %{~ endif ~}
         ${kubernetes_id}:
           indices:
             %{~ if kubernetes_metric_collection ~}
