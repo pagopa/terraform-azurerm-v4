@@ -257,7 +257,6 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   name         = "${local.application_id} ${each.value.name}"
   consumer     = lookup(each.value, "log_query", null) != null ? "logs" : "alerts"
   rule_type_id = lookup(each.value, "log_query", null) != null ? ".es-query" : local.rule_type_id_map[lookup(each.value, "apm_metric", null).metric]
-  notify_when  = "onActionGroupChange"
   tags         = [var.application_name, var.target_env]
   params = jsonencode(
     merge(
@@ -361,6 +360,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     for_each = var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name != "" ? [1] : []
     content {
       id = var.alert_channels.opsgenie.connectors[each.value.notification_channels.opsgenie.connector_name]
+      group: "query matched"
       params = jsonencode({
         subAction = "createAlert"
         subActionParams = {
@@ -404,6 +404,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     for_each = var.alert_channels.slack.enabled && lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name != "" ? [1] : []
     content {
       id = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
+      group: "query matched"
       params = jsonencode({
         "message" : local.alert_message
       })
