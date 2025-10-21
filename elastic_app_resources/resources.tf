@@ -322,6 +322,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   dynamic "actions" {
     for_each = var.alert_channels.email.enabled && lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name != "" ? [1] : []
     content {
+      group = "query matched"
       id = "elastic-cloud-email"
       params = jsonencode({
         message = local.alert_message
