@@ -322,7 +322,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     for_each = var.alert_channels.email.enabled && lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name != "" ? [1] : []
     content {
       group = "query matched"
-      id = "elastic-cloud-email"
+      id    = "elastic-cloud-email"
       params = jsonencode({
         message = local.alert_message
         to      = var.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
@@ -359,8 +359,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   dynamic "actions" {
     for_each = var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name != "" ? [1] : []
     content {
-      id = var.alert_channels.opsgenie.connectors[each.value.notification_channels.opsgenie.connector_name]
-      group: "query matched"
+      id    = var.alert_channels.opsgenie.connectors[each.value.notification_channels.opsgenie.connector_name]
+      group = "query matched"
       params = jsonencode({
         subAction = "createAlert"
         subActionParams = {
@@ -403,8 +403,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   dynamic "actions" {
     for_each = var.alert_channels.slack.enabled && lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name != "" ? [1] : []
     content {
-      id = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
-      group: "query matched"
+      id    = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
+      group = "query matched"
       params = jsonencode({
         "message" : local.alert_message
       })
