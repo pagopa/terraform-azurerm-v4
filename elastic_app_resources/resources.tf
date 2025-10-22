@@ -570,6 +570,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     for_each = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name != "" ? [1] : []
     content {
       id = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
+      group = "query matched"
       params = jsonencode({"params": {
         "body": "{  \"data\": {    \"essentials\": {      \"alertRule\": \"${each.value.notification_channels.cloudo.rule}\",      \"severity\": \"${each.value.notification_channels.cloudo.severity}\",      \"monitorCondition\": \"Fired\",      \"logs\": \"{{context.hits}}\",      \"type\": \"${each.value.notification_channels.cloudo.type}\"    },    \"alertContext\": {      \"labels\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}    }  }}"
       }})
