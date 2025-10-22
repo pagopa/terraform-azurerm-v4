@@ -169,8 +169,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "cloudo type must be defined and be one of 'aks'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
-     precondition {
-      condition     = var.alert_channels.cloudo.enabled ? lookup(each.value.notification_channels, "cloudo", { rule : "" }).rule != "" : true
+    precondition {
+      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo.rule) ? lookup(each.value.notification_channels, "cloudo", { rule : "" }).rule != "" : true
       error_message = "cloudo rule must be defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
