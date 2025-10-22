@@ -170,8 +170,18 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo.rule) ? lookup(each.value.notification_channels, "cloudo", { rule : "" }).rule != "" : true
+      condition     = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", null) != null ? lookup(each.value.notification_channels.cloudo, "rule", "") != "" : true
       error_message = "cloudo rule must be defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", null) != null ? lookup(each.value.notification_channels.cloudo, "severity", "") != "" : true
+      error_message = "cloudo severity must be defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", null) != null ? lookup(each.value.notification_channels.cloudo, "type", "") != "" : true
+      error_message = "cloudo type must be defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
