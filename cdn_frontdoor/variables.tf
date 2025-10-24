@@ -203,10 +203,10 @@ variable "delivery_rule_redirects" {
 
     # conditions
     request_uri_conditions = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
-    url_path_conditions    = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    url_path_conditions    = optional(list(object({ operator = string, match_values = optional(list(string)), negate_condition = optional(bool), transforms = optional(list(string)) })), [])
 
     # actions
-    url_redirect_actions = list(object({ redirect_type = string, protocol = string, hostname = string, path = string, fragment = string, query_string = string }))
+    url_redirect_actions = optional(list(object({ redirect_type = string, protocol = string, hostname = string, path = string, fragment = string, query_string = string })))
   }))
   default     = []
   description = "Ordered redirect rules with optional URI or path conditions and one or more redirect actions."
@@ -248,6 +248,7 @@ variable "delivery_custom_rules" {
     url_file_extension_conditions = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
     url_file_name_conditions      = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
     url_path_conditions           = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    host_name_condition           = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
 
     cache_expiration_actions       = optional(list(object({ behavior = string, duration = string })), [])
     cache_key_query_string_actions = optional(list(object({ behavior = string, parameters = string })), [])
