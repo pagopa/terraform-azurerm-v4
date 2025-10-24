@@ -41,7 +41,10 @@ module "cosmosdb_account" {
     max_interval_in_seconds = module.idh_loader.idh_resource_configuration.consistency_policy.max_interval_in_seconds
     max_staleness_prefix    = module.idh_loader.idh_resource_configuration.consistency_policy.max_staleness_prefix
   }
-  capabilities = module.idh_loader.idh_resource_configuration.capabilities
+  capabilities = distinct(concat(
+    module.idh_loader.idh_resource_configuration.capabilities,
+    var.capabilities_additional
+  ))
 
   # 6. Backup and Failover
   backup_continuous_enabled = module.idh_loader.idh_resource_configuration.backup_continuous_enabled
