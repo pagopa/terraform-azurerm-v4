@@ -5,15 +5,12 @@
 |:-------------:|:----------------:|:---------:|:----------------|
 | cstar | dev |  cosmos_mongo6 | Server Version: 6.0, Offer Type: Standard, geo redundant: False, Alarm Enable: False, Consistency policy: `BoundedStaleness`,`300`,`100000`, Continuous backup: `False` |
 | cstar | dev |  cosmos_mongo7 | Server Version: 7.0, Offer Type: Standard, geo redundant: False, Alarm Enable: False, Consistency policy: `BoundedStaleness`,`300`,`100000`, Continuous backup: `False` |
-| cstar | dev |  cosmos_mongo7_unique_compound_nested_docs | Server Version: 7.0, Offer Type: Standard, geo redundant: False, Alarm Enable: False, Consistency policy: `Eventual`,`300`,`100000`, Continuous backup: `False` |
 |---|---|---|---|
 | cstar | prod |  cosmos_mongo6 | Server Version: 6.0, Offer Type: Standard, geo redundant: True, Alarm Enable: True, Consistency policy: `BoundedStaleness`,`300`,`100000`, Continuous backup: `True` |
 | cstar | prod |  cosmos_mongo7 | Server Version: 7.0, Offer Type: Standard, geo redundant: True, Alarm Enable: True, Consistency policy: `BoundedStaleness`,`300`,`100000`, Continuous backup: `True` |
-| cstar | prod |  cosmos_mongo7_unique_compound_nested_docs | Server Version: 7.0, Offer Type: Standard, geo redundant: True, Alarm Enable: True, Consistency policy: `Eventual`,`300`,`100000`, Continuous backup: `True` |
 |---|---|---|---|
 | cstar | uat |  cosmos_mongo6 | Server Version: 6.0, Offer Type: Standard, geo redundant: False, Alarm Enable: False, Consistency policy: `BoundedStaleness`,`300`,`100000`, Continuous backup: `False` |
 | cstar | uat |  cosmos_mongo7 | Server Version: 7.0, Offer Type: Standard, geo redundant: False, Alarm Enable: False, Consistency policy: `BoundedStaleness`,`300`,`100000`, Continuous backup: `False` |
-| cstar | uat |  cosmos_mongo7_unique_compound_nested_docs | Server Version: 7.0, Offer Type: Standard, geo redundant: False, Alarm Enable: False, Consistency policy: `Eventual`,`300`,`100000`, Continuous backup: `False` |
 ## dvopla
 | 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |
 |:-------------:|:----------------:|:---------:|:----------------|

@@ -217,3 +217,20 @@ variable "private_endpoint_config" {
     error_message = "Table private endpoint configuration is required when the CosmosDB capabilities contains EnableTable."
   }
 }
+
+variable "capabilities_additional" {
+  description = "Optional list of extra Cosmos DB capabilities to add to the base module's capabilities"
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition = (
+      contains(var.capabilities_additional, "EnableUniqueCompoundNestedDocs") ||
+      contains(var.capabilities_additional, "DisableRateLimitingResponses")
+      ) ? (
+      contains(module.idh_loader.idh_resource_configuration.capabilities, "EnableMongo")
+    ) : true
+
+    error_message = "EnableUniqueCompoundNestedDocs or DisableRateLimitingResponses can only be set when EnableMongo is enabled"
+  }
+}

@@ -56,12 +56,11 @@ cosmos_mongo7:
   max_throughput: '1000'
   enable_provisioned_throughput_exceeded_alert: false
   provisioned_throughput_exceeded_threshold: 0
-cosmos_mongo7_unique_compound_nested_docs:
+cosmos_mongo7_consistency_eventual:
   kind: MongoDB
   capabilities:
     - EnableMongo
     - EnableServerless
-    - EnableUniqueCompoundNestedDocs
   offer_type: Standard
   consistency_policy:
     consistency_level: Eventual
