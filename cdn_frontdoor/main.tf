@@ -266,7 +266,7 @@ resource "azurerm_cdn_frontdoor_rule" "rule_redirect" {
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = compact([for v in c.value.match_values : v])
+        match_values     = try(compact([for v in c.value.match_values : v]), null)
         negate_condition = try(c.value.negate_condition, false)
         transforms       = try(c.value.transforms, [])
       }
@@ -507,6 +507,17 @@ resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
 
     dynamic "url_path_condition" {
       for_each = [for c in try(each.value.url_path_conditions, []) : c]
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = compact([for v in c.value.match_values : trimprefix(v, "/")])
+        negate_condition = try(c.value.negate_condition, false)
+        transforms       = try(c.value.transforms, [])
+      }
+    }
+
+    dynamic "host_name_condition" {
+      for_each = [for c in try(each.value.host_name_condition, []) : c]
       iterator = c
       content {
         operator         = c.value.operator
