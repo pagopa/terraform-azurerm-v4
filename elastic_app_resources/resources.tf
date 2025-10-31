@@ -581,9 +581,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     content {
       id = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
       group = "query matched"
-      params = jsonencode({"params": {
+      params = jsonencode({
         "body": "{  \"data\": {    \"essentials\": {      \"alertRule\": \"${each.value.notification_channels.cloudo.rule}\",      \"severity\": \"${each.value.notification_channels.cloudo.severity}\",      \"monitorCondition\": \"Fired\",      \"logs\": \"{{context.hits}}\",      \"type\": \"${each.value.notification_channels.cloudo.type}\"    },    \"alertContext\": {      \"labels\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}    }  }}"
-      }})
+      })
       frequency {
         notify_when = "onActionGroupChange"
         summary     = false
@@ -597,9 +597,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     content {
       group = "recovered"
       id    = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
-      params = jsonencode({"params": {
+      params = jsonencode({
         "body": "{  \"data\": {    \"essentials\": {      \"alertRule\": \"${each.value.notification_channels.cloudo.rule}\",      \"severity\": \"${each.value.notification_channels.cloudo.severity}\",      \"monitorCondition\": \"Resolved\",          \"type\": \"${each.value.notification_channels.cloudo.type}\"    },    \"alertContext\": {      \"labels\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}    }  }}"
-      }})
+      })
       frequency {
         notify_when = "onActionGroupChange"
         summary     = false
