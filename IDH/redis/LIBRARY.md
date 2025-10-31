@@ -9,7 +9,7 @@
 | cstar | prod |  standard_C1_v6 | Sku: Standard, version: 6, capacity: 1, public: False, private endpoint: True, zones: [], alert enabled: True |
 | cstar | prod |  standard_C2_v6 | Sku: Standard, version: 6, capacity: 2, public: False, private endpoint: True, zones: [], alert enabled: True |
 |---|---|---|---|
-| cstar | uat |  basic | Sku: Basic, version: 6, capacity: 1, public: True, private endpoint: True, zones: [], alert enabled: False |
+| cstar | uat |  basic | Sku: Basic, version: 6, capacity: 1, public: False, private endpoint: True, zones: [], alert enabled: False |
 ## dvopla
 | 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |
 |:-------------:|:----------------:|:---------:|:----------------|

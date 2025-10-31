@@ -5,7 +5,7 @@ basic:
   sku_name: "Basic"
   enable_authentication: true
   version: 6
-  public_network_access_enabled: true
+  public_network_access_enabled: false
   zones: []
   private_endpoint_enabled: true
   alert_enabled: false
