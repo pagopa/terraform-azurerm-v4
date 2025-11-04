@@ -68,6 +68,18 @@ variable "node_tags" {
   description = "(Required): Map of tags to assign to the nodes."
 }
 
+variable "os_disk_type" {
+  type        = string
+  description = "(Optional): Type of OS disk"
+  default     = null
+}
+
+variable "os_disk_size_gb" {
+  type        = number
+  description = "(Optional): OS disk size in GB"
+  default     = null
+}
+
 variable "tags" {
   type        = map(any)
   description = "(Optional): Map of tags to assign to the resource."

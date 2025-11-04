@@ -18,8 +18,8 @@ module "aks_node_pool" {
   # Compute & Storage settings (safe‑lookup + try() wrapper)
   ###############################################################
   vm_size                = module.idh_loader.idh_resource_configuration.vm_size
-  os_disk_type           = module.idh_loader.idh_resource_configuration.os_disk_type
-  os_disk_size_gb        = module.idh_loader.idh_resource_configuration.os_disk_size_gb
+  os_disk_type           = var.os_disk_type != null ? var.os_disk_type : module.idh_loader.idh_resource_configuration.os_disk_type
+  os_disk_size_gb        = var.os_disk_size_gb != null ? var.os_disk_size_gb : module.idh_loader.idh_resource_configuration.os_disk_size_gb
   ultra_ssd_enabled      = module.idh_loader.idh_resource_configuration.ultra_ssd_enabled
   enable_host_encryption = module.idh_loader.idh_resource_configuration.enable_host_encryption
 

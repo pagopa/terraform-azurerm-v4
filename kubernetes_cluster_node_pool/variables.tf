@@ -20,10 +20,6 @@ variable "vm_size" {
 variable "os_disk_type" {
   type        = string
   description = "(Required): Type of OS disk"
-  validation {
-    condition     = (can(regex("Standard_B", var.vm_size)) ? var.os_disk_type == "Managed" : var.os_disk_type == "Ephemeral")
-    error_message = "Use Managed when vm_size contains Standard_B, otherwise use Ephemeral"
-  }
 }
 
 variable "os_disk_size_gb" {
