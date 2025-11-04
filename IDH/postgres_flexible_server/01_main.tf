@@ -34,7 +34,7 @@ module "pgflex" {
   backup_retention_days        = module.idh_loader.idh_resource_configuration.backup_retention_days
   geo_redundant_backup_enabled = contains(module.idh_loader.non_paired_locations, var.location) ? false : module.idh_loader.idh_resource_configuration.geo_redundant_backup_enabled
   create_mode                  = module.idh_loader.idh_resource_configuration.create_mode
-  zone                         = var.zone
+  zone                         = local.zone
 
   delegated_subnet_id           = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.delegated_subnet_id : null
   private_dns_zone_id           = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_dns_zone_id : null
