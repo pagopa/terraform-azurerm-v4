@@ -29,6 +29,7 @@ module "pgflex" {
   resource_group_name       = var.resource_group_name
   sku_name                  = module.idh_loader.idh_resource_configuration.sku_name
   storage_mb                = var.storage_mb != null ? var.storage_mb : module.idh_loader.idh_resource_configuration.storage_mb
+  storage_tier              = var.storage_tier != null ? var.storage_tier : null
 
   backup_retention_days        = module.idh_loader.idh_resource_configuration.backup_retention_days
   geo_redundant_backup_enabled = contains(module.idh_loader.non_paired_locations, var.location) ? false : module.idh_loader.idh_resource_configuration.geo_redundant_backup_enabled
@@ -125,6 +126,11 @@ resource "azurerm_postgresql_flexible_server_configuration" "azure_extensions" {
   value     = length(var.additional_azure_extensions) > 0 ? join(",", [module.idh_loader.idh_resource_configuration.server_parameters.azure_extensions, join(",", var.additional_azure_extensions)]) : module.idh_loader.idh_resource_configuration.server_parameters.azure_extensions
 }
 
+resource "azurerm_postgresql_flexible_server_configuration" "max_connections" {
+  name      = "max_connections"
+  server_id = module.pgflex.id
+  value     = module.idh_loader.idh_resource_configuration.max_connections
+}
 
 #
 # Databases
