@@ -8,12 +8,12 @@ locals {
     system_id                   = var.system_integration_policy.id
     system_revision             = 1
     system_package_version      = var.system_package_version
-    system_metric_collection = var.enabled_metric_collection.system
+    system_metric_collection    = var.enabled_metric_collection.system
 
-    kubernetes_name            = var.k8s_integration_policy.name
-    kubernetes_id              = var.k8s_integration_policy.id
-    kubernetes_revision        = 1
-    kubernetes_package_version = var.k8s_package_version
+    kubernetes_name              = var.k8s_integration_policy.name
+    kubernetes_id                = var.k8s_integration_policy.id
+    kubernetes_revision          = 1
+    kubernetes_package_version   = var.k8s_package_version
     kubernetes_metric_collection = var.enabled_metric_collection.k8s
 
     apm_name            = var.apm_integration_policy.name
@@ -27,8 +27,8 @@ locals {
 
     elastic_host = var.elasticsearch_host
 
-    elasticsearch_api_key = var.elasticsearch_api_key
-    elastic_agent_version = "8.17.1"
+    elasticsearch_api_key           = var.elasticsearch_api_key
+    elastic_agent_version           = "8.17.1"
     elastic_agent_metric_collection = var.enabled_metric_collection.elastic_agent
 
     tolerated_taints = var.tolerated_taints

@@ -107,13 +107,13 @@ variable "unmanaged_prometheus_namespace" {
 
 variable "enabled_metric_collection" {
   type = object({
-    k8s = bool
-    system = bool
+    k8s           = bool
+    system        = bool
     elastic_agent = bool
   })
   default = {
-    k8s    = true
-    system = true
+    k8s           = true
+    system        = true
     elastic_agent = true
   }
   description = "Controls the enabled metric collection for various components"
