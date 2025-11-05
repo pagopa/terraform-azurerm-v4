@@ -93,6 +93,12 @@ variable "storage_mb" {
   default     = null
 }
 
+variable "storage_tier" {
+  type        = string
+  description = "(Optional) The storage tier of the PostgreSQL Flexible Server. Possible values are P4, P6, P10, P15,P20, P30,P40, P50,P60, P70 or P80. Default value is dependant on the storage_mb value. "
+  default     = null
+}
+
 variable "primary_user_assigned_identity_id" {
   type        = string
   description = "Manages a User Assigned Identity"
