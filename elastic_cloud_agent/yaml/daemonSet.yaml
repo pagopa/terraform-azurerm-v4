@@ -18,7 +18,7 @@ spec:
       labels:
         app: elastic-cloud-agent
       annotations:
-        services_sha: ${sha256(join(",", service_names))}
+        services_sha: ${sha256(join(",", [join(",", service_names), system_metric_collection, kubernetes_metric_collection, elastic_agent_metric_collection])}
     spec:
       # Tolerations are needed to run Elastic Agent on Kubernetes control-plane nodes.
       # Agents running on control-plane nodes collect metrics from the control plane components (scheduler, controller manager) of Kubernetes
