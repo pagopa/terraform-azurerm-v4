@@ -353,7 +353,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
           index : each.value.custom_threshold.data_view == "logs" ? elasticstack_kibana_data_view.kibana_data_view.data_view.id : elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
         }
         criteria : {
-          comparator : each.value.custom_threshold.comparator
+          comparator : each.value.custom_threshold.threshold.comparator
           threshold : each.value.custom_threshold.threshold.values
           timeSize: each.value.window.size
           timeUnit: each.value.window.unit
@@ -361,7 +361,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
           label: lookup(each.value.custom_threshold, "label", null)
           metrics: [ for agg in each.value.custom_threshold.aggregations : {
             name : agg.name
-            aggType : agg.type
+            aggType : agg.aggregation
             filter : lookup(agg, "filter", null)
           }
           ]
