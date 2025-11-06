@@ -360,9 +360,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
           equation: each.value.custom_threshold.equation
           label: lookup(each.value.custom_threshold, "label", null)
           metrics: [ for agg in each.value.custom_threshold.aggregations : {
-            name : agg.name
-            aggType : agg.aggregation
-            filter : lookup(agg, "filter", null)
+            name = agg.name
+            aggType = agg.aggregation
+            filter = lookup(agg, "filter", null)
           }
           ]
         }]
