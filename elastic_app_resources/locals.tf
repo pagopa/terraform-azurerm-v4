@@ -36,7 +36,7 @@ locals {
   }
 
   allowed_data_views = [ "logs", "apm"]
-
+  allowed_aggregations = [ "count", "avg", "sum", "min", "max", "cardinality", "rate", "p95", "p99", "last_value" ]
 
   anomaly_detector_map = {
     latency    = "txLatency",

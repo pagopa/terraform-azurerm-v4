@@ -283,6 +283,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations: contains(local.allowed_aggregations, agg.aggregation)]) : true
+      error_message = "custom_threshold.aggregations.*.aggregation must be one of ${join(",", local.allowed_aggregations)}. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
       condition     = can(each.value.custom_threshold) ? lookup(each.value.custom_threshold, "equation", null) != null : true
       error_message = "custom_threshold must have equation defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
