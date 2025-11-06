@@ -35,6 +35,9 @@ locals {
     "error_count"         = "apm.error_rate"
   }
 
+  allowed_data_views = [ "logs", "apm"]
+
+
   anomaly_detector_map = {
     latency    = "txLatency",
     throughput = "txThroughput",
