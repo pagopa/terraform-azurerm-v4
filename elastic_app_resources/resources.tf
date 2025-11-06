@@ -366,7 +366,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
           }
           ]
         }
-        groupBy: lookup(each.value.custom_threshold, group_by, "")
+        groupBy: lookup(each.value.custom_threshold, "group_by", "")
       } : null
     )
   )
