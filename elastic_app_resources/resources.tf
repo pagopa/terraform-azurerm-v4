@@ -359,11 +359,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
           timeUnit: each.value.window.unit
           equation: each.value.custom_threshold.equation
           label: lookup(each.value.custom_threshold, "label", null)
-          metrics: [ for agg in each.value.custom_threshold.aggregations : {
+          metrics: [ for agg in each.value.custom_threshold.aggregations : merge({
             name = agg.name
             aggType = agg.aggregation
-            filter = lookup(agg, "filter", null)
-          }
+
+          }, lookup(agg, "filter", null) != null ? {filter = agg.filter}: {})
           ]
         }]
         groupBy: lookup(each.value.custom_threshold, "group_by", "")
