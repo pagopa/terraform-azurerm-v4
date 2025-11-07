@@ -293,7 +293,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations:  agg.name != null]) : true
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations:  (agg.name != null && length(agg.name) > 0 )]) : true
       error_message = "custom_threshold.aggregations.*.name must not be null. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
