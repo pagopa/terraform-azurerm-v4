@@ -298,8 +298,18 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations:  agg.field == null if agg.aggregation == "count" ]) : true
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations:  lookup(agg, "field", null) == null if agg.aggregation == "count" ]) : true
       error_message = "custom_threshold.aggregations.*.field must not be defined when aggregation is 'count'. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations:  lookup(agg, "filter", null) == null if agg.aggregation != "count" ]) : true
+      error_message = "custom_threshold.aggregations.*.filter must not be defined when aggregation is not 'count'. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations:  lookup(agg, "field", null) != null if agg.aggregation != "count" ]) : true
+      error_message = "custom_threshold.aggregations.*.field must be defined when aggregation is not 'count'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
