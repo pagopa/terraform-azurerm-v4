@@ -298,6 +298,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations:  agg.field == null if agg.aggregation == "count" ]) : true
+      error_message = "custom_threshold.aggregations.*.field must not be defined when aggregation is 'count'. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
       condition     = can(each.value.custom_threshold) ? length(toset([for agg in each.value.custom_threshold.aggregations: agg.name ])) == length(each.value.custom_threshold.aggregations)  : true
       error_message = "custom_threshold.aggregations.*.name must be unique. used by alert '${each.key}' in '${var.application_name}' application"
     }
@@ -382,8 +387,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
           metrics: [ for agg in each.value.custom_threshold.aggregations : merge({
             name = agg.name
             aggType = agg.aggregation
-
-          }, lookup(agg, "filter", null) != null ? {filter = agg.filter}: {})
+          }, lookup(agg, "filter", null) != null ? {filter = agg.filter}: {},
+              lookup(agg, "field", null) != null ? {field = agg.field}: {})
           ]
         }]
         groupBy: lookup(each.value.custom_threshold, "group_by", "")
