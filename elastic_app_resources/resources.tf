@@ -298,6 +298,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
+      condition     = can(each.value.custom_threshold) ? length(toset([for agg in each.value.custom_threshold.aggregations: agg.name ])) == length(each.value.custom_threshold.aggregations)  : true
+      error_message = "custom_threshold.aggregations.*.name must be unique. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
       condition     = can(each.value.custom_threshold) ? lookup(each.value.custom_threshold, "equation", null) != null : true
       error_message = "custom_threshold must have equation defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
