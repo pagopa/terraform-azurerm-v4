@@ -156,13 +156,18 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
+      condition     = lookup(each.value, "log_query", null) != null ? lookup(each.value, "custom_threshold", null) == null : true
+      error_message = "log_query and custom_threshold are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
       condition     = lookup(each.value, "log_query", null) != null ? try(each.value.log_query.aggregation, "") != "" && try(each.value.log_query.query, "") != "" && try(each.value.log_query.data_view, "") != "" : true
       error_message = "log_query must have aggregation, query and data_view defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = lookup(each.value, "log_query", null) != null ? contains(["logs", "apm"], try(each.value.log_query.data_view, "")) : true
-      error_message = "log_query.data_view type must be either 'logs' or 'apm'. used by alert '${each.key}' in '${var.application_name}' application"
+      condition     = lookup(each.value, "log_query", null) != null ? contains(local.allowed_data_views, try(each.value.log_query.data_view, "")) : true
+      error_message = "log_query.data_view type must be either ${join(",", local.allowed_data_views)}. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
@@ -178,6 +183,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     precondition {
       condition     = lookup(each.value, "apm_metric", null) != null ? lookup(each.value, "log_query", null) == null : true
       error_message = "log_query and apm_metric are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = lookup(each.value, "apm_metric", null) != null ? lookup(each.value, "custom_threshold", null) == null : true
+      error_message = "custom_threshold and apm_metric are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
@@ -251,12 +261,78 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "'schedule' must be defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
+    precondition {
+      condition     = can(each.value.custom_threshold) ? contains(local.allowed_data_views, try(each.value.custom_threshold.data_view, "")) : true
+      error_message = "custom_threshold.data_view type must be either ${join(",", local.allowed_data_views)}. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? try(each.value.custom_threshold.threshold.comparator, "") != "" && length(try(each.value.custom_threshold.threshold.values, [])) > 0 : true
+      error_message = "custom_threshold.threshold must have comparator and values defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? length(try(each.value.custom_threshold.aggregations, [])) > 0 : true
+      error_message = "custom_threshold.aggregations must have at least one item defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : (can(agg.name) && can(agg.aggregation))]) : true
+      error_message = "custom_threshold.aggregations must all have name and aggregation defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : agg.aggregation != null]) : true
+      error_message = "custom_threshold.aggregations.*.aggregation must not be null. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : contains(local.allowed_aggregations, agg.aggregation) if agg.aggregation != null]) : true
+      error_message = "custom_threshold.aggregations.*.aggregation must be one of ${join(",", local.allowed_aggregations)}. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : (agg.name != null && length(agg.name) > 0)]) : true
+      error_message = "custom_threshold.aggregations.*.name must not be null or empty. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : lookup(agg, "field", null) == null if agg.aggregation == "count"]) : true
+      error_message = "custom_threshold.aggregations.*.field must not be defined when aggregation is 'count'. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : lookup(agg, "filter", null) == null if agg.aggregation != "count"]) : true
+      error_message = "custom_threshold.aggregations.*.filter must not be defined when aggregation is not 'count'. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : lookup(agg, "field", null) != null if agg.aggregation != "count"]) : true
+      error_message = "custom_threshold.aggregations.*.field must be defined when aggregation is not 'count'. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? length(toset([for agg in each.value.custom_threshold.aggregations : agg.name])) == length(each.value.custom_threshold.aggregations) : true
+      error_message = "custom_threshold.aggregations.*.name must be unique. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) && try(each.value.custom_threshold.group_by, "") != "" ? try(each.value.custom_threshold.group_by, null) != null : true
+      error_message = "custom_threshold.group_by must have at least one item if defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.custom_threshold) ? lookup(each.value.custom_threshold, "equation", null) != null : true
+      error_message = "custom_threshold must have equation defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
 
   }
 
   name         = "${local.application_id} ${each.value.name}"
-  consumer     = lookup(each.value, "log_query", null) != null ? "logs" : "alerts"
-  rule_type_id = lookup(each.value, "log_query", null) != null ? ".es-query" : local.rule_type_id_map[lookup(each.value, "apm_metric", null).metric]
+  consumer     = (lookup(each.value, "log_query", null) != null || lookup(each.value, "custom_threshold", null) != null) ? "logs" : "alerts"
+  rule_type_id = lookup(each.value, "log_query", null) != null ? ".es-query" : (lookup(each.value, "custom_threshold", null) != null ? "observability.rules.custom_threshold" : local.rule_type_id_map[lookup(each.value, "apm_metric", null).metric])
   tags         = [var.application_name, var.target_env]
   params = jsonencode(
     merge(
@@ -306,6 +382,33 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         transactionType : "request"
         anomalySeverityType : each.value.apm_metric.anomaly.severity_type
         anomalyDetectorTypes : [for d in each.value.apm_metric.anomaly.detectors : local.anomaly_detector_map[d]]
+      } : null,
+      # custom threshold
+      can(each.value.custom_threshold) ? {
+        searchConfiguration : {
+          query : {
+            query : lookup(each.value.custom_threshold, "query", "")
+            language : "kuery"
+          },
+          index : each.value.custom_threshold.data_view == "logs" ? elasticstack_kibana_data_view.kibana_data_view.data_view.id : elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
+        }
+        criteria : [{
+          comparator : each.value.custom_threshold.threshold.comparator
+          threshold : each.value.custom_threshold.threshold.values
+          timeSize : each.value.window.size
+          timeUnit : each.value.window.unit
+          equation : each.value.custom_threshold.equation
+          label : lookup(each.value.custom_threshold, "label", "")
+          metrics : [for agg in each.value.custom_threshold.aggregations : merge({
+            name    = agg.name
+            aggType = agg.aggregation
+            }, lookup(agg, "filter", null) != null ? { filter = agg.filter } : {},
+            lookup(agg, "field", null) != null ? { field = agg.field } : {})
+          ]
+        }]
+        groupBy : lookup(each.value.custom_threshold, "group_by", ""),
+        alertOnNoData : length(try(each.value.custom_threshold.group_by, [])) > 0 ? false : lookup(each.value.custom_threshold, "alert_on_no_data", false)
+        alertOnGroupDisappear : length(try(each.value.custom_threshold.group_by, [])) > 0 ? lookup(each.value.custom_threshold, "alert_on_no_data", false) : false
       } : null
     )
   )
