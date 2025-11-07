@@ -401,8 +401,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
               lookup(agg, "field", null) != null ? {field = agg.field}: {})
           ]
         }]
-        groupBy: lookup(each.value.custom_threshold, "group_by", ""),
-        alertOnNoData: lookup(each.value.custom_threshold, "alert_on_no_data", false)
+        groupBy: lookup(each.value.custom_threshold, "group_by", null),
+        alertOnNoData: length(try(each.value.custom_threshold.group_by, [])) > 0 ? false : lookup(each.value.custom_threshold, "alert_on_no_data", false)
+        alertOnGroupDisappear: length(try(each.value.custom_threshold.group_by, [])) > 0 ? lookup(each.value.custom_threshold, "alert_on_no_data", false) : false
       } : null
     )
   )
