@@ -282,8 +282,13 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "custom_threshold.aggregations must all have name and aggregation defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
+     precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations: agg.aggregation != null]) : true
+      error_message = "custom_threshold.aggregations.*.aggregation must not be null. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
     precondition {
-      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations: contains(local.allowed_aggregations, lookup(agg, "aggregation", ""))]) : true
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations: contains(local.allowed_aggregations, agg.aggregation)]) : true
       error_message = "custom_threshold.aggregations.*.aggregation must be one of ${join(",", local.allowed_aggregations)}. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
