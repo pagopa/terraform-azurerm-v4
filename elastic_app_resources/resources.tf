@@ -278,42 +278,42 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations: (can(agg.name) && can(agg.aggregation))]) : true
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : (can(agg.name) && can(agg.aggregation))]) : true
       error_message = "custom_threshold.aggregations must all have name and aggregation defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
-     precondition {
-      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations: agg.aggregation != null]) : true
+    precondition {
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : agg.aggregation != null]) : true
       error_message = "custom_threshold.aggregations.*.aggregation must not be null. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations: contains(local.allowed_aggregations, agg.aggregation) if agg.aggregation != null]) : true
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : contains(local.allowed_aggregations, agg.aggregation) if agg.aggregation != null]) : true
       error_message = "custom_threshold.aggregations.*.aggregation must be one of ${join(",", local.allowed_aggregations)}. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations:  (agg.name != null && length(agg.name) > 0 )]) : true
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : (agg.name != null && length(agg.name) > 0)]) : true
       error_message = "custom_threshold.aggregations.*.name must not be null or empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations:  lookup(agg, "field", null) == null if agg.aggregation == "count" ]) : true
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : lookup(agg, "field", null) == null if agg.aggregation == "count"]) : true
       error_message = "custom_threshold.aggregations.*.field must not be defined when aggregation is 'count'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations:  lookup(agg, "filter", null) == null if agg.aggregation != "count" ]) : true
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : lookup(agg, "filter", null) == null if agg.aggregation != "count"]) : true
       error_message = "custom_threshold.aggregations.*.filter must not be defined when aggregation is not 'count'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations:  lookup(agg, "field", null) != null if agg.aggregation != "count" ]) : true
+      condition     = can(each.value.custom_threshold) ? alltrue([for agg in each.value.custom_threshold.aggregations : lookup(agg, "field", null) != null if agg.aggregation != "count"]) : true
       error_message = "custom_threshold.aggregations.*.field must be defined when aggregation is not 'count'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = can(each.value.custom_threshold) ? length(toset([for agg in each.value.custom_threshold.aggregations: agg.name ])) == length(each.value.custom_threshold.aggregations)  : true
+      condition     = can(each.value.custom_threshold) ? length(toset([for agg in each.value.custom_threshold.aggregations : agg.name])) == length(each.value.custom_threshold.aggregations) : true
       error_message = "custom_threshold.aggregations.*.name must be unique. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
@@ -321,8 +321,6 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       condition     = can(each.value.custom_threshold) && try(each.value.custom_threshold.group_by, "") != "" ? try(each.value.custom_threshold.group_by, null) != null : true
       error_message = "custom_threshold.group_by must have at least one item if defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
-
-
 
     precondition {
       condition     = can(each.value.custom_threshold) ? lookup(each.value.custom_threshold, "equation", null) != null : true
@@ -397,20 +395,20 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         criteria : [{
           comparator : each.value.custom_threshold.threshold.comparator
           threshold : each.value.custom_threshold.threshold.values
-          timeSize: each.value.window.size
-          timeUnit: each.value.window.unit
-          equation: each.value.custom_threshold.equation
-          label: lookup(each.value.custom_threshold, "label", "")
-          metrics: [ for agg in each.value.custom_threshold.aggregations : merge({
-            name = agg.name
+          timeSize : each.value.window.size
+          timeUnit : each.value.window.unit
+          equation : each.value.custom_threshold.equation
+          label : lookup(each.value.custom_threshold, "label", "")
+          metrics : [for agg in each.value.custom_threshold.aggregations : merge({
+            name    = agg.name
             aggType = agg.aggregation
-          }, lookup(agg, "filter", null) != null ? {filter = agg.filter}: {},
-              lookup(agg, "field", null) != null ? {field = agg.field}: {})
+            }, lookup(agg, "filter", null) != null ? { filter = agg.filter } : {},
+            lookup(agg, "field", null) != null ? { field = agg.field } : {})
           ]
         }]
-        groupBy: lookup(each.value.custom_threshold, "group_by", ""),
-        alertOnNoData: length(try(each.value.custom_threshold.group_by, [])) > 0 ? false : lookup(each.value.custom_threshold, "alert_on_no_data", false)
-        alertOnGroupDisappear: length(try(each.value.custom_threshold.group_by, [])) > 0 ? lookup(each.value.custom_threshold, "alert_on_no_data", false) : false
+        groupBy : lookup(each.value.custom_threshold, "group_by", ""),
+        alertOnNoData : length(try(each.value.custom_threshold.group_by, [])) > 0 ? false : lookup(each.value.custom_threshold, "alert_on_no_data", false)
+        alertOnGroupDisappear : length(try(each.value.custom_threshold.group_by, [])) > 0 ? lookup(each.value.custom_threshold, "alert_on_no_data", false) : false
       } : null
     )
   )
