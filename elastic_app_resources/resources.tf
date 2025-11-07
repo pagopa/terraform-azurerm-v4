@@ -318,7 +318,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = can(each.value.custom_threshold) && can(each.value.custom_threshold.group_by) ? length(lookup(each.value.custom_threshold, "group_by", [])) > 0 : true
+      condition     = can(each.value.custom_threshold) && lookup(each.value.custom_threshold, "group_by", []) != null ? length(lookup(each.value.custom_threshold, "group_by", [])) > 0 : true
       error_message = "custom_threshold.group_by must have at least one item if defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
