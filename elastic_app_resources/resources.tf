@@ -136,17 +136,17 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = var.alert_channels.opsgenie.enabled && lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
+      condition     = var.alert_channels.opsgenie.enabled && can(each.value.notification_channels) && lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
       error_message = "opsgenie connector name '${lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.slack.enabled && lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
+      condition     = var.alert_channels.slack.enabled && can(each.value.notification_channels) && lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
       error_message = "slack connector name '${lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.email.enabled && lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name != "" ? contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name) : true
+      condition     = var.alert_channels.email.enabled && can(each.value.notification_channels) && lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name != "" ? contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name) : true
       error_message = "email list name '${lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name}' must be defined in var.email_recipients. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
@@ -427,7 +427,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       group = can(each.value.custom_threshold) ? "custom_threshold.fired": "query matched"
       id    = "elastic-cloud-email"
       params = jsonencode({
-        message = local.alert_message
+        message = can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : local.alert_messages.log_query)
         to      = var.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
         cc      = []
         subject = "Elastic alert ${var.target_env} ${each.value.name}"
@@ -473,7 +473,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
           ],
           message     = "Elastic alert ${var.target_env} ${each.value.name}"
           priority    = each.value.notification_channels.opsgenie.priority
-          description = local.alert_message
+          description = can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : local.alert_messages.log_query)
         }
       })
       frequency {
@@ -509,7 +509,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       id    = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
       group = can(each.value.custom_threshold) ? "custom_threshold.fired": "query matched"
       params = jsonencode({
-        "message" : local.alert_message
+        "message" : can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : local.alert_messages.log_query)
       })
       frequency {
         notify_when = "onActionGroupChange"
