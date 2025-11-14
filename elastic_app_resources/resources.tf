@@ -424,7 +424,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   dynamic "actions" {
     for_each = var.alert_channels.email.enabled && lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name != "" ? [1] : []
     content {
-      group = can(each.value.custom_threshold) ? "custom_threshold.fired": "query matched"
+      group = can(each.value.custom_threshold) ? "custom_threshold.fired" : "query matched"
       id    = "elastic-cloud-email"
       params = jsonencode({
         message = can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : local.alert_messages.log_query)
@@ -463,7 +463,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     for_each = var.alert_channels.opsgenie.enabled && lookup(lookup(each.value, "notification_channels", {}), "opsgenie", { connector_name : "" }).connector_name != "" ? [1] : []
     content {
       id    = var.alert_channels.opsgenie.connectors[each.value.notification_channels.opsgenie.connector_name]
-      group = can(each.value.custom_threshold) ? "custom_threshold.fired": "query matched"
+      group = can(each.value.custom_threshold) ? "custom_threshold.fired" : "query matched"
       params = jsonencode({
         subAction = "createAlert"
         subActionParams = {
@@ -507,7 +507,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     for_each = var.alert_channels.slack.enabled && lookup(lookup(each.value, "notification_channels", {}), "slack", { connector_name : "" }).connector_name != "" ? [1] : []
     content {
       id    = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
-      group = can(each.value.custom_threshold) ? "custom_threshold.fired": "query matched"
+      group = can(each.value.custom_threshold) ? "custom_threshold.fired" : "query matched"
       params = jsonencode({
         "message" : can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : local.alert_messages.log_query)
       })
