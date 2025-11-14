@@ -26,7 +26,12 @@ locals {
 
   ingest_pipeline = { for k, v in var.configuration.indexTemplate : k => jsondecode(file("${var.library_ingest_pipeline_path}/${v.ingestPipeline}.json")) }
 
-  alert_message = "Elasticsearch query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}}"
+
+  alert_messages = {
+    log_query        = "Elasticsearch query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}}"
+    custom_threshold = "Elasticsearch custom threshold alert {{rule.name}} is active. \n {{context.reason}}  \n [View alert details]({{context.alertDetailsUrl}})"
+    apm_anomaly      = "{{context.reason}} \n{{rule.name}} is active with the following conditions: \n - Service name: {{context.serviceName}} \n - Transaction type: {{context.transactionType}} \n - Environment: {{context.environment}} \n - Severity: {{context.triggerValue}} \n - Threshold: {{context.threshold}} \n - Timestamp: {{context.date}} \n - Link: {{context.link}} \n [View alert details]({{context.alertDetailsUrl}})"
+  }
 
   rule_type_id_map = {
     "latency"             = "apm.transaction_duration"

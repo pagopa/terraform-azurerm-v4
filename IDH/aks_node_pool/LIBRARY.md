@@ -16,6 +16,8 @@
 | cstar | prod |  Standard_D4ads_v5_passive | VM Size: Standard_D4ads_v5, Disk: Ephemeral 128GB, Nodes: --- |
 | cstar | prod |  Standard_D8ads_v5_active | VM Size: Standard_D8ads_v5, Disk: Ephemeral 128GB, Nodes: --- |
 | cstar | prod |  Standard_D8ads_v5_passive | VM Size: Standard_D8ads_v5, Disk: Ephemeral 128GB, Nodes: --- |
+| cstar | prod |  Standard_D8ds_v5_active | VM Size: Standard_D8ds_v5, Disk: Ephemeral 128GB, Nodes: --- |
+| cstar | prod |  Standard_D8ds_v5_passive | VM Size: Standard_D8ds_v5, Disk: Ephemeral 128GB, Nodes: --- |
 |---|---|---|---|
 | cstar | uat |  Standard_D2ads_v5_active | VM Size: Standard_D2ads_v5, Disk: Ephemeral 128GB, Nodes: --- |
 | cstar | uat |  Standard_D2ads_v5_passive | VM Size: Standard_D2ads_v5, Disk: Ephemeral 128GB, Nodes: --- |
@@ -23,3 +25,5 @@
 | cstar | uat |  Standard_D4ads_v5_passive | VM Size: Standard_D4ads_v5, Disk: Ephemeral 128GB, Nodes: --- |
 | cstar | uat |  Standard_D8ads_v5_active | VM Size: Standard_D8ads_v5, Disk: Ephemeral 128GB, Nodes: --- |
 | cstar | uat |  Standard_D8ads_v5_passive | VM Size: Standard_D8ads_v5, Disk: Ephemeral 128GB, Nodes: --- |
+| cstar | uat |  Standard_D8ds_v5_active | VM Size: Standard_D8ds_v5, Disk: Ephemeral 128GB, Nodes: --- |
+| cstar | uat |  Standard_D8ds_v5_passive | VM Size: Standard_D8ds_v5, Disk: Ephemeral 128GB, Nodes: --- |
