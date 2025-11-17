@@ -82,7 +82,7 @@ premium_P1_v6:
       start_hour_utc: 23
     - day_of_week: "Saturday"
       start_hour_utc: 23
-premium_P2_v6:
+premium_P1_v6_no_zones:
   capacity: 1
   enable_non_ssl_port: false
   family: "P"
