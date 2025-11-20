@@ -4729,7 +4729,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "cstar-p-itn-idpay-mongodb-account",
+  "title": "${resource}",
   "uid": "cezun25jnzpq8b",
   "version": 18
 }
