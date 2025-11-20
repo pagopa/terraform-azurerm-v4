@@ -19,16 +19,17 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
+  "id": 116,
   "links": [],
   "panels": [
-   {
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 3,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 0
       },
@@ -42,76 +43,585 @@
         "content": "# Cosmos DB - ${resource}\n",
         "mode": "markdown"
       },
-      "pluginVersion": "10.4.15",
+      "pluginVersion": "11.6.3",
       "title": "pagopa",
       "type": "text"
     },
     {
-      "collapsed": false,
       "datasource": {
         "uid": "${ds}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "lcd",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Field"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "pattern": "/Index Usage \\{collectionname=\\\"(.*)\\\",.*$/gm",
+                      "result": {
+                        "index": 0,
+                        "text": "$1"
+                      }
+                    },
+                    "type": "regex"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 3
+      },
+      "id": 16,
+      "maxDataPoints": 1,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.3",
+      "targets": [
+        {
+          "azureMonitor": {
+            "aggOptions": [
+              "Total",
+              "Average"
+            ],
+            "aggregation": "Total",
+            "allowedTimeGrainsMs": [
+              300000
+            ],
+            "dimensionFilters": [
+              {
+                "dimension": "CollectionName",
+                "filter": "",
+                "operator": "eq"
+              }
+            ],
+            "dimensions": [
+              {
+                "text": "CollectionName",
+                "value": "CollectionName"
+              },
+              {
+                "text": "DatabaseName",
+                "value": "DatabaseName"
+              },
+              {
+                "text": "Region",
+                "value": "Region"
+              }
+            ],
+            "metricDefinition": "$ns",
+            "metricName": "IndexUsage",
+            "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
+            "resources": [
+              {
+                "resourceGroup": "${rg}",
+                "resourceName": "${resource}"
+              }
+            ],
+            "timeGrain": "auto",
+            "timeGrains": [
+              {
+                "text": "auto",
+                "value": "auto"
+              },
+              {
+                "text": "5 minutes",
+                "value": "PT5M"
+              }
+            ],
+            "top": ""
+          },
+          "datasource": {
+            "uid": "${ds}"
+          },
+          "hide": false,
+          "queryType": "Azure Monitor",
+          "refId": "D",
+          "subscription": "${sub}"
+        }
+      ],
+      "title": "Index Usage (Avg) By Collection",
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": [
+              "sum"
+            ]
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "uid": "${ds}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "lcd",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "palette-classic"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Field"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "pattern": "/Provisioned Throughput \\{collectionname=\\\"(.*)\\\", databasename=\\\"(.*)\\\",.*$/gm",
+                      "result": {
+                        "index": 0,
+                        "text": "$2.$1"
+                      }
+                    },
+                    "type": "regex"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 3
+      },
+      "id": 53,
+      "maxDataPoints": 1,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.3",
+      "targets": [
+        {
+          "azureMonitor": {
+            "aggregation": "Maximum",
+            "allowedTimeGrainsMs": [
+              300000,
+              3600000,
+              86400000
+            ],
+            "dimensionFilters": [
+              {
+                "dimension": "DatabaseName",
+                "filters": [],
+                "operator": "eq"
+              },
+              {
+                "dimension": "CollectionName",
+                "filters": [],
+                "operator": "eq"
+              }
+            ],
+            "metricName": "ProvisionedThroughput",
+            "metricNamespace": "microsoft.documentdb/databaseaccounts",
+            "region": "italynorth",
+            "resources": [
+              {
+                "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
+                "region": "italynorth",
+                "resourceGroup": "${rg}",
+                 "resourceName": "${resource}",
+                "subscription": "88c709b0-11cf-4450-856e-f9bf54051c1d"
+              }
+            ],
+            "timeGrain": "auto"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "azure-monitor-oob"
+          },
+          "hide": false,
+          "queryType": "Azure Monitor",
+          "refId": "A",
+          "subscription": "88c709b0-11cf-4450-856e-f9bf54051c1d"
+        }
+      ],
+      "title": "Provisioned Throughput (Max) By Collection",
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": [
+              "sum"
+            ]
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "uid": "${ds}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "lcd",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "palette-classic"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Field"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "pattern": "/Normalized RU Consumption \\{collectionname=\\\"(.*)\\\", databasename=\\\"(.*)\\\",.*$/gm",
+                      "result": {
+                        "index": 0,
+                        "text": "$2.$1"
+                      }
+                    },
+                    "type": "regex"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 3
+      },
+      "id": 54,
+      "maxDataPoints": 1,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.3",
+      "targets": [
+        {
+          "azureMonitor": {
+            "aggregation": "Maximum",
+            "allowedTimeGrainsMs": [
+              60000,
+              300000,
+              3600000,
+              86400000
+            ],
+            "dimensionFilters": [
+              {
+                "dimension": "DatabaseName",
+                "filters": [],
+                "operator": "eq"
+              },
+              {
+                "dimension": "CollectionName",
+                "filters": [],
+                "operator": "eq"
+              }
+            ],
+            "metricName": "NormalizedRUConsumption",
+            "metricNamespace": "microsoft.documentdb/databaseaccounts",
+            "region": "italynorth",
+            "resources": [
+              {
+                "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
+                "region": "italynorth",
+                "resourceGroup": "${rg}",
+                 "resourceName": "${resource}",
+                "subscription": "88c709b0-11cf-4450-856e-f9bf54051c1d"
+              }
+            ],
+            "timeGrain": "auto"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "azure-monitor-oob"
+          },
+          "hide": false,
+          "queryType": "Azure Monitor",
+          "refId": "A",
+          "subscription": "88c709b0-11cf-4450-856e-f9bf54051c1d"
+        }
+      ],
+      "title": "Normalized RU Consumption (Max) By Collection",
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": [
+              "sum"
+            ]
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 12
       },
       "id": 4,
       "panels": [],
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Overview",
       "type": "row"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
       "datasource": {
         "uid": "${ds}"
       },
-      "fill": 1,
-      "fillGradient": 0,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 1
+        "y": 13
       },
-      "hiddenSeries": false,
       "id": 2,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": true,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pluginVersion": "10.4.15",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "11.6.3",
       "targets": [
         {
           "azureMonitor": {
@@ -161,7 +671,7 @@
             "metricName": "TotalRequests",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
             "resourceGroup": "${rg}",
-            "resourceName": "${resource}",
+             "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -211,36 +721,8 @@
           "subscription": "${sub}"
         }
       ],
-      "thresholds": [],
-      "timeRegions": [],
       "title": "Total Requests",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "mode": "time",
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "logBase": 1,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "logBase": 1,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false
-      }
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -257,8 +739,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -274,7 +755,7 @@
         "h": 7,
         "w": 4,
         "x": 8,
-        "y": 1
+        "y": 13
       },
       "id": 19,
       "options": {
@@ -282,9 +763,10 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "max"
           ],
           "fields": "",
           "values": false
@@ -293,7 +775,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.15",
+      "pluginVersion": "11.6.3",
       "targets": [
         {
           "azureMonitor": {
@@ -352,7 +834,7 @@
             "resources": [
               {
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}"
+                 "resourceName": "${resource}"
               }
             ],
             "timeGrain": "auto",
@@ -408,53 +890,88 @@
       "type": "stat"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
       "datasource": {
         "uid": "${ds}"
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "short"
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 7,
         "w": 6,
         "x": 12,
-        "y": 1
+        "y": 13
       },
-      "hiddenSeries": false,
       "id": 9,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": true,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pluginVersion": "10.4.15",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "11.6.3",
       "targets": [
         {
           "azureMonitor": {
@@ -469,7 +986,6 @@
               3600000,
               86400000
             ],
-            "dimensionFilter": "*",
             "dimensionFilters": [],
             "dimensions": [
               {
@@ -493,7 +1009,7 @@
             "metricName": "NormalizedRUConsumption",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
             "resourceGroup": "${rg}",
-            "resourceName": "${resource}",
+             "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -527,84 +1043,92 @@
           "subscription": "${sub}"
         }
       ],
-      "thresholds": [],
-      "timeRegions": [],
       "title": "Normalized RU Consumption (max)",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "mode": "time",
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "percent",
-          "logBase": 1,
-          "show": true
-        },
-        {
-          "format": "short",
-          "logBase": 1,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false
-      }
+      "type": "timeseries"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
       "datasource": {
         "uid": "${ds}"
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "short"
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "decbytes"
         },
         "overrides": []
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 7,
         "w": 6,
         "x": 18,
-        "y": 1
+        "y": 13
       },
-      "hiddenSeries": false,
       "id": 12,
-      "legend": {
-        "avg": true,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pluginVersion": "10.4.15",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "11.6.3",
       "targets": [
         {
           "azureMonitor": {
@@ -636,7 +1160,7 @@
             "metricName": "IndexUsage",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
             "resourceGroup": "${rg}",
-            "resourceName": "${resource}",
+             "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -688,7 +1212,7 @@
             "metricName": "DataUsage",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
             "resourceGroup": "${rg}",
-            "resourceName": "${resource}",
+             "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -711,35 +1235,8 @@
           "subscription": "${sub}"
         }
       ],
-      "thresholds": [],
-      "timeRegions": [],
       "title": "Index & Data Usage",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "mode": "time",
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "decbytes",
-          "logBase": 1,
-          "show": true
-        },
-        {
-          "format": "short",
-          "logBase": 1,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false
-      }
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -751,6 +1248,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "align": "auto",
             "cellOptions": {
               "type": "auto"
             },
@@ -762,8 +1260,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -789,6 +1286,29 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Field"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "pattern": "/Total Requests \\{collectionname=\\\"(.*)\\\",.*$/gm",
+                      "result": {
+                        "index": 0,
+                        "text": "$1"
+                      }
+                    },
+                    "type": "regex"
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -796,7 +1316,7 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 8
+        "y": 20
       },
       "id": 11,
       "maxDataPoints": 1,
@@ -812,7 +1332,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "10.4.15",
+      "pluginVersion": "11.6.3",
       "targets": [
         {
           "azureMonitor": {
@@ -830,7 +1350,6 @@
               43200000,
               86400000
             ],
-            "dimensionFilter": "*",
             "dimensionFilters": [
               {
                 "dimension": "CollectionName",
@@ -867,8 +1386,12 @@
             "metricDefinition": "$ns",
             "metricName": "TotalRequests",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "${rg}",
-            "resourceName": "${resource}",
+            "resources": [
+              {
+                "resourceGroup": "${rg}",
+                 "resourceName": "${resource}"
+              }
+            ],
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -925,7 +1448,7 @@
           "id": "reduce",
           "options": {
             "reducers": [
-              "sum"
+              "lastNotNull"
             ]
           }
         }
@@ -942,6 +1465,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "align": "auto",
             "cellOptions": {
               "type": "auto"
             },
@@ -953,8 +1477,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -963,7 +1486,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Total"
+              "options": "Last *"
             },
             "properties": [
               {
@@ -980,6 +1503,29 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Field"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "pattern": "/Document Count \\{collectionname=\\\"(.*)\\\",.*$/gm",
+                      "result": {
+                        "index": 0,
+                        "text": "$1"
+                      }
+                    },
+                    "type": "regex"
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -987,7 +1533,7 @@
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 8
+        "y": 20
       },
       "id": 14,
       "maxDataPoints": 1,
@@ -1001,9 +1547,15 @@
           ],
           "show": false
         },
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Last *"
+          }
+        ]
       },
-      "pluginVersion": "10.4.15",
+      "pluginVersion": "11.6.3",
       "targets": [
         {
           "azureMonitor": {
@@ -1015,7 +1567,6 @@
             "allowedTimeGrainsMs": [
               300000
             ],
-            "dimensionFilter": "*",
             "dimensionFilters": [
               {
                 "dimension": "CollectionName",
@@ -1040,8 +1591,12 @@
             "metricDefinition": "$ns",
             "metricName": "DocumentCount",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "${rg}",
-            "resourceName": "${resource}",
+            "resources": [
+              {
+                "resourceGroup": "${rg}",
+                 "resourceName": "${resource}"
+              }
+            ],
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -1070,7 +1625,7 @@
           "id": "reduce",
           "options": {
             "reducers": [
-              "sum"
+              "lastNotNull"
             ]
           }
         }
@@ -1087,6 +1642,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "align": "auto",
             "cellOptions": {
               "type": "auto"
             },
@@ -1098,8 +1654,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1108,7 +1663,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Total"
+              "options": "Last *"
             },
             "properties": [
               {
@@ -1123,6 +1678,33 @@
                 "value": {
                   "mode": "continuous-GrYlRd"
                 }
+              },
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Field"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "pattern": "/Data Usage \\{collectionname=\\\"(.*)\\\",.*$/gm",
+                      "result": {
+                        "index": 0,
+                        "text": "$1"
+                      }
+                    },
+                    "type": "regex"
+                  }
+                ]
               }
             ]
           }
@@ -1132,7 +1714,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 8
+        "y": 20
       },
       "id": 15,
       "maxDataPoints": 1,
@@ -1148,7 +1730,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "10.4.15",
+      "pluginVersion": "11.6.3",
       "targets": [
         {
           "azureMonitor": {
@@ -1160,7 +1742,6 @@
             "allowedTimeGrainsMs": [
               300000
             ],
-            "dimensionFilter": "*",
             "dimensionFilters": [
               {
                 "dimension": "CollectionName",
@@ -1185,8 +1766,12 @@
             "metricDefinition": "$ns",
             "metricName": "DataUsage",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "${rg}",
-            "resourceName": "${resource}",
+            "resources": [
+              {
+                "resourceGroup": "${rg}",
+                 "resourceName": "${resource}"
+              }
+            ],
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -1215,12 +1800,25 @@
           "id": "reduce",
           "options": {
             "reducers": [
-              "sum"
+              "lastNotNull"
             ]
           }
         }
       ],
       "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "id": 21,
+      "panels": [],
+      "title": "Throughput",
+      "type": "row"
     },
     {
       "datasource": {
@@ -1229,71 +1827,82 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed"
+            "mode": "palette-classic"
           },
           "custom": {
-            "cellOptions": {
-              "type": "auto"
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
             },
-            "filterable": false,
-            "inspect": false
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Total"
-            },
-            "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "lcd",
-                  "type": "gauge"
-                }
+                "color": "green"
               },
               {
-                "id": "color",
-                "value": {
-                  "mode": "continuous-GrYlRd"
-                }
+                "color": "red",
+                "value": 80
               }
             ]
-          }
-        ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 8,
+        "h": 8,
+        "w": 12,
         "x": 0,
-        "y": 17
+        "y": 30
       },
-      "id": 16,
-      "maxDataPoints": 1,
+      "id": 23,
       "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [
             "sum"
           ],
-          "show": false
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showHeader": true
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "pluginVersion": "10.4.15",
+      "pluginVersion": "11.6.3",
       "targets": [
         {
           "azureMonitor": {
@@ -1303,35 +1912,48 @@
             ],
             "aggregation": "Total",
             "allowedTimeGrainsMs": [
-              300000
+              60000,
+              300000,
+              900000,
+              1800000,
+              3600000,
+              21600000,
+              43200000,
+              86400000
             ],
             "dimensionFilter": "*",
-            "dimensionFilters": [
-              {
-                "dimension": "CollectionName",
-                "filter": "",
-                "operator": "eq"
-              }
-            ],
+            "dimensionFilters": [],
             "dimensions": [
-              {
-                "text": "CollectionName",
-                "value": "CollectionName"
-              },
               {
                 "text": "DatabaseName",
                 "value": "DatabaseName"
+              },
+              {
+                "text": "CollectionName",
+                "value": "CollectionName"
               },
               {
                 "text": "Region",
                 "value": "Region"
+              },
+              {
+                "text": "StatusCode",
+                "value": "StatusCode"
+              },
+              {
+                "text": "OperationType",
+                "value": "OperationType"
+              },
+              {
+                "text": "Status",
+                "value": "Status"
               }
             ],
             "metricDefinition": "$ns",
-            "metricName": "IndexUsage",
+            "metricName": "TotalRequestUnits",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
             "resourceGroup": "${rg}",
-            "resourceName": "${resource}",
+             "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -1339,33 +1961,50 @@
                 "value": "auto"
               },
               {
+                "text": "1 minute",
+                "value": "PT1M"
+              },
+              {
                 "text": "5 minutes",
                 "value": "PT5M"
+              },
+              {
+                "text": "15 minutes",
+                "value": "PT15M"
+              },
+              {
+                "text": "30 minutes",
+                "value": "PT30M"
+              },
+              {
+                "text": "1 hour",
+                "value": "PT1H"
+              },
+              {
+                "text": "6 hours",
+                "value": "PT6H"
+              },
+              {
+                "text": "12 hours",
+                "value": "PT12H"
+              },
+              {
+                "text": "1 day",
+                "value": "P1D"
               }
             ],
-            "top": ""
+            "top": "10"
           },
           "datasource": {
             "uid": "${ds}"
           },
-          "hide": false,
           "queryType": "Azure Monitor",
-          "refId": "D",
+          "refId": "A",
           "subscription": "${sub}"
         }
       ],
-      "title": "Index Usage (Avg) By Collection",
-      "transformations": [
-        {
-          "id": "reduce",
-          "options": {
-            "reducers": [
-              "sum"
-            ]
-          }
-        }
-      ],
-      "type": "table"
+      "title": "Total Request Units",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -1374,211 +2013,82 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed"
+            "mode": "palette-classic"
           },
           "custom": {
-            "cellOptions": {
-              "type": "auto"
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
             },
-            "filterable": false,
-            "inspect": false
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Total"
-            },
-            "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "lcd",
-                  "type": "gauge"
-                }
+                "color": "green"
               },
               {
-                "id": "color",
-                "value": {
-                  "mode": "palette-classic"
-                }
+                "color": "red",
+                "value": 80
               }
             ]
-          }
-        ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 8,
-        "x": 8,
-        "y": 17
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
       },
-      "id": 17,
-      "maxDataPoints": 1,
+      "id": 24,
       "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [
+            "max"
           ],
-          "show": false
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showHeader": true
-      },
-      "pluginVersion": "10.4.15",
-      "targets": [
-        {
-          "azureMonitor": {
-            "aggOptions": [
-              "Maximum"
-            ],
-            "aggregation": "Maximum",
-            "allowedTimeGrainsMs": [
-              300000
-            ],
-            "dimensionFilter": "*",
-            "dimensionFilters": [
-              {
-                "dimension": "CollectionName",
-                "filter": "",
-                "operator": "eq"
-              }
-            ],
-            "dimensions": [
-              {
-                "text": "DatabaseName",
-                "value": "DatabaseName"
-              },
-              {
-                "text": "CollectionName",
-                "value": "CollectionName"
-              }
-            ],
-            "metricDefinition": "$ns",
-            "metricName": "ProvisionedThroughput",
-            "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-            "resourceGroup": "${rg}",
-            "resourceName": "${resource}",
-            "timeGrain": "auto",
-            "timeGrains": [
-              {
-                "text": "auto",
-                "value": "auto"
-              },
-              {
-                "text": "5 minutes",
-                "value": "PT5M"
-              }
-            ],
-            "top": ""
-          },
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "hide": false,
-          "queryType": "Azure Monitor",
-          "refId": "E",
-          "subscription": "${sub}"
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
         }
-      ],
-      "title": "Provisioned Throughput (Max) By Collection",
-      "transformations": [
-        {
-          "id": "reduce",
-          "options": {
-            "reducers": [
-              "sum"
-            ]
-          }
-        }
-      ],
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "uid": "${ds}"
       },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
-          "custom": {
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": false,
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Total"
-            },
-            "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "lcd",
-                  "type": "gauge"
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "palette-classic"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 8,
-        "x": 16,
-        "y": 17
-      },
-      "id": 18,
-      "maxDataPoints": 1,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true
-      },
-      "pluginVersion": "10.4.15",
+      "pluginVersion": "11.6.3",
       "targets": [
         {
           "azureMonitor": {
@@ -1596,7 +2106,7 @@
             "dimensionFilter": "*",
             "dimensionFilters": [
               {
-                "dimension": "CollectionName",
+                "dimension": "PartitionKeyRangeId",
                 "filter": "",
                 "operator": "eq"
               }
@@ -1623,7 +2133,7 @@
             "metricName": "NormalizedRUConsumption",
             "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
             "resourceGroup": "${rg}",
-            "resourceName": "${resource}",
+             "resourceName": "${resource}",
             "timeGrain": "auto",
             "timeGrains": [
               {
@@ -1647,367 +2157,606 @@
                 "value": "P1D"
               }
             ],
-            "top": ""
+            "top": "10"
           },
           "datasource": {
             "uid": "${ds}"
           },
-          "hide": false,
           "queryType": "Azure Monitor",
-          "refId": "F",
+          "refId": "A",
           "subscription": "${sub}"
         }
       ],
-      "title": "Normalized RU Consumption (Max) By Collection",
-      "transformations": [
-        {
-          "id": "reduce",
-          "options": {
-            "reducers": [
-              "sum"
-            ]
-          }
-        }
-      ],
-      "type": "table"
+      "title": "Normalized RU Consumption By PartitionKeyRangeID",
+      "type": "timeseries"
     },
     {
-      "collapsed": true,
-      "datasource": {
-        "uid": "${ds}"
-      },
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 38
       },
-      "id": 21,
+      "id": 27,
+      "panels": [],
+      "title": "Requests",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "uid": "${ds}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 39
+      },
+      "id": 28,
+      "options": {
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.3",
+      "targets": [
+        {
+          "azureMonitor": {
+            "aggOptions": [
+              "Count"
+            ],
+            "aggregation": "Count",
+            "allowedTimeGrainsMs": [
+              60000,
+              300000,
+              900000,
+              1800000,
+              3600000,
+              21600000,
+              43200000,
+              86400000
+            ],
+            "dimensionFilter": "*",
+            "dimensionFilters": [
+              {
+                "dimension": "StatusCode",
+                "filter": "",
+                "operator": "eq"
+              }
+            ],
+            "dimensions": [
+              {
+                "text": "DatabaseName",
+                "value": "DatabaseName"
+              },
+              {
+                "text": "CollectionName",
+                "value": "CollectionName"
+              },
+              {
+                "text": "Region",
+                "value": "Region"
+              },
+              {
+                "text": "StatusCode",
+                "value": "StatusCode"
+              },
+              {
+                "text": "OperationType",
+                "value": "OperationType"
+              },
+              {
+                "text": "Status",
+                "value": "Status"
+              }
+            ],
+            "metricDefinition": "$ns",
+            "metricName": "TotalRequests",
+            "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
+            "resourceGroup": "${rg}",
+             "resourceName": "${resource}",
+            "timeGrain": "auto",
+            "timeGrains": [
+              {
+                "text": "auto",
+                "value": "auto"
+              },
+              {
+                "text": "1 minute",
+                "value": "PT1M"
+              },
+              {
+                "text": "5 minutes",
+                "value": "PT5M"
+              },
+              {
+                "text": "15 minutes",
+                "value": "PT15M"
+              },
+              {
+                "text": "30 minutes",
+                "value": "PT30M"
+              },
+              {
+                "text": "1 hour",
+                "value": "PT1H"
+              },
+              {
+                "text": "6 hours",
+                "value": "PT6H"
+              },
+              {
+                "text": "12 hours",
+                "value": "PT12H"
+              },
+              {
+                "text": "1 day",
+                "value": "P1D"
+              }
+            ],
+            "top": "10"
+          },
+          "datasource": {
+            "uid": "${ds}"
+          },
+          "queryType": "Azure Monitor",
+          "refId": "A",
+          "subscription": "${sub}"
+        }
+      ],
+      "title": "Total Requests by Status Code",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "uid": "${ds}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 39
+      },
+      "id": 29,
+      "options": {
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.3",
+      "targets": [
+        {
+          "azureMonitor": {
+            "aggOptions": [
+              "Count"
+            ],
+            "aggregation": "Count",
+            "allowedTimeGrainsMs": [
+              60000,
+              300000,
+              900000,
+              1800000,
+              3600000,
+              21600000,
+              43200000,
+              86400000
+            ],
+            "dimensionFilter": "*",
+            "dimensionFilters": [
+              {
+                "dimension": "StatusCode",
+                "filter": "429",
+                "operator": "eq"
+              }
+            ],
+            "dimensions": [
+              {
+                "text": "DatabaseName",
+                "value": "DatabaseName"
+              },
+              {
+                "text": "CollectionName",
+                "value": "CollectionName"
+              },
+              {
+                "text": "Region",
+                "value": "Region"
+              },
+              {
+                "text": "StatusCode",
+                "value": "StatusCode"
+              },
+              {
+                "text": "OperationType",
+                "value": "OperationType"
+              },
+              {
+                "text": "Status",
+                "value": "Status"
+              }
+            ],
+            "metricDefinition": "$ns",
+            "metricName": "TotalRequests",
+            "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
+            "resourceGroup": "${rg}",
+             "resourceName": "${resource}",
+            "timeGrain": "auto",
+            "timeGrains": [
+              {
+                "text": "auto",
+                "value": "auto"
+              },
+              {
+                "text": "1 minute",
+                "value": "PT1M"
+              },
+              {
+                "text": "5 minutes",
+                "value": "PT5M"
+              },
+              {
+                "text": "15 minutes",
+                "value": "PT15M"
+              },
+              {
+                "text": "30 minutes",
+                "value": "PT30M"
+              },
+              {
+                "text": "1 hour",
+                "value": "PT1H"
+              },
+              {
+                "text": "6 hours",
+                "value": "PT6H"
+              },
+              {
+                "text": "12 hours",
+                "value": "PT12H"
+              },
+              {
+                "text": "1 day",
+                "value": "P1D"
+              }
+            ],
+            "top": "10"
+          },
+          "datasource": {
+            "uid": "${ds}"
+          },
+          "queryType": "Azure Monitor",
+          "refId": "A",
+          "subscription": "${sub}"
+        }
+      ],
+      "title": "Throttled Requests (429)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "uid": "${ds}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 47
+      },
+      "id": 30,
+      "options": {
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.3",
+      "targets": [
+        {
+          "azureMonitor": {
+            "aggOptions": [
+              "Count"
+            ],
+            "aggregation": "Count",
+            "allowedTimeGrainsMs": [
+              60000,
+              300000,
+              900000,
+              1800000,
+              3600000,
+              21600000,
+              43200000,
+              86400000
+            ],
+            "dimensionFilter": "*",
+            "dimensionFilters": [
+              {
+                "dimension": "OperationType",
+                "filter": "",
+                "operator": "eq"
+              }
+            ],
+            "dimensions": [
+              {
+                "text": "DatabaseName",
+                "value": "DatabaseName"
+              },
+              {
+                "text": "CollectionName",
+                "value": "CollectionName"
+              },
+              {
+                "text": "Region",
+                "value": "Region"
+              },
+              {
+                "text": "StatusCode",
+                "value": "StatusCode"
+              },
+              {
+                "text": "OperationType",
+                "value": "OperationType"
+              },
+              {
+                "text": "Status",
+                "value": "Status"
+              }
+            ],
+            "metricDefinition": "$ns",
+            "metricName": "TotalRequests",
+            "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
+            "resourceGroup": "${rg}",
+             "resourceName": "${resource}",
+            "timeGrain": "auto",
+            "timeGrains": [
+              {
+                "text": "auto",
+                "value": "auto"
+              },
+              {
+                "text": "1 minute",
+                "value": "PT1M"
+              },
+              {
+                "text": "5 minutes",
+                "value": "PT5M"
+              },
+              {
+                "text": "15 minutes",
+                "value": "PT15M"
+              },
+              {
+                "text": "30 minutes",
+                "value": "PT30M"
+              },
+              {
+                "text": "1 hour",
+                "value": "PT1H"
+              },
+              {
+                "text": "6 hours",
+                "value": "PT6H"
+              },
+              {
+                "text": "12 hours",
+                "value": "PT12H"
+              },
+              {
+                "text": "1 day",
+                "value": "P1D"
+              }
+            ],
+            "top": "10"
+          },
+          "datasource": {
+            "uid": "${ds}"
+          },
+          "queryType": "Azure Monitor",
+          "refId": "A",
+          "subscription": "${sub}"
+        }
+      ],
+      "title": "Total Requests by Operation Type",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 55
+      },
+      "id": 32,
       "panels": [
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 2
-          },
-          "hiddenSeries": false,
-          "id": 23,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": true,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pluginVersion": "10.4.15",
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "azureMonitor": {
-                "aggOptions": [
-                  "Total",
-                  "Average"
-                ],
-                "aggregation": "Total",
-                "allowedTimeGrainsMs": [
-                  60000,
-                  300000,
-                  900000,
-                  1800000,
-                  3600000,
-                  21600000,
-                  43200000,
-                  86400000
-                ],
-                "dimensionFilter": "*",
-                "dimensionFilters": [],
-                "dimensions": [
-                  {
-                    "text": "DatabaseName",
-                    "value": "DatabaseName"
-                  },
-                  {
-                    "text": "CollectionName",
-                    "value": "CollectionName"
-                  },
-                  {
-                    "text": "Region",
-                    "value": "Region"
-                  },
-                  {
-                    "text": "StatusCode",
-                    "value": "StatusCode"
-                  },
-                  {
-                    "text": "OperationType",
-                    "value": "OperationType"
-                  },
-                  {
-                    "text": "Status",
-                    "value": "Status"
-                  }
-                ],
-                "metricDefinition": "$ns",
-                "metricName": "TotalRequestUnits",
-                "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
-                "timeGrain": "auto",
-                "timeGrains": [
-                  {
-                    "text": "auto",
-                    "value": "auto"
-                  },
-                  {
-                    "text": "1 minute",
-                    "value": "PT1M"
-                  },
-                  {
-                    "text": "5 minutes",
-                    "value": "PT5M"
-                  },
-                  {
-                    "text": "15 minutes",
-                    "value": "PT15M"
-                  },
-                  {
-                    "text": "30 minutes",
-                    "value": "PT30M"
-                  },
-                  {
-                    "text": "1 hour",
-                    "value": "PT1H"
-                  },
-                  {
-                    "text": "6 hours",
-                    "value": "PT6H"
-                  },
-                  {
-                    "text": "12 hours",
-                    "value": "PT12H"
-                  },
-                  {
-                    "text": "1 day",
-                    "value": "P1D"
-                  }
-                ],
-                "top": "10"
-              },
-              "datasource": {
-                "uid": "${ds}"
-              },
-              "queryType": "Azure Monitor",
-              "refId": "A",
-              "subscription": "${sub}"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Total Request Units",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 2
-          },
-          "hiddenSeries": false,
-          "id": 24,
-          "legend": {
-            "alignAsTable": false,
-            "avg": false,
-            "current": false,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pluginVersion": "10.4.15",
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "azureMonitor": {
-                "aggOptions": [
-                  "Maximum",
-                  "Average"
-                ],
-                "aggregation": "Maximum",
-                "allowedTimeGrainsMs": [
-                  60000,
-                  300000,
-                  3600000,
-                  86400000
-                ],
-                "dimensionFilter": "*",
-                "dimensionFilters": [
-                  {
-                    "dimension": "PartitionKeyRangeId",
-                    "filter": "",
-                    "operator": "eq"
-                  }
-                ],
-                "dimensions": [
-                  {
-                    "text": "CollectionName",
-                    "value": "CollectionName"
-                  },
-                  {
-                    "text": "DatabaseName",
-                    "value": "DatabaseName"
-                  },
-                  {
-                    "text": "Region",
-                    "value": "Region"
-                  },
-                  {
-                    "text": "PartitionKeyRangeId",
-                    "value": "PartitionKeyRangeId"
-                  }
-                ],
-                "metricDefinition": "$ns",
-                "metricName": "NormalizedRUConsumption",
-                "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
-                "timeGrain": "auto",
-                "timeGrains": [
-                  {
-                    "text": "auto",
-                    "value": "auto"
-                  },
-                  {
-                    "text": "1 minute",
-                    "value": "PT1M"
-                  },
-                  {
-                    "text": "5 minutes",
-                    "value": "PT5M"
-                  },
-                  {
-                    "text": "1 hour",
-                    "value": "PT1H"
-                  },
-                  {
-                    "text": "1 day",
-                    "value": "P1D"
-                  }
-                ],
-                "top": "10"
-              },
-              "datasource": {
-                "uid": "${ds}"
-              },
-              "queryType": "Azure Monitor",
-              "refId": "A",
-              "subscription": "${sub}"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Normalized RU Consumption By PartitionKeyRangeID",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "percent",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        },
         {
           "datasource": {
             "uid": "${ds}"
@@ -2015,741 +2764,79 @@
           "fieldConfig": {
             "defaults": {
               "color": {
-                "mode": "thresholds"
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
               },
               "mappings": [],
               "thresholds": {
                 "mode": "absolute",
-                "steps": []
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
               }
             },
             "overrides": []
           },
           "gridPos": {
-            "h": 6,
-            "w": 24,
-            "x": 0,
-            "y": 10
-          },
-          "id": 25,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "area",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "text": {},
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "10.4.15",
-          "targets": [
-            {
-              "azureMonitor": {
-                "aggOptions": [
-                  "Maximum"
-                ],
-                "aggregation": "Maximum",
-                "allowedTimeGrainsMs": [
-                  300000
-                ],
-                "dimensionFilter": "*",
-                "dimensionFilters": [
-                  {
-                    "dimension": "CollectionName",
-                    "filter": "",
-                    "operator": "eq"
-                  }
-                ],
-                "dimensions": [
-                  {
-                    "text": "DatabaseName",
-                    "value": "DatabaseName"
-                  },
-                  {
-                    "text": "CollectionName",
-                    "value": "CollectionName"
-                  }
-                ],
-                "metricDefinition": "$ns",
-                "metricName": "ProvisionedThroughput",
-                "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
-                "timeGrain": "auto",
-                "timeGrains": [
-                  {
-                    "text": "auto",
-                    "value": "auto"
-                  },
-                  {
-                    "text": "5 minutes",
-                    "value": "PT5M"
-                  }
-                ],
-                "top": ""
-              },
-              "datasource": {
-                "uid": "${ds}"
-              },
-              "queryType": "Azure Monitor",
-              "refId": "A",
-              "subscription": "${sub}"
-            }
-          ],
-          "title": "Provisioned Throughput (Max) by Collection",
-          "type": "stat"
-        }
-      ],
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "refId": "A"
-        }
-      ],
-      "title": "Throughput",
-      "type": "row"
-    },
-    {
-      "collapsed": true,
-      "datasource": {
-        "uid": "${ds}"
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 27
-      },
-      "id": 27,
-      "panels": [
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "custom": {}
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3
+            "y": 111
           },
-          "hiddenSeries": false,
-          "id": 28,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": true,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "azureMonitor": {
-                "aggOptions": [
-                  "Count"
-                ],
-                "aggregation": "Count",
-                "allowedTimeGrainsMs": [
-                  60000,
-                  300000,
-                  900000,
-                  1800000,
-                  3600000,
-                  21600000,
-                  43200000,
-                  86400000
-                ],
-                "dimensionFilter": "*",
-                "dimensionFilters": [
-                  {
-                    "dimension": "StatusCode",
-                    "filter": "",
-                    "operator": "eq"
-                  }
-                ],
-                "dimensions": [
-                  {
-                    "text": "DatabaseName",
-                    "value": "DatabaseName"
-                  },
-                  {
-                    "text": "CollectionName",
-                    "value": "CollectionName"
-                  },
-                  {
-                    "text": "Region",
-                    "value": "Region"
-                  },
-                  {
-                    "text": "StatusCode",
-                    "value": "StatusCode"
-                  },
-                  {
-                    "text": "OperationType",
-                    "value": "OperationType"
-                  },
-                  {
-                    "text": "Status",
-                    "value": "Status"
-                  }
-                ],
-                "metricDefinition": "$ns",
-                "metricName": "TotalRequests",
-                "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
-                "timeGrain": "auto",
-                "timeGrains": [
-                  {
-                    "text": "auto",
-                    "value": "auto"
-                  },
-                  {
-                    "text": "1 minute",
-                    "value": "PT1M"
-                  },
-                  {
-                    "text": "5 minutes",
-                    "value": "PT5M"
-                  },
-                  {
-                    "text": "15 minutes",
-                    "value": "PT15M"
-                  },
-                  {
-                    "text": "30 minutes",
-                    "value": "PT30M"
-                  },
-                  {
-                    "text": "1 hour",
-                    "value": "PT1H"
-                  },
-                  {
-                    "text": "6 hours",
-                    "value": "PT6H"
-                  },
-                  {
-                    "text": "12 hours",
-                    "value": "PT12H"
-                  },
-                  {
-                    "text": "1 day",
-                    "value": "P1D"
-                  }
-                ],
-                "top": "10"
-              },
-              "datasource": {
-                "uid": "${ds}"
-              },
-              "queryType": "Azure Monitor",
-              "refId": "A",
-              "subscription": "${sub}"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Total Requests by Status Code",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "custom": {}
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 3
-          },
-          "hiddenSeries": false,
-          "id": 29,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": true,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "azureMonitor": {
-                "aggOptions": [
-                  "Count"
-                ],
-                "aggregation": "Count",
-                "allowedTimeGrainsMs": [
-                  60000,
-                  300000,
-                  900000,
-                  1800000,
-                  3600000,
-                  21600000,
-                  43200000,
-                  86400000
-                ],
-                "dimensionFilter": "*",
-                "dimensionFilters": [
-                  {
-                    "dimension": "StatusCode",
-                    "filter": "429",
-                    "operator": "eq"
-                  }
-                ],
-                "dimensions": [
-                  {
-                    "text": "DatabaseName",
-                    "value": "DatabaseName"
-                  },
-                  {
-                    "text": "CollectionName",
-                    "value": "CollectionName"
-                  },
-                  {
-                    "text": "Region",
-                    "value": "Region"
-                  },
-                  {
-                    "text": "StatusCode",
-                    "value": "StatusCode"
-                  },
-                  {
-                    "text": "OperationType",
-                    "value": "OperationType"
-                  },
-                  {
-                    "text": "Status",
-                    "value": "Status"
-                  }
-                ],
-                "metricDefinition": "$ns",
-                "metricName": "TotalRequests",
-                "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
-                "timeGrain": "auto",
-                "timeGrains": [
-                  {
-                    "text": "auto",
-                    "value": "auto"
-                  },
-                  {
-                    "text": "1 minute",
-                    "value": "PT1M"
-                  },
-                  {
-                    "text": "5 minutes",
-                    "value": "PT5M"
-                  },
-                  {
-                    "text": "15 minutes",
-                    "value": "PT15M"
-                  },
-                  {
-                    "text": "30 minutes",
-                    "value": "PT30M"
-                  },
-                  {
-                    "text": "1 hour",
-                    "value": "PT1H"
-                  },
-                  {
-                    "text": "6 hours",
-                    "value": "PT6H"
-                  },
-                  {
-                    "text": "12 hours",
-                    "value": "PT12H"
-                  },
-                  {
-                    "text": "1 day",
-                    "value": "P1D"
-                  }
-                ],
-                "top": "10"
-              },
-              "datasource": {
-                "uid": "${ds}"
-              },
-              "queryType": "Azure Monitor",
-              "refId": "A",
-              "subscription": "${sub}"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Throttled Requests (429)",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "custom": {}
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 11
-          },
-          "hiddenSeries": false,
-          "id": 30,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": true,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "azureMonitor": {
-                "aggOptions": [
-                  "Count"
-                ],
-                "aggregation": "Count",
-                "allowedTimeGrainsMs": [
-                  60000,
-                  300000,
-                  900000,
-                  1800000,
-                  3600000,
-                  21600000,
-                  43200000,
-                  86400000
-                ],
-                "dimensionFilter": "*",
-                "dimensionFilters": [
-                  {
-                    "dimension": "OperationType",
-                    "filter": "",
-                    "operator": "eq"
-                  }
-                ],
-                "dimensions": [
-                  {
-                    "text": "DatabaseName",
-                    "value": "DatabaseName"
-                  },
-                  {
-                    "text": "CollectionName",
-                    "value": "CollectionName"
-                  },
-                  {
-                    "text": "Region",
-                    "value": "Region"
-                  },
-                  {
-                    "text": "StatusCode",
-                    "value": "StatusCode"
-                  },
-                  {
-                    "text": "OperationType",
-                    "value": "OperationType"
-                  },
-                  {
-                    "text": "Status",
-                    "value": "Status"
-                  }
-                ],
-                "metricDefinition": "$ns",
-                "metricName": "TotalRequests",
-                "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
-                "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
-                "timeGrain": "auto",
-                "timeGrains": [
-                  {
-                    "text": "auto",
-                    "value": "auto"
-                  },
-                  {
-                    "text": "1 minute",
-                    "value": "PT1M"
-                  },
-                  {
-                    "text": "5 minutes",
-                    "value": "PT5M"
-                  },
-                  {
-                    "text": "15 minutes",
-                    "value": "PT15M"
-                  },
-                  {
-                    "text": "30 minutes",
-                    "value": "PT30M"
-                  },
-                  {
-                    "text": "1 hour",
-                    "value": "PT1H"
-                  },
-                  {
-                    "text": "6 hours",
-                    "value": "PT6H"
-                  },
-                  {
-                    "text": "12 hours",
-                    "value": "PT12H"
-                  },
-                  {
-                    "text": "1 day",
-                    "value": "P1D"
-                  }
-                ],
-                "top": "10"
-              },
-              "datasource": {
-                "uid": "${ds}"
-              },
-              "queryType": "Azure Monitor",
-              "refId": "A",
-              "subscription": "${sub}"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Total Requests by Operation Type",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        }
-      ],
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "refId": "A"
-        }
-      ],
-      "title": "Requests",
-      "type": "row"
-    },
-    {
-      "collapsed": true,
-      "datasource": {
-        "uid": "${ds}"
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 28
-      },
-      "id": 32,
-      "panels": [
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "custom": {}
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 4
-          },
-          "hiddenSeries": false,
           "id": 33,
-          "legend": {
-            "avg": true,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
           "options": {
-            "alertThreshold": true
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
           },
-          "percentage": false,
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
+          "pluginVersion": "11.6.3",
           "targets": [
             {
               "azureMonitor": {
@@ -2786,7 +2873,7 @@
                 "metricName": "DataUsage",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -2842,7 +2929,7 @@
                 "metricName": "IndexUsage",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -2865,83 +2952,89 @@
               "subscription": "${sub}"
             }
           ],
-          "thresholds": [],
-          "timeRegions": [],
           "title": "Data & Index Usage",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "decbytes",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
+          "type": "timeseries"
         },
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
           "datasource": {
             "uid": "${ds}"
           },
           "fieldConfig": {
             "defaults": {
-              "custom": {}
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
             },
             "overrides": []
           },
-          "fill": 1,
-          "fillGradient": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 4
+            "y": 111
           },
-          "hiddenSeries": false,
           "id": 34,
-          "legend": {
-            "avg": true,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
           "options": {
-            "alertThreshold": true
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
           },
-          "percentage": false,
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
+          "pluginVersion": "11.6.3",
           "targets": [
             {
               "azureMonitor": {
@@ -2978,7 +3071,7 @@
                 "metricName": "DocumentCount",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3000,35 +3093,8 @@
               "subscription": "${sub}"
             }
           ],
-          "thresholds": [],
-          "timeRegions": [],
           "title": "Document Count",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
+          "type": "timeseries"
         },
         {
           "datasource": {
@@ -3039,7 +3105,6 @@
               "color": {
                 "mode": "thresholds"
               },
-              "custom": {},
               "mappings": [],
               "thresholds": {
                 "mode": "absolute",
@@ -3060,7 +3125,7 @@
             "h": 15,
             "w": 24,
             "x": 0,
-            "y": 12
+            "y": 119
           },
           "id": 36,
           "options": {
@@ -3068,6 +3133,7 @@
             "graphMode": "area",
             "justifyMode": "auto",
             "orientation": "auto",
+            "percentChangeColorMode": "standard",
             "reduceOptions": {
               "calcs": [
                 "lastNotNull"
@@ -3075,9 +3141,12 @@
               "fields": "",
               "values": false
             },
+            "showPercentChange": false,
             "text": {},
-            "textMode": "auto"
+            "textMode": "auto",
+            "wideLayout": true
           },
+          "pluginVersion": "11.6.3",
           "targets": [
             {
               "azureMonitor": {
@@ -3115,7 +3184,7 @@
                 "metricName": "DataUsage",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3172,7 +3241,7 @@
                 "metricName": "IndexUsage",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3230,7 +3299,7 @@
                 "metricName": "DocumentCount",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3257,77 +3326,99 @@
           "type": "stat"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Storage",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "uid": "${ds}"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 56
       },
       "id": 38,
       "panels": [
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
           "datasource": {
             "uid": "${ds}"
           },
           "fieldConfig": {
             "defaults": {
-              "custom": {}
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
             },
             "overrides": []
           },
-          "fill": 1,
-          "fillGradient": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 5
+            "y": 135
           },
-          "hiddenSeries": false,
           "id": 39,
-          "legend": {
-            "avg": true,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
           "options": {
-            "alertThreshold": true
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
           },
-          "percentage": false,
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
+          "pluginVersion": "11.6.3",
           "targets": [
             {
               "azureMonitor": {
@@ -3352,7 +3443,7 @@
                 "metricName": "ServiceAvailability",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3396,7 +3487,7 @@
                 "metricName": "ServiceAvailability",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3441,7 +3532,7 @@
                 "metricName": "ServiceAvailability",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3464,109 +3555,104 @@
               "subscription": "${sub}"
             }
           ],
-          "thresholds": [],
-          "timeRegions": [],
           "title": "Service Availability (min/max/avg in %)",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "percent",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
+          "type": "timeseries"
         }
       ],
       "repeat": "sub",
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Availability",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "uid": "${ds}"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 57
       },
       "id": 41,
       "panels": [
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
           "datasource": {
             "uid": "${ds}"
           },
           "fieldConfig": {
             "defaults": {
-              "custom": {}
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
             },
             "overrides": []
           },
-          "fill": 1,
-          "fillGradient": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 6
+            "y": 136
           },
-          "hiddenSeries": false,
           "id": 42,
-          "legend": {
-            "avg": true,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
           "options": {
-            "alertThreshold": true
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
           },
-          "percentage": false,
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
+          "pluginVersion": "11.6.3",
           "targets": [
             {
               "azureMonitor": {
@@ -3615,7 +3701,7 @@
                 "metricName": "ServerSideLatency",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3637,83 +3723,89 @@
               "subscription": "${sub}"
             }
           ],
-          "thresholds": [],
-          "timeRegions": [],
           "title": "Server Side Latency (Avg) By Region",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "ms",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
+          "type": "timeseries"
         },
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
           "datasource": {
             "uid": "${ds}"
           },
           "fieldConfig": {
             "defaults": {
-              "custom": {}
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
             },
             "overrides": []
           },
-          "fill": 1,
-          "fillGradient": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 6
+            "y": 136
           },
-          "hiddenSeries": false,
-          "id": 43,
-          "legend": {
-            "avg": true,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
+          "id": 52,
           "options": {
-            "alertThreshold": true
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
           },
-          "percentage": false,
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
+          "pluginVersion": "11.6.3",
           "targets": [
             {
               "azureMonitor": {
@@ -3762,7 +3854,7 @@
                 "metricName": "ServerSideLatency",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3784,43 +3876,8 @@
               "subscription": "${sub}"
             }
           ],
-          "thresholds": [],
-          "timeRegions": [],
           "title": "Server Side Latency (Avg) By Operation",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "ms",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        }
-      ],
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "refId": "A"
+          "type": "timeseries"
         }
       ],
       "title": "Latency",
@@ -3828,64 +3885,94 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "uid": "${ds}"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 31
+        "y": 58
       },
       "id": 45,
       "panels": [
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
           "datasource": {
             "uid": "${ds}"
           },
           "fieldConfig": {
             "defaults": {
-              "custom": {}
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
             },
             "overrides": []
           },
-          "fill": 1,
-          "fillGradient": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 7
+            "y": 137
           },
-          "hiddenSeries": false,
           "id": 46,
-          "legend": {
-            "avg": true,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
           "options": {
-            "alertThreshold": true
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
           },
-          "percentage": false,
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
+          "pluginVersion": "11.6.3",
           "targets": [
             {
               "azureMonitor": {
@@ -3933,7 +4020,7 @@
                 "metricName": "MetadataRequests",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -3983,83 +4070,89 @@
               "subscription": "${sub}"
             }
           ],
-          "thresholds": [],
-          "timeRegions": [],
           "title": "Metadata Requests by Status Code",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
+          "type": "timeseries"
         },
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
           "datasource": {
             "uid": "${ds}"
           },
           "fieldConfig": {
             "defaults": {
-              "custom": {}
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
             },
             "overrides": []
           },
-          "fill": 1,
-          "fillGradient": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 7
+            "y": 137
           },
-          "hiddenSeries": false,
           "id": 47,
-          "legend": {
-            "avg": true,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
           "options": {
-            "alertThreshold": true
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
           },
-          "percentage": false,
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
+          "pluginVersion": "11.6.3",
           "targets": [
             {
               "azureMonitor": {
@@ -4107,7 +4200,7 @@
                 "metricName": "MetadataRequests",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4157,43 +4250,8 @@
               "subscription": "${sub}"
             }
           ],
-          "thresholds": [],
-          "timeRegions": [],
           "title": "Metadata Requests That Exceeded Capacity (429s)",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        }
-      ],
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "refId": "A"
+          "type": "timeseries"
         }
       ],
       "title": "System",
@@ -4201,64 +4259,94 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "uid": "${ds}"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 59
       },
       "id": 49,
       "panels": [
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
           "datasource": {
             "uid": "${ds}"
           },
           "fieldConfig": {
             "defaults": {
-              "custom": {}
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
             },
             "overrides": []
           },
-          "fill": 1,
-          "fillGradient": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 8
+            "y": 138
           },
-          "hiddenSeries": false,
           "id": 50,
-          "legend": {
-            "avg": true,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
           "options": {
-            "alertThreshold": true
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
           },
-          "percentage": false,
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
+          "pluginVersion": "11.6.3",
           "targets": [
             {
               "azureMonitor": {
@@ -4281,7 +4369,7 @@
                 "metricName": "CreateAccount",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4323,7 +4411,7 @@
                 "metricName": "DeleteAccount",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4371,7 +4459,7 @@
                 "metricName": "UpdateAccountKeys",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4394,83 +4482,89 @@
               "subscription": "${sub}"
             }
           ],
-          "thresholds": [],
-          "timeRegions": [],
           "title": "Cosmos DB Account Management (Creates, Deletes) and Account Key Updates",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
+          "type": "timeseries"
         },
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
           "datasource": {
             "uid": "${ds}"
           },
           "fieldConfig": {
             "defaults": {
-              "custom": {}
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
             },
             "overrides": []
           },
-          "fill": 1,
-          "fillGradient": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 8
+            "y": 138
           },
-          "hiddenSeries": false,
           "id": 51,
-          "legend": {
-            "avg": true,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
           "options": {
-            "alertThreshold": true
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
           },
-          "percentage": false,
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
+          "pluginVersion": "11.6.3",
           "targets": [
             {
               "azureMonitor": {
@@ -4502,7 +4596,7 @@
                 "metricName": "UpdateDiagnosticsSettings",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4544,7 +4638,7 @@
                 "metricName": "UpdateAccountNetworkSettings",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4587,7 +4681,7 @@
                 "metricName": "UpdateAccountReplicationSettings",
                 "metricNamespace": "Microsoft.DocumentDB/databaseAccounts",
                 "resourceGroup": "${rg}",
-                "resourceName": "${resource}",
+                 "resourceName": "${resource}",
                 "timeGrain": "auto",
                 "timeGrains": [
                   {
@@ -4610,56 +4704,25 @@
               "subscription": "${sub}"
             }
           ],
-          "thresholds": [],
-          "timeRegions": [],
           "title": "Cosmos DB Account Diagnostic, Network and Replication Settings Updates",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        }
-      ],
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${ds}"
-          },
-          "refId": "A"
+          "type": "timeseries"
         }
       ],
       "title": "Account Management",
       "type": "row"
     }
   ],
+  "preload": false,
   "refresh": false,
-  "schemaVersion": 39,
+  "schemaVersion": 41,
   "tags": [
     "${prefix}",
     "auto_dashboard",
     "terraform"
   ],
+  "templating": {
+    "list": []
+  },
   "time": {
     "from": "now-3h",
     "to": "now"
@@ -4667,5 +4730,5 @@
   "timepicker": {},
   "timezone": "",
   "title": "${resource}",
-  "weekStart": ""
+  "version": 18
 }
