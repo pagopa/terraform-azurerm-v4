@@ -82,7 +82,7 @@ resource "azurerm_application_gateway" "this" {
       unhealthy_threshold                       = 3
 
       match {
-        status_code = ["200-399"]
+        status_code = backend.value.probe_status_code
       }
     }
   }
