@@ -104,12 +104,13 @@ resource "elasticstack_kibana_import_saved_objects" "dashboard" {
   overwrite  = true
   space_id   = var.space_id
   file_contents = templatefile(each.value, {
-    data_view           = elasticstack_kibana_data_view.kibana_data_view.data_view.id
-    data_view_name      = elasticstack_kibana_data_view.kibana_data_view.data_view.name
-    data_view_title     = elasticstack_kibana_data_view.kibana_data_view.data_view.title
-    apm_data_view       = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
-    apm_data_view_name  = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.name
-    apm_data_view_title = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
+    data_view            = elasticstack_kibana_data_view.kibana_data_view.data_view.id
+    data_view_name       = elasticstack_kibana_data_view.kibana_data_view.data_view.name
+    data_view_title      = elasticstack_kibana_data_view.kibana_data_view.data_view.title
+    apm_data_view        = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
+    apm_data_view_name   = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.name
+    apm_data_view_title  = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
+    traces_index_pattern = "traces-apm*-${local.elastic_namespace}"
   })
 }
 
