@@ -80,6 +80,9 @@ spec:
         endpoint: "${apm_endpoint}"
         headers:
           Authorization: "ApiKey ${apm_api_key}"
+        sending_queue:
+          enabled: true
+          queue_size: ${queue_size}
 
     service:
       pipelines:

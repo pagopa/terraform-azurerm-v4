@@ -51,6 +51,13 @@ variable "elastic_namespace" {
   default     = "default"
 }
 
+variable "exporter_queue_size" {
+  type        = number
+  description = "Queue size for the otel exporter"
+  default     = 1000
+}
+
+
 
 variable "sampling" {
   type = object({

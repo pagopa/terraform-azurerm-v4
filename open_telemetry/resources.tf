@@ -39,6 +39,7 @@ resource "kubectl_manifest" "otel_collector" {
     sampling_percentage        = var.sampling.sampling_percentage
     sampling_enabled           = var.sampling.enabled
     probe_paths                = var.sampling.probe_paths
+    queue_size                 = var.exporter_queue_size
   })
 
   force_conflicts = true
