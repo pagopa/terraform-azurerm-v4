@@ -10,10 +10,10 @@ developer:
   storage_permissions: []
   certificate_permissions: [Get, List, Update, Create, Import, Delete, Restore, Purge, Recover]
 external:
-  key_permissions: []
-  secret_permissions: []
+  key_permissions: [Get, List, Encrypt, Decrypt]
+  secret_permissions: [Get, List]
   storage_permissions: []
-  certificate_permissions: []
+  certificate_permissions: [Get, List]
 reader:
   key_permissions: [Get, List]
   secret_permissions: [Get, List]
