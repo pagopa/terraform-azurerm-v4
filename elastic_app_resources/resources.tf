@@ -152,7 +152,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? can(each.value.notification_channels.cloudo.connector_name) &&  lookup(each.value.notification_channels.cloudo.connector_name, "") != "" : true
+      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.connector_name, "") != "" : true
       error_message = "'cloudo.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
