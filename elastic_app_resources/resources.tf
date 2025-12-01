@@ -212,7 +212,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.type, "")  == "aks" ? try(each.value.notification_channels.cloudo.attributes.namespace, "") != "" : true
+      condition     = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.type, "") == "aks" ? try(each.value.notification_channels.cloudo.attributes.namespace, "") != "" : true
       error_message = "cloudo attributes.namespace must be defined when using type 'aks'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
@@ -508,7 +508,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #email
   dynamic "actions" {
-    for_each = var.alert_channels.email.enabled && try(each.value.notification_channels.email.recipient_list_name, "")  != "" ? [1] : []
+    for_each = var.alert_channels.email.enabled && try(each.value.notification_channels.email.recipient_list_name, "") != "" ? [1] : []
     content {
       group = can(each.value.custom_threshold) ? "custom_threshold.fired" : "query matched"
       id    = "elastic-cloud-email"
@@ -527,7 +527,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #email close
   dynamic "actions" {
-    for_each = var.alert_channels.email.enabled && try(each.value.notification_channels.email.recipient_list_name, "")  != "" ? [1] : []
+    for_each = var.alert_channels.email.enabled && try(each.value.notification_channels.email.recipient_list_name, "") != "" ? [1] : []
     content {
       group = "recovered"
       id    = "elastic-cloud-email"
@@ -606,7 +606,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #slack close
   dynamic "actions" {
-    for_each = var.alert_channels.slack.enabled && try(each.value.notification_channels.slack.connector_name, "")  != "" ? [1] : []
+    for_each = var.alert_channels.slack.enabled && try(each.value.notification_channels.slack.connector_name, "") != "" ? [1] : []
     content {
       group = "recovered"
       id    = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
@@ -622,12 +622,12 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #webhook cloudo
   dynamic "actions" {
-    for_each = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.connector_name, "")  != "" ? [1] : []
+    for_each = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.connector_name, "") != "" ? [1] : []
     content {
-      id = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
+      id    = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
       group = "query matched"
       params = jsonencode({
-        "body": "{  \"data\": {    \"essentials\": {      \"alertRule\": \"${each.value.notification_channels.cloudo.rule}\",      \"severity\": \"${each.value.notification_channels.cloudo.severity}\",      \"monitorCondition\": \"Fired\",      \"logs\": \"{{context.hits}}\",      \"type\": \"${each.value.notification_channels.cloudo.type}\"    },    \"alertContext\": {      \"labels\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}    }  }}"
+        "body" : "{  \"data\": {    \"essentials\": {      \"alertRule\": \"${each.value.notification_channels.cloudo.rule}\",      \"severity\": \"${each.value.notification_channels.cloudo.severity}\",      \"monitorCondition\": \"Fired\",      \"logs\": \"{{context.hits}}\",      \"type\": \"${each.value.notification_channels.cloudo.type}\"    },    \"alertContext\": {      \"labels\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}    }  }}"
       })
       frequency {
         notify_when = "onActionGroupChange"
@@ -638,12 +638,12 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #webhook cloudo close
   dynamic "actions" {
-    for_each = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.connector_name, "")  != "" ? [1] : []
+    for_each = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.connector_name, "") != "" ? [1] : []
     content {
       group = "recovered"
       id    = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
       params = jsonencode({
-        "body": "{  \"data\": {    \"essentials\": {      \"alertRule\": \"${each.value.notification_channels.cloudo.rule}\",      \"severity\": \"${each.value.notification_channels.cloudo.severity}\",      \"monitorCondition\": \"Resolved\",          \"type\": \"${each.value.notification_channels.cloudo.type}\"    },    \"alertContext\": {      \"labels\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}    }  }}"
+        "body" : "{  \"data\": {    \"essentials\": {      \"alertRule\": \"${each.value.notification_channels.cloudo.rule}\",      \"severity\": \"${each.value.notification_channels.cloudo.severity}\",      \"monitorCondition\": \"Resolved\",          \"type\": \"${each.value.notification_channels.cloudo.type}\"    },    \"alertContext\": {      \"labels\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}    }  }}"
       })
       frequency {
         notify_when = "onActionGroupChange"

@@ -42,7 +42,7 @@ locals {
 
   allowed_data_views   = ["logs", "apm"]
   allowed_aggregations = ["count", "avg", "sum", "min", "max", "cardinality", "rate", "p95", "p99", "last_value"]
-  allowed_cloudo_types  = ["aks"]
+  allowed_cloudo_types = ["aks"]
 
   anomaly_detector_map = {
     latency    = "txLatency",
