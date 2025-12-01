@@ -139,6 +139,13 @@ variable "alert_channels" {
       enabled    = false
       connectors = {}
     })
+    cloudo = optional(object({
+      enabled    = bool
+      connectors = map(string)
+      }), {
+      enabled    = false
+      connectors = {}
+    })
   })
 
   description = "Configuration for alert channels to be used in the application alerts. Each channel can be enabled or disabled, and if enabled, must have the necessary recipients or connectors defined."
@@ -155,6 +162,10 @@ variable "alert_channels" {
       enabled    = false
       connectors = {}
     }
+    cloudo = {
+      enabled    = false
+      connectors = {}
+    }
   }
 
   validation {
@@ -168,5 +179,9 @@ variable "alert_channels" {
   validation {
     condition     = var.alert_channels.opsgenie.enabled == false || length(var.alert_channels.opsgenie.connectors) > 0
     error_message = "Opsgenie connectors must be defined if opsgenie alert channel is enabled."
+  }
+  validation {
+    condition     = var.alert_channels.cloudo.enabled == false || length(var.alert_channels.cloudo.connectors) > 0
+    error_message = "ClouDO connectors must be defined if clouDO alert channel is enabled."
   }
 }
