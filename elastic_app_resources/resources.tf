@@ -154,7 +154,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     precondition {
       condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) && can(each.value.notification_channels.cloudo.connector_name) ? contains(keys(var.alert_channels.cloudo.connectors), lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name) : true
       error_message = <<-EOT
-      cloudo connector name '${lookup(lookup(each.value, "notification_channels", {}), "cloudo", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
+      cloudo connector name '${try(each.value.notification_channels.cloudo.connector_name, "cloudo.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
       EOT
     }
 
