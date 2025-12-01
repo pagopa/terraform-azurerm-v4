@@ -145,15 +145,25 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = var.alert_channels.opsgenie.enabled && lookup(lookup(each.value, "notification_channels", {}), "opsgenie", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
+      condition     = var.alert_channels.opsgenie.enabled && can(each.value.notification_channels.opsgenie) && can(each.value.notification_channels.opsgenie.connector_name) ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
       error_message = <<-EOT
-      opsgenie connector name '${lookup(lookup(each.value, "notification_channels", {}), "opsgenie", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
+      opsgenie connector name '${try(each.value.notification_channels.opsgenie.connector_name, "opsgenie.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
       EOT
+    }
+
+    precondition {
+      condition     = var.alert_channels.opsgenie.enabled && can(each.value.notification_channels.opsgenie) ? try(each.value.notification_channels.opsgenie.connector_name, "") != "" : true
+      error_message = "'opsgenie.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.connector_name, "") != "" : true
       error_message = "'cloudo.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = var.alert_channels.slack.enabled && can(each.value.notification_channels.slack) ? try(each.value.notification_channels.slack.connector_name, "") != "" : true
+      error_message = "'slack.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
@@ -164,9 +174,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = var.alert_channels.slack.enabled && lookup(lookup(each.value, "notification_channels", {}), "slack", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
+      condition     = var.alert_channels.slack.enabled && can(each.value.notification_channels.slack) && can(each.value.notification_channels.slack.connector_name) ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
       error_message = <<-EOT
-      slack connector name '${lookup(lookup(each.value, "notification_channels", {}), "slack", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
+      slack connector name '${try(each.value.notification_channels.slack.connector_name, "slack.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
       EOT
     }
 
@@ -179,7 +189,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
     precondition {
       condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? contains(local.allowed_cloudo_types, try(each.value.notification_channels.cloudo.type, "")) : true
-      error_message = "cloudo type must be defined and be one of ${join(",", local.allowed_cloudo_types)}. used by alert '${each.key}' in '${var.application_name}' application"
+      error_message = "cloudo type must be defined and be one of: '${join(",", local.allowed_cloudo_types)}'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
