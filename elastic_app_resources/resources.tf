@@ -146,26 +146,34 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
     precondition {
       condition     = var.alert_channels.opsgenie.enabled && lookup(lookup(each.value, "notification_channels", {}), "opsgenie", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
-      error_message = "opsgenie connector name '${lookup(lookup(each.value, "notification_channels", {}), "opsgenie", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application"
+      error_message = <<-EOT
+      opsgenie connector name '${lookup(lookup(each.value, "notification_channels", {}), "opsgenie", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
+      EOT
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.cloudo.connectors), lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name) : true
-      error_message = "opsgenie connector name '${lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application"
+      condition     = var.alert_channels.cloudo.enabled && lookup(lookup(each.value, "notification_channels", {}), "cloudo", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.cloudo.connectors), lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name) : true
+      error_message = <<-EOT
+      cloudo connector name '${lookup(lookup(each.value, "notification_channels", {}), "cloudo", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
+      EOT
     }
 
     precondition {
       condition     = var.alert_channels.slack.enabled && lookup(lookup(each.value, "notification_channels", {}), "slack", { connector_name : "" }).connector_name != "" ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
-      error_message = "slack connector name '${lookup(lookup(each.value, "notification_channels", {}), "slack", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application"
+      error_message = <<-EOT
+      slack connector name '${lookup(lookup(each.value, "notification_channels", {}), "slack", { connector_name : "" }).connector_name}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
+      EOT
     }
 
     precondition {
       condition     = var.alert_channels.email.enabled && lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name != "" ? contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name) : true
-      error_message = "email list name '${lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name}' must be defined in var.email_recipients. used by alert '${each.key}' in '${var.application_name}' application"
+      error_message = <<-EOT
+      email list name '${lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name}' must be defined in var.email_recipients. used by alert '${each.key}' in '${var.application_name}' application
+      EOT
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && lookup(each.value.notification_channels, "cloudo", { type : "" }).type != "" ? contains(["aks"], each.value.notification_channels.cloudo.type) : true
+      condition     = var.alert_channels.cloudo.enabled && lookup(lookup(each.value, "notification_channels", {}), "cloudo", { type : "" }).type != "" ? contains(["aks"], each.value.notification_channels.cloudo.type) : true
       error_message = "cloudo type must be defined and be one of 'aks'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
