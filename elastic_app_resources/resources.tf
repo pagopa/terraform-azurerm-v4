@@ -138,19 +138,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   for_each = local.alerts
 
   lifecycle {
-
-    precondition {
-      condition     = can(each.value.name)
-      error_message = "'name' must be defined. used by alert '${each.key}' in '${var.application_name}' application"
-    }
-
-    precondition {
-      condition     = var.alert_channels.opsgenie.enabled && can(each.value.notification_channels.opsgenie) && can(each.value.notification_channels.opsgenie.connector_name) ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
-      error_message = <<-EOT
-      opsgenie connector name '${try(each.value.notification_channels.opsgenie.connector_name, "opsgenie.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
-      EOT
-    }
-
+    #
+    # check connector name not empty
+    #
     precondition {
       condition     = var.alert_channels.opsgenie.enabled && can(each.value.notification_channels.opsgenie) ? try(each.value.notification_channels.opsgenie.connector_name, "") != "" : true
       error_message = "'opsgenie.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
@@ -166,6 +156,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "'slack.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
+    #
+    # check connector name available
+    #
     precondition {
       condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) && can(each.value.notification_channels.cloudo.connector_name) ? contains(keys(var.alert_channels.cloudo.connectors), lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name) : true
       error_message = <<-EOT
@@ -181,12 +174,23 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
+      condition     = var.alert_channels.opsgenie.enabled && can(each.value.notification_channels.opsgenie) && can(each.value.notification_channels.opsgenie.connector_name) ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
+      error_message = <<-EOT
+      opsgenie connector name '${try(each.value.notification_channels.opsgenie.connector_name, "opsgenie.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
+      EOT
+    }
+
+    precondition {
       condition     = var.alert_channels.email.enabled && lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name != "" ? contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name) : true
       error_message = <<-EOT
       email list name '${lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name}' must be defined in var.email_recipients. used by alert '${each.key}' in '${var.application_name}' application
       EOT
     }
 
+
+    #
+    # cloudo validations
+    #
     precondition {
       condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? contains(local.allowed_cloudo_types, try(each.value.notification_channels.cloudo.type, "")) : true
       error_message = "cloudo type must be defined and be one of: '${join(",", local.allowed_cloudo_types)}'. used by alert '${each.key}' in '${var.application_name}' application"
@@ -207,6 +211,10 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "cloudo attributes.namespace must be defined when using type 'aks'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
+
+    #
+    # alert type configuration
+    #
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ? lookup(each.value, "apm_metric", null) == null : true
       error_message = "log_query and apm_metric are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
@@ -217,6 +225,14 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "log_query and custom_threshold are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
+    precondition {
+      condition     = lookup(each.value, "apm_metric", null) != null ? lookup(each.value, "custom_threshold", null) == null : true
+      error_message = "custom_threshold and apm_metric are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    #
+    # log_query validations
+    #
     precondition {
       condition     = lookup(each.value, "log_query", null) != null ? try(each.value.log_query.aggregation, "") != "" && try(each.value.log_query.query, "") != "" && try(each.value.log_query.data_view, "") != "" : true
       error_message = "log_query must have aggregation, query and data_view defined. used by alert '${each.key}' in '${var.application_name}' application"
@@ -243,10 +259,28 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "apm_metric", null) != null ? lookup(each.value, "custom_threshold", null) == null : true
-      error_message = "custom_threshold and apm_metric are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
+      condition     = lookup(each.value, "log_query", null) != null ? try(each.value.log_query.threshold, "") != "" : true
+      error_message = "log_query.threshold must be defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
+    precondition {
+      condition     = lookup(each.value, "log_query", null) != null ? try(each.value.log_query.threshold.comparator, "") != "" && length(try(each.value.log_query.threshold.values, [])) > 0 : true
+      error_message = "log_query.threshold must have comparator and values defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = lookup(each.value, "log_query", null) != null ? contains([">", ">=", "<", "<=", "between", "notBetween"], try(each.value.log_query.threshold.comparator, "")) : true
+      error_message = "log_query.threshold.comparator must be one of '>', '>=', '<', '<=', 'between', 'notBetween'. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = lookup(each.value, "log_query", null) != null ? (contains(["between", "notBetween"], try(each.value.log_query.threshold.comparator, "")) ? length(try(each.value.log_query.threshold.values, [])) == 2 : length(try(each.value.log_query.threshold.values, [])) == 1) : true
+      error_message = "log_query.threshold.values must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    #
+    # apm_metric validations
+    #
     precondition {
       condition     = lookup(each.value, "apm_metric", null) != null ? try(each.value.apm_metric.metric, "") != "" : true
       error_message = "apm_metric must have metric defined. used by alert '${each.key}' in '${var.application_name}' application"
@@ -272,7 +306,6 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "apm_metric.anomaly must not be defined when using metric 'latency', 'failed_transactions' or 'error_count'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
-
     precondition {
       condition     = can(each.value.apm_metric.anomaly) ? alltrue([for d in try(each.value.apm_metric.anomaly.detectors, []) : contains(keys(local.anomaly_detector_map), d)]) : true
       error_message = "apm_metric.anomaly.detectors must be one of ${join(",", keys(local.anomaly_detector_map))}. used by alert '${each.key}' in '${var.application_name}' application"
@@ -288,36 +321,10 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "apm_metric.metric must be one of ${join(",", keys(local.rule_type_id_map))}. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
-    precondition {
-      condition     = lookup(each.value, "log_query", null) != null ? try(each.value.log_query.threshold, "") != "" : true
-      error_message = "log_query.threshold must be defined. used by alert '${each.key}' in '${var.application_name}' application"
-    }
 
-    precondition {
-      condition     = lookup(each.value, "log_query", null) != null ? try(each.value.log_query.threshold.comparator, "") != "" && length(try(each.value.log_query.threshold.values, [])) > 0 : true
-      error_message = "log_query.threshold must have comparator and values defined. used by alert '${each.key}' in '${var.application_name}' application"
-    }
-
-    precondition {
-      condition     = lookup(each.value, "log_query", null) != null ? contains([">", ">=", "<", "<=", "between", "notBetween"], try(each.value.log_query.threshold.comparator, "")) : true
-      error_message = "log_query.threshold.comparator must be one of '>', '>=', '<', '<=', 'between', 'notBetween'. used by alert '${each.key}' in '${var.application_name}' application"
-    }
-
-    precondition {
-      condition     = lookup(each.value, "log_query", null) != null ? (contains(["between", "notBetween"], try(each.value.log_query.threshold.comparator, "")) ? length(try(each.value.log_query.threshold.values, [])) == 2 : length(try(each.value.log_query.threshold.values, [])) == 1) : true
-      error_message = "log_query.threshold.values must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.key}' in '${var.application_name}' application"
-    }
-
-    precondition {
-      condition     = can(each.value.window.size) && can(each.value.window.unit)
-      error_message = "'window' must be ddefined and must have 'size' and 'unit' defined. used by alert '${each.key}' in '${var.application_name}' application"
-    }
-
-    precondition {
-      condition     = can(each.value.schedule)
-      error_message = "'schedule' must be defined. used by alert '${each.key}' in '${var.application_name}' application"
-    }
-
+    #
+    # custom_threshold validations
+    #
     precondition {
       condition     = can(each.value.custom_threshold) ? contains(local.allowed_data_views, try(each.value.custom_threshold.data_view, "")) : true
       error_message = "custom_threshold.data_view type must be either ${join(",", local.allowed_data_views)}. used by alert '${each.key}' in '${var.application_name}' application"
@@ -384,8 +391,23 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "custom_threshold must have equation defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
+    #
+    # common alert validations
+    #
+    precondition {
+      condition     = can(each.value.name)
+      error_message = "'name' must be defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
 
+    precondition {
+      condition     = can(each.value.window.size) && can(each.value.window.unit)
+      error_message = "'window' must be ddefined and must have 'size' and 'unit' defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
 
+    precondition {
+      condition     = can(each.value.schedule)
+      error_message = "'schedule' must be defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
 
   }
 
