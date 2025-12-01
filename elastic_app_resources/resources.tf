@@ -156,6 +156,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       error_message = "'slack.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
+    precondition {
+      condition     = var.alert_channels.email.enabled && can(each.value.notification_channels.email) ? try(each.value.notification_channels.email.recipient_list_name, "") != "" : true
+      error_message = "'email.recipient_list_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
     #
     # check connector name available
     #
@@ -181,9 +186,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = var.alert_channels.email.enabled && lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name != "" ? contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name) : true
+      condition     = var.alert_channels.email.enabled && can(each.value.notification_channels.email) && can(each.value.notification_channels.email.recipient_list_name) ? contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name) : true
       error_message = <<-EOT
-      email list name '${lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name}' must be defined in var.email_recipients. used by alert '${each.key}' in '${var.application_name}' application
+      email list name '${try(each.value.notification_channels.email.recipient_list_name, "email.recipient_list_name")}' must be defined in var.email_recipients. used by alert '${each.key}' in '${var.application_name}' application
       EOT
     }
 
