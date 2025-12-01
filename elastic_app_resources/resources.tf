@@ -142,17 +142,17 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     # check connector name not empty
     #
     precondition {
-      condition     = var.alert_channels.opsgenie.enabled && can(each.value.notification_channels.opsgenie) ? try(each.value.notification_channels.opsgenie.connector_name, "") != "" : true
+      condition     = can(each.value.notification_channels.opsgenie) ? try(each.value.notification_channels.opsgenie.connector_name, "") != "" : true
       error_message = "'opsgenie.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.connector_name, "") != "" : true
+      condition     = can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.connector_name, "") != "" : true
       error_message = "'cloudo.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.slack.enabled && can(each.value.notification_channels.slack) ? try(each.value.notification_channels.slack.connector_name, "") != "" : true
+      condition     = can(each.value.notification_channels.slack) ? try(each.value.notification_channels.slack.connector_name, "") != "" : true
       error_message = "'slack.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
@@ -160,28 +160,28 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     # check connector name available
     #
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) && can(each.value.notification_channels.cloudo.connector_name) ? contains(keys(var.alert_channels.cloudo.connectors), lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name) : true
+      condition     =can(each.value.notification_channels.cloudo) && can(each.value.notification_channels.cloudo.connector_name) ? contains(keys(var.alert_channels.cloudo.connectors), lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name) : true
       error_message = <<-EOT
       cloudo connector name '${try(each.value.notification_channels.cloudo.connector_name, "cloudo.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
       EOT
     }
 
     precondition {
-      condition     = var.alert_channels.slack.enabled && can(each.value.notification_channels.slack) && can(each.value.notification_channels.slack.connector_name) ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
+      condition     = can(each.value.notification_channels.slack) && can(each.value.notification_channels.slack.connector_name) ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
       error_message = <<-EOT
       slack connector name '${try(each.value.notification_channels.slack.connector_name, "slack.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
       EOT
     }
 
     precondition {
-      condition     = var.alert_channels.opsgenie.enabled && can(each.value.notification_channels.opsgenie) && can(each.value.notification_channels.opsgenie.connector_name) ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
+      condition     = can(each.value.notification_channels.opsgenie) && can(each.value.notification_channels.opsgenie.connector_name) ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
       error_message = <<-EOT
       opsgenie connector name '${try(each.value.notification_channels.opsgenie.connector_name, "opsgenie.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
       EOT
     }
 
     precondition {
-      condition     = var.alert_channels.email.enabled && lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name != "" ? contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name) : true
+      condition     = lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name != "" ? contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name) : true
       error_message = <<-EOT
       email list name '${lookup(lookup(each.value, "notification_channels", {}), "email", { recipient_list_name : "" }).recipient_list_name}' must be defined in var.email_recipients. used by alert '${each.key}' in '${var.application_name}' application
       EOT
@@ -192,22 +192,22 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     # cloudo validations
     #
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? contains(local.allowed_cloudo_types, try(each.value.notification_channels.cloudo.type, "")) : true
+      condition     = can(each.value.notification_channels.cloudo) ? contains(local.allowed_cloudo_types, try(each.value.notification_channels.cloudo.type, "")) : true
       error_message = "cloudo type must be defined and be one of: '${join(",", local.allowed_cloudo_types)}'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.rule, "") != "" : true
+      condition     = can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.rule, "") != "" : true
       error_message = "cloudo rule must be defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.severity, "") != "" : true
+      condition     = can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.severity, "") != "" : true
       error_message = "cloudo severity must be defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.type, "")  == "aks" ? try(each.value.notification_channels.cloudo.attributes.namespace, "") != "" : true
+      condition     = can(each.value.notification_channels.cloudo) && try(each.value.notification_channels.cloudo.type, "")  == "aks" ? try(each.value.notification_channels.cloudo.attributes.namespace, "") != "" : true
       error_message = "cloudo attributes.namespace must be defined when using type 'aks'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
