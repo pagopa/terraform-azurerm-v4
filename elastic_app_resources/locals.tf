@@ -51,7 +51,7 @@ locals {
   }
 
   alert_variables = {
-    env = var.target_env
+    env       = var.target_env
     env_short = substr(var.target_env, 0, 1)
   }
 }
