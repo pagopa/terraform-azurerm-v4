@@ -47,11 +47,11 @@ resource "azurerm_storage_account" "this" {
       dynamic "cors_rule" {
         for_each = var.blob_cors_rule != null ? [1] : [0]
         content {
-          allowed_headers    = cors_rule.value.allowed_headers
-          allowed_methods    = cors_rule.value.allowed_methods
-          allowed_origins    = cors_rule.value.allowed_origins
-          exposed_headers    = cors_rule.value.exposed_headers
-          max_age_in_seconds = cors_rule.value.max_age_in_seconds
+          allowed_headers    = cors_rule.allowed_headers
+          allowed_methods    = cors_rule.allowed_methods
+          allowed_origins    = cors_rule.allowed_origins
+          exposed_headers    = cors_rule.exposed_headers
+          max_age_in_seconds = cors_rule.max_age_in_seconds
         }
       }
     }
