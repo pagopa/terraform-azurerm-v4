@@ -45,7 +45,7 @@ resource "azurerm_storage_account" "this" {
       }
 
       dynamic "cors_rule" {
-        for_each = var.blob_cors_rule != null ? [1] : [0]
+        for_each = var.blob_cors_rule != null ? [1] : []
         content {
           allowed_headers    = var.blob_cors_rule.allowed_headers
           allowed_methods    = var.blob_cors_rule.allowed_methods
