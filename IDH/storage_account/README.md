@@ -55,6 +55,7 @@ No resources.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_action"></a> [action](#input\_action) | The ID of the Action Group and optional map of custom string properties to include with the post webhook operation. | <pre>set(object(<br/>    {<br/>      action_group_id    = string<br/>      webhook_properties = map(string)<br/>    }<br/>  ))</pre> | `[]` | no |
+| <a name="input_blob_cors_rule"></a> [blob\_cors\_rule](#input\_blob\_cors\_rule) | CORS rules. More than one rule can be specified. | <pre>object({<br/>    allowed_headers    = list(string)<br/>    allowed_methods    = list(string)<br/>    allowed_origins    = list(string)<br/>    exposed_headers    = list(string)<br/>    max_age_in_seconds = number<br/>  })</pre> | `null` | no |
 | <a name="input_custom_domain"></a> [custom\_domain](#input\_custom\_domain) | Custom domain for accessing blob data | <pre>object({<br/>    name          = string<br/>    use_subdomain = bool<br/>  })</pre> | <pre>{<br/>  "name": null,<br/>  "use_subdomain": false<br/>}</pre> | no |
 | <a name="input_domain"></a> [domain](#input\_domain) | (Optional) Specifies the domain of the Storage Account. | `string` | `null` | no |
 | <a name="input_enable_identity"></a> [enable\_identity](#input\_enable\_identity) | (Optional) If true, set the identity as SystemAssigned | `bool` | `false` | no |

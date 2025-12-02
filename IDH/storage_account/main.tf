@@ -48,6 +48,8 @@ module "storage_account" {
     blob_restore_policy_days   = module.idh_loader.idh_resource_configuration.point_in_time_restore_enabled ? module.idh_loader.idh_resource_configuration.point_in_time_retention_days : 0
   }
 
+  blob_cors_rule = var.blob_cors_rule
+
   private_endpoint_enabled         = module.idh_loader.idh_resource_configuration.private_endpoint_enabled
   access_tier                      = module.idh_loader.idh_resource_configuration.access_tier
   blob_last_access_time_enabled    = module.idh_loader.idh_resource_configuration.blob_last_access_time_enabled
