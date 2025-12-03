@@ -232,16 +232,16 @@ variable "databases" {
 variable "geo_replication" {
   type = object({
     enabled                     = bool
-    name                        = string
-    subnet_id                   = string
-    location                    = string
-    private_dns_registration_ve = bool
+    name                        = optional(string, null)
+    subnet_id                   = optional(string, null)
+    location                    = optional(string, null)
+    private_dns_registration_ve = optional(bool, false)
   })
   default = {
     enabled                     = false
-    name                        = ""
-    subnet_id                   = ""
-    location                    = ""
+    name                        = null
+    subnet_id                   = null
+    location                    = null
     private_dns_registration_ve = false
   }
   description = "(Optional) Map of geo replication settings"
@@ -249,6 +249,16 @@ variable "geo_replication" {
   validation {
     condition     = !module.idh_loader.idh_resource_configuration.geo_replication_allowed ? var.geo_replication.enabled == false : true
     error_message = "Geo replication is not allowed in '${var.env}' environment for '${var.idh_resource_tier}'"
+  }
+
+  validation {
+    error_message = "If geo_replication is enabled, 'name' and 'location' must be provided"
+    condition = var.geo_replication.enabled ? (var.geo_replication.name != null && var.geo_replication.location != null) : true
+  }
+
+  validation {
+    error_message = "If geo_replication is enabled and embedded_subnet is disabled, 'subnet_id' must be provided"
+    condition = var.geo_replication.enabled ? (var.embedded_subnet.enabled ? true : var.geo_replication.subnet_id != null) : true
   }
 
 }
@@ -274,3 +284,40 @@ variable "additional_azure_extensions" {
     error_message = "At least one of the additional_azure_extensions is already included in the preconfigured extensions: ${module.idh_loader.idh_resource_configuration.server_parameters.azure_extensions}"
   }
 }
+
+
+variable "embedded_subnet" {
+  type = object({
+    enabled = bool
+    vnet_name = optional(string, null)
+    vnet_rg_name = optional(string, null)
+    replica_vnet_name = optional(string, null)
+    replica_vnet_rg_name = optional(string, null)
+  })
+  description = "(Optional) Configuration for creating an embedded Subnet for the PostgreSQL Flexible Server. If 'enabled' is true, 'delegated_subnet_id' must be null"
+  default = {
+    enabled     = false
+    vnet_name   = null
+    vnet_rg_name = null
+    replica_vnet_name = null
+    replica_vnet_rg_name = null
+  }
+
+
+  validation {
+    condition = var.embedded_subnet.enabled && module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.delegated_subnet_id == null : var.delegated_subnet_id != null
+    error_message = "If 'embedded_subnet' is enabled, 'delegated_subnet_id' must be null. If 'create_subnet' is false, 'delegated_subnet_id' must be provided."
+  }
+
+  validation {
+    condition = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
+    error_message = "If  'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
+  }
+
+  validation {
+    error_message = "If 'embedded_subnet' is enabled and geo_replication is enabled, both 'replica_vnet_name' and 'replica_vnet_rg_name' must be provided."
+    condition = (var.embedded_subnet.enabled && var.geo_replication.enabled) ? (var.embedded_subnet.replica_vnet_name != null && var.embedded_subnet.replica_vnet_rg_name != null) : true
+  }
+
+}
+
