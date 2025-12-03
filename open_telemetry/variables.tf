@@ -51,12 +51,18 @@ variable "elastic_namespace" {
   default     = "default"
 }
 
-variable "exporter_queue_size" {
-  type        = number
-  description = "Queue size for the otel exporter"
-  default     = 1000
-}
 
+variable "otlp_exporter_config" {
+  type = object({
+    queue_size = optional(number, 1000)
+    consumers  = optional(number, 10)
+  })
+  description = "Configuration for the OTLP exporter"
+  default = {
+    queue_size = 1000
+    consumers  = 10
+  }
+}
 
 
 variable "sampling" {
