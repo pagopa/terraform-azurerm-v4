@@ -27,7 +27,6 @@ spec:
           action: upsert
       tail_sampling:
         decision_wait: 30s
-        expected_new_traces_per_sec: 10000
         policies: [
           {
             # always sample errors
