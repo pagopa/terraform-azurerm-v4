@@ -253,14 +253,8 @@ variable "geo_replication" {
 
   validation {
     error_message = "If geo_replication is enabled, 'name' and 'location' must be provided"
-    condition = var.geo_replication.enabled ? (var.geo_replication.name != null && var.geo_replication.location != null) : true
+    condition     = var.geo_replication.enabled ? (var.geo_replication.name != null && var.geo_replication.location != null) : true
   }
-
-  validation {
-    error_message = "If geo_replication is enabled and embedded_subnet is disabled, 'subnet_id' must be provided"
-    condition = var.geo_replication.enabled ? (var.embedded_subnet.enabled ? true : var.geo_replication.subnet_id != null) : true
-  }
-
 }
 
 variable "pg_bouncer_enabled" {
@@ -288,40 +282,45 @@ variable "additional_azure_extensions" {
 
 variable "embedded_subnet" {
   type = object({
-    enabled = bool
-    vnet_name = optional(string, null)
-    vnet_rg_name = optional(string, null)
-    replica_vnet_name = optional(string, null)
+    enabled              = bool
+    vnet_name            = optional(string, null)
+    vnet_rg_name         = optional(string, null)
+    replica_vnet_name    = optional(string, null)
     replica_vnet_rg_name = optional(string, null)
   })
   description = "(Optional) Configuration for creating an embedded Subnet for the PostgreSQL Flexible Server. If 'enabled' is true, 'delegated_subnet_id' must be null"
   default = {
-    enabled     = false
-    vnet_name   = null
-    vnet_rg_name = null
-    replica_vnet_name = null
+    enabled              = false
+    vnet_name            = null
+    vnet_rg_name         = null
+    replica_vnet_name    = null
     replica_vnet_rg_name = null
   }
 
 
   validation {
-    condition = var.embedded_subnet.enabled && module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.delegated_subnet_id == null : var.delegated_subnet_id != null
-    error_message = "If 'embedded_subnet' is enabled, 'delegated_subnet_id' must be null. If 'create_subnet' is false, 'delegated_subnet_id' must be provided."
+    condition     = var.embedded_subnet.enabled && module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.delegated_subnet_id == null : var.delegated_subnet_id != null
+    error_message = "If 'embedded_subnet' is enabled, 'delegated_subnet_id' must be null."
   }
 
   validation {
-    condition = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
+    condition     = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
     error_message = "If  'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
   }
 
   validation {
-    error_message = "If 'embedded_subnet' is enabled and geo_replication is enabled, both 'replica_vnet_name' and 'replica_vnet_rg_name' must be provided."
-    condition = (var.embedded_subnet.enabled && var.geo_replication.enabled) ? (var.embedded_subnet.replica_vnet_name != null && var.embedded_subnet.replica_vnet_rg_name != null) : true
+    error_message = "If 'embedded_subnet' is enabled and geo_replication is enabled, both 'embedded_subnet.replica_vnet_name' and 'embedded_subnet.replica_vnet_rg_name' must be provided."
+    condition     = (var.embedded_subnet.enabled && var.geo_replication.enabled) ? (var.embedded_subnet.replica_vnet_name != null && var.embedded_subnet.replica_vnet_rg_name != null) : true
   }
 
   validation {
     error_message = "If 'embedded_subnet' is enabled and geo_replication is enabled, geo_replication.subnet_id must be null."
-    condition = (var.embedded_subnet.enabled && var.geo_replication.enabled) ? var.geo_replication.subnet_id == null : true
+    condition     = (var.embedded_subnet.enabled && var.geo_replication.enabled) ? var.geo_replication.subnet_id == null : true
+  }
+
+  validation {
+    error_message = "If geo_replication is enabled and embedded_subnet is disabled, 'subnet_id' must be provided"
+    condition     = var.geo_replication.enabled ? (var.embedded_subnet.enabled ? true : var.geo_replication.subnet_id != null) : true
   }
 
 }

@@ -14,30 +14,30 @@ locals {
 
 # IDH/subnet
 module "pgflex_snet" {
-  count = var.embedded_subnet.enabled ? 1 : 0
+  count                = var.embedded_subnet.enabled ? 1 : 0
   source               = "../subnet"
   name                 = "${var.name}-snet"
   resource_group_name  = var.embedded_subnet.vnet_rg_name
   virtual_network_name = var.embedded_subnet.vnet_name
   service_endpoints    = ["Microsoft.Storage"]
 
-  env          = var.env
+  env               = var.env
   idh_resource_tier = "postgres_flexible"
-  product_name       = var.product_name
+  product_name      = var.product_name
 }
 
 # IDH/subnet
 module "pgflex_replica_snet" {
-  count = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
+  count                = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
   source               = "../subnet"
   name                 = "${var.name}-snet"
   resource_group_name  = var.embedded_subnet.replica_vnet_rg_name
   virtual_network_name = var.embedded_subnet.replica_vnet_name
   service_endpoints    = ["Microsoft.Storage"]
 
-  env          = var.env
+  env               = var.env
   idh_resource_tier = "postgres_flexible"
-  product_name       = var.product_name
+  product_name      = var.product_name
 }
 
 
@@ -65,7 +65,7 @@ module "pgflex" {
   create_mode                  = module.idh_loader.idh_resource_configuration.create_mode
   zone                         = local.zone
 
-  delegated_subnet_id           = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? (var.embedded_subnet.enabled ? module.pgflex_snet.subnet_id : var.delegated_subnet_id) : null
+  delegated_subnet_id           = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? (var.embedded_subnet.enabled ? module.pgflex_snet[0].subnet_id : var.delegated_subnet_id) : null
   private_dns_zone_id           = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_dns_zone_id : null
   public_network_access_enabled = module.idh_loader.idh_resource_configuration.public_network_access_enabled
 
@@ -185,7 +185,7 @@ module "replica" {
   location            = var.geo_replication.location
 
   private_dns_zone_id      = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_dns_zone_id : null
-  delegated_subnet_id      = var.geo_replication.subnet_id
+  delegated_subnet_id      = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? (var.embedded_subnet.enabled ? module.pgflex_replica_snet[0].subnet_id : var.geo_replication.subnet_id) : null
   private_endpoint_enabled = module.idh_loader.idh_resource_configuration.private_endpoint_enabled
 
   sku_name = module.idh_loader.idh_resource_configuration.sku_name
