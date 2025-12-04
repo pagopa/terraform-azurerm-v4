@@ -305,7 +305,7 @@ variable "embedded_subnet" {
 
   validation {
     condition     = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
-    error_message = "If  'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
+    error_message = "If 'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
   }
 
   validation {
