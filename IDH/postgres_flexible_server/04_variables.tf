@@ -299,7 +299,7 @@ variable "embedded_subnet" {
 
 
   validation {
-    condition     = var.embedded_subnet.enabled && module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.delegated_subnet_id == null : var.delegated_subnet_id != null
+    condition     = var.embedded_subnet.enabled ? var.delegated_subnet_id == null : true
     error_message = "If 'embedded_subnet' is enabled, 'delegated_subnet_id' must be null."
   }
 
