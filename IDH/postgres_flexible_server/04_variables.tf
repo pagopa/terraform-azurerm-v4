@@ -319,5 +319,10 @@ variable "embedded_subnet" {
     condition = (var.embedded_subnet.enabled && var.geo_replication.enabled) ? (var.embedded_subnet.replica_vnet_name != null && var.embedded_subnet.replica_vnet_rg_name != null) : true
   }
 
+  validation {
+    error_message = "If 'embedded_subnet' is enabled and geo_replication is enabled, geo_replication.subnet_id must be null."
+    condition = (var.embedded_subnet.enabled && var.geo_replication.enabled) ? var.geo_replication.subnet_id == null : true
+  }
+
 }
 
