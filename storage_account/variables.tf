@@ -191,6 +191,20 @@ variable "immutability_policy_props" {
   }
 }
 
+# -------------------
+# CORS Rules
+# -------------------
+variable "blob_cors_rule" {
+  type = object({
+    allowed_headers    = list(string)
+    allowed_methods    = list(string)
+    allowed_origins    = list(string)
+    exposed_headers    = list(string)
+    max_age_in_seconds = number
+  })
+  description = "CORS rules. More than one rule can be specified."
+  default     = null
+}
 
 # -------------------
 # Alerts variables

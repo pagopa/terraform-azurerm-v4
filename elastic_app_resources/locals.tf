@@ -3,7 +3,7 @@ locals {
   application_id = "${var.application_name}-${var.target_env}"
   dashboards     = { for df in fileset("${var.dashboard_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => "${var.dashboard_folder}/${df}" }
   queries        = { for qf in fileset("${var.query_folder}", "/*.ndjson") : trimsuffix(basename(qf), ".ndjson") => "${var.query_folder}/${qf}" }
-  alerts         = { for af in fileset("${var.alert_folder}", "/*.yml") : trimsuffix(basename(af), ".yml") => yamldecode(file("${var.alert_folder}/${af}")) }
+  alerts         = { for af in fileset("${var.alert_folder}", "/*.yml") : trimsuffix(basename(af), ".yml") => yamldecode(templatefile("${var.alert_folder}/${af}", local.alert_variables)) }
 
   elastic_namespace = "${var.target_name}.${var.target_env}"
 
@@ -42,10 +42,16 @@ locals {
 
   allowed_data_views   = ["logs", "apm"]
   allowed_aggregations = ["count", "avg", "sum", "min", "max", "cardinality", "rate", "p95", "p99", "last_value"]
+  allowed_cloudo_types = ["aks"]
 
   anomaly_detector_map = {
     latency    = "txLatency",
     throughput = "txThroughput",
     failures   = "txFailureRate"
+  }
+
+  alert_variables = {
+    env       = var.target_env
+    env_short = substr(var.target_env, 0, 1)
   }
 }
