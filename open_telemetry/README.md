@@ -78,6 +78,7 @@ No modules.
 | <a name="input_grpc_receiver_port"></a> [grpc\_receiver\_port](#input\_grpc\_receiver\_port) | Otel collector grpc receiver port | `number` | `4317` | no |
 | <a name="input_opentelemetry_operator_helm_version"></a> [opentelemetry\_operator\_helm\_version](#input\_opentelemetry\_operator\_helm\_version) | Helm chart version for otel operator | `string` | n/a | yes |
 | <a name="input_otel_kube_namespace"></a> [otel\_kube\_namespace](#input\_otel\_kube\_namespace) | Namespace where to install the elastic agent resources | `string` | n/a | yes |
+| <a name="input_otlp_exporter_config"></a> [otlp\_exporter\_config](#input\_otlp\_exporter\_config) | Configuration for the OTLP exporter | <pre>object({<br/>    queue_size       = optional(number, 1000)<br/>    consumers        = optional(number, 10)<br/>    memory_limit_mib = optional(number, 2000)<br/>  })</pre> | <pre>{<br/>  "consumers": 10,<br/>  "memory_limit_mib": 2000,<br/>  "queue_size": 1000<br/>}</pre> | no |
 | <a name="input_sampling"></a> [sampling](#input\_sampling) | Sampling configuration for the OpenTelemetry collector traces | <pre>object({<br/>    enabled                    = bool<br/>    probes_sampling_percentage = optional(number, 1)<br/>    sampling_percentage        = optional(number, 50)<br/>    probe_paths                = optional(list(string), [])<br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "probe_paths": [],<br/>  "probes_sampling_percentage": 1,<br/>  "sampling_percentage": 50<br/>}</pre> | no |
 
 ## Outputs
