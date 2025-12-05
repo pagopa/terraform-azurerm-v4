@@ -52,6 +52,21 @@ variable "elastic_namespace" {
 }
 
 
+variable "otlp_exporter_config" {
+  type = object({
+    queue_size       = optional(number, 1000)
+    consumers        = optional(number, 10)
+    memory_limit_mib = optional(number, 2000)
+  })
+  description = "Configuration for the OTLP exporter"
+  default = {
+    queue_size       = 1000
+    consumers        = 10
+    memory_limit_mib = 2000
+  }
+}
+
+
 variable "sampling" {
   type = object({
     enabled                    = bool
