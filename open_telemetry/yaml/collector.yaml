@@ -15,7 +15,7 @@ spec:
     processors:
       memory_limiter:
         check_interval: 1s
-        limit_mib: 2000
+        limit_mib: ${memory_limit_mib}
       batch:
       resource:
         attributes:
@@ -80,6 +80,10 @@ spec:
         endpoint: "${apm_endpoint}"
         headers:
           Authorization: "ApiKey ${apm_api_key}"
+        sending_queue:
+          enabled: true
+          queue_size: ${queue_size}
+          num_consumers: ${num_consumers}
 
     service:
       pipelines:

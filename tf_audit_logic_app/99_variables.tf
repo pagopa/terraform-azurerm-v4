@@ -7,6 +7,11 @@ variable "resource_group_name" {
   description = "(Required) Name of the resource group in which the function and its related components are created"
 }
 
+variable "name" {
+  type        = string
+  description = "(Required) Name for dedicated resource names"
+}
+
 variable "prefix" {
   type        = string
   description = "(Required) Prefix for dedicated resource names"

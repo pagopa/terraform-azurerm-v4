@@ -4,7 +4,7 @@ data "azurerm_managed_api" "storage_table" {
 }
 
 resource "azurerm_api_connection" "storage_account_api_connection" {
-  name                = "${var.prefix}-tf-audit-sa-api-connection"
+  name                = "${var.name}-tf-audit-sa-api-connection"
   resource_group_name = var.resource_group_name
   managed_api_id      = data.azurerm_managed_api.storage_table.id
   display_name        = "audit-sa-api-conn"
@@ -23,7 +23,7 @@ resource "azurerm_api_connection" "storage_account_api_connection" {
 }
 
 resource "azurerm_logic_app_workflow" "workflow" {
-  name                = "${var.prefix}-terraform-audit"
+  name                = "${var.name}-terraform-audit"
   location            = var.location
   resource_group_name = var.resource_group_name
   identity {
@@ -107,7 +107,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                     "type": "section",
                                     "text": {
                                         "type": "mrkdwn",
-                                        "text": ":warning: Apply in prod con skip policy"
+                                        "text": ":warning: [${var.prefix}] Apply con skip policy"
                                     }
                                 },
                                 {
@@ -294,7 +294,7 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
                                         "type": "section",
                                         "text": {
                                             "type": "mrkdwn",
-                                            "text": ":information_source: Apply in prod"
+                                            "text": ":information_source: ${var.prefix} Apply"
                                         }
                                     },
                                     {
@@ -442,7 +442,3 @@ resource "azurerm_logic_app_action_custom" "elaborate_entity" {
 }
   BODY
 }
-
-
-
-
