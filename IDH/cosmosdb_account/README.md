@@ -12,7 +12,7 @@ This module allow the setup of a cosmos db account
 
 ```hcl
 module "cosmos_idh_mongo" {
-  source                     = ""./.terraform/modules/__v4__/IDH/cosmosdb_account"
+  source                     = "./.terraform/modules/__v4__/IDH/cosmosdb_account"
   domain                     = "mydomain"
   name                       = "my-cosmos-db-account-name"
   resource_group_name        = "my-cosmos-db-account-resource-group"
@@ -20,9 +20,9 @@ module "cosmos_idh_mongo" {
   
   main_geo_location_location = "my-replication-location"
   
-  product_name                     = "myprefix" # Es. pagoapa
+  product_name               = "myprefix" # Es. pagoapa
   env                        = "myenv" # Es. dev
-  idh_resource_tier               = "cosmos_mongo6" 
+  idh_resource_tier          = "cosmos_mongo6" 
 }
 
 ```
@@ -39,9 +39,9 @@ module "cosmos_idh_sql" {
   
   main_geo_location_location = "my-replication-location"
   
-  product_name                     = "myprefix" # Es. pagoapa
+  product_name               = "myprefix" # Es. pagoapa
   env                        = "myenv" # Es. dev
-  idh_resource_tier               = "cosmos_sql6" 
+  idh_resource_tier          = "cosmos_sql6" 
 }
 ```
 
@@ -60,6 +60,7 @@ module "cosmos_idh_sql" {
 |------|--------|---------|
 | <a name="module_cosmosdb_account"></a> [cosmosdb\_account](#module\_cosmosdb\_account) | ../../cosmosdb_account | n/a |
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
+| <a name="module_private_endpoint_snet"></a> [private\_endpoint\_snet](#module\_private\_endpoint\_snet) | ../subnet | n/a |
 
 ## Resources
 
@@ -73,6 +74,7 @@ No resources.
 | <a name="input_allowed_virtual_network_subnet_ids"></a> [allowed\_virtual\_network\_subnet\_ids](#input\_allowed\_virtual\_network\_subnet\_ids) | The subnets id that are allowed to access this CosmosDB account. | `list(string)` | `[]` | no |
 | <a name="input_capabilities_additional"></a> [capabilities\_additional](#input\_capabilities\_additional) | Optional list of extra Cosmos DB capabilities to add to the base module's capabilities | `list(string)` | `[]` | no |
 | <a name="input_domain"></a> [domain](#input\_domain) | (Optional) Specifies the domain of the CosmosDB Account. | `string` | n/a | yes |
+| <a name="input_embedded_subnet"></a> [embedded\_subnet](#input\_embedded\_subnet) | (Optional) Configuration for creating an embedded Subnet for the Cosmos private endpoint. When enabled, 'subnet\_id' must be null. | <pre>object({<br/>    enabled      = bool<br/>    vnet_name    = optional(string, null)<br/>    vnet_rg_name = optional(string, null)<br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "vnet_name": null,<br/>  "vnet_rg_name": null<br/>}</pre> | no |
 | <a name="input_enable_automatic_failover"></a> [enable\_automatic\_failover](#input\_enable\_automatic\_failover) | Enable automatic fail over for this Cosmos DB account. | `bool` | `true` | no |
 | <a name="input_env"></a> [env](#input\_env) | n/a | `string` | n/a | yes |
 | <a name="input_idh_resource_tier"></a> [idh\_resource\_tier](#input\_idh\_resource\_tier) | (Required) The name of IDH resource key to be created. | `string` | n/a | yes |
@@ -84,7 +86,7 @@ No resources.
 | <a name="input_private_endpoint_config"></a> [private\_endpoint\_config](#input\_private\_endpoint\_config) | Configuration for private endpoint and DNS zones for CosmosDB | <pre>object({<br/>    private_dns_zone_sql_ids          = optional(list(string), [])<br/>    private_dns_zone_table_ids        = optional(list(string), [])<br/>    private_dns_zone_mongo_ids        = optional(list(string), [])<br/>    private_dns_zone_cassandra_ids    = optional(list(string), [])<br/>    enabled                           = bool<br/>    name_sql                          = optional(string, "")<br/>    service_connection_name_sql       = optional(string, "")<br/>    name_mongo                        = optional(string, "")<br/>    service_connection_name_mongo     = optional(string, "")<br/>    name_cassandra                    = optional(string, "")<br/>    service_connection_name_cassandra = optional(string, "")<br/>    name_table                        = optional(string, "")<br/>  })</pre> | n/a | yes |
 | <a name="input_product_name"></a> [product\_name](#input\_product\_name) | n/a | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (Required) The name of the resource group in which the CosmosDB Account is created. Changing this forces a new resource to be created. | `string` | n/a | yes |
-| <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Used only for private endpoints | `string` | `null` | no |
+| <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | (Deprecated) Used only for private endpoints. Use 'embedded\_subnet' to automatically create a subnet and leave this null | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | n/a | yes |
 
 ## Outputs
