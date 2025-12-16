@@ -6,6 +6,25 @@ module "idh_loader" {
   idh_resource_type = "cosmosdb_account"
 }
 
+
+
+# IDH/subnet
+module "private_endpoint_snet" {
+  count                = var.embedded_subnet.enabled ? 1 : 0
+  source               = "../subnet"
+  name                 = "${var.name}-pe-snet"
+  resource_group_name  = var.embedded_subnet.vnet_rg_name
+  virtual_network_name = var.embedded_subnet.vnet_name
+  service_endpoints = [
+    "Microsoft.AzureCosmosDB",
+  ]
+
+  env               = var.env
+  idh_resource_tier = "slash28_privatelink_true"
+  product_name      = var.product_name
+}
+
+
 # -------------------------------------------------------------------
 # CosmosDB Account
 # -------------------------------------------------------------------
@@ -65,7 +84,7 @@ module "cosmosdb_account" {
 
   ## IP and subnet configuration
   ip_range  = var.ip_range
-  subnet_id = var.subnet_id
+  subnet_id = var.embedded_subnet.enabled ? module.private_endpoint_snet.subnet_id : var.subnet_id
 
   ## Private Endpoint configuration
   private_endpoint_enabled                  = var.private_endpoint_config.enabled
@@ -84,3 +103,4 @@ module "cosmosdb_account" {
   # 8. Metadata
   tags = var.tags
 }
+

@@ -156,7 +156,7 @@ variable "ip_range" {
 
 variable "subnet_id" {
   type        = string
-  description = "Used only for private endpoints"
+  description = "(Deprecated) Used only for private endpoints. Use 'embedded_subnet' to automatically create a subnet and leave this null"
   default     = null
   validation {
     condition     = var.subnet_id == null || can(regex("^/subscriptions/.+/resourceGroups/.+/providers/Microsoft.Network/virtualNetworks/.+/subnets/.+$", var.subnet_id))
@@ -233,4 +233,32 @@ variable "capabilities_additional" {
 
     error_message = "EnableUniqueCompoundNestedDocs or DisableRateLimitingResponses can only be set when EnableMongo is enabled"
   }
+}
+
+
+variable "embedded_subnet" {
+  type = object({
+    enabled      = bool
+    vnet_name    = optional(string, null)
+    vnet_rg_name = optional(string, null)
+  })
+  description = "(Optional) Configuration for creating an embedded Subnet for the Cosmos private endpoint. When enabled, 'subnet_id' must be null."
+  default = {
+    enabled      = false
+    vnet_name    = null
+    vnet_rg_name = null
+  }
+
+
+  validation {
+    condition     = var.embedded_subnet.enabled ? var.subnet_id == null : true
+    error_message = "If 'embedded_subnet' is enabled, 'subnet_id' must be null."
+  }
+
+  validation {
+    condition     = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
+    error_message = "If 'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
+  }
+
+
 }
