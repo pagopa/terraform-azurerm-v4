@@ -44,6 +44,7 @@ module "storage_account" {
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
+| <a name="module_private_endpoint_snet"></a> [private\_endpoint\_snet](#module\_private\_endpoint\_snet) | ../subnet | n/a |
 | <a name="module_storage_account"></a> [storage\_account](#module\_storage\_account) | ../../storage_account | n/a |
 
 ## Resources
@@ -58,6 +59,7 @@ No resources.
 | <a name="input_blob_cors_rule"></a> [blob\_cors\_rule](#input\_blob\_cors\_rule) | CORS rules. More than one rule can be specified. | <pre>object({<br/>    allowed_headers    = list(string)<br/>    allowed_methods    = list(string)<br/>    allowed_origins    = list(string)<br/>    exposed_headers    = list(string)<br/>    max_age_in_seconds = number<br/>  })</pre> | `null` | no |
 | <a name="input_custom_domain"></a> [custom\_domain](#input\_custom\_domain) | Custom domain for accessing blob data | <pre>object({<br/>    name          = string<br/>    use_subdomain = bool<br/>  })</pre> | <pre>{<br/>  "name": null,<br/>  "use_subdomain": false<br/>}</pre> | no |
 | <a name="input_domain"></a> [domain](#input\_domain) | (Optional) Specifies the domain of the Storage Account. | `string` | `null` | no |
+| <a name="input_embedded_subnet"></a> [embedded\_subnet](#input\_embedded\_subnet) | (Optional) Configuration for creating an embedded Subnet for the Cosmos private endpoint. When enabled, 'subnet\_id' must be null. | <pre>object({<br/>    enabled      = bool<br/>    vnet_name    = optional(string, null)<br/>    vnet_rg_name = optional(string, null)<br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "vnet_name": null,<br/>  "vnet_rg_name": null<br/>}</pre> | no |
 | <a name="input_enable_identity"></a> [enable\_identity](#input\_enable\_identity) | (Optional) If true, set the identity as SystemAssigned | `bool` | `false` | no |
 | <a name="input_env"></a> [env](#input\_env) | (Required) Environment for which the resource will be created | `string` | n/a | yes |
 | <a name="input_error_404_document"></a> [error\_404\_document](#input\_error\_404\_document) | The absolute path to a custom webpage that should be used when a request is made which does not correspond to an existing file. | `string` | `null` | no |
@@ -74,7 +76,7 @@ No resources.
 | <a name="input_private_dns_zone_queue_ids"></a> [private\_dns\_zone\_queue\_ids](#input\_private\_dns\_zone\_queue\_ids) | Used only for private endpoints | `list(string)` | `[]` | no |
 | <a name="input_private_dns_zone_table_ids"></a> [private\_dns\_zone\_table\_ids](#input\_private\_dns\_zone\_table\_ids) | Used only for private endpoints | `list(string)` | `[]` | no |
 | <a name="input_private_dns_zone_web_ids"></a> [private\_dns\_zone\_web\_ids](#input\_private\_dns\_zone\_web\_ids) | Used only for private endpoints | `list(string)` | `[]` | no |
-| <a name="input_private_endpoint_subnet_id"></a> [private\_endpoint\_subnet\_id](#input\_private\_endpoint\_subnet\_id) | Used only for private endpoints | `string` | `null` | no |
+| <a name="input_private_endpoint_subnet_id"></a> [private\_endpoint\_subnet\_id](#input\_private\_endpoint\_subnet\_id) | (Deprecated) Used only for private endpoints. Use 'embedded\_subnet' to automatically create a subnet and leave this null | `string` | `null` | no |
 | <a name="input_product_name"></a> [product\_name](#input\_product\_name) | (Required) product\_name used to identify the platform for which the resource will be created | `string` | n/a | yes |
 | <a name="input_replication_type"></a> [replication\_type](#input\_replication\_type) | (Optional) storage account replication type. Default is the minimum replication type for the environment. | `string` | `null` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (Required) Resource group name where to save the storage account | `string` | n/a | yes |
