@@ -19,6 +19,23 @@ locals {
   allowed_replication_types_string = join(",", keys(local.allowed_replication_types))
 }
 
+# IDH/subnet
+module "private_endpoint_snet" {
+  count                = var.embedded_subnet.enabled ? 1 : 0
+  source               = "../subnet"
+  name                 = "${var.name}-pe-snet"
+  resource_group_name  = var.embedded_subnet.vnet_rg_name
+  virtual_network_name = var.embedded_subnet.vnet_name
+  service_endpoints = [
+    "Microsoft.AzureCosmosDB",
+  ]
+
+  env               = var.env
+  idh_resource_tier = "slash28_privatelink_true"
+  product_name      = var.product_name
+}
+
+
 module "storage_account" {
   source = "../../storage_account"
 
@@ -77,5 +94,5 @@ module "storage_account" {
   }
   low_availability_threshold = var.low_availability_threshold
   network_rules              = var.network_rules
-  subnet_id                  = var.private_endpoint_subnet_id
+  subnet_id                  = var.embedded_subnet.enabled ? module.private_endpoint_snet.subnet_id : var.private_endpoint_subnet_id
 }
