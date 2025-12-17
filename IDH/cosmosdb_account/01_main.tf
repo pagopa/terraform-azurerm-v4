@@ -84,7 +84,7 @@ module "cosmosdb_account" {
 
   ## IP and subnet configuration
   ip_range  = var.ip_range
-  subnet_id = var.embedded_subnet.enabled ? module.private_endpoint_snet.subnet_id : var.subnet_id
+  subnet_id = var.embedded_subnet.enabled ? module.private_endpoint_snet[0].subnet_id : var.subnet_id
 
   ## Private Endpoint configuration
   private_endpoint_enabled                  = var.private_endpoint_config.enabled
