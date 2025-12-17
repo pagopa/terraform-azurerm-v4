@@ -72,7 +72,7 @@ module "main_slot" {
   auto_heal_enabled               = var.auto_heal_enabled
   auto_heal_settings              = var.auto_heal_settings
 
-  subnet_id            = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
+  subnet_id           = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
   docker_image        = var.docker_image
   docker_image_tag    = var.docker_image_tag
   docker_registry_url = var.docker_registry_url
@@ -139,7 +139,7 @@ module "staging_slot" {
   # App settings
   app_settings = var.app_settings
 
-  subnet_id            = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
+  subnet_id = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
 
   auto_heal_enabled  = var.auto_heal_enabled
   auto_heal_settings = var.auto_heal_settings
