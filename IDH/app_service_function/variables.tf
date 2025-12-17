@@ -42,7 +42,7 @@ variable "health_check_path" {
 }
 variable "subnet_id" {
   type        = string
-  description = "(Optional) Subnet id wether you want to integrate the app service to a subnet."
+  description = "(Deprecated) Subnet id wether you want to integrate the app service to a subnet. Use 'embedded_subnet' instead"
   default     = null
 }
 
@@ -163,7 +163,7 @@ variable "autoscale_settings" {
 
 variable "private_endpoint_subnet_id" {
   type        = string
-  description = "(Optional) Subnet id where to save the private endpoint"
+  description = "(Deprecated) Subnet id where to save the private endpoint. Use 'embedded_subnet instead'"
   default     = null
 }
 
@@ -265,4 +265,35 @@ variable "storage_account_durable_name" {
   type        = string
   description = "Storage account name only used by the durable function. If null it will be 'computed'"
   default     = null
+}
+
+variable "embedded_subnet" {
+  type = object({
+    enabled      = bool
+    vnet_name    = optional(string, null)
+    vnet_rg_name = optional(string, null)
+  })
+  description = "(Optional) Configuration for creating an embedded Subnet for the Cosmos private endpoint. When enabled, 'private_endpoint_subnet_id' must be null."
+  default = {
+    enabled      = false
+    vnet_name    = null
+    vnet_rg_name = null
+  }
+
+  validation {
+    condition     = var.embedded_subnet.enabled ? var.subnet_id == null : true
+    error_message = "If 'embedded_subnet' is enabled, 'subnet_id' must be null."
+  }
+
+  validation {
+    condition     = var.embedded_subnet.enabled ? var.private_endpoint_subnet_id == null : true
+    error_message = "If 'embedded_subnet' is enabled, 'private_endpoint_subnet_id' must be null."
+  }
+
+  validation {
+    condition     = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
+    error_message = "If 'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
+  }
+
+
 }

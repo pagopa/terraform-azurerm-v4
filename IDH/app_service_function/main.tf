@@ -7,6 +7,32 @@ module "idh_loader" {
   idh_resource_type = "app_service_function"
 }
 
+# IDH/subnet ingress
+module "private_endpoint_snet" {
+  count                = var.embedded_subnet.enabled && module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? 1 : 0
+  source               = "../subnet"
+  name                 = "${var.name}-ingress-pe-snet"
+  resource_group_name  = var.embedded_subnet.vnet_rg_name
+  virtual_network_name = var.embedded_subnet.vnet_name
+
+  env               = var.env
+  idh_resource_tier = "slash28_privatelink_true"
+  product_name      = var.product_name
+}
+
+# IDH/subnet egress
+module "egress_snet" {
+  count                = var.embedded_subnet.enabled ? 1 : 0
+  source               = "../subnet"
+  name                 = "${var.name}-egress-snet"
+  resource_group_name  = var.embedded_subnet.vnet_rg_name
+  virtual_network_name = var.embedded_subnet.vnet_name
+
+  env               = var.env
+  idh_resource_tier = "app_service"
+  product_name      = var.product_name
+}
+
 
 resource "azurerm_app_service_plan" "function_service_plan" {
   name                = var.app_service_plan_name
@@ -40,7 +66,7 @@ module "main_slot" {
   storage_account_name = replace("${var.name}-st", "-", "")
   location             = var.location
   health_check_path    = var.health_check_path
-  subnet_id            = var.subnet_id
+  subnet_id            = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
 
   docker = {
     registry_url      = var.docker_registry_url
@@ -150,7 +176,7 @@ module "reporting_analysis_function_slot_staging" {
   allowed_ips          = var.allowed_ips
   allowed_service_tags = var.allowed_service_tags
 
-  subnet_id = var.subnet_id
+  subnet_id = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
 
   tags = var.tags
 
@@ -399,7 +425,7 @@ resource "azurerm_private_endpoint" "main_slot_private_endpoint" {
   name                = "${var.name}-main-private-endpoint"
   location            = var.location
   resource_group_name = var.resource_group_name
-  subnet_id           = var.private_endpoint_subnet_id
+  subnet_id           = var.embedded_subnet.enabled ? module.private_endpoint_snet[0].subnet_id : var.private_endpoint_subnet_id
 
   private_dns_zone_group {
     name                 = "${var.name}-main-dns-zone-group"
@@ -422,7 +448,7 @@ resource "azurerm_private_endpoint" "staging_slot_private_endpoint" {
   name                = "${var.name}-staging-private-endpoint"
   location            = var.location
   resource_group_name = var.resource_group_name
-  subnet_id           = var.private_endpoint_subnet_id
+  subnet_id           = var.embedded_subnet.enabled ? module.private_endpoint_snet[0].subnet_id : var.private_endpoint_subnet_id
 
   private_dns_zone_group {
     name                 = "${var.name}-staging-dns-zone-group"
