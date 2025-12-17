@@ -94,5 +94,5 @@ module "storage_account" {
   }
   low_availability_threshold = var.low_availability_threshold
   network_rules              = var.network_rules
-  subnet_id                  = var.embedded_subnet.enabled ? module.private_endpoint_snet.subnet_id : var.private_endpoint_subnet_id
+  subnet_id                  = var.embedded_subnet.enabled ? module.private_endpoint_snet[0].subnet_id : var.private_endpoint_subnet_id
 }
