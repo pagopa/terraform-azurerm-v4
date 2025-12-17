@@ -8,6 +8,32 @@ module "idh_loader" {
 }
 
 
+# IDH/subnet ingress
+module "private_endpoint_snet" {
+  count                = var.embedded_subnet.enabled && module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? 1 : 0
+  source               = "../subnet"
+  name                 = "${var.name}-ingress-pe-snet"
+  resource_group_name  = var.embedded_subnet.vnet_rg_name
+  virtual_network_name = var.embedded_subnet.vnet_name
+
+  env               = var.env
+  idh_resource_tier = "slash28_privatelink_true"
+  product_name      = var.product_name
+}
+
+# IDH/subnet egress
+module "egress_snet" {
+  count                = var.embedded_subnet.enabled ? 1 : 0
+  source               = "../subnet"
+  name                 = "${var.name}-egress-snet"
+  resource_group_name  = var.embedded_subnet.vnet_rg_name
+  virtual_network_name = var.embedded_subnet.vnet_name
+
+  env               = var.env
+  idh_resource_tier = "app_service"
+  product_name      = var.product_name
+}
+
 module "main_slot" {
   source = "../../app_service"
 
@@ -46,7 +72,7 @@ module "main_slot" {
   auto_heal_enabled               = var.auto_heal_enabled
   auto_heal_settings              = var.auto_heal_settings
 
-  subnet_id           = var.subnet_id
+  subnet_id           = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
   docker_image        = var.docker_image
   docker_image_tag    = var.docker_image_tag
   docker_registry_url = var.docker_registry_url
@@ -113,7 +139,7 @@ module "staging_slot" {
   # App settings
   app_settings = var.app_settings
 
-  subnet_id = var.subnet_id
+  subnet_id = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
 
   auto_heal_enabled  = var.auto_heal_enabled
   auto_heal_settings = var.auto_heal_settings
@@ -337,7 +363,7 @@ resource "azurerm_private_endpoint" "main_slot_private_endpoint" {
   name                = "${var.name}-main-private-endpoint"
   location            = var.location
   resource_group_name = var.resource_group_name
-  subnet_id           = var.private_endpoint_subnet_id
+  subnet_id           = var.embedded_subnet.enabled ? module.private_endpoint_snet[0].subnet_id : var.private_endpoint_subnet_id
 
   private_dns_zone_group {
     name                 = "${var.name}-main-dns-zone-group"
@@ -360,7 +386,7 @@ resource "azurerm_private_endpoint" "staging_slot_private_endpoint" {
   name                = "${var.name}-staging-private-endpoint"
   location            = var.location
   resource_group_name = var.resource_group_name
-  subnet_id           = var.private_endpoint_subnet_id
+  subnet_id           = var.embedded_subnet.enabled ? module.private_endpoint_snet[0].subnet_id : var.private_endpoint_subnet_id
 
   private_dns_zone_group {
     name                 = "${var.name}-staging-dns-zone-group"
