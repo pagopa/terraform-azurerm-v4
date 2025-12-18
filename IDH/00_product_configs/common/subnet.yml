@@ -6,6 +6,10 @@ postgres_flexible:
     name: Microsoft.DBforPostgreSQL/flexibleServers
     actions:
       - Microsoft.Network/virtualNetworks/subnets/join/action
+  ports:
+    - 5432
+  services:
+    - postgres
 app_service:
   prefix_length: 27
   private_link_service_network_policies_enabled: true

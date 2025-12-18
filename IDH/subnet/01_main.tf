@@ -163,7 +163,6 @@ module "nsg" {
     }
   }
 
-  # fixme rendere non obbligatorio
   flow_logs = {
     network_watcher_name       = "my-network-watcher"
     network_watcher_rg         = "my-network-watcher-rg"
