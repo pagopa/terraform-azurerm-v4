@@ -112,3 +112,63 @@ module "subnet" {
 
   service_endpoints = var.service_endpoints
 }
+
+resource "azurerm_resource_group" "nsg_rg" {
+  name = "${var.name}-nsg-rg"
+  location = data.azurerm_virtual_network.vnet.location
+}
+
+module "nsg" {
+  source = "../../network_security_group"
+
+  prefix              = var.product_name
+  resource_group_name = azurerm_resource_group.nsg_rg.name
+  location           = data.azurerm_virtual_network.vnet.location
+
+  vnets = [
+    {
+      name    = data.azurerm_virtual_network.vnet.name
+      rg_name = data.azurerm_virtual_network.vnet.resource_group_name
+    }
+  ]
+
+  custom_security_group = {
+    myNsg = {
+      target_subnet_name      = "subnet1" # where the NSG will be associated
+      target_subnet_vnet_name = "vnet1" # where the NSG will be associated
+      watcher_enabled         = true
+
+      inbound_rules  = [
+        {
+          name                       = "AllowHTTP"
+          priority                   = 200
+          protocol                   = "Tcp"
+          source_subnet_name         = module.private_endpoints_snet.name
+          source_subnet_vnet_name    = module.vnet.name
+          destination_port_ranges    = ["80"]
+          description                = "Allow HTTP traffic on 80"
+        }
+      ]
+      outbound_rules = [
+        {
+          name                       = "AllowMySQL"
+          priority                   = 200
+          protocol                   = "Tcp"
+          destination_port_ranges    = ["3306"]
+          destination_subnet_name    = azurerm_subnet.tools_cae_snet.name
+          destination_subnet_vnet_name = module.vnet_italy.name
+          description                = "Allow MySQL traffic on 3306"
+        }
+      ]
+    }
+  }
+
+  # fixme rendere non obbligatorio
+  flow_logs = {
+    network_watcher_name       = "my-network-watcher"
+    network_watcher_rg         = "my-network-watcher-rg"
+    storage_account_id         = "storage-id"
+    traffic_analytics_law_name = "law-name"
+    traffic_analytics_law_rg   = "law-rg"
+  }
+}
