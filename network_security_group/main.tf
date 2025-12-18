@@ -41,7 +41,7 @@ resource "azurerm_subnet_network_security_group_association" "nsg_association" {
 
 
 resource "azurerm_network_watcher_flow_log" "network_watcher_flow_log" {
-  for_each = var.custom_security_group
+  for_each = var.flow_logs != null ? var.custom_security_group : {}
 
   network_watcher_name = var.flow_logs.network_watcher_name
   resource_group_name  = var.flow_logs.network_watcher_rg

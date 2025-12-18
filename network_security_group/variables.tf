@@ -294,5 +294,6 @@ variable "flow_logs" {
     traffic_analytics_law_rg               = string
     traffic_analytics_law_interval_minutes = optional(number, 10)
   })
-  description = "Parameters required to configure the network watcher"
+  default = null
+  description = "(Optional) Parameters required to configure the network watcher"
 }
