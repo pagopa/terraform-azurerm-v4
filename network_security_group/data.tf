@@ -15,6 +15,7 @@ data "azurerm_subnet" "subnet" {
 
 
 data "azurerm_log_analytics_workspace" "analytics_workspace" {
+  count               = var.flow_logs != null ? 1 : 0
   name                = var.flow_logs.traffic_analytics_law_name
   resource_group_name = var.flow_logs.traffic_analytics_law_rg
 }
