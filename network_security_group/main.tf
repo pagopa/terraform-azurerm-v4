@@ -58,9 +58,9 @@ resource "azurerm_network_watcher_flow_log" "network_watcher_flow_log" {
 
   traffic_analytics {
     enabled               = each.value.watcher_enabled
-    workspace_id          = data.azurerm_log_analytics_workspace.analytics_workspace.workspace_id
-    workspace_region      = data.azurerm_log_analytics_workspace.analytics_workspace.location
-    workspace_resource_id = data.azurerm_log_analytics_workspace.analytics_workspace.id
+    workspace_id          = data.azurerm_log_analytics_workspace.analytics_workspace[0].workspace_id
+    workspace_region      = data.azurerm_log_analytics_workspace.analytics_workspace[0].location
+    workspace_resource_id = data.azurerm_log_analytics_workspace.analytics_workspace[0].id
     interval_in_minutes   = var.flow_logs.traffic_analytics_law_interval_minutes
   }
   tags = var.tags
