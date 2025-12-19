@@ -135,8 +135,8 @@ module "embedded_nsg" {
 
   custom_security_group = {
     embedded = {
-      target_subnet_name      = var.name
-      target_subnet_vnet_name = data.azurerm_virtual_network.vnet.name
+      target_subnet_id = module.subnet.subnet_id
+
       watcher_enabled         = true
 
       inbound_rules = [
@@ -197,8 +197,7 @@ module "custom_nsg" {
 
   custom_security_group = {
     custom = {
-      target_subnet_name      = var.name
-      target_subnet_vnet_name = data.azurerm_virtual_network.vnet.name
+      target_subnet_id = module.subnet.subnet_id
       watcher_enabled         = true
 
       inbound_rules = [
