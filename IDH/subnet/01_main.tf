@@ -147,13 +147,16 @@ module "embedded_nsg" {
           priority                = 200
           source_address_prefixes = var.embedded_nsg_configuration.source_address_prefixes
           description             = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
-          } : {
+          destination_port_ranges = null
+          protocol = null
+        } : {
           name                    = "Allow${var.embedded_nsg_configuration.source_address_prefixes_name}"
           priority                = 200
           protocol                = module.idh_loader.idh_resource_configuration.nsg.custom.protocol
           source_address_prefixes = var.embedded_nsg_configuration.source_address_prefixes
           destination_port_ranges = module.idh_loader.idh_resource_configuration.nsg.custom.ports
           description             = "Allow traffic from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
+          target_service = null
         }
       ]
       outbound_rules = []
