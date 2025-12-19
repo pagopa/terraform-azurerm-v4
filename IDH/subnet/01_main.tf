@@ -148,6 +148,7 @@ module "embedded_nsg" {
           source_address_prefixes = var.embedded_nsg_configuration.source_address_prefixes
           description             = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
           destination_port_ranges = null
+          destination_address_prefixes = module.subnet.address_prefixes
           protocol = null
         } : {
           name                    = "Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}"
@@ -157,6 +158,8 @@ module "embedded_nsg" {
           destination_port_ranges = module.idh_loader.idh_resource_configuration.nsg.custom.ports
           description             = "Allow traffic from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
           target_service = null
+          destination_address_prefixes = module.subnet.address_prefixes
+
         }
       ]
       outbound_rules = []
@@ -206,6 +209,8 @@ module "custom_nsg" {
           source_address_prefixes = var.custom_nsg_configuration.source_address_prefixes
           destination_port_ranges = var.custom_nsg_configuration.target_ports
           description             = "Allow traffic from ${var.custom_nsg_configuration.source_address_prefixes_name}"
+          destination_address_prefixes = module.subnet.address_prefixes
+
         }
       ]
       outbound_rules = []
