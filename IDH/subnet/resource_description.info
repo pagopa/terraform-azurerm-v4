@@ -1,1 +1,1 @@
-Prefix length: {prefix_length}, delegation: {delegation_name}
+Prefix length: {prefix_length}, delegation: {delegation_name}, embedded nsg allowed: {nsg}

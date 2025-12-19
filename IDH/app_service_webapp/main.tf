@@ -20,6 +20,9 @@ module "private_endpoint_snet" {
   idh_resource_tier = "slash28_privatelink_true"
   product_name      = var.product_name
 
+  custom_nsg_configuration   = var.embedded_nsg_configuration
+  nsg_flow_log_configuration = var.nsg_flow_log_configuration
+
   tags = var.tags
 }
 

@@ -41,6 +41,7 @@ You can then access your `yml`content using the following syntax: `module.idh_lo
 
 4. Create a file named `resource_description.info` in the `<module_name>` folder, this file is going to be used to generate the documentation for the module.
    - **NB:** Here you can use placeholder valued from your `yml`file with the following syntax: `{yaml_property_name}`. Use the `_` separator to navigate the `yml` structure (dot-notation like)
+   - For each object property a boolean field is exposed to indicate if the property is set. Useful to print 'True' for a dined object regardless of its content
 
 5. Add the following section to your module `README.md`: 
 

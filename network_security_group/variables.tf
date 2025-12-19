@@ -24,7 +24,7 @@ variable "custom_security_group" {
   type = map(object({
     target_subnet_name      = optional(string, null)
     target_subnet_vnet_name = optional(string, null)
-    target_subnet_id = optional(string, null) # optional target subnet id. overrides the pair <target_subnet_name, target_subnet_vnet_name>. useful when subnet not yet created
+    target_subnet_id        = optional(string, null) # optional target subnet id. overrides the pair <target_subnet_name, target_subnet_vnet_name>. useful when subnet not yet created
     watcher_enabled         = optional(bool, false)
     inbound_rules = list(object({
       name                         = string

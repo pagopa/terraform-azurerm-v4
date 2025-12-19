@@ -22,7 +22,14 @@ module "private_endpoint_snet" {
   env               = var.env
   idh_resource_tier = "slash28_privatelink_true"
   product_name      = var.product_name
-  tags = var.tags
+
+  custom_nsg_configuration = {
+    source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
+    source_address_prefixes_name = var.embedded_nsg_configuration.source_address_prefixes_name
+    target_service = "cosmos"
+  }
+  nsg_flow_log_configuration = var.nsg_flow_log_configuration
+  tags                       = var.tags
 }
 
 

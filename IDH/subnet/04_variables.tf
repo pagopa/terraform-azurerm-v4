@@ -51,10 +51,15 @@ variable "embedded_nsg_configuration" {
     source_address_prefixes      = list(string)
     source_address_prefixes_name = string # short name for source_address_prefixes
   })
-  description = "(Optional) List of allowed cidr and name . Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration"
+  description = "(Optional) List of allowed cidr and name. Available only if the subnet tier supports embedded nsg Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration"
   default = {
     source_address_prefixes : ["*"]
     source_address_prefixes_name = "All"
+  }
+
+  validation {
+    condition     = can(module.idh_loader.idh_resource_configuration.nsg) ? true : false
+    error_message = "'embedded_nsg' not available for subnet tier ${var.idh_resource_tier}. use custom_nsg_configuration instead."
   }
 }
 
@@ -62,11 +67,22 @@ variable "custom_nsg_configuration" {
   type = object({
     source_address_prefixes      = list(string)
     source_address_prefixes_name = string # short name for source_address_prefixes
-    target_ports                 = list(string)
-    protocol                     = string
+    target_ports                 = optional(list(string), null)
+    protocol                     = optional(string null)
+    target_service               = optional(string, null)
   })
   description = "(Optional) Custom NSG configuration, additional to eventually present embedded nsg"
   default     = null
+
+  validation {
+    condition = var.custom_nsg_configuration != null && var.custom_nsg_configuration.target_service != null ? (var.custom_nsg_configuration.target_ports == null && var.custom_nsg_configuration.protocol == null) : true
+    error_message = "If target_service is defined,  (target_ports, protocol) must be null"
+  }
+
+  validation {
+     condition = var.custom_nsg_configuration != null && var.custom_nsg_configuration.target_service == null ? (var.custom_nsg_configuration.target_ports != null && var.custom_nsg_configuration.protocol != null) : true
+    error_message = "If target_service is NOT defined,  (target_ports, protocol) must be defined"
+  }
 }
 
 variable "nsg_flow_log_configuration" {
