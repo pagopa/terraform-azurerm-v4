@@ -22,8 +22,9 @@ variable "tags" {
 variable "custom_security_group" {
   description = "security groups configuration"
   type = map(object({
-    target_subnet_name      = string
-    target_subnet_vnet_name = string
+    target_subnet_name      = optional(string, null)
+    target_subnet_vnet_name = optional(string, null)
+    target_subnet_id = optional(string, null) # optional target subnet id. overrides the pair <target_subnet_name, target_subnet_vnet_name>. useful when subnet not yet created
     watcher_enabled         = optional(bool, false)
     inbound_rules = list(object({
       name                         = string
@@ -56,6 +57,17 @@ variable "custom_security_group" {
     }))
   }))
   default = null
+
+  validation {
+    condition = var.custom_security_group == null ? true : alltrue(flatten([
+      [
+        for nsg in var.custom_security_group : [
+          nsg.target_subnet_id != null ? nsg.target_subnet_name == null && nsg.target_subnet_vnet_name == null : nsg.target_subnet_name != null && nsg.target_subnet_vnet_name != null
+        ]
+      ]
+    ]))
+    error_message = "target_subnet_id and (target_subnet_name, target_subnet_vnet_name) are mutually exclusive"
+  }
 
   validation {
     condition = var.custom_security_group == null ? true : alltrue(flatten([
