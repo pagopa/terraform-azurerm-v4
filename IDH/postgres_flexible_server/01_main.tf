@@ -25,6 +25,10 @@ module "pgflex_snet" {
   idh_resource_tier = "postgres_flexible"
   product_name      = var.product_name
 
+  nsg_flow_log_configuration = var.nsg_flow_log_configuration
+  embedded_nsg_configuration = var.embedded_nsg_configuration
+
+
   tags = var.tags
 }
 
@@ -40,6 +44,9 @@ module "pgflex_replica_snet" {
   env               = var.env
   idh_resource_tier = "postgres_flexible"
   product_name      = var.product_name
+
+    nsg_flow_log_configuration = var.nsg_flow_log_configuration
+  embedded_nsg_configuration = var.embedded_nsg_configuration
 
   tags = var.tags
 }

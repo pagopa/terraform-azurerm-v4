@@ -134,7 +134,7 @@ module "embedded_nsg" {
   ]
 
   custom_security_group = {
-    embeddedNSG = {
+    embedded = {
       target_subnet_name      = var.name
       target_subnet_vnet_name = data.azurerm_virtual_network.vnet.name
       watcher_enabled         = true
@@ -143,14 +143,14 @@ module "embedded_nsg" {
         can(module.idh_loader.idh_resource_configuration.nsg.service) ?
         {
           target_service          = module.idh_loader.idh_resource_configuration.nsg.service
-          name                    = "Allow${var.embedded_nsg_configuration.source_address_prefixes_name}On${module.idh_loader.idh_resource_configuration.nsg.service}"
+          name                    = "Allow${var.embedded_nsg_configuration.source_address_prefixes_name}On${title(module.idh_loader.idh_resource_configuration.nsg.service)}"
           priority                = 200
           source_address_prefixes = var.embedded_nsg_configuration.source_address_prefixes
           description             = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
           destination_port_ranges = null
           protocol = null
         } : {
-          name                    = "Allow${var.embedded_nsg_configuration.source_address_prefixes_name}"
+          name                    = "Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}"
           priority                = 200
           protocol                = module.idh_loader.idh_resource_configuration.nsg.custom.protocol
           source_address_prefixes = var.embedded_nsg_configuration.source_address_prefixes
@@ -193,7 +193,7 @@ module "custom_nsg" {
   ]
 
   custom_security_group = {
-    customNSG = {
+    custom = {
       target_subnet_name      = var.name
       target_subnet_vnet_name = data.azurerm_virtual_network.vnet.name
       watcher_enabled         = true
