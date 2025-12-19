@@ -1,7 +1,7 @@
-# 📚 IDH app_service_function Resources
+# IDH app_service_function Resources
 
 ## pagopa
-| 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |
+| Product  | Environment | Tier | Description |
 |:-------------:|:----------------:|:---------:|:----------------|
 | pagopa | dev |  basic | SKU: Basic B1, zone balancing: False, public network access: True, private endpoint enabled: False, ip restriction default action: Deny, staging slot: False, autoscale enabled: False, plan type: external |
 |---|---|---|---|

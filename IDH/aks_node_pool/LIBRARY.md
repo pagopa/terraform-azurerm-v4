@@ -1,7 +1,7 @@
-# 📚 IDH aks_node_pool Resources
+# IDH aks_node_pool Resources
 
 ## cstar
-| 🖥️ Product  | 🌍 Environment | 🔤 Tier | 📝 Description |
+| Product  | Environment | Tier | Description |
 |:-------------:|:----------------:|:---------:|:----------------|
 | cstar | dev |  Standard_B2ms_active | VM Size: Standard_B2ms, Disk: Managed 128GB, Nodes: --- |
 | cstar | dev |  Standard_B2ms_passive | VM Size: Standard_B2ms, Disk: Managed 128GB, Nodes: --- |

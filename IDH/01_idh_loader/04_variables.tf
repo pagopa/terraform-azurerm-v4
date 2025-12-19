@@ -33,7 +33,7 @@ variable "idh_resource_type" {
   description = "(Required) The IDH resource category to be created."
 
   validation {
-    condition     = can(file("${path.module}/../00_product_configs/${var.product_name}/${var.env}/${var.idh_resource_type}.yml"))
+    condition     = can(file("${path.module}/../00_product_configs/${var.product_name}/${var.env}/${var.idh_resource_type}.yml")) || can(file("${path.module}/../00_product_configs/common/${var.idh_resource_type}.yml")) || can(file("${path.module}/../00_product_configs/${var.product_name}/common/${var.idh_resource_type}.yml"))
     error_message = "Specified idh_resource_type '${var.idh_resource_type}' not available in catalog for given product_name: '${var.product_name}' and env: '${var.env}'"
   }
 
