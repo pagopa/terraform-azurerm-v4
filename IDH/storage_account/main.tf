@@ -33,6 +33,8 @@ module "private_endpoint_snet" {
   env               = var.env
   idh_resource_tier = "slash28_privatelink_true"
   product_name      = var.product_name
+
+  tags = var.tags
 }
 
 

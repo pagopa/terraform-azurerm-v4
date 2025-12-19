@@ -24,6 +24,8 @@ module "pgflex_snet" {
   env               = var.env
   idh_resource_tier = "postgres_flexible"
   product_name      = var.product_name
+
+  tags = var.tags
 }
 
 # IDH/subnet
@@ -38,6 +40,8 @@ module "pgflex_replica_snet" {
   env               = var.env
   idh_resource_tier = "postgres_flexible"
   product_name      = var.product_name
+
+  tags = var.tags
 }
 
 
