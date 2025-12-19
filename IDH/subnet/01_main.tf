@@ -114,16 +114,17 @@ module "subnet" {
 }
 
 resource "azurerm_resource_group" "nsg_rg" {
-  name = "${var.name}-nsg-rg"
+  name     = "${var.name}-nsg-rg"
   location = data.azurerm_virtual_network.vnet.location
 }
 
-module "nsg" {
+module "embedded_nsg" {
   source = "../../network_security_group"
+  count  = can(module.idh_loader.idh_resource_configuration.nsg) ? 1 : 0
 
   prefix              = var.product_name
   resource_group_name = azurerm_resource_group.nsg_rg.name
-  location           = data.azurerm_virtual_network.vnet.location
+  location            = data.azurerm_virtual_network.vnet.location
 
   vnets = [
     {
@@ -133,41 +134,89 @@ module "nsg" {
   ]
 
   custom_security_group = {
-    myNsg = {
-      target_subnet_name      = "subnet1" # where the NSG will be associated
-      target_subnet_vnet_name = "vnet1" # where the NSG will be associated
+    embeddedNSG = {
+      target_subnet_name      = var.name
+      target_subnet_vnet_name = data.azurerm_virtual_network.vnet.name
       watcher_enabled         = true
 
-      inbound_rules  = [
+      inbound_rules = [
+        can(module.idh_loader.idh_resource_configuration.nsg.service) ?
         {
-          name                       = "AllowHTTP"
-          priority                   = 200
-          protocol                   = "Tcp"
-          source_subnet_name         = module.private_endpoints_snet.name
-          source_subnet_vnet_name    = module.vnet.name
-          destination_port_ranges    = ["80"]
-          description                = "Allow HTTP traffic on 80"
+          target_service          = module.idh_loader.idh_resource_configuration.nsg.service
+          name                    = "Allow${var.embedded_nsg_configuration.source_address_prefixes_name}On${module.idh_loader.idh_resource_configuration.nsg.service}"
+          priority                = 200
+          source_address_prefixes = var.embedded_nsg_configuration.source_address_prefixes
+          description             = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
+          } : {
+          name                    = "Allow${var.embedded_nsg_configuration.source_address_prefixes_name}"
+          priority                = 200
+          protocol                = module.idh_loader.idh_resource_configuration.nsg.custom.protocol
+          source_address_prefixes = var.embedded_nsg_configuration.source_address_prefixes
+          destination_port_ranges = module.idh_loader.idh_resource_configuration.nsg.custom.ports
+          description             = "Allow traffic from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
         }
       ]
-      outbound_rules = [
-        {
-          name                       = "AllowMySQL"
-          priority                   = 200
-          protocol                   = "Tcp"
-          destination_port_ranges    = ["3306"]
-          destination_subnet_name    = azurerm_subnet.tools_cae_snet.name
-          destination_subnet_vnet_name = module.vnet_italy.name
-          description                = "Allow MySQL traffic on 3306"
-        }
-      ]
+      outbound_rules = []
     }
   }
 
-  flow_logs = {
-    network_watcher_name       = "my-network-watcher"
-    network_watcher_rg         = "my-network-watcher-rg"
-    storage_account_id         = "storage-id"
-    traffic_analytics_law_name = "law-name"
-    traffic_analytics_law_rg   = "law-rg"
+  flow_logs = var.nsg_flow_log_configuration.enabled ? {
+    network_watcher_name       = var.nsg_flow_log_configuration.network_watcher_name
+    network_watcher_rg         = var.nsg_flow_log_configuration.network_watcher_rg
+    storage_account_id         = var.nsg_flow_log_configuration.storage_account_id
+    traffic_analytics_law_name = var.nsg_flow_log_configuration.traffic_analytics_law_name
+    traffic_analytics_law_rg   = var.nsg_flow_log_configuration.traffic_analytics_law_rg
+  } : null
+
+  tags = var.tags
+}
+
+
+module "custom_nsg" {
+  source = "../../network_security_group"
+  # forces execution after embedded_nsg. Useful to handle priority conflicts
+  depends_on = [module.embedded_nsg]
+  count      = var.custom_nsg_configuration != null ? 1 : 0
+
+  prefix              = var.product_name
+  resource_group_name = azurerm_resource_group.nsg_rg.name
+  location            = data.azurerm_virtual_network.vnet.location
+
+  vnets = [
+    {
+      name    = data.azurerm_virtual_network.vnet.name
+      rg_name = data.azurerm_virtual_network.vnet.resource_group_name
+    }
+  ]
+
+  custom_security_group = {
+    customNSG = {
+      target_subnet_name      = var.name
+      target_subnet_vnet_name = data.azurerm_virtual_network.vnet.name
+      watcher_enabled         = true
+
+      inbound_rules = [
+        {
+          name                    = "Allow${var.custom_nsg_configuration.source_address_prefixes_name}"
+          priority                = 1000
+          protocol                = var.custom_nsg_configuration.protocol
+          source_address_prefixes = var.custom_nsg_configuration.source_address_prefixes
+          destination_port_ranges = var.custom_nsg_configuration.target_ports
+          description             = "Allow traffic from ${var.custom_nsg_configuration.source_address_prefixes_name}"
+        }
+      ]
+      outbound_rules = []
+    }
+
+
   }
+
+  flow_logs = var.nsg_flow_log_configuration.enabled ? {
+    network_watcher_name       = var.nsg_flow_log_configuration.network_watcher_name
+    network_watcher_rg         = var.nsg_flow_log_configuration.network_watcher_rg
+    storage_account_id         = var.nsg_flow_log_configuration.storage_account_id
+    traffic_analytics_law_name = var.nsg_flow_log_configuration.traffic_analytics_law_name
+    traffic_analytics_law_rg   = var.nsg_flow_log_configuration.traffic_analytics_law_rg
+  } : null
+  tags = var.tags
 }

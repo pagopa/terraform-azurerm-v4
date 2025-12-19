@@ -45,3 +45,71 @@ variable "private_endpoint_network_policies" {
   description = "(Optional) Enable or Disable network policies for the private endpoint on the subnet. Possible values are Disabled, Enabled, NetworkSecurityGroupEnabled and RouteTableEnabled. Defaults to Disabled."
   default     = "Disabled"
 }
+
+variable "embedded_nsg_configuration" {
+  type = object({
+    source_address_prefixes      = list(string)
+    source_address_prefixes_name = string # short name for source_address_prefixes
+  })
+  description = "(Optional) List of allowed cidr and name . Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration"
+  default = {
+    source_address_prefixes : ["*"]
+    source_address_prefixes_name = "All"
+  }
+}
+
+variable "custom_nsg_configuration" {
+  type = object({
+    source_address_prefixes      = list(string)
+    source_address_prefixes_name = string # short name for source_address_prefixes
+    target_ports                 = list(string)
+    protocol                     = string
+  })
+  description = "(Optional) Custom NSG configuration, additional to eventually present embedded nsg"
+  default     = null
+}
+
+variable "nsg_flow_log_configuration" {
+  type = object({
+    enabled                    = bool
+    network_watcher_name       = optional(string, null)
+    network_watcher_rg         = optional(string, null)
+    storage_account_id         = optional(string, null)
+    traffic_analytics_law_name = optional(string, null)
+    traffic_analytics_law_rg   = optional(string, null)
+  })
+  description = "(Optional) NSG flow log configuration"
+  default = {
+    enabled = false
+  }
+
+  validation {
+    condition     = var.nsg_flow_log_configuration.enabled ? var.nsg_flow_log_configuration.network_watcher_name != null && try(var.nsg_flow_log_configuration.network_watcher_name, "") != "" : true
+    error_message = "'nsg_flow_log_configuration.network_watcher_name' must not be null or empty when 'nsg_flow_log_configuration.enabled' is 'true'"
+  }
+
+  validation {
+    condition     = var.nsg_flow_log_configuration.enabled ? var.nsg_flow_log_configuration.network_watcher_rg != null && try(var.nsg_flow_log_configuration.network_watcher_rg, "") != "" : true
+    error_message = "'nsg_flow_log_configuration.network_watcher_rg' must not be null or empty when 'nsg_flow_log_configuration.enabled' is 'true'"
+  }
+
+  validation {
+    condition     = var.nsg_flow_log_configuration.enabled ? var.nsg_flow_log_configuration.storage_account_id != null && try(var.nsg_flow_log_configuration.storage_account_id, "") != "" : true
+    error_message = "'nsg_flow_log_configuration.storage_account_id' must not be null or empty when 'nsg_flow_log_configuration.enabled' is 'true'"
+  }
+
+  validation {
+    condition     = var.nsg_flow_log_configuration.enabled ? var.nsg_flow_log_configuration.traffic_analytics_law_name != null && try(var.nsg_flow_log_configuration.traffic_analytics_law_name, "") != "" : true
+    error_message = "'nsg_flow_log_configuration.traffic_analytics_law_name' must not be null or empty when 'nsg_flow_log_configuration.enabled' is 'true'"
+  }
+
+  validation {
+    condition     = var.nsg_flow_log_configuration.enabled ? var.nsg_flow_log_configuration.traffic_analytics_law_rg != null && try(var.nsg_flow_log_configuration.traffic_analytics_law_rg, "") != "" : true
+    error_message = "'nsg_flow_log_configuration.traffic_analytics_law_rg' must not be null or empty when 'nsg_flow_log_configuration.enabled' is 'true'"
+  }
+}
+
+variable "tags" {
+  type        = map(any)
+  description = "Map of tags added to the resources created by this module"
+}
