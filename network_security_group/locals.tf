@@ -24,43 +24,30 @@ locals {
   }
 
 
-  subnet_names_limit = flatten([
+  subnet_names = flatten([
     for csg in var.custom_security_group: [concat(
        [for ir in csg.inbound_rules:
         {
           name      = ir.source_subnet_name
           vnet_name = ir.source_subnet_vnet_name
-          rg_name   = var.vnets_rg[ir.source_subnet_vnet_name]
+          rg_name   = var.vnets[ir.source_subnet_vnet_name]
         }
       if ir.source_subnet_name != null ] ,
        [for or in csg.outbound_rules:
         {
           name      = or.destination_subnet_name
           vnet_name = or.destination_subnet_vnet_name
-          rg_name   = var.vnets_rg[or.destination_subnet_vnet_name]
+          rg_name   = var.vnets[or.destination_subnet_vnet_name]
         }
       if or.destination_subnet_name != null] ,
       csg.target_subnet_vnet_name !=  null ? [
         {
           name      = csg.target_subnet_name
           vnet_name = csg.target_subnet_vnet_name
-          rg_name   = var.vnets_rg[csg.target_subnet_vnet_name]
+          rg_name   = var.vnets[csg.target_subnet_vnet_name]
         }
       ] : []
     )
-    ]
-  ])
-
-
-  subnet_names = flatten([
-    for vnet in data.azurerm_virtual_network.vnet :
-    [
-      for subnet in vnet.subnets :
-      {
-        name      = subnet
-        vnet_name = vnet.name
-        rg_name   = vnet.resource_group_name
-      }
     ]
   ])
 

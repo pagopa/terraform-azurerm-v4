@@ -287,16 +287,10 @@ variable "custom_security_group" {
 }
 
 
-variable "vnets" {
-  description = ""
-  type = list(object({
-    name    = string
-    rg_name = string
-  }))
-}
 
-variable "vnets_rg" {
+variable "vnets" {
   type = map(string)
+  description = "(Required) Map of virtual networks names and their resource groups where the target subnets are located"
 }
 
 
