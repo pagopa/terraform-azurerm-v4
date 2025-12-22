@@ -58,7 +58,7 @@ variable "embedded_nsg_configuration" {
   }
 
   validation {
-    condition     = can(module.idh_loader.idh_resource_configuration.nsg) ? true : false
+    condition     = can(module.idh_loader.idh_resource_configuration.nsg) ? var.embedded_nsg_configuration != null : false
     error_message = "'embedded_nsg' not available for subnet tier ${var.idh_resource_tier}. use custom_nsg_configuration instead."
   }
 }
@@ -68,7 +68,7 @@ variable "custom_nsg_configuration" {
     source_address_prefixes      = list(string)
     source_address_prefixes_name = string # short name for source_address_prefixes
     target_ports                 = optional(list(string), null)
-    protocol                     = optional(string null)
+    protocol                     = optional(string, null)
     target_service               = optional(string, null)
   })
   description = "(Optional) Custom NSG configuration, additional to eventually present embedded nsg"
