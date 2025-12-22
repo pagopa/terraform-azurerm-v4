@@ -58,7 +58,7 @@ variable "embedded_nsg_configuration" {
   }
 
   validation {
-    condition     = can(module.idh_loader.idh_resource_configuration.nsg) ? var.embedded_nsg_configuration != null : false
+    condition     = can(module.idh_loader.idh_resource_configuration.nsg) ? var.embedded_nsg_configuration != null : true
     error_message = "'embedded_nsg' not available for subnet tier ${var.idh_resource_tier}. use custom_nsg_configuration instead."
   }
 }
