@@ -295,6 +295,10 @@ variable "vnets" {
   }))
 }
 
+variable "vnets_rg" {
+  type = map(string)
+}
+
 
 variable "flow_logs" {
   type = object({
