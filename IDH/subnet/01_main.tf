@@ -185,15 +185,9 @@ module "custom_nsg" {
   resource_group_name = azurerm_resource_group.nsg_rg.name
   location            = data.azurerm_virtual_network.vnet.location
 
-  vnets = [
-    {
-      name    = data.azurerm_virtual_network.vnet.name
-      rg_name = data.azurerm_virtual_network.vnet.resource_group_name
-    }
-  ]
 
-   vnets_rg = {
-     (var.virtual_network_name) = var.resource_group_name
+   vnets = {
+     "${var.virtual_network_name}" = var.resource_group_name
   }
 
   custom_security_group = {
