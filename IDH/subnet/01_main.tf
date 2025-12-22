@@ -133,6 +133,10 @@ module "embedded_nsg" {
     }
   ]
 
+  vnets_rg = {
+    data.azurerm_virtual_network.vnet.name = data.azurerm_virtual_network.vnet.resource_group_name
+  }
+
   custom_security_group = {
     embedded = {
       target_subnet_id = module.subnet.subnet_id
@@ -194,6 +198,10 @@ module "custom_nsg" {
       rg_name = data.azurerm_virtual_network.vnet.resource_group_name
     }
   ]
+
+   vnets_rg = {
+    data.azurerm_virtual_network.vnet.name = data.azurerm_virtual_network.vnet.resource_group_name
+  }
 
   custom_security_group = {
     custom = {
