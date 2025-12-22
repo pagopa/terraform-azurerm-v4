@@ -26,14 +26,14 @@ locals {
 
   subnet_names_limit = flatten([
     for csg in var.custom_security_group: [concat(
-      for ir in csg.inbound_rules if: [
+      for ir in csg.inbound_rules: [
         {
           name      = ir.source_subnet_name
           vnet_name = ir.source_subnet_vnet_name
           rg_name   = var.vnets_rg[ir.source_subnet_vnet_name]
         }
       ] if ir.source_subnet_name != null,
-      for or in csg.outbound_rules if: [
+      for or in csg.outbound_rules: [
         {
           name      = or.destination_subnet_name
           vnet_name = or.destination_subnet_vnet_name
