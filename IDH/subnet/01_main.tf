@@ -134,7 +134,7 @@ module "embedded_nsg" {
   ]
 
   vnets_rg = {
-    data.azurerm_virtual_network.vnet.name = data.azurerm_virtual_network.vnet.resource_group_name
+    "${data.azurerm_virtual_network.vnet.name}" = data.azurerm_virtual_network.vnet.resource_group_name
   }
 
   custom_security_group = {
