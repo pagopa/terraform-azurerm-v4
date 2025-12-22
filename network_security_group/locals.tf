@@ -40,13 +40,13 @@ locals {
           rg_name   = var.vnets_rg[or.destination_subnet_vnet_name]
         }
       if or.destination_subnet_name != null] ,
-      [
+      csg.target_subnet_vnet_name !=  null ? [
         {
           name      = csg.target_subnet_name
           vnet_name = csg.target_subnet_vnet_name
           rg_name   = var.vnets_rg[csg.target_subnet_vnet_name]
         }
-      ]
+      ] : []
     )
     ]
   ])
