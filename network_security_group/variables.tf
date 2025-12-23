@@ -188,6 +188,31 @@ variable "custom_security_group" {
 
   validation {
     condition = var.custom_security_group == null ? true : alltrue(flatten([
+      for nsg in var.custom_security_group : (
+        [
+          for rule in nsg.outbound_rules : ( rule.priority % 10 == 0 )
+        ]
+      )
+      ])
+    )
+    error_message = "outbound_rules: priority must be divisible by 10"
+  }
+
+  validation {
+    condition = var.custom_security_group == null ? true : alltrue(flatten([
+      for nsg in var.custom_security_group : (
+        [
+          for rule in nsg.inbound_rules : ( rule.priority % 10 == 0 )
+        ]
+      )
+      ])
+    )
+    error_message = "inbound_rules: priority must be divisible by 10"
+  }
+
+
+  validation {
+    condition = var.custom_security_group == null ? true : alltrue(flatten([
       for nsg in var.custom_security_group : [
         for rule in concat(nsg.inbound_rules, nsg.outbound_rules) : (
           contains(["Allow", "Deny"], rule.access)
@@ -270,7 +295,7 @@ variable "custom_security_group" {
         )
       ]
     ]))
-    error_message = "inbound and outbound rules: target_service must be one of the items in 'local.target_services'"
+    error_message = "inbound and outbound rules: target_service must be one of ${keys(local.target_services)}"
   }
 
 
