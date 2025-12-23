@@ -62,7 +62,7 @@ locals {
       for key, nsg in var.custom_security_group :
       concat([
         # user defined inbound rules
-        for rule in nsg.inbound_rules : concat(if rule.target_service == null ? [
+        for rule in nsg.inbound_rules : concat(rule.target_service == null ? [
           {
             name               = rule.name
             priority           = rule.priority
@@ -145,7 +145,7 @@ locals {
       for key, nsg in var.custom_security_group :
       concat([
         # user defined outbound rules
-        for rule in nsg.outbound_rules : concat(if rule.target_service == null ? [
+        for rule in nsg.outbound_rules : concat(rule.target_service == null ? [
           {
             name               = "${rule.name}-${i + 1}"
             priority           = rule.priority + i + 1
