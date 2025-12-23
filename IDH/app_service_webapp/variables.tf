@@ -245,3 +245,36 @@ variable "embedded_subnet" {
 
 
 }
+
+
+variable "embedded_nsg_configuration" {
+  type = object({
+    source_address_prefixes      = list(string)
+    source_address_prefixes_name = string # short name for source_address_prefixes
+    target_ports                 = list(string)
+    protocol                     = string
+  })
+  description = "(Optional) NSG configuration"
+  default = {
+    source_address_prefixes      = ["*"]
+    source_address_prefixes_name = "All"
+    target_ports                 = ["*"]
+    protocol                     = "*"
+  }
+}
+
+variable "nsg_flow_log_configuration" {
+  type = object({
+    enabled                    = bool
+    network_watcher_name       = optional(string, null)
+    network_watcher_rg         = optional(string, null)
+    storage_account_id         = optional(string, null)
+    traffic_analytics_law_name = optional(string, null)
+    traffic_analytics_law_rg   = optional(string, null)
+  })
+  description = "(Optional) NSG flow log configuration"
+  default = {
+    enabled = false
+  }
+
+}

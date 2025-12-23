@@ -22,12 +22,9 @@ module "network_security_group" {
   resource_group_name = "my-rg"
   location           = "westeurope"
 
-  vnets = [
-    {
-      name    = "vnet1"
-      rg_name = "vnet-rg"
-    }
-  ]
+  vnets = {
+      "vnet1" = "vnet-rg"
+  }
 
   custom_security_group = {
     myNsg = {
@@ -74,14 +71,14 @@ module "network_security_group" {
 
 ### Required Variables
 
-| Name                | Type         | Description                                                                        |
-| ------------------- | ------------ | ---------------------------------------------------------------------------------- |
-| prefix              | string       | Resource prefix (max 6 chars)                                                      |
-| resource_group_name | string       | Resource group name where the NSG will be created                                  |
-| location            | string       | Azure region                                                                       |
-| vnets               | list(object) | VNet configurations, referenced in the rules. Used to retrieve the subnets details |
-| network_watcher     | object       | Network Watcher settings                                                           |
-| tags                | map(string)  | Resource tags                                                                      |
+| Name                | Type        | Description                                                                                 |
+| ------------------- |-------------|---------------------------------------------------------------------------------------------|
+| prefix              | string      | Resource prefix (max 6 chars)                                                               |
+| resource_group_name | string      | Resource group name where the NSG will be created                                           |
+| location            | string      | Azure region                                                                                |
+| vnets               | map(string) | Map of VNet name and rg name, referenced in the rules. Used to retrieve the subnets details |
+| network_watcher     | object      | Network Watcher settings                                                                    |
+| tags                | map(string) | Resource tags                                                                               |
 
 ### Custom Security Group Configuration
 
@@ -238,19 +235,18 @@ No modules.
 | [azurerm_subnet_network_security_group_association.nsg_association](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_network_security_group_association) | resource |
 | [azurerm_log_analytics_workspace.analytics_workspace](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/log_analytics_workspace) | data source |
 | [azurerm_subnet.subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subnet) | data source |
-| [azurerm_virtual_network.vnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/virtual_network) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_custom_security_group"></a> [custom\_security\_group](#input\_custom\_security\_group) | security groups configuration | <pre>map(object({<br/>    target_subnet_name      = string<br/>    target_subnet_vnet_name = string<br/>    watcher_enabled         = optional(bool, false)<br/>    inbound_rules = list(object({<br/>      name                         = string<br/>      priority                     = number<br/>      target_service               = optional(string, null)<br/>      access                       = optional(string, "Allow")<br/>      protocol                     = optional(string)<br/>      source_subnet_name           = optional(string)<br/>      source_subnet_vnet_name      = optional(string)<br/>      source_port_ranges           = optional(list(string), ["*"])<br/>      source_address_prefixes      = optional(list(string), [])<br/>      destination_address_prefixes = optional(list(string), [])<br/>      destination_port_ranges      = optional(list(string), ["*"])<br/>      description                  = optional(string)<br/>    }))<br/><br/>    outbound_rules = list(object({<br/>      name                         = string<br/>      priority                     = number<br/>      target_service               = optional(string, null)<br/>      access                       = optional(string, "Allow")<br/>      protocol                     = optional(string)<br/>      source_address_prefixes      = optional(list(string), [])<br/>      source_port_ranges           = optional(list(string), ["*"])<br/>      destination_subnet_name      = optional(string)<br/>      destination_subnet_vnet_name = optional(string)<br/>      destination_port_ranges      = optional(list(string), ["*"])<br/>      destination_address_prefixes = optional(list(string), [])<br/>      description                  = optional(string)<br/>    }))<br/>  }))</pre> | `null` | no |
+| <a name="input_custom_security_group"></a> [custom\_security\_group](#input\_custom\_security\_group) | security groups configuration | <pre>map(object({<br/>    target_subnet_name      = optional(string, null)<br/>    target_subnet_vnet_name = optional(string, null)<br/>    target_subnet_id        = optional(string, null) # optional target subnet id. overrides the pair <target_subnet_name, target_subnet_vnet_name>. useful when subnet not yet created<br/>    watcher_enabled         = optional(bool, false)<br/>    inbound_rules = list(object({<br/>      name                         = string<br/>      priority                     = number<br/>      target_service               = optional(string, null)<br/>      access                       = optional(string, "Allow")<br/>      protocol                     = optional(string)<br/>      source_subnet_name           = optional(string)<br/>      source_subnet_vnet_name      = optional(string)<br/>      source_port_ranges           = optional(list(string), ["*"])<br/>      source_address_prefixes      = optional(list(string), [])<br/>      destination_address_prefixes = optional(list(string), [])<br/>      destination_port_ranges      = optional(list(string), ["*"])<br/>      description                  = optional(string)<br/>    }))<br/><br/>    outbound_rules = list(object({<br/>      name                         = string<br/>      priority                     = number<br/>      target_service               = optional(string, null)<br/>      access                       = optional(string, "Allow")<br/>      protocol                     = optional(string)<br/>      source_address_prefixes      = optional(list(string), [])<br/>      source_port_ranges           = optional(list(string), ["*"])<br/>      destination_subnet_name      = optional(string)<br/>      destination_subnet_vnet_name = optional(string)<br/>      destination_port_ranges      = optional(list(string), ["*"])<br/>      destination_address_prefixes = optional(list(string), [])<br/>      description                  = optional(string)<br/>    }))<br/>  }))</pre> | `null` | no |
 | <a name="input_flow_logs"></a> [flow\_logs](#input\_flow\_logs) | (Optional) Parameters required to configure the network watcher | <pre>object({<br/>    network_watcher_name                   = string<br/>    network_watcher_rg                     = string<br/>    storage_account_id                     = string<br/>    retention_days                         = optional(number, 2)<br/>    traffic_analytics_law_name             = string<br/>    traffic_analytics_law_rg               = string<br/>    traffic_analytics_law_interval_minutes = optional(number, 10)<br/>  })</pre> | `null` | no |
 | <a name="input_location"></a> [location](#input\_location) | Location of the resource group where the nsg will be saved | `string` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | Prefix for all resources | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Name of the resource group where the nsg will be saved | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to be applied to the nsg | `map(string)` | n/a | yes |
-| <a name="input_vnets"></a> [vnets](#input\_vnets) | n/a | <pre>list(object({<br/>    name    = string<br/>    rg_name = string<br/>  }))</pre> | n/a | yes |
+| <a name="input_vnets"></a> [vnets](#input\_vnets) | (Required) Map of virtual networks names and their resource groups where the involved (target, source, destination) subnets are located | `map(string)` | n/a | yes |
 
 ## Outputs
 

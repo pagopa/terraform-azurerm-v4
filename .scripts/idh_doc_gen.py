@@ -10,7 +10,8 @@ BASE_DIR = "./IDH"
 IDH_PRODUCT_CONFIG_FOLDER = "00_product_configs"
 
 def print_debug(msg: str, data: Any = None, level: str = "INFO") -> None:
-  print(f"[{level}] {msg}", data if data is not None else "")
+  if DEBUG:
+    print(f"[{level}] {msg}", data if data is not None else "")
 
 def flatten_dict(d: MutableMapping, parent_key: str = '', sep: str = '.') -> Dict[str, Any]:
     if not isinstance(d, MutableMapping):
@@ -25,6 +26,7 @@ def flatten_dict(d: MutableMapping, parent_key: str = '', sep: str = '.') -> Dic
         new_key = f"{parent_key}{sep}{k}" if parent_key else k
 
         if isinstance(v, MutableMapping):
+            items.append((new_key, True))
             items.extend(flatten_dict(v, new_key, sep).items())
         else:
             items.append((new_key, v))
