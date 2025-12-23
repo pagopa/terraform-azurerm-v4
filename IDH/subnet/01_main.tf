@@ -186,8 +186,8 @@ module "custom_nsg" {
   location            = data.azurerm_virtual_network.vnet.location
 
 
-   vnets = {
-     "${var.virtual_network_name}" = var.resource_group_name
+  vnets = {
+    "${var.virtual_network_name}" = var.resource_group_name
   }
 
   custom_security_group = {
@@ -205,7 +205,7 @@ module "custom_nsg" {
           description                  = "Allow traffic from ${var.custom_nsg_configuration.source_address_prefixes_name}"
           destination_address_prefixes = module.subnet.address_prefixes
           target_service               = var.custom_nsg_configuration.target_service
-        } : {
+          } : {
           name                         = "Allow${var.custom_nsg_configuration.source_address_prefixes_name}"
           priority                     = 1000
           protocol                     = var.custom_nsg_configuration.protocol

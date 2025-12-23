@@ -75,12 +75,12 @@ variable "custom_nsg_configuration" {
   default     = null
 
   validation {
-    condition = var.custom_nsg_configuration != null && try(var.custom_nsg_configuration.target_service, null) != null ? (var.custom_nsg_configuration.target_ports == null && var.custom_nsg_configuration.protocol == null) : true
+    condition     = var.custom_nsg_configuration != null && try(var.custom_nsg_configuration.target_service, null) != null ? (var.custom_nsg_configuration.target_ports == null && var.custom_nsg_configuration.protocol == null) : true
     error_message = "If target_service is defined,  (target_ports, protocol) must be null"
   }
 
   validation {
-     condition = var.custom_nsg_configuration != null && try(var.custom_nsg_configuration.target_service, null) == null ? (var.custom_nsg_configuration.target_ports != null && var.custom_nsg_configuration.protocol != null) : true
+    condition     = var.custom_nsg_configuration != null && try(var.custom_nsg_configuration.target_service, null) == null ? (var.custom_nsg_configuration.target_ports != null && var.custom_nsg_configuration.protocol != null) : true
     error_message = "If target_service is NOT defined,  (target_ports, protocol) must be defined"
   }
 }

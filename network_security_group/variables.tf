@@ -289,8 +289,8 @@ variable "custom_security_group" {
 
 
 variable "vnets" {
-  type = map(string)
-  description = "(Required) Map of virtual networks names and their resource groups where the target subnets are located"
+  type        = map(string)
+  description = "(Required) Map of virtual networks names and their resource groups where the involved (target, source, destination) subnets are located"
 }
 
 

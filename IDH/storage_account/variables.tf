@@ -240,3 +240,34 @@ variable "embedded_subnet" {
 
 
 }
+
+
+
+
+variable "nsg_flow_log_configuration" {
+  type = object({
+    enabled                    = bool
+    network_watcher_name       = optional(string, null)
+    network_watcher_rg         = optional(string, null)
+    storage_account_id         = optional(string, null)
+    traffic_analytics_law_name = optional(string, null)
+    traffic_analytics_law_rg   = optional(string, null)
+  })
+  description = "(Optional) NSG flow log configuration"
+  default = {
+    enabled = false
+  }
+
+}
+
+variable "embedded_nsg_configuration" {
+  type = object({
+    source_address_prefixes      = list(string)
+    source_address_prefixes_name = string # short name for source_address_prefixes
+  })
+  description = "(Optional) List of allowed cidr and name . Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration"
+  default = {
+    source_address_prefixes : ["*"]
+    source_address_prefixes_name = "All"
+  }
+}
