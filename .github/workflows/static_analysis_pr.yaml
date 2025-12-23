@@ -13,15 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-        # from https://github.com/actions/checkout/commits/main
+      - run: |
+          rm -rf *
+
+      # from https://github.com/actions/checkout/commits/main
       - uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707
 
       - name: run_init
-        run: |
-          bash .utils/terraform_run_all.sh init docker
-
-      - name: run_init
-        if: env.dir_changes_detected == 'true'
         run: |
           bash .utils/terraform_run_all.sh init docker
 
