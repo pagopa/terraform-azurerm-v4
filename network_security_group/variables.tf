@@ -295,7 +295,7 @@ variable "custom_security_group" {
         )
       ]
     ]))
-    error_message = "inbound and outbound rules: target_service must be one of ${keys(local.target_services)}"
+    error_message = "inbound and outbound rules: target_service must be one of ${join(",", keys(local.target_services))}"
   }
 
 
