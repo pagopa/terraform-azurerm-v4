@@ -122,8 +122,8 @@ variable "embedded_subnet" {
 
 
   validation {
-    condition     = var.embedded_subnet.enabled ? var.private_endpoint.subnet_id == null : true
-    error_message = "If 'embedded_subnet' is enabled, 'subnet_id' must be null."
+    condition     = var.embedded_subnet.enabled ? var.private_endpoint == null : true
+    error_message = "If 'embedded_subnet' is enabled, 'private_endpoint' must be null."
   }
 
   validation {

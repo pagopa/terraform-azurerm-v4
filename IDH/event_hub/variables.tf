@@ -154,7 +154,7 @@ variable "embedded_subnet" {
     vnet_name    = optional(string, null)
     vnet_rg_name = optional(string, null)
   })
-  description = "(Optional) Configuration for creating an embedded Subnet for the Redis private endpoint. When enabled, 'private_endpoint.subnet_id' must be null."
+  description = "(Optional) Configuration for creating an embedded Subnet for the EventHub private endpoint. When enabled, 'private_endpoint.subnet_id' must be null."
   default = {
     enabled      = false
     vnet_name    = null
@@ -171,13 +171,6 @@ variable "embedded_subnet" {
     condition     = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
     error_message = "If 'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
   }
-
-  validation {
-    condition     = var.embedded_subnet.enabled ? length(var.embedded_subnet.private_dns_zone_ids) > 0 : true
-    error_message = "If 'embedded_subnet' is enabled and private endpoint is enabled, 'private_dns_zone_ids' must contain at least one DNS zone ID."
-  }
-
-
 }
 
 
