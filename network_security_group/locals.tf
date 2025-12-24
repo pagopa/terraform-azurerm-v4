@@ -30,7 +30,7 @@ locals {
   }
 
 
-  subnet_names = flatten([
+  subnet_names = toset(flatten([
     for csg in var.custom_security_group : [concat(
       [for ir in csg.inbound_rules :
         {
@@ -55,7 +55,7 @@ locals {
       ] : []
       )
     ]
-  ])
+  ]))
 
   security_rules = flatten(concat(
     [
