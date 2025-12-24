@@ -49,7 +49,7 @@ variable "private_endpoint" {
     subnet_id            = string
     private_dns_zone_ids = list(string)
   })
-  description = "(Optional) Enable private endpoint with required params"
+  description = "(Deprecated) Enable private endpoint with required params. Use 'embedded_subnet' instead."
   default     = null
 
   validation {
@@ -107,26 +107,33 @@ variable "capacity" {
 
 variable "embedded_subnet" {
   type = object({
-    enabled      = bool
-    vnet_name    = optional(string, null)
-    vnet_rg_name = optional(string, null)
+    enabled              = bool
+    vnet_name            = optional(string, null)
+    vnet_rg_name         = optional(string, null)
+    private_dns_zone_ids = optional(list(string), []) #dns zone for private endpoint
   })
-  description = "(Optional) Configuration for creating an embedded Subnet for the Cosmos private endpoint. When enabled, 'subnet_id' must be null."
+  description = "(Optional) Configuration for creating an embedded Subnet for the Redis private endpoint. When enabled, 'private_endpoint.subnet_id' must be null."
   default = {
-    enabled      = false
-    vnet_name    = null
-    vnet_rg_name = null
+    enabled              = false
+    vnet_name            = null
+    vnet_rg_name         = null
+    private_dns_zone_ids = []
   }
 
 
   validation {
-    condition     = var.embedded_subnet.enabled ? var.subnet_id == null : true
+    condition     = var.embedded_subnet.enabled ? var.private_endpoint.subnet_id == null : true
     error_message = "If 'embedded_subnet' is enabled, 'subnet_id' must be null."
   }
 
   validation {
     condition     = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
     error_message = "If 'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
+  }
+
+  validation {
+    condition     = var.embedded_subnet.enabled && module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? length(var.embedded_subnet.private_dns_zone_ids) > 0 : true
+    error_message = "If 'embedded_subnet' is enabled and private endpoint is enabled, 'private_dns_zone_ids' must contain at least one DNS zone ID."
   }
 
 

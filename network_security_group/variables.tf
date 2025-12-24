@@ -190,7 +190,7 @@ variable "custom_security_group" {
     condition = var.custom_security_group == null ? true : alltrue(flatten([
       for nsg in var.custom_security_group : (
         [
-          for rule in nsg.outbound_rules : ( rule.priority % 10 == 0 )
+          for rule in nsg.outbound_rules : (rule.priority % 10 == 0)
         ]
       )
       ])
@@ -202,7 +202,7 @@ variable "custom_security_group" {
     condition = var.custom_security_group == null ? true : alltrue(flatten([
       for nsg in var.custom_security_group : (
         [
-          for rule in nsg.inbound_rules : ( rule.priority % 10 == 0 )
+          for rule in nsg.inbound_rules : (rule.priority % 10 == 0)
         ]
       )
       ])

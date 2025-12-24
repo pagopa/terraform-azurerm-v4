@@ -97,9 +97,9 @@ The custom_security_group variable accepts a map of security group configuration
 **Inbound rule supports:**
 
 | Field                        | Type         | Description                                                                | Default                         | Valid values                                       |
-| ---------------------------- | ------------ | -------------------------------------------------------------------------- | ------------------------------- | -------------------------------------------------- |
+| ---------------------------- | ------------ |----------------------------------------------------------------------------| ------------------------------- | -------------------------------------------------- |
 | name                         | string       | Rule name                                                                  | Required                        | -                                                  |
-| priority                     | number       | Rule priority                                                              | Required                        | between 100 and 4096                               |
+| priority                     | number       | Rule priority (multiple of 10)                                             | Required                        | between 100 and 4096                               |
 | target_service               | string       | Target service name                                                        | null                            | postgresql, redis, cosmos, eventhub, storage       |
 | access                       | string       | Action applied by this rule                                                | "Allow"                         | `Allow`, `Deny`                                    |
 | protocol                     | string       | Network protocol                                                           | Required if target_service null | `Tcp`, `Udp`, `Icmp`, `Esp`, `Ah`, `*`             |
@@ -116,7 +116,7 @@ The custom_security_group variable accepts a map of security group configuration
 | Field                        | Type         | Description                                                                          | Default                         | Valid values                                       |
 | ---------------------------- | ------------ | ------------------------------------------------------------------------------------ | ------------------------------- | -------------------------------------------------- |
 | name                         | string       | Rule name                                                                            | Required                        | -                                                  |
-| priority                     | number       | Rule priority                                                                        | Required                        | between 100 and 4096                               |
+| priority                     | number       | Rule priority (multiple of 10)                                                                     | Required                        | between 100 and 4096                               |
 | target_service               | string       | Target service name                                                                  | null                            | postgresql, redis, cosmos, eventhub, storage       |
 | access                       | string       | Action applied by this rule                                                          | "Allow"                         | `Allow`, `Deny`                                    |
 | protocol                     | string       | Network protocol                                                                     | Required if target_service null | `Tcp`, `Udp`, `Icmp`, `Esp`, `Ah`, `*`             |
@@ -198,6 +198,11 @@ The custom_security_group variable accepts a map of security group configuration
   description                = "Allow postgresql ports and protocol"
 }
 ```
+
+### Note on priority
+
+Rule priority must be multiple of 10 and between 100 and 4096. Lower numbers have higher priority.
+This allows for automatic generation of nsg rules for target services that requires more than one port/protocol combination.
 
 ### Network Watcher flow logs Configuration
 
