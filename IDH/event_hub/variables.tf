@@ -92,7 +92,7 @@ variable "private_endpoint_resource_group_name" {
 variable "private_endpoint_subnet_id" {
   type        = string
   default     = null
-  description = "The id of the subnet that will be used for the private endpoint."
+  description = "(Deprecated) The id of the subnet that will be used for the private endpoint. Use embedded_subnet instead."
 }
 
 
@@ -145,4 +145,59 @@ EOD
       }
     ))
   }))
+}
+
+
+variable "embedded_subnet" {
+  type = object({
+    enabled      = bool
+    vnet_name    = optional(string, null)
+    vnet_rg_name = optional(string, null)
+  })
+  description = "(Optional) Configuration for creating an embedded Subnet for the EventHub private endpoint. When enabled, 'private_endpoint.subnet_id' must be null."
+  default = {
+    enabled      = false
+    vnet_name    = null
+    vnet_rg_name = null
+  }
+
+
+  validation {
+    condition     = var.embedded_subnet.enabled ? var.private_endpoint_subnet_id == null : true
+    error_message = "If 'embedded_subnet' is enabled, 'private_endpoint_subnet_id' must be null."
+  }
+
+  validation {
+    condition     = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
+    error_message = "If 'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
+  }
+}
+
+
+variable "nsg_flow_log_configuration" {
+  type = object({
+    enabled                    = bool
+    network_watcher_name       = optional(string, null)
+    network_watcher_rg         = optional(string, null)
+    storage_account_id         = optional(string, null)
+    traffic_analytics_law_name = optional(string, null)
+    traffic_analytics_law_rg   = optional(string, null)
+  })
+  description = "(Optional) NSG flow log configuration"
+  default = {
+    enabled = false
+  }
+
+}
+
+variable "embedded_nsg_configuration" {
+  type = object({
+    source_address_prefixes      = list(string)
+    source_address_prefixes_name = string # short name for source_address_prefixes
+  })
+  description = "(Optional) List of allowed cidr and name . Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration"
+  default = {
+    source_address_prefixes : ["*"]
+    source_address_prefixes_name = "All"
+  }
 }

@@ -19,6 +19,30 @@ resource "terraform_data" "validation" {
   }
 }
 
+
+# IDH/subnet
+module "private_endpoint_snet" {
+  count                = var.embedded_subnet.enabled ? 1 : 0
+  source               = "../subnet"
+  name                 = "${var.name}-pe-snet"
+  resource_group_name  = var.embedded_subnet.vnet_rg_name
+  virtual_network_name = var.embedded_subnet.vnet_name
+
+  env               = var.env
+  idh_resource_tier = "slash28_privatelink_true"
+  product_name      = var.product_name
+
+  service_endpoints = ["Microsoft.EventHub"]
+
+  custom_nsg_configuration = {
+    source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
+    source_address_prefixes_name = var.embedded_nsg_configuration.source_address_prefixes_name
+    target_service               = "eventhub"
+  }
+  nsg_flow_log_configuration = var.nsg_flow_log_configuration
+  tags                       = var.tags
+}
+
 # -------------------------------------------------------------------
 # Event Hub
 # -------------------------------------------------------------------
@@ -44,7 +68,7 @@ module "event_hub" {
   network_rulesets                     = var.network_rulesets
   private_endpoint_resource_group_name = var.private_endpoint_resource_group_name
   private_dns_zones_ids                = var.private_dns_zones_ids
-  private_endpoint_subnet_id           = var.private_endpoint_subnet_id
+  private_endpoint_subnet_id           = var.embedded_subnet.enabled ? module.private_endpoint_snet[0].subnet_id : var.private_endpoint_subnet_id
   metric_alerts                        = var.metric_alerts
   action                               = var.action
 
