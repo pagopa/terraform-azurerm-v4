@@ -147,8 +147,8 @@ locals {
         # user defined outbound rules
         for rule in nsg.outbound_rules : concat(rule.target_service == null ? [
           {
-            name               = "${rule.name}-${i + 1}"
-            priority           = rule.priority + i + 1
+            name               = rule.name
+            priority           = rule.priority
             access                  = rule.access
             protocol                = rule.target_service != null ? title(local.target_services[rule.target_service].protocol) : rule.protocol
             source_port_ranges      = contains(rule.source_port_ranges, "*") ? null : rule.source_port_ranges
@@ -182,8 +182,8 @@ locals {
           }
         ]: [
         for i, ts_definition in local.target_services[rule.target_service]: {
-          name                    = rule.name
-          priority                = rule.priority
+          name                    = "${rule.name}-${i + 1}"
+          priority                = rule.priority + i + 1
           access                  = rule.access
           protocol                = rule.target_service != null ? title(ts_definition.protocol) : rule.protocol
           source_port_ranges      = contains(rule.source_port_ranges, "*") ? null : rule.source_port_ranges
