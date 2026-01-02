@@ -11,6 +11,17 @@ locals {
   capacity = var.capacity != null ? var.capacity : module.idh_loader.idh_resource_configuration.capacity
 }
 
+resource "terraform_data" "validation" {
+  input = timestamp()
+
+  lifecycle {
+    precondition {
+      condition     = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? (var.embedded_subnet.enabled ? var.private_endpoint == null : var.private_endpoint != null) : true
+      error_message = "private_endpoint must be null when embedded_subnet is enabled, otherwise it must be defined for resource '${var.idh_resource_tier}' on env '${var.env}'"
+    }
+
+  }
+}
 
 
 # IDH/subnet
@@ -73,6 +84,8 @@ module "redis" {
   patch_schedules = coalesce(var.patch_schedules, module.idh_loader.idh_resource_configuration.patch_schedule)
 
   tags = var.tags
+
+
 }
 
 
