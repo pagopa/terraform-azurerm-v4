@@ -42,6 +42,7 @@ module "redis" {
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
+| <a name="module_private_endpoint_snet"></a> [private\_endpoint\_snet](#module\_private\_endpoint\_snet) | ../subnet | n/a |
 | <a name="module_redis"></a> [redis](#module\_redis) | ../../redis_cache | n/a |
 
 ## Resources
@@ -49,6 +50,7 @@ module "redis" {
 | Name | Type |
 |------|------|
 | [azurerm_monitor_metric_alert.redis_cache_used_memory_exceeded](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [terraform_data.validation](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 
 ## Inputs
 
@@ -56,12 +58,15 @@ module "redis" {
 |------|-------------|------|---------|:--------:|
 | <a name="input_alert_action_group_ids"></a> [alert\_action\_group\_ids](#input\_alert\_action\_group\_ids) | (Optional) List of action group ids to be used in alerts | `list(string)` | `[]` | no |
 | <a name="input_capacity"></a> [capacity](#input\_capacity) | (Required) The size of the Redis cache to deploy. Valid values are 0, 1, 2, 3, 4, 5 and 6 for Basic/Standard SKU and 1, 2, 3, 4 for Premium SKU. | `number` | `null` | no |
+| <a name="input_embedded_nsg_configuration"></a> [embedded\_nsg\_configuration](#input\_embedded\_nsg\_configuration) | (Optional) List of allowed cidr and name . Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string # short name for source_address_prefixes<br/>  })</pre> | <pre>{<br/>  "source_address_prefixes": [<br/>    "*"<br/>  ],<br/>  "source_address_prefixes_name": "All"<br/>}</pre> | no |
+| <a name="input_embedded_subnet"></a> [embedded\_subnet](#input\_embedded\_subnet) | (Optional) Configuration for creating an embedded Subnet for the Redis private endpoint. When enabled, 'private\_endpoint.subnet\_id' must be null. | <pre>object({<br/>    enabled              = bool<br/>    vnet_name            = optional(string, null)<br/>    vnet_rg_name         = optional(string, null)<br/>    private_dns_zone_ids = optional(list(string), []) #dns zone for private endpoint<br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "private_dns_zone_ids": [],<br/>  "vnet_name": null,<br/>  "vnet_rg_name": null<br/>}</pre> | no |
 | <a name="input_env"></a> [env](#input\_env) | (Required) Environment for which the resource will be created | `string` | n/a | yes |
 | <a name="input_idh_resource_tier"></a> [idh\_resource\_tier](#input\_idh\_resource\_tier) | (Required) The name od IDH resource key to be created. | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | The location of the resource group. | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | The name of the Redis instance. | `string` | n/a | yes |
+| <a name="input_nsg_flow_log_configuration"></a> [nsg\_flow\_log\_configuration](#input\_nsg\_flow\_log\_configuration) | (Optional) NSG flow log configuration | <pre>object({<br/>    enabled                    = bool<br/>    network_watcher_name       = optional(string, null)<br/>    network_watcher_rg         = optional(string, null)<br/>    storage_account_id         = optional(string, null)<br/>    traffic_analytics_law_name = optional(string, null)<br/>    traffic_analytics_law_rg   = optional(string, null)<br/>  })</pre> | <pre>{<br/>  "enabled": false<br/>}</pre> | no |
 | <a name="input_patch_schedules"></a> [patch\_schedules](#input\_patch\_schedules) | (Optional) List of day-time where Azure can start the maintenance activity | <pre>list(object({<br/>    day_of_week    = string<br/>    start_hour_utc = number<br/>  }))</pre> | `null` | no |
-| <a name="input_private_endpoint"></a> [private\_endpoint](#input\_private\_endpoint) | (Optional) Enable private endpoint with required params | <pre>object({<br/>    subnet_id            = string<br/>    private_dns_zone_ids = list(string)<br/>  })</pre> | `null` | no |
+| <a name="input_private_endpoint"></a> [private\_endpoint](#input\_private\_endpoint) | (Deprecated) Enable private endpoint with required params. Use 'embedded\_subnet' instead. | <pre>object({<br/>    subnet_id            = string<br/>    private_dns_zone_ids = list(string)<br/>  })</pre> | `null` | no |
 | <a name="input_private_static_ip_address"></a> [private\_static\_ip\_address](#input\_private\_static\_ip\_address) | The Static IP Address to assign to the Redis Cache when hosted inside the Virtual Network | `string` | `null` | no |
 | <a name="input_product_name"></a> [product\_name](#input\_product\_name) | (Required) product\_name used to identify the platform for which the resource will be created | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | n/a | `string` | n/a | yes |

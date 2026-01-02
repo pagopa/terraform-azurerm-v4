@@ -11,11 +11,47 @@ locals {
   capacity = var.capacity != null ? var.capacity : module.idh_loader.idh_resource_configuration.capacity
 }
 
+resource "terraform_data" "validation" {
+  input = timestamp()
+
+  lifecycle {
+    precondition {
+      condition     = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? (var.embedded_subnet.enabled ? var.private_endpoint == null : var.private_endpoint != null) : true
+      error_message = "private_endpoint must be null when embedded_subnet is enabled, otherwise it must be defined for resource '${var.idh_resource_tier}' on env '${var.env}'"
+    }
+
+  }
+}
+
+
+# IDH/subnet
+module "private_endpoint_snet" {
+  count                = var.embedded_subnet.enabled && module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? 1 : 0
+  source               = "../subnet"
+  depends_on           = [terraform_data.validation]
+  name                 = "${var.name}-pe-snet"
+  resource_group_name  = var.embedded_subnet.vnet_rg_name
+  virtual_network_name = var.embedded_subnet.vnet_name
+
+  env               = var.env
+  idh_resource_tier = "slash28_privatelink_true"
+  product_name      = var.product_name
+
+  custom_nsg_configuration = {
+    source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
+    source_address_prefixes_name = var.embedded_nsg_configuration.source_address_prefixes_name
+    target_service               = "redis"
+  }
+  nsg_flow_log_configuration = var.nsg_flow_log_configuration
+  tags                       = var.tags
+}
+
 # -----------------------------------------------
 # Redis Cache
 # -----------------------------------------------
 module "redis" {
-  source = "../../redis_cache"
+  source     = "../../redis_cache"
+  depends_on = [terraform_data.validation]
 
   name                          = var.name
   resource_group_name           = var.resource_group_name
@@ -43,13 +79,15 @@ module "redis" {
 
   private_endpoint = {
     enabled              = module.idh_loader.idh_resource_configuration.private_endpoint_enabled
-    subnet_id            = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_endpoint.subnet_id : ""
-    private_dns_zone_ids = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_endpoint.private_dns_zone_ids : []
+    subnet_id            = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? (var.embedded_subnet.enabled ? module.private_endpoint_snet[0].subnet_id : var.private_endpoint.subnet_id) : ""
+    private_dns_zone_ids = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? (var.embedded_subnet.enabled ? var.embedded_subnet.private_dns_zone_ids : var.private_endpoint.private_dns_zone_ids) : []
   }
 
   patch_schedules = coalesce(var.patch_schedules, module.idh_loader.idh_resource_configuration.patch_schedule)
 
   tags = var.tags
+
+
 }
 
 
