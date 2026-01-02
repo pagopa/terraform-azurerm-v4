@@ -28,6 +28,7 @@ resource "terraform_data" "validation" {
 module "private_endpoint_snet" {
   count                = var.embedded_subnet.enabled && module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? 1 : 0
   source               = "../subnet"
+  depends_on = [terraform_data.validation]
   name                 = "${var.name}-pe-snet"
   resource_group_name  = var.embedded_subnet.vnet_rg_name
   virtual_network_name = var.embedded_subnet.vnet_name
@@ -50,6 +51,7 @@ module "private_endpoint_snet" {
 # -----------------------------------------------
 module "redis" {
   source = "../../redis_cache"
+  depends_on = [terraform_data.validation]
 
   name                          = var.name
   resource_group_name           = var.resource_group_name
