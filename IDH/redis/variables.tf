@@ -53,11 +53,6 @@ variable "private_endpoint" {
   default     = null
 
   validation {
-    condition     = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_endpoint != null : true
-    error_message = "private_endpoint must be defined for resource '${var.idh_resource_tier}' on env '${var.env}'"
-  }
-
-  validation {
     condition     = var.private_endpoint != null ? var.private_endpoint.subnet_id != null && length(var.private_endpoint.private_dns_zone_ids) > 0 : true
     error_message = "use valid subnet_id and private_dns_zone_ids when defining the private endpoint"
   }
