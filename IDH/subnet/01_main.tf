@@ -228,6 +228,7 @@ module "custom_nsg" {
           name                    = "DenyFromAllVNet"
           priority                = 4090
           destination_port_ranges = ["*"]
+          destination_address_prefixes = module.subnet.address_prefixes
           source_address_prefixes = ["*"]
           protocol                = "*"
           description             = "Deny everyone else"
