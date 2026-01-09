@@ -157,6 +157,15 @@ module "embedded_nsg" {
           target_service               = null
           destination_address_prefixes = module.subnet.address_prefixes
 
+        },
+        {
+          name                    = "DenyFromAllVNet"
+          priority                = 4090
+          destination_port_ranges = ["*"]
+          source_address_prefixes = ["*"]
+          protocol                = "*"
+          description             = "Deny everyone else"
+          access                  = "Deny"
         }
       ]
       outbound_rules = []
@@ -214,6 +223,16 @@ module "custom_nsg" {
           description                  = "Allow traffic from ${var.custom_nsg_configuration.source_address_prefixes_name}"
           destination_address_prefixes = module.subnet.address_prefixes
           target_service               = null
+        },
+        {
+          name                         = "DenyFromAllVNet"
+          priority                     = 4090
+          destination_port_ranges      = ["*"]
+          destination_address_prefixes = module.subnet.address_prefixes
+          source_address_prefixes      = ["*"]
+          protocol                     = "*"
+          description                  = "Deny everyone else"
+          access                       = "Deny"
         }
       ]
       outbound_rules = []
