@@ -122,7 +122,7 @@ module "embedded_nsg" {
   source = "../../network_security_group"
   count  = can(module.idh_loader.idh_resource_configuration.nsg) ? 1 : 0
 
-  prefix              = var.product_name
+  prefix              = var.name
   resource_group_name = azurerm_resource_group.nsg_rg.name
   location            = data.azurerm_virtual_network.vnet.location
 
@@ -181,7 +181,7 @@ module "custom_nsg" {
   depends_on = [module.embedded_nsg]
   count      = var.custom_nsg_configuration != null ? 1 : 0
 
-  prefix              = var.product_name
+  prefix              = var.name
   resource_group_name = azurerm_resource_group.nsg_rg.name
   location            = data.azurerm_virtual_network.vnet.location
 
@@ -197,7 +197,7 @@ module "custom_nsg" {
 
       inbound_rules = [
         try(var.custom_nsg_configuration.target_service, null) != null ? {
-          name                         = "Allow${var.custom_nsg_configuration.source_address_prefixes_name}On${title(var.custom_nsg_configuration.target_service)}"
+          name                         = "Allow${title(var.custom_nsg_configuration.source_address_prefixes_name)}On${title(var.custom_nsg_configuration.target_service)}"
           priority                     = 1000
           protocol                     = null
           source_address_prefixes      = var.custom_nsg_configuration.source_address_prefixes
@@ -206,7 +206,7 @@ module "custom_nsg" {
           destination_address_prefixes = module.subnet.address_prefixes
           target_service               = var.custom_nsg_configuration.target_service
           } : {
-          name                         = "Allow${var.custom_nsg_configuration.source_address_prefixes_name}"
+          name                         = "Allow${title(var.custom_nsg_configuration.source_address_prefixes_name)}"
           priority                     = 1000
           protocol                     = var.custom_nsg_configuration.protocol
           source_address_prefixes      = var.custom_nsg_configuration.source_address_prefixes
