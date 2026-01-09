@@ -1,1 +1,1 @@
-Prefix length: {prefix_length}, delegation: {delegation_name}, embedded nsg allowed: {nsg}
+Prefix length: {prefix_length}, delegation: {delegation_name}, embedded nsg allowed: {nsg}, pe network policy: {private_endpoint_network_policies}

@@ -18,7 +18,7 @@ app_service:
     - Microsoft.Network/virtualNetworks/subnets/action
 private_endpoint:
   private_link_service_network_policies_enabled: true
-  private_endpoint_network_policies: Disabled
+  private_endpoint_network_policies: Enabled
   prefix_length: 26
 container_app_environment:
   prefix_length: 23
