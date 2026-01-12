@@ -224,6 +224,14 @@ variable "docker_registry_url" {
   type    = string
   default = null
 }
+variable "docker_registry_username" {
+  type    = string
+  default = null
+}
+variable "docker_registry_password" {
+  type    = string
+  default = null
+}
 variable "dotnet_version" {
   type    = string
   default = null

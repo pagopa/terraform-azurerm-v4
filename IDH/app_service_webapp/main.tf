@@ -79,19 +79,21 @@ module "main_slot" {
   auto_heal_enabled               = var.auto_heal_enabled
   auto_heal_settings              = var.auto_heal_settings
 
-  subnet_id           = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
-  docker_image        = var.docker_image
-  docker_image_tag    = var.docker_image_tag
-  docker_registry_url = var.docker_registry_url
-  dotnet_version      = var.dotnet_version
-  go_version          = var.go_version
-  java_server         = var.java_server
-  java_server_version = var.java_server_version
-  java_version        = var.java_version
-  node_version        = var.node_version
-  php_version         = var.php_version
-  python_version      = var.python_version
-  ruby_version        = var.ruby_version
+  subnet_id                = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
+  docker_image             = var.docker_image
+  docker_image_tag         = var.docker_image_tag
+  docker_registry_url      = var.docker_registry_url
+  docker_registry_username = var.docker_registry_username
+  docker_registry_password = var.docker_registry_password
+  dotnet_version           = var.dotnet_version
+  go_version               = var.go_version
+  java_server              = var.java_server
+  java_server_version      = var.java_server_version
+  java_version             = var.java_version
+  node_version             = var.node_version
+  php_version              = var.php_version
+  python_version           = var.python_version
+  ruby_version             = var.ruby_version
 
 
   tags = var.tags
