@@ -106,7 +106,9 @@ module "my_function" {
 | <a name="input_cors"></a> [cors](#input\_cors) | n/a | <pre>object({<br/>    allowed_origins = list(string) # A list of origins which should be able to make cross-origin calls. * can be used to allow all calls.<br/>  })</pre> | `null` | no |
 | <a name="input_docker_image"></a> [docker\_image](#input\_docker\_image) | Framework choice | `string` | `null` | no |
 | <a name="input_docker_image_tag"></a> [docker\_image\_tag](#input\_docker\_image\_tag) | n/a | `string` | `null` | no |
+| <a name="input_docker_registry_password"></a> [docker\_registry\_password](#input\_docker\_registry\_password) | n/a | `string` | `null` | no |
 | <a name="input_docker_registry_url"></a> [docker\_registry\_url](#input\_docker\_registry\_url) | n/a | `string` | `null` | no |
+| <a name="input_docker_registry_username"></a> [docker\_registry\_username](#input\_docker\_registry\_username) | n/a | `string` | `null` | no |
 | <a name="input_domain"></a> [domain](#input\_domain) | Specifies the domain of the Function App. | `string` | `null` | no |
 | <a name="input_dotnet_version"></a> [dotnet\_version](#input\_dotnet\_version) | n/a | `string` | `null` | no |
 | <a name="input_embedded_nsg_configuration"></a> [embedded\_nsg\_configuration](#input\_embedded\_nsg\_configuration) | (Optional) NSG configuration | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string # short name for source_address_prefixes<br/>    target_ports                 = list(string)<br/>    protocol                     = string<br/>  })</pre> | <pre>{<br/>  "protocol": "*",<br/>  "source_address_prefixes": [<br/>    "*"<br/>  ],<br/>  "source_address_prefixes_name": "All",<br/>  "target_ports": [<br/>    "*"<br/>  ]<br/>}</pre> | no |

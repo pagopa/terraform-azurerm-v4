@@ -79,8 +79,8 @@ module "main_slot" {
     registry_url      = var.docker_registry_url
     image_name        = var.docker_image
     image_tag         = var.docker_image_tag
-    registry_username = null
-    registry_password = null
+    registry_username = var.docker_registry_username
+    registry_password = var.docker_registry_password
   }
 
   internal_storage = var.internal_storage
