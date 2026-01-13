@@ -37,3 +37,30 @@ basic:
   autoscale_min_capacity: 1
   private_endpoint_enabled: false
   plan_type: "external"
+basic_no_storage:
+  plan:
+    kind: Linux
+    sku_tier: "Basic"
+    sku_size: "B1"
+    zone_balancing_enabled: false
+  runtime_version: "~4"
+  storage_account:
+    enable: false
+  client_cert_enabled: false
+  client_cert_mode: "Optional"
+  public_network_access_enabled: true
+  enable_healthcheck: true
+  https_only: true
+  internal_storage_account:
+    enable: false
+  ip_restriction_default_action: "Deny"
+  minimum_tls_version: "1.3"
+  system_identity_enabled: false
+  use_32_bit_worker_process: false
+  vnet_integration: true
+  slot_staging_enabled: false
+  autoscale_enabled: false
+  autoscale_default_capacity: 1
+  autoscale_min_capacity: 1
+  private_endpoint_enabled: false
+  plan_type: "external"
