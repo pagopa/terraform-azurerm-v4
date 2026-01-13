@@ -82,6 +82,7 @@ module "metabase_app_service" {
 | <a name="input_allowed_service_tags"></a> [allowed\_service\_tags](#input\_allowed\_service\_tags) | (Optional) List of service tags allowed to call the appserver endpoint. | `list(string)` | `[]` | no |
 | <a name="input_allowed_subnet_ids"></a> [allowed\_subnet\_ids](#input\_allowed\_subnet\_ids) | (Optional) List of subnet allowed to call the appserver endpoint. | `list(string)` | `[]` | no |
 | <a name="input_always_on"></a> [always\_on](#input\_always\_on) | (Optional) Should the app be loaded at all times? Defaults to false. | `bool` | `false` | no |
+| <a name="input_app_service_plan_id"></a> [app\_service\_plan\_id](#input\_app\_service\_plan\_id) | (Optional) If External. Specifies the id of the App Service Plan component. Changing this forces a new resource to be created. | `string` | `null` | no |
 | <a name="input_app_service_plan_name"></a> [app\_service\_plan\_name](#input\_app\_service\_plan\_name) | (Required) Specifies the name of the App Service Plan component. Changing this forces a new resource to be created. | `string` | n/a | yes |
 | <a name="input_app_settings"></a> [app\_settings](#input\_app\_settings) | n/a | `map(string)` | `{}` | no |
 | <a name="input_auto_heal_enabled"></a> [auto\_heal\_enabled](#input\_auto\_heal\_enabled) | (Optional) True to enable the auto heal on the app service | `bool` | `false` | no |

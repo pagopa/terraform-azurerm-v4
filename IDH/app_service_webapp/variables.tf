@@ -50,6 +50,11 @@ variable "app_service_plan_name" {
   type        = string
   description = "(Required) Specifies the name of the App Service Plan component. Changing this forces a new resource to be created."
 }
+variable "app_service_plan_id" {
+  type        = string
+  description = "(Optional) If External. Specifies the id of the App Service Plan component. Changing this forces a new resource to be created."
+  default     = null
+}
 variable "always_on" {
   type        = bool
   description = "(Optional) Should the app be loaded at all times? Defaults to false."
