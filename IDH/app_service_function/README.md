@@ -143,7 +143,10 @@ module "my_function" {
 
 | Name | Description |
 |------|-------------|
+| <a name="output_default_hostname"></a> [default\_hostname](#output\_default\_hostname) | n/a |
 | <a name="output_default_key"></a> [default\_key](#output\_default\_key) | n/a |
 | <a name="output_master_key"></a> [master\_key](#output\_master\_key) | n/a |
 | <a name="output_primary_key"></a> [primary\_key](#output\_primary\_key) | n/a |
+| <a name="output_service_plan_id"></a> [service\_plan\_id](#output\_service\_plan\_id) | n/a |
+| <a name="output_service_plan_name"></a> [service\_plan\_name](#output\_service\_plan\_name) | n/a |
 <!-- END_TF_DOCS -->
