@@ -13,6 +13,14 @@ output "primary_key" {
   sensitive = true
 }
 
+output "name" {
+  value = module.main_slot.name
+}
+
+output "resource_group" {
+  value = module.main_slot.resource_group_name
+}
+
 output "default_hostname" {
   value = module.main_slot.default_hostname
 }
