@@ -17,6 +17,10 @@ output "name" {
   value = module.main_slot.name
 }
 
+output "id" {
+  value = module.main_slot.id
+}
+
 output "resource_group" {
   value = module.main_slot.resource_group_name
 }

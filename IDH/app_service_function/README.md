@@ -145,6 +145,7 @@ module "my_function" {
 |------|-------------|
 | <a name="output_default_hostname"></a> [default\_hostname](#output\_default\_hostname) | n/a |
 | <a name="output_default_key"></a> [default\_key](#output\_default\_key) | n/a |
+| <a name="output_id"></a> [id](#output\_id) | n/a |
 | <a name="output_master_key"></a> [master\_key](#output\_master\_key) | n/a |
 | <a name="output_name"></a> [name](#output\_name) | n/a |
 | <a name="output_primary_key"></a> [primary\_key](#output\_primary\_key) | n/a |
