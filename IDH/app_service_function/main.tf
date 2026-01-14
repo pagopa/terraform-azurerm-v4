@@ -82,7 +82,7 @@ module "main_slot" {
     registry_password = var.docker_registry_password
   }
 
-  default_storage_enable     = false
+  default_storage_enable     = var.default_storage_enable
   storage_account_name       = var.default_storage_enable ? var.storage_account_name : replace("${var.name}-st", "-", "")
   storage_account_access_key = var.storage_account_access_key
   internal_storage           = var.internal_storage
