@@ -43,14 +43,14 @@ output "app_service_plan_name" {
 }
 
 output "storage_account_name" {
-  value = module.storage_account[0].name
+  value = var.default_storage_enable ? module.storage_account[0].name : ""
 }
 
 output "storage_account" {
   value = {
-    name                      = module.storage_account[0].name
-    primary_access_key        = module.storage_account[0].primary_access_key
-    primary_connection_string = module.storage_account[0].primary_connection_string
+    name                      = var.default_storage_enable ? module.storage_account[0].name : ""
+    primary_access_key        = var.default_storage_enable ? module.storage_account[0].primary_access_key : ""
+    primary_connection_string = var.default_storage_enable ? module.storage_account[0].primary_connection_string : ""
   }
   sensitive = true
 }

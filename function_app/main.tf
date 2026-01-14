@@ -234,8 +234,8 @@ resource "azurerm_linux_function_app" "this" {
   functions_extension_version = var.runtime_version
   service_plan_id             = var.app_service_plan_type == "external" ? var.app_service_plan_id : azurerm_service_plan.this[0].id
   #  The backend storage account name which will be used by this Function App (such as the dashboard, logs)
-  storage_account_name          = module.storage_account[0].name
-  storage_account_access_key    = module.storage_account[0].primary_access_key
+  storage_account_name          = var.default_storage_enable ? module.storage_account[0].name : null
+  storage_account_access_key    = var.default_storage_enable ? module.storage_account[0].primary_access_key : null
   https_only                    = var.https_only
   client_certificate_enabled    = var.client_certificate_enabled
   client_certificate_mode       = var.client_certificate_mode
