@@ -236,7 +236,6 @@ resource "azurerm_linux_function_app" "this" {
   #  The backend storage account name which will be used by this Function App (such as the dashboard, logs)
   storage_account_name          = var.default_storage_enable ? module.storage_account[0].name : var.storage_account_name
   storage_account_access_key    = var.default_storage_enable ? module.storage_account[0].primary_access_key : var.storage_account_access_key
-  storage_uses_managed_identity = var.default_storage_enable ? false : var.storage_account_name != null && var.storage_account_access_key == null ? true : false
   https_only                    = var.https_only
   client_certificate_enabled    = var.client_certificate_enabled
   client_certificate_mode       = var.client_certificate_mode
