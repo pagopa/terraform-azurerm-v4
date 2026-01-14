@@ -55,6 +55,11 @@ variable "app_service_plan_id" {
   description = "(Optional) If External. Specifies the id of the App Service Plan component. Changing this forces a new resource to be created."
   default     = null
 }
+variable "plan_type" {
+  type        = string
+  description = "(Optional) Create internal plan or use your own external. (Default: 'internal')"
+  default     = "internal"
+}
 variable "always_on" {
   type        = bool
   description = "(Optional) Should the app be loaded at all times? Defaults to false."

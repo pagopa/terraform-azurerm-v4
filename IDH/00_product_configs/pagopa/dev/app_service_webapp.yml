@@ -12,7 +12,6 @@ basic:
   autoscale_enabled: false
   autoscale_default_capacity: 1
   autoscale_min_capacity: 1
-  plan_type: "internal"
   private_endpoint_enabled: true
 basic_external_plan:
   vnet_integration: true
@@ -28,7 +27,6 @@ basic_external_plan:
   autoscale_enabled: false
   autoscale_default_capacity: 1
   autoscale_min_capacity: 1
-  plan_type: "external"
   private_endpoint_enabled: true
 basic_high_performance:
   vnet_integration: true
@@ -44,5 +42,4 @@ basic_high_performance:
   autoscale_enabled: false
   autoscale_default_capacity: 1
   autoscale_min_capacity: 1
-  plan_type: "internal"
   private_endpoint_enabled: true
