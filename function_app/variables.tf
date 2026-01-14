@@ -19,6 +19,12 @@ variable "storage_account_name" {
   default     = null
 }
 
+variable "storage_account_access_key" {
+  type        = string
+  description = "Storage account access key."
+  default     = null
+}
+
 variable "storage_account_durable_name" {
   type        = string
   description = "Storage account name only used by the durable function. If null it will be 'computed'"

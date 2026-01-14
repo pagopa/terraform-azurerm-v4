@@ -43,7 +43,7 @@ output "app_service_plan_name" {
 }
 
 output "storage_account_name" {
-  value = var.default_storage_enable ? module.storage_account[0].name : null
+  value = var.default_storage_enable ? module.storage_account[0].name : var.storage_account_name
 }
 
 output "storage_account" {
@@ -51,6 +51,10 @@ output "storage_account" {
     name                      = module.storage_account[0].name
     primary_access_key        = module.storage_account[0].primary_access_key
     primary_connection_string = module.storage_account[0].primary_connection_string
+    } : var.storage_account_name != null ? {
+    name                      = var.storage_account_name
+    primary_access_key        = var.storage_account_access_key
+    primary_connection_string = null
   } : null
   sensitive = true
 }

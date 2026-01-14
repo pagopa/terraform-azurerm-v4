@@ -212,6 +212,18 @@ variable "default_storage_enable" {
   description = "(Optional) Enable default storage for function app. (Default: true)"
 }
 
+variable "storage_account_name" {
+  type        = string
+  description = "Storage account name. If null it will be 'computed'"
+  default     = null
+}
+
+variable "storage_account_access_key" {
+  type        = string
+  description = "Storage account access key."
+  default     = null
+}
+
 variable "internal_storage" {
   type = object({
     enable                     = bool

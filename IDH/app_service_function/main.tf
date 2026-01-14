@@ -68,12 +68,11 @@ resource "azurerm_app_service_plan" "function_service_plan" {
 module "main_slot" {
   source = "../../function_app"
 
-  resource_group_name  = var.resource_group_name
-  name                 = var.name
-  storage_account_name = replace("${var.name}-st", "-", "")
-  location             = var.location
-  health_check_path    = var.health_check_path
-  subnet_id            = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
+  resource_group_name = var.resource_group_name
+  name                = var.name
+  location            = var.location
+  health_check_path   = var.health_check_path
+  subnet_id           = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
 
   docker = {
     registry_url      = var.docker_registry_url
@@ -83,8 +82,10 @@ module "main_slot" {
     registry_password = var.docker_registry_password
   }
 
-  default_storage_enable = var.default_storage_enable
-  internal_storage       = var.internal_storage
+  default_storage_enable     = var.default_storage_enable
+  storage_account_name       = var.default_storage_enable ? var.storage_account_name : replace("${var.name}-st", "-", "")
+  storage_account_access_key = var.storage_account_access_key
+  internal_storage           = var.internal_storage
 
   always_on                                = var.always_on
   application_insights_instrumentation_key = var.application_insights_instrumentation_key
@@ -159,7 +160,7 @@ module "reporting_analysis_function_slot_staging" {
 
   function_app_id                          = module.main_slot.id
   storage_account_name                     = module.main_slot.storage_account_name
-  storage_account_access_key               = module.main_slot.storage_account.primary_access_key
+  storage_account_access_key               = try(module.main_slot.storage_account.primary_access_key, null)
   name                                     = "staging"
   resource_group_name                      = var.resource_group_name
   location                                 = var.location
