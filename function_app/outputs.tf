@@ -43,14 +43,14 @@ output "app_service_plan_name" {
 }
 
 output "storage_account_name" {
-  value = module.storage_account.name
+  value = module.storage_account[0].name
 }
 
 output "storage_account" {
   value = {
-    name                      = module.storage_account.name
-    primary_access_key        = module.storage_account.primary_access_key
-    primary_connection_string = module.storage_account.primary_connection_string
+    name                      = module.storage_account[0].name
+    primary_access_key        = module.storage_account[0].primary_access_key
+    primary_connection_string = module.storage_account[0].primary_connection_string
   }
   sensitive = true
 }

@@ -83,7 +83,8 @@ module "main_slot" {
     registry_password = var.docker_registry_password
   }
 
-  internal_storage = var.internal_storage
+  default_storage_enable = var.default_storage_enable
+  internal_storage       = var.internal_storage
 
   always_on                                = var.always_on
   application_insights_instrumentation_key = var.application_insights_instrumentation_key

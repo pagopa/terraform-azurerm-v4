@@ -1,5 +1,6 @@
 #tfsec:ignore:azure-storage-default-action-deny
 module "storage_account" {
+  count  = var.default_storage_enable ? 1 : 0
   source = "../storage_account"
 
   name                          = coalesce(var.storage_account_name, format("%sst", replace(var.name, "-", "")))
@@ -14,6 +15,11 @@ module "storage_account" {
   public_network_access_enabled = true
 
   tags = var.tags
+}
+
+moved {
+  from = module.storage_account
+  to   = module.storage_account[0]
 }
 
 module "storage_account_durable_function" {
@@ -228,8 +234,8 @@ resource "azurerm_linux_function_app" "this" {
   functions_extension_version = var.runtime_version
   service_plan_id             = var.app_service_plan_type == "external" ? var.app_service_plan_id : azurerm_service_plan.this[0].id
   #  The backend storage account name which will be used by this Function App (such as the dashboard, logs)
-  storage_account_name          = module.storage_account.name
-  storage_account_access_key    = module.storage_account.primary_access_key
+  storage_account_name          = module.storage_account[0].name
+  storage_account_access_key    = module.storage_account[0].primary_access_key
   https_only                    = var.https_only
   client_certificate_enabled    = var.client_certificate_enabled
   client_certificate_mode       = var.client_certificate_mode

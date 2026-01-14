@@ -187,6 +187,12 @@ variable "vnet_integration" {
   default     = true
 }
 
+variable "default_storage_enable" {
+  type        = bool
+  default     = true
+  description = "(Optional) Enable default storage for function app. (Default: true)"
+}
+
 variable "internal_storage" {
   type = object({
     enable                     = bool

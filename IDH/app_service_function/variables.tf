@@ -206,6 +206,12 @@ variable "app_service_logs" {
   default     = null
 }
 
+variable "default_storage_enable" {
+  type        = bool
+  default     = true
+  description = "(Optional) Enable default storage for function app. (Default: true)"
+}
+
 variable "internal_storage" {
   type = object({
     enable                     = bool
