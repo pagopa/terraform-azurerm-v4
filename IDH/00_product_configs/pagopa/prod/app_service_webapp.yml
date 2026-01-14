@@ -12,7 +12,6 @@ basic:
   autoscale_enabled: true
   autoscale_default_capacity: 3
   autoscale_min_capacity: 3
-  plan_type: "internal"
   private_endpoint_enabled: true
 basic_high_performance:
   vnet_integration: true
@@ -28,7 +27,6 @@ basic_high_performance:
   autoscale_enabled: true
   autoscale_default_capacity: 3
   autoscale_min_capacity: 3
-  plan_type: "internal"
   private_endpoint_enabled: true
 premium:
   vnet_integration: true
@@ -44,7 +42,6 @@ premium:
   autoscale_enabled: true
   autoscale_default_capacity: 3
   autoscale_min_capacity: 3
-  plan_type: "internal"
   private_endpoint_enabled: true
 premium_low_load:
   vnet_integration: true
@@ -60,7 +57,6 @@ premium_low_load:
   autoscale_enabled: true
   autoscale_default_capacity: 1
   autoscale_min_capacity: 1
-  plan_type: "internal"
   private_endpoint_enabled: true
 premium_high_performance:
   vnet_integration: true
@@ -76,5 +72,4 @@ premium_high_performance:
   autoscale_enabled: true
   autoscale_default_capacity: 3
   autoscale_min_capacity: 3
-  plan_type: "internal"
   private_endpoint_enabled: true
