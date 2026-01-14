@@ -141,6 +141,7 @@ module "my_function" {
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `string` | `""` | no |
 | <a name="input_use_custom_runtime"></a> [use\_custom\_runtime](#input\_use\_custom\_runtime) | n/a | `string` | `null` | no |
 | <a name="input_use_dotnet_isolated_runtime"></a> [use\_dotnet\_isolated\_runtime](#input\_use\_dotnet\_isolated\_runtime) | n/a | `string` | `null` | no |
+| <a name="input_user_identity_ids"></a> [user\_identity\_ids](#input\_user\_identity\_ids) | A list of User Assigned Managed Identity IDs to be assigned to this Function App. | `list(string)` | `[]` | no |
 
 ## Outputs
 

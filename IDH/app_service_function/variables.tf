@@ -341,6 +341,12 @@ variable "embedded_nsg_configuration" {
   }
 }
 
+variable "user_identity_ids" {
+  type        = list(string)
+  description = "A list of User Assigned Managed Identity IDs to be assigned to this Function App."
+  default     = []
+}
+
 variable "nsg_flow_log_configuration" {
   type = object({
     enabled                    = bool
