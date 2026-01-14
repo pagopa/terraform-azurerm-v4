@@ -332,9 +332,10 @@ resource "azurerm_linux_function_app" "this" {
   builtin_logging_enabled = false
 
   dynamic "identity" {
-    for_each = var.system_identity_enabled ? [1] : []
+    for_each = var.system_identity_enabled || length(var.user_identity_ids) > 0 ? [1] : []
     content {
-      type = "SystemAssigned"
+      type         = var.system_identity_enabled && length(var.user_identity_ids) > 0 ? "SystemAssigned, UserAssigned" : var.system_identity_enabled ? "SystemAssigned" : "UserAssigned"
+      identity_ids = length(var.user_identity_ids) > 0 ? var.user_identity_ids : null
     }
   }
 

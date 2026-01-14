@@ -255,6 +255,12 @@ variable "system_identity_enabled" {
   default     = false
 }
 
+variable "user_identity_ids" {
+  type        = list(string)
+  description = "A list of User Assigned Managed Identity IDs to be assigned to this Function App."
+  default     = []
+}
+
 variable "client_certificate_enabled" {
   type        = bool
   description = "Should the function app use Client Certificates"
