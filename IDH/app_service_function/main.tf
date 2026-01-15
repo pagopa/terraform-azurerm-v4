@@ -154,7 +154,7 @@ module "main_slot" {
 }
 
 
-module "reporting_analysis_function_slot_staging" {
+module "staging_slot" {
   count = module.idh_loader.idh_resource_configuration.slot_staging_enabled ? 1 : 0
 
   source = "../../function_app_slot"
@@ -212,15 +212,17 @@ module "reporting_analysis_function_slot_staging" {
   ip_restriction_default_action = module.idh_loader.idh_resource_configuration.ip_restriction_default_action
   minimum_tls_version           = module.idh_loader.idh_resource_configuration.minimum_tls_version
   system_identity_enabled       = module.idh_loader.idh_resource_configuration.system_identity_enabled
-  user_identity_ids             = try(module.idh_loader.idh_resource_configuration.user_identity_ids, [])
+  user_identity_ids             = var.user_identity_ids
   use_32_bit_worker_process     = module.idh_loader.idh_resource_configuration.use_32_bit_worker_process
   vnet_integration              = module.idh_loader.idh_resource_configuration.vnet_integration
 
 
 }
 
-
-
+moved {
+  from = module.reporting_analysis_function_slot_staging
+  to   = module.staging_slot
+}
 
 
 resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {

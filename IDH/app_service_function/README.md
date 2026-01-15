@@ -78,7 +78,7 @@ module "my_function" {
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 | <a name="module_main_slot"></a> [main\_slot](#module\_main\_slot) | ../../function_app | n/a |
 | <a name="module_private_endpoint_snet"></a> [private\_endpoint\_snet](#module\_private\_endpoint\_snet) | ../subnet | n/a |
-| <a name="module_reporting_analysis_function_slot_staging"></a> [reporting\_analysis\_function\_slot\_staging](#module\_reporting\_analysis\_function\_slot\_staging) | ../../function_app_slot | n/a |
+| <a name="module_staging_slot"></a> [staging\_slot](#module\_staging\_slot) | ../../function_app_slot | n/a |
 
 ## Resources
 
