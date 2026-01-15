@@ -10,7 +10,7 @@ resource "azurerm_linux_function_app_slot" "this" {
   function_app_id               = var.function_app_id
   storage_account_name          = var.storage_account_name
   storage_account_access_key    = var.storage_account_access_key
-  storage_uses_managed_identity = var.storage_account_name != null && var.storage_account_access_key == null ? true : false
+  storage_uses_managed_identity = var.storage_account_name != null && var.storage_account_access_key == null
   https_only                    = var.https_only
   client_certificate_enabled    = var.client_certificate_enabled
   functions_extension_version   = var.runtime_version
