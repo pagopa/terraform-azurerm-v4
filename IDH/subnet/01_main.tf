@@ -30,11 +30,9 @@ data "external" "subnet_cidr" {
   ]
 
   query = {
-    used_subnets   = jsonencode({ for subnet_name in data.azurerm_virtual_network.vnet.subnets : subnet_name => data.azurerm_subnet.subnet[subnet_name].address_prefix })
+    used_cidrs     = jsonencode([for subnet_name in data.azurerm_virtual_network.vnet.subnets : data.azurerm_subnet.subnet[subnet_name].address_prefix])
     starting_cidr  = data.azurerm_virtual_network.vnet.address_space[0]
     desired_prefix = module.idh_loader.idh_resource_configuration.prefix_length
-    subnet_name    = var.name
-    vnet_key       = "${var.resource_group_name}_${var.virtual_network_name}"
   }
 }
 
