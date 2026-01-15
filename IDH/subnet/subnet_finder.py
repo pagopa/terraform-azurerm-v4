@@ -20,7 +20,7 @@ def get_auto_offset(vnet_key: str, subnet_name: str, existing_subnets: list[str]
             os.mkdir(lock_dir)
             break
         except FileExistsError:
-            time.sleep(0.1)
+            time.sleep(0.5)
     else:
         return 0
 
