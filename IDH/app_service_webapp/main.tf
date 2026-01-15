@@ -48,9 +48,10 @@ module "main_slot" {
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  plan_type = module.idh_loader.idh_resource_configuration.plan_type
+  plan_type = var.plan_type
   # App service plan vars
   plan_name = var.app_service_plan_name
+  plan_id   = var.app_service_plan_id
 
   sku_name               = module.idh_loader.idh_resource_configuration.sku
   zone_balancing_enabled = module.idh_loader.idh_resource_configuration.zone_balancing_enabled

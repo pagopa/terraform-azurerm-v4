@@ -104,6 +104,14 @@ variable "docker_registry_url" {
   type    = string
   default = null
 }
+variable "docker_registry_username" {
+  type    = string
+  default = null
+}
+variable "docker_registry_password" {
+  type    = string
+  default = null
+}
 variable "dotnet_version" {
   type    = string
   default = null
@@ -196,6 +204,32 @@ variable "app_service_logs" {
   })
   description = "disk_quota_mb - (Optional) The amount of disk space to use for logs. Valid values are between 25 and 100. Defaults to 35. retention_period_days - (Optional) The retention period for logs in days. Valid values are between 0 and 99999.(never delete)."
   default     = null
+}
+
+variable "default_storage_enable" {
+  type        = bool
+  default     = true
+  description = "(Optional) Enable default storage for function app. (Default: true)"
+}
+
+variable "storage_account_name" {
+  type        = string
+  description = "Storage account name. If null it will be 'computed'"
+  default     = null
+  validation {
+    condition     = var.default_storage_enable ? var.storage_account_name == null : var.storage_account_name != null
+    error_message = "If default_storage_enable 'storage_account_name' must be null to be computed."
+  }
+}
+
+variable "storage_account_access_key" {
+  type        = string
+  description = "Storage account access key."
+  default     = null
+  validation {
+    condition     = var.default_storage_enable ? var.storage_account_access_key == null : var.storage_account_name != null
+    error_message = "If default_storage_enable 'storage_account_access_key' must be null to be computed."
+  }
 }
 
 variable "internal_storage" {
@@ -313,6 +347,12 @@ variable "embedded_nsg_configuration" {
     target_ports                 = ["*"]
     protocol                     = "*"
   }
+}
+
+variable "user_identity_ids" {
+  type        = list(string)
+  description = "A list of User Assigned Managed Identity IDs to be assigned to this Function App."
+  default     = []
 }
 
 variable "nsg_flow_log_configuration" {

@@ -82,6 +82,7 @@ module "metabase_app_service" {
 | <a name="input_allowed_service_tags"></a> [allowed\_service\_tags](#input\_allowed\_service\_tags) | (Optional) List of service tags allowed to call the appserver endpoint. | `list(string)` | `[]` | no |
 | <a name="input_allowed_subnet_ids"></a> [allowed\_subnet\_ids](#input\_allowed\_subnet\_ids) | (Optional) List of subnet allowed to call the appserver endpoint. | `list(string)` | `[]` | no |
 | <a name="input_always_on"></a> [always\_on](#input\_always\_on) | (Optional) Should the app be loaded at all times? Defaults to false. | `bool` | `false` | no |
+| <a name="input_app_service_plan_id"></a> [app\_service\_plan\_id](#input\_app\_service\_plan\_id) | (Optional) If External. Specifies the id of the App Service Plan component. Changing this forces a new resource to be created. | `string` | `null` | no |
 | <a name="input_app_service_plan_name"></a> [app\_service\_plan\_name](#input\_app\_service\_plan\_name) | (Required) Specifies the name of the App Service Plan component. Changing this forces a new resource to be created. | `string` | n/a | yes |
 | <a name="input_app_settings"></a> [app\_settings](#input\_app\_settings) | n/a | `map(string)` | `{}` | no |
 | <a name="input_auto_heal_enabled"></a> [auto\_heal\_enabled](#input\_auto\_heal\_enabled) | (Optional) True to enable the auto heal on the app service | `bool` | `false` | no |
@@ -110,6 +111,7 @@ module "metabase_app_service" {
 | <a name="input_node_version"></a> [node\_version](#input\_node\_version) | n/a | `string` | `null` | no |
 | <a name="input_nsg_flow_log_configuration"></a> [nsg\_flow\_log\_configuration](#input\_nsg\_flow\_log\_configuration) | (Optional) NSG flow log configuration | <pre>object({<br/>    enabled                    = bool<br/>    network_watcher_name       = optional(string, null)<br/>    network_watcher_rg         = optional(string, null)<br/>    storage_account_id         = optional(string, null)<br/>    traffic_analytics_law_name = optional(string, null)<br/>    traffic_analytics_law_rg   = optional(string, null)<br/>  })</pre> | <pre>{<br/>  "enabled": false<br/>}</pre> | no |
 | <a name="input_php_version"></a> [php\_version](#input\_php\_version) | n/a | `string` | `null` | no |
+| <a name="input_plan_type"></a> [plan\_type](#input\_plan\_type) | (Optional) Create internal plan or use your own external. (Default: 'internal') | `string` | `"internal"` | no |
 | <a name="input_private_endpoint_dns_zone_id"></a> [private\_endpoint\_dns\_zone\_id](#input\_private\_endpoint\_dns\_zone\_id) | (Optional) Private DNS Zone ID to link to the private endpoint | `string` | `null` | no |
 | <a name="input_private_endpoint_subnet_id"></a> [private\_endpoint\_subnet\_id](#input\_private\_endpoint\_subnet\_id) | (Deprecated) Subnet id where to save the private endpoint. Use 'embedded\_subnet' instead | `string` | `null` | no |
 | <a name="input_product_name"></a> [product\_name](#input\_product\_name) | (Required) prefix used to identify the platform for which the resource will be created | `string` | n/a | yes |

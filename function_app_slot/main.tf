@@ -10,6 +10,7 @@ resource "azurerm_linux_function_app_slot" "this" {
   function_app_id               = var.function_app_id
   storage_account_name          = var.storage_account_name
   storage_account_access_key    = var.storage_account_access_key
+  storage_uses_managed_identity = var.storage_account_name != null && var.storage_account_access_key == null
   https_only                    = var.https_only
   client_certificate_enabled    = var.client_certificate_enabled
   functions_extension_version   = var.runtime_version
@@ -100,9 +101,10 @@ resource "azurerm_linux_function_app_slot" "this" {
   builtin_logging_enabled = false
 
   dynamic "identity" {
-    for_each = var.system_identity_enabled ? [1] : []
+    for_each = var.system_identity_enabled || length(var.user_identity_ids) > 0 ? [1] : []
     content {
-      type = "SystemAssigned"
+      type         = var.system_identity_enabled && length(var.user_identity_ids) > 0 ? "SystemAssigned, UserAssigned" : var.system_identity_enabled ? "SystemAssigned" : "UserAssigned"
+      identity_ids = length(var.user_identity_ids) > 0 ? var.user_identity_ids : null
     }
   }
 

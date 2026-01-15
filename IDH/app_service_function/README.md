@@ -78,7 +78,7 @@ module "my_function" {
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 | <a name="module_main_slot"></a> [main\_slot](#module\_main\_slot) | ../../function_app | n/a |
 | <a name="module_private_endpoint_snet"></a> [private\_endpoint\_snet](#module\_private\_endpoint\_snet) | ../subnet | n/a |
-| <a name="module_reporting_analysis_function_slot_staging"></a> [reporting\_analysis\_function\_slot\_staging](#module\_reporting\_analysis\_function\_slot\_staging) | ../../function_app_slot | n/a |
+| <a name="module_staging_slot"></a> [staging\_slot](#module\_staging\_slot) | ../../function_app_slot | n/a |
 
 ## Resources
 
@@ -104,9 +104,12 @@ module "my_function" {
 | <a name="input_application_insights_instrumentation_key"></a> [application\_insights\_instrumentation\_key](#input\_application\_insights\_instrumentation\_key) | (Required) The Instrumentation Key of an Application Insights component. | `string` | n/a | yes |
 | <a name="input_autoscale_settings"></a> [autoscale\_settings](#input\_autoscale\_settings) | (Optional) Autoscale configuration | <pre>object({<br/>    max_capacity                       = number                 # maximum capacity for this app service<br/>    scale_up_requests_threshold        = optional(number, null) # request count threshold which triggers scale up<br/>    scale_down_requests_threshold      = optional(number, null) # request count threshold which triggers scale down<br/>    scale_up_response_time_threshold   = optional(number, null) # response time threshold which triggers scale up<br/>    scale_down_response_time_threshold = optional(number, null) # response time threshold which triggers scale down<br/>    scale_up_cpu_threshold             = optional(number, null) # cpu threshold which triggers scale up<br/>    scale_down_cpu_threshold           = optional(number, null) # cpu threshold which triggers scale down<br/>  })</pre> | `null` | no |
 | <a name="input_cors"></a> [cors](#input\_cors) | n/a | <pre>object({<br/>    allowed_origins = list(string) # A list of origins which should be able to make cross-origin calls. * can be used to allow all calls.<br/>  })</pre> | `null` | no |
+| <a name="input_default_storage_enable"></a> [default\_storage\_enable](#input\_default\_storage\_enable) | (Optional) Enable default storage for function app. (Default: true) | `bool` | `true` | no |
 | <a name="input_docker_image"></a> [docker\_image](#input\_docker\_image) | Framework choice | `string` | `null` | no |
 | <a name="input_docker_image_tag"></a> [docker\_image\_tag](#input\_docker\_image\_tag) | n/a | `string` | `null` | no |
+| <a name="input_docker_registry_password"></a> [docker\_registry\_password](#input\_docker\_registry\_password) | n/a | `string` | `null` | no |
 | <a name="input_docker_registry_url"></a> [docker\_registry\_url](#input\_docker\_registry\_url) | n/a | `string` | `null` | no |
+| <a name="input_docker_registry_username"></a> [docker\_registry\_username](#input\_docker\_registry\_username) | n/a | `string` | `null` | no |
 | <a name="input_domain"></a> [domain](#input\_domain) | Specifies the domain of the Function App. | `string` | `null` | no |
 | <a name="input_dotnet_version"></a> [dotnet\_version](#input\_dotnet\_version) | n/a | `string` | `null` | no |
 | <a name="input_embedded_nsg_configuration"></a> [embedded\_nsg\_configuration](#input\_embedded\_nsg\_configuration) | (Optional) NSG configuration | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string # short name for source_address_prefixes<br/>    target_ports                 = list(string)<br/>    protocol                     = string<br/>  })</pre> | <pre>{<br/>  "protocol": "*",<br/>  "source_address_prefixes": [<br/>    "*"<br/>  ],<br/>  "source_address_prefixes_name": "All",<br/>  "target_ports": [<br/>    "*"<br/>  ]<br/>}</pre> | no |
@@ -131,17 +134,26 @@ module "my_function" {
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Resource Group | `string` | n/a | yes |
 | <a name="input_sticky_app_setting_names"></a> [sticky\_app\_setting\_names](#input\_sticky\_app\_setting\_names) | (Optional) A list of app\_setting names that the Linux Function App will not swap between Slots when a swap operation is triggered | `list(string)` | `[]` | no |
 | <a name="input_sticky_connection_string_names"></a> [sticky\_connection\_string\_names](#input\_sticky\_connection\_string\_names) | (Optional) A list of connection string names that the Linux Function App will not swap between Slots when a swap operation is triggered | `list(string)` | `null` | no |
+| <a name="input_storage_account_access_key"></a> [storage\_account\_access\_key](#input\_storage\_account\_access\_key) | Storage account access key. | `string` | `null` | no |
 | <a name="input_storage_account_durable_name"></a> [storage\_account\_durable\_name](#input\_storage\_account\_durable\_name) | Storage account name only used by the durable function. If null it will be 'computed' | `string` | `null` | no |
+| <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name) | Storage account name. If null it will be 'computed' | `string` | `null` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | (Deprecated) Subnet id wether you want to integrate the app service to a subnet. Use 'embedded\_subnet' instead | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `string` | `""` | no |
 | <a name="input_use_custom_runtime"></a> [use\_custom\_runtime](#input\_use\_custom\_runtime) | n/a | `string` | `null` | no |
 | <a name="input_use_dotnet_isolated_runtime"></a> [use\_dotnet\_isolated\_runtime](#input\_use\_dotnet\_isolated\_runtime) | n/a | `string` | `null` | no |
+| <a name="input_user_identity_ids"></a> [user\_identity\_ids](#input\_user\_identity\_ids) | A list of User Assigned Managed Identity IDs to be assigned to this Function App. | `list(string)` | `[]` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
+| <a name="output_default_hostname"></a> [default\_hostname](#output\_default\_hostname) | n/a |
 | <a name="output_default_key"></a> [default\_key](#output\_default\_key) | n/a |
+| <a name="output_id"></a> [id](#output\_id) | n/a |
 | <a name="output_master_key"></a> [master\_key](#output\_master\_key) | n/a |
+| <a name="output_name"></a> [name](#output\_name) | n/a |
 | <a name="output_primary_key"></a> [primary\_key](#output\_primary\_key) | n/a |
+| <a name="output_resource_group"></a> [resource\_group](#output\_resource\_group) | n/a |
+| <a name="output_service_plan_id"></a> [service\_plan\_id](#output\_service\_plan\_id) | n/a |
+| <a name="output_service_plan_name"></a> [service\_plan\_name](#output\_service\_plan\_name) | n/a |
 <!-- END_TF_DOCS -->

@@ -50,6 +50,20 @@ variable "app_service_plan_name" {
   type        = string
   description = "(Required) Specifies the name of the App Service Plan component. Changing this forces a new resource to be created."
 }
+variable "app_service_plan_id" {
+  type        = string
+  description = "(Optional) If External. Specifies the id of the App Service Plan component. Changing this forces a new resource to be created."
+  default     = null
+  validation {
+    condition     = var.plan_type == "external" ? var.app_service_plan_id != null : null
+    error_message = "If 'plan_type' is external, 'app_service_plan_id' must be passed as an argument to the module."
+  }
+}
+variable "plan_type" {
+  type        = string
+  description = "(Optional) Create internal plan or use your own external. (Default: 'internal')"
+  default     = "internal"
+}
 variable "always_on" {
   type        = bool
   description = "(Optional) Should the app be loaded at all times? Defaults to false."

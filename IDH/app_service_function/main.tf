@@ -68,22 +68,24 @@ resource "azurerm_app_service_plan" "function_service_plan" {
 module "main_slot" {
   source = "../../function_app"
 
-  resource_group_name  = var.resource_group_name
-  name                 = var.name
-  storage_account_name = replace("${var.name}-st", "-", "")
-  location             = var.location
-  health_check_path    = var.health_check_path
-  subnet_id            = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
+  resource_group_name = var.resource_group_name
+  name                = var.name
+  location            = var.location
+  health_check_path   = var.health_check_path
+  subnet_id           = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
 
   docker = {
     registry_url      = var.docker_registry_url
     image_name        = var.docker_image
     image_tag         = var.docker_image_tag
-    registry_username = null
-    registry_password = null
+    registry_username = var.docker_registry_username
+    registry_password = var.docker_registry_password
   }
 
-  internal_storage = var.internal_storage
+  default_storage_enable     = var.default_storage_enable
+  storage_account_name       = var.default_storage_enable ? replace("${var.name}-st", "-", "") : var.storage_account_name
+  storage_account_access_key = var.storage_account_access_key
+  internal_storage           = var.internal_storage
 
   always_on                                = var.always_on
   application_insights_instrumentation_key = var.application_insights_instrumentation_key
@@ -142,6 +144,7 @@ module "main_slot" {
   ip_restriction_default_action = module.idh_loader.idh_resource_configuration.ip_restriction_default_action
   minimum_tls_version           = module.idh_loader.idh_resource_configuration.minimum_tls_version
   system_identity_enabled       = module.idh_loader.idh_resource_configuration.system_identity_enabled
+  user_identity_ids             = var.user_identity_ids
   use_32_bit_worker_process     = module.idh_loader.idh_resource_configuration.use_32_bit_worker_process
   vnet_integration              = module.idh_loader.idh_resource_configuration.vnet_integration
 
@@ -151,14 +154,14 @@ module "main_slot" {
 }
 
 
-module "reporting_analysis_function_slot_staging" {
+module "staging_slot" {
   count = module.idh_loader.idh_resource_configuration.slot_staging_enabled ? 1 : 0
 
   source = "../../function_app_slot"
 
   function_app_id                          = module.main_slot.id
   storage_account_name                     = module.main_slot.storage_account_name
-  storage_account_access_key               = module.main_slot.storage_account.primary_access_key
+  storage_account_access_key               = try(module.main_slot.storage_account.primary_access_key, null)
   name                                     = "staging"
   resource_group_name                      = var.resource_group_name
   location                                 = var.location
@@ -209,14 +212,17 @@ module "reporting_analysis_function_slot_staging" {
   ip_restriction_default_action = module.idh_loader.idh_resource_configuration.ip_restriction_default_action
   minimum_tls_version           = module.idh_loader.idh_resource_configuration.minimum_tls_version
   system_identity_enabled       = module.idh_loader.idh_resource_configuration.system_identity_enabled
+  user_identity_ids             = var.user_identity_ids
   use_32_bit_worker_process     = module.idh_loader.idh_resource_configuration.use_32_bit_worker_process
   vnet_integration              = module.idh_loader.idh_resource_configuration.vnet_integration
 
 
 }
 
-
-
+moved {
+  from = module.reporting_analysis_function_slot_staging
+  to   = module.staging_slot
+}
 
 
 resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {

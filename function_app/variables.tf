@@ -17,6 +17,20 @@ variable "storage_account_name" {
   type        = string
   description = "Storage account name. If null it will be 'computed'"
   default     = null
+  validation {
+    condition     = var.default_storage_enable ? var.storage_account_name == null : var.storage_account_name != null
+    error_message = "If default_storage_enable 'storage_account_name' must be null to be computed."
+  }
+}
+
+variable "storage_account_access_key" {
+  type        = string
+  description = "Storage account access key."
+  default     = null
+  validation {
+    condition     = var.default_storage_enable ? var.storage_account_access_key == null : var.storage_account_name != null
+    error_message = "If default_storage_enable 'storage_account_access_key' must be null to be computed."
+  }
 }
 
 variable "storage_account_durable_name" {
@@ -187,6 +201,12 @@ variable "vnet_integration" {
   default     = true
 }
 
+variable "default_storage_enable" {
+  type        = bool
+  default     = true
+  description = "(Optional) Enable default storage for function app. (Default: true)"
+}
+
 variable "internal_storage" {
   type = object({
     enable                     = bool
@@ -241,6 +261,12 @@ variable "system_identity_enabled" {
   type        = bool
   description = "Enable the System Identity and create relative Service Principal."
   default     = false
+}
+
+variable "user_identity_ids" {
+  type        = list(string)
+  description = "A list of User Assigned Managed Identity IDs to be assigned to this Function App."
+  default     = []
 }
 
 variable "client_certificate_enabled" {
