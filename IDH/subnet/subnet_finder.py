@@ -50,8 +50,7 @@ def get_auto_offset(vnet_key: str, subnet_name: str, existing_subnets: list[str]
     finally:
         try:
             if os.path.exists(lock_dir):
-                # os.rmdir(lock_dir)
-                pass
+                os.rmdir(lock_dir)
         except Exception:
             pass
 
