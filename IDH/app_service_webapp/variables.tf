@@ -55,7 +55,7 @@ variable "app_service_plan_id" {
   description = "(Optional) If External. Specifies the id of the App Service Plan component. Changing this forces a new resource to be created."
   default     = null
   validation {
-    condition     = var.plan_type == "external" ? var.app_service_plan_id != null : true
+    condition     = var.plan_type == "external" ? var.app_service_plan_id != null : null
     error_message = "If 'plan_type' is external, 'app_service_plan_id' must be passed as an argument to the module."
   }
 }
