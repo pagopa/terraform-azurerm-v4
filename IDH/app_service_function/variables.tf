@@ -230,7 +230,6 @@ variable "storage_account_access_key" {
     condition     = var.default_storage_enable ? var.storage_account_access_key == null : var.storage_account_name != null
     error_message = "If default_storage_enable 'storage_account_access_key' must be null to be computed."
   }
-
 }
 
 variable "internal_storage" {
