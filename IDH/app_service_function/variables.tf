@@ -216,12 +216,21 @@ variable "storage_account_name" {
   type        = string
   description = "Storage account name. If null it will be 'computed'"
   default     = null
+  validation {
+    condition     = var.default_storage_enable ? var.storage_account_name == null : true
+    error_message = "If default_storage_enable 'storage_account_name' must be null to be computed."
+  }
 }
 
 variable "storage_account_access_key" {
   type        = string
   description = "Storage account access key."
   default     = null
+  validation {
+    condition     = var.default_storage_enable ? var.storage_account_access_key == null : true
+    error_message = "If default_storage_enable 'storage_account_access_key' must be null to be computed."
+  }
+
 }
 
 variable "internal_storage" {
