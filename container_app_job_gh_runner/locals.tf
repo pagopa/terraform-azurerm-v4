@@ -32,6 +32,10 @@ locals {
       {
         name  = "LABELS"
         value = join(",", var.runner_labels)
+      },
+      {
+        name  = "RUNNEL_LABELS"
+        value = join(",", var.runner_labels)
       }
     ]
     image = var.container.image
