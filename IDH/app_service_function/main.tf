@@ -40,6 +40,28 @@ module "egress_snet" {
   tags = var.tags
 }
 
+module "internal_storage_private_endpoint_snet" {
+  count                = var.embedded_subnet.enabled ? 1 : 0
+  source               = "../subnet"
+  name                 = "${var.name}-internal-storage-pe-snet"
+  resource_group_name  = var.embedded_subnet.vnet_rg_name
+  virtual_network_name = var.embedded_subnet.vnet_name
+
+  env               = var.env
+  idh_resource_tier = "slash28_privatelink_true"
+  product_name      = var.product_name
+
+  custom_nsg_configuration = {
+    source_address_prefixes      = [module.egress_snet[0].address_prefixes]
+    source_address_prefixes_name = var.name
+    target_ports                 = ["*"]
+    protocol                     = "Tcp"
+  }
+  nsg_flow_log_configuration = var.nsg_flow_log_configuration
+
+  tags = var.tags
+}
+
 
 resource "azurerm_app_service_plan" "function_service_plan" {
   name                = var.app_service_plan_name
@@ -85,7 +107,16 @@ module "main_slot" {
   default_storage_enable     = var.default_storage_enable
   storage_account_name       = var.default_storage_enable ? replace("${var.name}-st", "-", "") : var.storage_account_name
   storage_account_access_key = var.storage_account_access_key
-  internal_storage           = var.internal_storage
+  internal_storage = {
+    enable                     = var.internal_storage.enable
+    private_endpoint_subnet_id = var.embedded_subnet.enabled ? module.internal_storage_private_endpoint_snet[0].subnet_id : var.internal_storage.private_endpoint_subnet_id
+    private_dns_zone_blob_ids  = var.internal_storage.private_dns_zone_blob_ids
+    private_dns_zone_queue_ids = var.internal_storage.private_dns_zone_queue_ids
+    private_dns_zone_table_ids = var.internal_storage.private_dns_zone_table_ids
+    queues                     = var.internal_storage.queues
+    containers                 = var.internal_storage.containers
+    blobs_retention_days       = var.internal_storage.blobs_retention_days
+  }
 
   always_on                                = var.always_on
   application_insights_instrumentation_key = var.application_insights_instrumentation_key

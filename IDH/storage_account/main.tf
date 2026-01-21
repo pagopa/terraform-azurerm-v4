@@ -27,9 +27,8 @@ module "private_endpoint_snet" {
   resource_group_name  = var.embedded_subnet.vnet_rg_name
   virtual_network_name = var.embedded_subnet.vnet_name
   service_endpoints = [
-    "Microsoft.AzureCosmosDB",
+    "Microsoft.Storage",
   ]
-
   env               = var.env
   idh_resource_tier = "slash28_privatelink_true"
   product_name      = var.product_name
