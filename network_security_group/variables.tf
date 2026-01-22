@@ -74,7 +74,7 @@ variable "custom_security_group" {
     condition = var.custom_security_group == null ? true : alltrue(flatten([
       [
         for nsg in var.custom_security_group : [
-        (nsg.target_subnet_id != null && nsg.target_subnet_cidr != null) || (nsg.target_subnet_id == null && nsg.target_subnet_cidr == null)
+          (nsg.target_subnet_id != null && nsg.target_subnet_cidr != null) || (nsg.target_subnet_id == null && nsg.target_subnet_cidr == null)
         ]
       ]
     ]))

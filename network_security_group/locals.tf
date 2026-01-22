@@ -93,7 +93,7 @@ locals {
             #   - If any prefix contains letters/asterisk:
             #     - Use "*" if present in the list
             #     - Otherwise use the first prefix
-            destination_address_prefixes = length(rule.destination_address_prefixes) == 0 ? (nsg.target_subnet_id != null ? nsg.target_subnet_cidr: data.azurerm_subnet.subnet["${nsg.target_subnet_name}-${nsg.target_subnet_vnet_name}"].address_prefixes) : (alltrue([for p in rule.destination_address_prefixes : (length(regexall("[A-Za-z]", p)) == 0)]) ? rule.destination_address_prefixes : null)
+            destination_address_prefixes = length(rule.destination_address_prefixes) == 0 ? (nsg.target_subnet_id != null ? nsg.target_subnet_cidr : data.azurerm_subnet.subnet["${nsg.target_subnet_name}-${nsg.target_subnet_vnet_name}"].address_prefixes) : (alltrue([for p in rule.destination_address_prefixes : (length(regexall("[A-Za-z]", p)) == 0)]) ? rule.destination_address_prefixes : null)
             destination_address_prefix   = length(rule.destination_address_prefixes) > 0 && (anytrue([for p in rule.destination_address_prefixes : (length(regexall("[A-Za-z\\*]", p)) > 0)])) ? (contains(rule.destination_address_prefixes, "*") ? "*" : rule.destination_address_prefixes[0]) : null
 
 
