@@ -52,7 +52,7 @@ module "internal_storage_private_endpoint_snet" {
   product_name      = var.product_name
 
   custom_nsg_configuration = {
-    source_address_prefixes      = [module.egress_snet[0].address_prefixes]
+    source_address_prefixes      = module.egress_snet[0].address_prefixes
     source_address_prefixes_name = var.name
     target_ports                 = ["*"]
     protocol                     = "Tcp"
