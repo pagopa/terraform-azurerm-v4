@@ -95,7 +95,6 @@ module "main_slot" {
   location            = var.location
   health_check_path   = var.health_check_path
   subnet_id           = var.embedded_subnet.enabled ? module.egress_snet[0].subnet_id : var.subnet_id
-
   docker = {
     registry_url      = var.docker_registry_url
     image_name        = var.docker_image
@@ -146,7 +145,7 @@ module "main_slot" {
   use_custom_runtime             = var.use_custom_runtime
   use_dotnet_isolated_runtime    = var.use_dotnet_isolated_runtime
 
-  export_keys = true
+  export_keys = false
 
   runtime_version = module.idh_loader.idh_resource_configuration.runtime_version
   storage_account_info = {
