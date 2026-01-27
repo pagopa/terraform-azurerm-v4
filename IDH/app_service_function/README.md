@@ -20,6 +20,20 @@ module "my_function" {
   resource_group_name = azurerm_resource_group.metabase_rg.name
 
   app_service_plan_name = "${local.project}-test-plan"
+  
+  embedded_subnet = {
+    enabled      = true
+    vnet_name    = local.spoke_compute_vnet_name
+    vnet_rg_name = local.spoke_compute_vnet_resource_group_name
+  }
+
+  embedded_nsg_configuration = {
+    source_address_prefixes      = ["*"]
+    source_address_prefixes_name = "All"
+    target_ports                 = ["*"]
+    protocol                     = "Tcp"
+  }
+  
   app_settings = {
     PROPERTY_1           = "..."
     PROPERTY_2           = "..."
@@ -29,13 +43,11 @@ module "my_function" {
   docker_image        = "my_image/image_name"
   docker_image_tag    = "latest"
   docker_registry_url = "https://index.docker.io"
-  subnet_id           = module.function_app_service_snet.subnet_id
   tags                = module.tag_config.tags
 
   allowed_subnet_ids = [data.azurerm_subnet.vpn_subnet.id]
 
   private_endpoint_dns_zone_id = data.azurerm_private_dns_zone.azurewebsites.id
-  private_endpoint_subnet_id   = data.azurerm_subnet.private_endpoint_subnet.id
 
   application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
   #optional

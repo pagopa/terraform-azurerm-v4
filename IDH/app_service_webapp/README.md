@@ -28,15 +28,26 @@ module "metabase_app_service" {
   docker_image        = "metabase/metabase"
   docker_image_tag    = "latest"
   docker_registry_url = "https://index.docker.io"
-  subnet_id           = module.app_service_snet.subnet_id
   tags                = module.tag_config.tags
   
   # which subnet is allowed to reach this app service
   allowed_subnet_ids = [data.azurerm_subnet.vpn_subnet.id]
 
   private_endpoint_dns_zone_id = data.azurerm_private_dns_zone.azurewebsites.id
-  private_endpoint_subnet_id   = data.azurerm_subnet.private_endpoint_subnet.id
+  
+  embedded_subnet = {
+    enabled      = true
+    vnet_name    = local.spoke_compute_vnet_name
+    vnet_rg_name = local.spoke_compute_vnet_resource_group_name
+  }
 
+  embedded_nsg_configuration = {
+    source_address_prefixes      = ["*"]
+    source_address_prefixes_name = "All"
+    target_ports                 = ["*"]
+    protocol                     = "Tcp"
+  }
+  
   autoscale_settings = {
     max_capacity                  = 3
     scale_up_requests_threshold   = 250

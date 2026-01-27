@@ -24,6 +24,17 @@ module "redis" {
   tags = var.tags
   alert_action_group_ids = [data.azurerm_monitor_action_group.email.id]
 
+  embedded_subnet = {
+    enabled              = true
+    vnet_name            = local.spoke_data_vnet_name
+    vnet_rg_name         = local.spoke_data_vnet_resource_group_name
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.privatelink_redis_cache_windows_net.id]
+  }
+
+  embedded_nsg_configuration    = {
+    source_address_prefixes      = ["*"]
+    source_address_prefixes_name = local.domain
+  }
 
 }
 ```
