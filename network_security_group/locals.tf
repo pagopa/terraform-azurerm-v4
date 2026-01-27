@@ -139,6 +139,47 @@ locals {
             direction = "Inbound"
           }
         ])
+        ],
+        # Generates "Self-Inbound" rules to allow intra-subnet traffic for each defined rule.
+        # 1. Flattens all inbound rules to handle multi-protocol target services
+        # 2. Assigns sequential priorities starting from 4080 (4080 + idx) to guarantee uniqueness without overlaps
+        # 3. Appends the protocol to the rule name to avoid duplicate names
+        [
+          for key, nsg in var.custom_security_group : [
+            for idx, entry in flatten([
+              for rule in nsg.inbound_rules : [
+                for definitions in [rule.target_service != null ? local.target_services[rule.target_service] : [{
+                  protocol    = rule.protocol
+                  port_ranges = length(rule.destination_port_ranges) > 0 ? rule.destination_port_ranges : (rule.destination_port_range != null ? [rule.destination_port_range] : ["*"])
+                  }]] : [
+                  for i, def in definitions : {
+                    rule = rule
+                    def  = def
+                  }
+                ]
+              ]
+              ]) : {
+              name     = "${entry.rule.name}Self${title(entry.def.protocol)}"
+              priority = 4080 + idx
+
+              direction = "Inbound"
+              access    = "Allow"
+              protocol  = title(entry.def.protocol)
+              nsg_name  = key
+
+              source_port_range  = "*"
+              source_port_ranges = null
+
+              source_address_prefix   = null
+              source_address_prefixes = nsg.target_subnet_id != null ? [nsg.target_subnet_cidr] : data.azurerm_subnet.subnet["${nsg.target_subnet_name}-${nsg.target_subnet_vnet_name}"].address_prefixes
+
+              destination_address_prefix   = null
+              destination_address_prefixes = nsg.target_subnet_id != null ? [nsg.target_subnet_cidr] : data.azurerm_subnet.subnet["${nsg.target_subnet_name}-${nsg.target_subnet_vnet_name}"].address_prefixes
+
+              destination_port_ranges = !contains(entry.def.port_ranges, "*") && length(entry.def.port_ranges) > 1 ? entry.def.port_ranges : null
+              destination_port_range  = contains(entry.def.port_ranges, "*") ? "*" : (length(entry.def.port_ranges) == 1 ? entry.def.port_ranges[0] : null)
+            }
+          ]
       ])
     ],
     [
