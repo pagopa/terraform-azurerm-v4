@@ -23,6 +23,17 @@ module "cosmos_idh_mongo" {
   product_name               = "myprefix" # Es. pagoapa
   env                        = "myenv" # Es. dev
   idh_resource_tier          = "cosmos_mongo6" 
+  
+   embedded_subnet = {
+    enabled              = true
+    vnet_name            = local.spoke_data_vnet_name
+    vnet_rg_name         = local.spoke_data_vnet_resource_group_name
+  }
+
+  embedded_nsg_configuration = {
+    source_address_prefixes      = ["*"]
+    source_address_prefixes_name = "All"
+  }
 }
 
 ```
@@ -42,6 +53,18 @@ module "cosmos_idh_sql" {
   product_name               = "myprefix" # Es. pagoapa
   env                        = "myenv" # Es. dev
   idh_resource_tier          = "cosmos_sql6" 
+  
+   embedded_subnet = {
+    enabled              = true
+    vnet_name            = local.spoke_data_vnet_name
+    vnet_rg_name         = local.spoke_data_vnet_resource_group_name
+  }
+
+  # fixme configure the cidr list and service name allowed on this cosmosdb
+  embedded_nsg_configuration = {
+    source_address_prefixes      = ["*"]
+    source_address_prefixes_name = "All"
+  }
 }
 ```
 

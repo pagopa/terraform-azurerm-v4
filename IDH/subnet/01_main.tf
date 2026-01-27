@@ -132,9 +132,9 @@ module "embedded_nsg" {
 
   custom_security_group = {
     embedded = {
-      target_subnet_id = module.subnet.subnet_id
-
-      watcher_enabled = true
+      target_subnet_id   = module.subnet.subnet_id
+      target_subnet_cidr = module.subnet.address_prefixes[0]
+      watcher_enabled    = true
 
       inbound_rules = [
         can(module.idh_loader.idh_resource_configuration.nsg.service) ?
@@ -201,8 +201,9 @@ module "custom_nsg" {
 
   custom_security_group = {
     custom = {
-      target_subnet_id = module.subnet.subnet_id
-      watcher_enabled  = true
+      target_subnet_id   = module.subnet.subnet_id
+      target_subnet_cidr = module.subnet.address_prefixes[0]
+      watcher_enabled    = true
 
       inbound_rules = [
         try(var.custom_nsg_configuration.target_service, null) != null ? {

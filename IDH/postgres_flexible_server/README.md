@@ -30,24 +30,9 @@ Also handles:
     key_vault_id = data.azurerm_key_vault.key_vault.id
   }
 
-  # Postgres Flexible Server subnet
-  module "postgres_flexible_snet" {
-    source                                        = "./.terraform/modules/__v4__/IDH/subnet"
-    name                                          = "${local.product}-test-idh-snet"
-    resource_group_name                           = data.azurerm_resource_group.rg_vnet.name
-    virtual_network_name                          = data.azurerm_virtual_network.vnet.name
-    service_endpoints                             = ["Microsoft.Storage"]
-    private_link_service_network_policies_enabled = true
   
-    idh_resource_tier = "postgres_flexible"
-    product_name = var.product_name
-    env = var.env
-
-  }
-
   resource "azurerm_private_dns_zone" "privatelink_postgres_database_azure_com" {
-
-    name                = "privatelink.postgres.database.azure.com"
+    name                = "private.postgres.database.azure.com"
     resource_group_name = data.azurerm_resource_group.rg_vnet.name
 
     tags = var.tags
@@ -64,8 +49,17 @@ Also handles:
   product_name = var.product_name
   env = var.env
 
-  private_dns_zone_id           = var.env_short != "d" ? data.azurerm_private_dns_zone.postgres[0].id : null
-  delegated_subnet_id           = module.postgres_flexible_snet.id
+  private_dns_zone_id           =  data.azurerm_private_dns_zone.privatelink_postgres_database_azure_com.id 
+  embedded_subnet = {
+    enabled              = true
+    vnet_name            = local.spoke_data_vnet_name
+    vnet_rg_name         = local.spoke_data_vnet_resource_group_name
+  }
+    
+  embedded_nsg_configuration = {
+    source_address_prefixes      = ["*"]
+    source_address_prefixes_name = local.domain
+  }
 
   administrator_login    = data.azurerm_key_vault_secret.pgres_flex_admin_login.value
   administrator_password = data.azurerm_key_vault_secret.pgres_flex_admin_pwd.value
