@@ -142,7 +142,7 @@ locals {
         ],
         # Generates "Self-Inbound" rules to allow intra-subnet traffic for each defined rule.
         # 1. Flattens all inbound rules to handle multi-protocol target services
-        # 2. Assigns sequential priorities starting from 4080 (4080 + idx) to guarantee uniqueness without overlaps
+        # 2. Assigns sequential priorities starting from 4080 (4080 + idx)
         # 3. Appends the protocol to the rule name to avoid duplicate names
         [
           for key, nsg in var.custom_security_group : [
@@ -157,7 +157,7 @@ locals {
                     def  = def
                   }
                 ]
-              ]
+              ] if rule.access != "Deny"
               ]) : {
               name     = "${entry.rule.name}Self${title(entry.def.protocol)}"
               priority = 4080 + idx
