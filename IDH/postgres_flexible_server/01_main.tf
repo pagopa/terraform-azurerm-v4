@@ -36,7 +36,7 @@ module "pgflex_snet" {
 module "pgflex_replica_snet" {
   count                = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
   source               = "../subnet"
-  name                 = "${var.name}-snet"
+  name                 = "${var.geo_replication.name}-${var.geo_replication.location_short}-${var.domain}-flexible-postgresql-replica-snet"
   resource_group_name  = var.embedded_subnet.replica_vnet_rg_name
   virtual_network_name = var.embedded_subnet.replica_vnet_name
   service_endpoints    = ["Microsoft.Storage"]
@@ -191,7 +191,7 @@ module "replica" {
   source = "../../postgres_flexible_server_replica"
   count  = var.geo_replication.enabled && module.idh_loader.idh_resource_configuration.geo_replication_allowed ? 1 : 0
 
-  name                = var.geo_replication.name
+  name                = "${var.geo_replication.name}-${var.geo_replication.location_short}-${var.domain}-flexible-postgresql-replica"
   resource_group_name = var.resource_group_name
   location            = var.geo_replication.location
 

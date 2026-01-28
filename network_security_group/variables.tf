@@ -27,6 +27,7 @@ variable "custom_security_group" {
     target_subnet_id        = optional(string, null) # optional target subnet id. overrides the pair <target_subnet_name, target_subnet_vnet_name>. useful when subnet not yet created
     target_subnet_cidr      = optional(string, null) # optional, instead of using the pair <target_subnet_name, target_subnet_vnet_name>. useful when subnet not yet created
     watcher_enabled         = optional(bool, false)
+    self_priority           = optional(number, 4080)
     inbound_rules = list(object({
       name                         = string
       priority                     = number
@@ -58,6 +59,24 @@ variable "custom_security_group" {
     }))
   }))
   default = null
+
+  validation {
+    condition = var.custom_security_group == null ? true : alltrue([
+      for nsg in var.custom_security_group : (
+        length(distinct([for rule in nsg.inbound_rules : rule.name])) == length(nsg.inbound_rules)
+      )
+    ])
+    error_message = "inbound_rules: rule name must be unique within the security group."
+  }
+
+  validation {
+    condition = var.custom_security_group == null ? true : alltrue([
+      for nsg in var.custom_security_group : (
+        length(distinct([for rule in nsg.outbound_rules : rule.name])) == length(nsg.outbound_rules)
+      )
+    ])
+    error_message = "outbound_rules: rule name must be unique within the security group."
+  }
 
   validation {
     condition = var.custom_security_group == null ? true : alltrue(flatten([
@@ -320,6 +339,15 @@ variable "custom_security_group" {
       ]
     ]))
     error_message = "inbound and outbound rules: protocol must be one of ['Tcp', 'Udp', 'Icmp', 'Esp', 'Ah', '*'] or target_service must be used"
+  }
+
+  validation {
+    condition = var.custom_security_group == null ? true : alltrue([
+      for nsg in var.custom_security_group : (
+        nsg.self_priority == null ? true : (nsg.self_priority >= 100 && nsg.self_priority <= 4090)
+      )
+    ])
+    error_message = "self_priority priority must be between 100 and 4096"
   }
 }
 

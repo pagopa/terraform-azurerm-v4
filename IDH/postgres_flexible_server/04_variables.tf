@@ -29,6 +29,16 @@ variable "resource_group_name" {
   description = "(Required) The name of the Resource Group where the PostgreSQL Flexible Server should exist."
 }
 
+variable "domain" {
+  type = string
+  validation {
+    condition = (
+      length(var.domain) <= 12
+    )
+    error_message = "Max length is 12 chars."
+  }
+}
+
 
 variable "idh_resource_tier" {
   type        = string
@@ -235,6 +245,7 @@ variable "geo_replication" {
     name                        = optional(string, null)
     subnet_id                   = optional(string, null)
     location                    = optional(string, null)
+    location_short              = optional(string, null)
     private_dns_registration_ve = optional(bool, false)
   })
   default = {
@@ -242,6 +253,7 @@ variable "geo_replication" {
     name                        = null
     subnet_id                   = null
     location                    = null
+    location_short              = null
     private_dns_registration_ve = false
   }
   description = "(Optional) Map of geo replication settings"
