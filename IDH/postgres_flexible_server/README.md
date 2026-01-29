@@ -123,6 +123,7 @@ Also handles:
 |------|--------|---------|
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 | <a name="module_pgflex"></a> [pgflex](#module\_pgflex) | ../../postgres_flexible_server | n/a |
+| <a name="module_pgflex_primary_nsg"></a> [pgflex\_primary\_nsg](#module\_pgflex\_primary\_nsg) | ../../network_security_group | n/a |
 | <a name="module_pgflex_replica_snet"></a> [pgflex\_replica\_snet](#module\_pgflex\_replica\_snet) | ../subnet | n/a |
 | <a name="module_pgflex_snet"></a> [pgflex\_snet](#module\_pgflex\_snet) | ../subnet | n/a |
 | <a name="module_replica"></a> [replica](#module\_replica) | ../../postgres_flexible_server_replica | n/a |
@@ -169,6 +170,7 @@ Also handles:
 | <a name="input_geo_replication"></a> [geo\_replication](#input\_geo\_replication) | (Optional) Map of geo replication settings | <pre>object({<br/>    enabled                     = bool<br/>    subnet_id                   = optional(string, null)<br/>    location                    = optional(string, null)<br/>    location_short              = optional(string, null)<br/>    private_dns_registration_ve = optional(bool, false)<br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "location": null,<br/>  "location_short": null,<br/>  "private_dns_registration_ve": false,<br/>  "subnet_id": null<br/>}</pre> | no |
 | <a name="input_idh_resource_tier"></a> [idh\_resource\_tier](#input\_idh\_resource\_tier) | (Required) The name od IDH resource key to be created. | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | (Required) The Azure Region where the PostgreSQL Flexible Server should exist. | `string` | n/a | yes |
+| <a name="input_location_short"></a> [location\_short](#input\_location\_short) | One of wue, neu | `string` | n/a | yes |
 | <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id) | (Optional) Specifies the ID of a Log Analytics Workspace where Diagnostics Data should be sent. | `string` | `null` | no |
 | <a name="input_nsg_flow_log_configuration"></a> [nsg\_flow\_log\_configuration](#input\_nsg\_flow\_log\_configuration) | (Optional) NSG flow log configuration | <pre>object({<br/>    enabled                    = bool<br/>    network_watcher_name       = optional(string, null)<br/>    network_watcher_rg         = optional(string, null)<br/>    storage_account_id         = optional(string, null)<br/>    traffic_analytics_law_name = optional(string, null)<br/>    traffic_analytics_law_rg   = optional(string, null)<br/>  })</pre> | <pre>{<br/>  "enabled": false<br/>}</pre> | no |
 | <a name="input_pg_bouncer_enabled"></a> [pg\_bouncer\_enabled](#input\_pg\_bouncer\_enabled) | (Optional) Enable or disable PgBouncer. Defaults to false (Server will be restarted on change!) | `bool` | `null` | no |

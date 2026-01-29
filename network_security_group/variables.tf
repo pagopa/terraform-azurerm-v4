@@ -362,3 +362,21 @@ variable "flow_logs" {
   default     = null
   description = "(Optional) Parameters required to configure the network watcher"
 }
+
+variable "enabled_only_rules" {
+  type = object({
+    enabled             = bool
+    security_group_name = optional(string, null)
+  })
+  description = "(Optional) Enables a 'rules-only' mode. If 'enabled' is set to true, the module skips the creation of the NSG, association, and flow logs"
+
+  default = {
+    enabled             = false
+    security_group_name = null
+  }
+
+  validation {
+    condition     = var.enabled_only_rules.enabled ? var.enabled_only_rules.security_group_name != null : true
+    error_message = "When 'enabled_only_rules.enabled' is true, a valid 'security_group_name' must be provided."
+  }
+}

@@ -29,6 +29,17 @@ variable "location" {
   description = "(Required) The Azure Region where the PostgreSQL Flexible Server should exist."
 }
 
+variable "location_short" {
+  type = string
+  validation {
+    condition = (
+      length(var.location_short) == 3
+    )
+    error_message = "Length must be 3 chars."
+  }
+  description = "One of wue, neu"
+}
+
 variable "resource_group_name" {
   type        = string
   description = "(Required) The name of the Resource Group where the PostgreSQL Flexible Server should exist."
@@ -268,7 +279,7 @@ variable "geo_replication" {
 
   validation {
     error_message = "If geo_replication is enabled, 'name' and 'location' must be provided"
-    condition     = var.geo_replication.enabled ? (var.geo_replication.name != null && var.geo_replication.location != null) : true
+    condition     = var.geo_replication.enabled ? var.geo_replication.location != null : true
   }
 }
 

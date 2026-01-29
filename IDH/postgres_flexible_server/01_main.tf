@@ -1,9 +1,3 @@
-locals {
-  product_prefix = "${var.prefix}-${lower(substr(var.env, 0, 1))}"
-  primary_prefix = "${local.product_prefix}-${var.location}-${var.domain}-pgflex"
-  replica_prefix = "${local.product_prefix}-${var.geo_replication.location}-${var.domain}-pgflex-replica"
-}
-
 module "idh_loader" {
   source = "../01_idh_loader"
 
@@ -16,6 +10,9 @@ module "idh_loader" {
 locals {
   pgbouncer_enabled = var.pg_bouncer_enabled != null ? var.pg_bouncer_enabled : module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled
   zone              = var.zone != null ? var.zone : module.idh_loader.idh_resource_configuration.zone
+  product_prefix    = "${var.prefix}-${lower(substr(var.env, 0, 1))}"
+  primary_prefix    = "${local.product_prefix}-${var.location_short}-${var.domain}-pgflex"
+  replica_prefix    = "${local.product_prefix}-${var.geo_replication.location_short}-${var.domain}-pgflex-replica"
 }
 
 # IDH/subnet
@@ -35,6 +32,43 @@ module "pgflex_snet" {
   embedded_nsg_configuration   = var.embedded_nsg_configuration
   create_self_inbound_nsg_rule = var.create_self_inbound_nsg_rule
 
+  tags = var.tags
+}
+
+module "pgflex_primary_nsg" {
+  source     = "../../network_security_group"
+  count      = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
+  depends_on = [module.pgflex_snet, module.pgflex_replica_snet]
+
+  location            = var.location
+  prefix              = var.prefix
+  resource_group_name = var.embedded_subnet.vnet_rg_name
+  enabled_only_rules = {
+    enabled             = true
+    security_group_name = "${local.primary_prefix}-nsg"
+  }
+  vnets = {
+    (var.embedded_subnet.vnet_name) = var.embedded_subnet.vnet_rg_name
+  }
+  custom_security_group = {
+    pgflex_primary_nsg = {
+      target_subnet_id = module.pgflex_snet[0].id
+      inbound_rules = [
+        {
+          target_service               = "postgresql"
+          name                         = "AllowReplicaToPrimaryPostgres"
+          priority                     = 300
+          source_address_prefixes      = module.pgflex_snet[0].address_prefixes
+          access                       = "Allow"
+          destination_port_ranges      = null
+          destination_address_prefixes = module.pgflex_replica_snet[0].address_prefixes
+          protocol                     = null
+          description                  = "Allow inbound traffic from the Geo-Replica PostgreSQL instance to the Primary instance on port 5432"
+        }
+      ]
+      outbound_rules = []
+    }
+  }
   tags = var.tags
 }
 
