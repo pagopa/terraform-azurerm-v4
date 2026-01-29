@@ -63,3 +63,25 @@ output "secondary_connection_strings" {
 output "principal_id" {
   value = azurerm_cosmosdb_account.this.identity.0.principal_id
 }
+
+
+output "primary_sql_connection_strings" {
+  value     = azurerm_cosmosdb_account.this.primary_sql_connection_string
+  sensitive = true
+}
+
+
+output "secondary_sql_connection_strings" {
+  value     = azurerm_cosmosdb_account.this.secondary_sql_connection_string
+  sensitive = true
+}
+
+output "legacy_primary_sql_connection_strings" {
+  value     = "DefaultEndpointsProtocol=https;AccountName=${var.name};AccountKey=${azurerm_cosmosdb_account.this.primary_key};TableEndpoint=https://${var.name}.table.cosmos.azure.com:443/;"
+  sensitive = true
+}
+
+output "legacy_secondary_sql_connection_strings" {
+  value     = "DefaultEndpointsProtocol=https;AccountName=${var.name};AccountKey=${azurerm_cosmosdb_account.this.secondary_key};TableEndpoint=https://${var.name}.table.cosmos.azure.com:443/;"
+  sensitive = true
+}
