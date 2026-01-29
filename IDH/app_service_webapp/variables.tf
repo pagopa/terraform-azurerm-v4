@@ -110,6 +110,12 @@ variable "ftps_state" {
   default     = "Disabled"
 }
 
+variable "allow_from_apim" {
+  type        = bool
+  default     = false
+  description = "If enabled set minimum_tls_version to 1.2 to be reached from APIM."
+}
+
 variable "health_check_maxpingfailures" {
   type        = number
   description = "Max ping failures allowed"

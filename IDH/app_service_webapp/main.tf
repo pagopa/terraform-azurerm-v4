@@ -59,7 +59,7 @@ module "main_slot" {
   https_only                    = module.idh_loader.idh_resource_configuration.https_only
   client_affinity_enabled       = var.client_affinity_enabled
   ftps_state                    = var.ftps_state
-  minimum_tls_version           = module.idh_loader.idh_resource_configuration.minimum_tls_version
+  minimum_tls_version           = var.allow_from_apim ? "1.2" : module.idh_loader.idh_resource_configuration.minimum_tls_version
   public_network_access_enabled = module.idh_loader.idh_resource_configuration.public_network_access_enabled
 
   # App service plan
@@ -120,7 +120,7 @@ module "staging_slot" {
   https_only                    = module.idh_loader.idh_resource_configuration.https_only
   client_certificate_enabled    = module.idh_loader.idh_resource_configuration.client_cert_enabled
   public_network_access_enabled = module.idh_loader.idh_resource_configuration.public_network_access_enabled
-  minimum_tls_version           = module.idh_loader.idh_resource_configuration.minimum_tls_version
+  minimum_tls_version           = var.allow_from_apim ? "1.2" : module.idh_loader.idh_resource_configuration.minimum_tls_version
   ip_restriction_default_action = module.idh_loader.idh_resource_configuration.ip_restriction_default_action
   vnet_integration              = module.idh_loader.idh_resource_configuration.vnet_integration
 
