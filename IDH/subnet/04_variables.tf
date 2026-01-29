@@ -128,6 +128,18 @@ variable "nsg_flow_log_configuration" {
   }
 }
 
+variable "create_self_inbound_nsg_rule" {
+  type = object({
+    embedded = bool
+    custom   = bool
+  })
+  description = "(Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope"
+  default = {
+    embedded = true
+    custom   = true
+  }
+}
+
 variable "tags" {
   type        = map(any)
   description = "Map of tags added to the resources created by this module"

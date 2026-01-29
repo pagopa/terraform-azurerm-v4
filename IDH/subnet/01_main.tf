@@ -148,18 +148,20 @@ module "embedded_nsg" {
             destination_address_prefixes = module.subnet.address_prefixes
             protocol                     = null
           },
-          var.embedded_nsg_configuration.create_self_inbound ?
+          var.create_self_inbound_nsg_rule.embedded ? [
+            {
+              target_service               = module.idh_loader.idh_resource_configuration.nsg.service
+              name                         = "AllowIntraSubnetOn${title(module.idh_loader.idh_resource_configuration.nsg.service)}"
+              priority                     = 210
+              source_address_prefixes      = module.subnet.address_prefixes
+              description                  = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from same subnet"
+              destination_port_ranges      = null
+              destination_address_prefixes = module.subnet.address_prefixes
+              protocol                     = null
+          }] : []
+        ] :
+        [
           {
-            target_service               = module.idh_loader.idh_resource_configuration.nsg.service
-            name                         = "AllowIntraSubnetOn${title(module.idh_loader.idh_resource_configuration.nsg.service)}"
-            priority                     = 210
-            source_address_prefixes      = module.subnet.address_prefixes
-            description                  = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from same subnet"
-            destination_port_ranges      = null
-            destination_address_prefixes = module.subnet.address_prefixes
-            protocol                     = null
-          } : null
-          ] : [{
             name                         = "Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}"
             priority                     = 200
             protocol                     = module.idh_loader.idh_resource_configuration.nsg.custom.protocol
@@ -170,7 +172,8 @@ module "embedded_nsg" {
             destination_address_prefixes = module.subnet.address_prefixes
 
           },
-          {
+          var.create_self_inbound_nsg_rule.embedded ?
+          [{
             name                         = "AllowIntraSubnetCustom"
             priority                     = 210
             protocol                     = module.idh_loader.idh_resource_configuration.nsg.custom.protocol
@@ -179,7 +182,8 @@ module "embedded_nsg" {
             description                  = "Allow traffic from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
             target_service               = null
             destination_address_prefixes = module.subnet.address_prefixes
-        }],
+          }] : []
+        ],
         {
           name                    = "DenyFromAllVNet"
           priority                = 4090
@@ -240,7 +244,8 @@ module "custom_nsg" {
             destination_address_prefixes = module.subnet.address_prefixes
             target_service               = var.custom_nsg_configuration.target_service
           },
-          {
+          var.create_self_inbound_nsg_rule.custom ?
+          [{
             name                         = "AllowIntraSubnetOn${title(var.custom_nsg_configuration.target_service)}"
             priority                     = 1010
             protocol                     = null
@@ -249,7 +254,8 @@ module "custom_nsg" {
             description                  = "Allow traffic from same subnet on ${var.custom_nsg_configuration.target_service}"
             destination_address_prefixes = module.subnet.address_prefixes
             target_service               = var.custom_nsg_configuration.target_service
-            }] : [{
+          }] : []
+          ] : [{
             name                         = "Allow${title(var.custom_nsg_configuration.source_address_prefixes_name)}"
             priority                     = 1000
             protocol                     = var.custom_nsg_configuration.protocol
@@ -259,7 +265,8 @@ module "custom_nsg" {
             destination_address_prefixes = module.subnet.address_prefixes
             target_service               = null
           },
-          {
+          var.create_self_inbound_nsg_rule.custom ?
+          [{
             name                         = "AllowIntraSubnetCustom"
             priority                     = 1010
             protocol                     = var.custom_nsg_configuration.protocol
@@ -268,7 +275,8 @@ module "custom_nsg" {
             description                  = "Allow traffic from same subnet on custom ports"
             destination_address_prefixes = module.subnet.address_prefixes
             target_service               = null
-        }],
+          }] : []
+        ],
         {
           name                         = "DenyFromAllVNet"
           priority                     = 4090

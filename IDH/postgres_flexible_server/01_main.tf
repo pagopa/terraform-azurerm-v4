@@ -31,9 +31,9 @@ module "pgflex_snet" {
   idh_resource_tier = "postgres_flexible"
   product_name      = var.product_name
 
-  nsg_flow_log_configuration = var.nsg_flow_log_configuration
-  embedded_nsg_configuration = var.embedded_nsg_configuration
-
+  nsg_flow_log_configuration   = var.nsg_flow_log_configuration
+  embedded_nsg_configuration   = var.embedded_nsg_configuration
+  create_self_inbound_nsg_rule = var.create_self_inbound_nsg_rule
 
   tags = var.tags
 }
@@ -51,8 +51,9 @@ module "pgflex_replica_snet" {
   idh_resource_tier = "postgres_flexible"
   product_name      = var.product_name
 
-  nsg_flow_log_configuration = var.nsg_flow_log_configuration
-  embedded_nsg_configuration = var.embedded_nsg_configuration
+  nsg_flow_log_configuration   = var.nsg_flow_log_configuration
+  embedded_nsg_configuration   = var.embedded_nsg_configuration
+  create_self_inbound_nsg_rule = var.create_self_inbound_nsg_rule
 
   tags = var.tags
 }

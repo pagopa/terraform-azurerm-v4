@@ -247,7 +247,6 @@ variable "databases" {
 variable "geo_replication" {
   type = object({
     enabled                     = bool
-    name                        = optional(string, null)
     subnet_id                   = optional(string, null)
     location                    = optional(string, null)
     location_short              = optional(string, null)
@@ -255,7 +254,6 @@ variable "geo_replication" {
   })
   default = {
     enabled                     = false
-    name                        = null
     subnet_id                   = null
     location                    = null
     location_short              = null
@@ -370,5 +368,17 @@ variable "embedded_nsg_configuration" {
     source_address_prefixes : ["*"]
     source_address_prefixes_name = "All"
     create_self_inbound          = true
+  }
+}
+
+variable "create_self_inbound_nsg_rule" {
+  type = object({
+    embedded = bool
+    custom   = bool
+  })
+  description = "(Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope"
+  default = {
+    embedded = true
+    custom   = true
   }
 }
