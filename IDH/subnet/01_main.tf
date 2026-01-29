@@ -148,6 +148,7 @@ module "embedded_nsg" {
             destination_address_prefixes = module.subnet.address_prefixes
             protocol                     = null
           },
+          var.embedded_nsg_configuration.create_self_inbound ?
           {
             target_service               = module.idh_loader.idh_resource_configuration.nsg.service
             name                         = "AllowIntraSubnetOn${title(module.idh_loader.idh_resource_configuration.nsg.service)}"
@@ -157,7 +158,7 @@ module "embedded_nsg" {
             destination_port_ranges      = null
             destination_address_prefixes = module.subnet.address_prefixes
             protocol                     = null
-          }
+          } : null
           ] : [{
             name                         = "Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}"
             priority                     = 200
