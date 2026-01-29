@@ -124,6 +124,7 @@ Also handles:
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 | <a name="module_pgflex"></a> [pgflex](#module\_pgflex) | ../../postgres_flexible_server | n/a |
 | <a name="module_pgflex_primary_nsg"></a> [pgflex\_primary\_nsg](#module\_pgflex\_primary\_nsg) | ../../network_security_group | n/a |
+| <a name="module_pgflex_replica_nsg"></a> [pgflex\_replica\_nsg](#module\_pgflex\_replica\_nsg) | ../../network_security_group | n/a |
 | <a name="module_pgflex_replica_snet"></a> [pgflex\_replica\_snet](#module\_pgflex\_replica\_snet) | ../subnet | n/a |
 | <a name="module_pgflex_snet"></a> [pgflex\_snet](#module\_pgflex\_snet) | ../subnet | n/a |
 | <a name="module_replica"></a> [replica](#module\_replica) | ../../postgres_flexible_server_replica | n/a |
@@ -145,6 +146,7 @@ Also handles:
 | [azurerm_postgresql_flexible_server_virtual_endpoint.virtual_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server_virtual_endpoint) | resource |
 | [azurerm_private_dns_cname_record.cname_record](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_cname_record) | resource |
 | [azurerm_network_security_group.primary_embedded_nsg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/network_security_group) | data source |
+| [azurerm_network_security_group.replica_embedded_nsg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/network_security_group) | data source |
 
 ## Inputs
 

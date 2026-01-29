@@ -44,8 +44,9 @@ data "azurerm_network_security_group" "primary_embedded_nsg" {
 }
 
 module "pgflex_primary_nsg" {
-  source     = "../../network_security_group"
-  count      = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
+  source = "../../network_security_group"
+  count  = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
+
   depends_on = [module.pgflex_snet, module.pgflex_replica_snet]
 
   location            = var.location
@@ -104,6 +105,55 @@ module "pgflex_replica_snet" {
   tags = var.tags
 }
 
+data "azurerm_network_security_group" "replica_embedded_nsg" {
+  count      = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
+  depends_on = [module.pgflex_replica_snet]
+
+  name                = module.pgflex_replica_snet[0].embedded_nsg_details.name
+  resource_group_name = module.pgflex_replica_snet[0].embedded_nsg_details.resource_group_name
+}
+
+module "pgflex_replica_nsg" {
+  source = "../../network_security_group"
+  count  = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
+
+  depends_on = [module.pgflex_snet, module.pgflex_replica_snet]
+
+  location            = var.location
+  prefix              = var.prefix
+  resource_group_name = module.pgflex_replica_snet[0].embedded_nsg_details.resource_group_name
+
+  enabled_only_rules = {
+    enabled             = true
+    security_group_name = module.pgflex_replica_snet[0].embedded_nsg_details.name
+  }
+
+  vnets = {
+    (var.embedded_subnet.vnet_name) = var.embedded_subnet.vnet_rg_name
+  }
+
+  custom_security_group = {
+    pgflex_primary_nsg = {
+      target_subnet_id   = module.pgflex_replica_snet[0].id
+      target_subnet_cidr = module.pgflex_replica_snet[0].address_prefixes[0]
+      inbound_rules = [
+        {
+          target_service               = "postgresql"
+          name                         = "AllowReplicaToPrimaryPostgres"
+          priority                     = max(100, (floor(max([for p in data.azurerm_network_security_group.replica_embedded_nsg[0].security_rule[*].priority : p if p < 4090]...) / 10) * 10) + 10)
+          source_address_prefixes      = module.pgflex_snet[0].address_prefixes
+          access                       = "Allow"
+          destination_port_ranges      = null
+          destination_address_prefixes = module.pgflex_replica_snet[0].address_prefixes
+          protocol                     = null
+          description                  = "Allow inbound traffic from the PostgreSQL instance to the Replica instance"
+        }
+      ]
+      outbound_rules = []
+    }
+  }
+  tags = var.tags
+}
 
 # -------------------------------------------------------------------
 # Postgres Flexible Server

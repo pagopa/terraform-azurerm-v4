@@ -221,7 +221,6 @@ module "custom_nsg" {
   resource_group_name = azurerm_resource_group.nsg_rg.name
   location            = data.azurerm_virtual_network.vnet.location
 
-
   vnets = {
     (var.virtual_network_name) = var.resource_group_name
   }

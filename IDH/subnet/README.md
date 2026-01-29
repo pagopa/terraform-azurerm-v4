@@ -78,6 +78,7 @@ module "postgres_flexible_snet" {
 | Name | Description |
 |------|-------------|
 | <a name="output_address_prefixes"></a> [address\_prefixes](#output\_address\_prefixes) | n/a |
+| <a name="output_embedded_nsg_details"></a> [embedded\_nsg\_details](#output\_embedded\_nsg\_details) | n/a |
 | <a name="output_first_ip_address"></a> [first\_ip\_address](#output\_first\_ip\_address) | First usable ip address in the subnet |
 | <a name="output_id"></a> [id](#output\_id) | n/a |
 | <a name="output_last_ip_address"></a> [last\_ip\_address](#output\_last\_ip\_address) | Last usable ip address in the subnet |

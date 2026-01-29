@@ -256,5 +256,7 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_nsg_custom_details"></a> [nsg\_custom\_details](#output\_nsg\_custom\_details) | Detailed map of created NSGs including names and resource groups |
 <!-- END_TF_DOCS -->
