@@ -14,11 +14,6 @@ variable "env" {
   description = "(Required) Environment for which the resource will be created"
 }
 
-variable "name" {
-  type        = string
-  description = "(Required) The name which should be used for this PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created."
-}
-
 variable "prefix" {
   type = string
   validation {

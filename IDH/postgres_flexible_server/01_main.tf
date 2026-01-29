@@ -225,7 +225,7 @@ module "replica" {
 
 resource "azurerm_postgresql_flexible_server_virtual_endpoint" "virtual_endpoint" {
   count             = var.geo_replication.enabled && module.idh_loader.idh_resource_configuration.geo_replication_allowed ? 1 : 0
-  name              = "${var.name}-ve"
+  name              = "${local.primary_prefix}-ve"
   source_server_id  = module.pgflex.id
   replica_server_id = module.replica[0].id
   type              = "ReadWrite"
