@@ -120,6 +120,8 @@ No resources.
 |------|-------------|
 | <a name="output_endpoint"></a> [endpoint](#output\_endpoint) | The endpoint used to connect to the CosmosDB account. |
 | <a name="output_id"></a> [id](#output\_id) | The id of the CosmosDB account. |
+| <a name="output_legacy_primary_sql_connection_strings"></a> [legacy\_primary\_sql\_connection\_strings](#output\_legacy\_primary\_sql\_connection\_strings) | n/a |
+| <a name="output_legacy_secondary_sql_connection_strings"></a> [legacy\_secondary\_sql\_connection\_strings](#output\_legacy\_secondary\_sql\_connection\_strings) | n/a |
 | <a name="output_name"></a> [name](#output\_name) | The name of the CosmosDB created. |
 | <a name="output_primary_connection_strings"></a> [primary\_connection\_strings](#output\_primary\_connection\_strings) | n/a |
 | <a name="output_primary_key"></a> [primary\_key](#output\_primary\_key) | n/a |

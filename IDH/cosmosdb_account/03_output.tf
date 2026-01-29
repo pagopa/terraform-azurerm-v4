@@ -66,6 +66,8 @@ output "primary_sql_connection_strings" {
   sensitive = true
 }
 
+
+
 output "secondary_sql_connection_strings" {
   value     = module.cosmosdb_account.secondary_sql_connection_strings
   sensitive = true
@@ -73,4 +75,14 @@ output "secondary_sql_connection_strings" {
 
 output "principal_id" {
   value = module.cosmosdb_account.principal_id
+}
+
+output "legacy_primary_sql_connection_strings" {
+  value     = module.cosmosdb_account.legacy_primary_sql_connection_strings
+  sensitive = true
+}
+
+output "legacy_secondary_sql_connection_strings" {
+  value     = module.cosmosdb_account.legacy_secondary_sql_connection_strings
+  sensitive = true
 }
