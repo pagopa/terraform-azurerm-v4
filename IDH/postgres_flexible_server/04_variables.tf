@@ -19,6 +19,16 @@ variable "name" {
   description = "(Required) The name which should be used for this PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created."
 }
 
+variable "prefix" {
+  type = string
+  validation {
+    condition = (
+      length(var.prefix) <= 6
+    )
+    error_message = "Max length is 6 chars."
+  }
+}
+
 variable "location" {
   type        = string
   description = "(Required) The Azure Region where the PostgreSQL Flexible Server should exist."

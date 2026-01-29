@@ -1,3 +1,9 @@
+locals {
+  product_prefix = "${var.prefix}-${lower(substr(var.env, 0, 1))}"
+  primary_prefix = "${local.product_prefix}-${var.location}-${var.domain}-pgflex"
+  replica_prefix = "${local.product_prefix}-${var.geo_replication.location}-${var.domain}-pgflex-replica"
+}
+
 module "idh_loader" {
   source = "../01_idh_loader"
 
@@ -16,7 +22,7 @@ locals {
 module "pgflex_snet" {
   count                = var.embedded_subnet.enabled ? 1 : 0
   source               = "../subnet"
-  name                 = "${var.name}-snet"
+  name                 = "${local.primary_prefix}-snet"
   resource_group_name  = var.embedded_subnet.vnet_rg_name
   virtual_network_name = var.embedded_subnet.vnet_name
   service_endpoints    = ["Microsoft.Storage"]
@@ -36,7 +42,7 @@ module "pgflex_snet" {
 module "pgflex_replica_snet" {
   count                = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
   source               = "../subnet"
-  name                 = "${var.geo_replication.name}-${var.geo_replication.location_short}-${var.domain}-flexible-postgresql-replica-snet"
+  name                 = "${local.replica_prefix}-snet"
   resource_group_name  = var.embedded_subnet.replica_vnet_rg_name
   virtual_network_name = var.embedded_subnet.replica_vnet_name
   service_endpoints    = ["Microsoft.Storage"]
@@ -64,7 +70,7 @@ module "pgflex" {
   high_availability_enabled = module.idh_loader.idh_resource_configuration.high_availability_enabled
   standby_availability_zone = module.idh_loader.idh_resource_configuration.standby_availability_zone
   location                  = var.location
-  name                      = var.name
+  name                      = local.primary_prefix
   private_endpoint_enabled  = module.idh_loader.idh_resource_configuration.private_endpoint_enabled
   resource_group_name       = var.resource_group_name
   sku_name                  = module.idh_loader.idh_resource_configuration.sku_name
@@ -191,7 +197,7 @@ module "replica" {
   source = "../../postgres_flexible_server_replica"
   count  = var.geo_replication.enabled && module.idh_loader.idh_resource_configuration.geo_replication_allowed ? 1 : 0
 
-  name                = "${var.geo_replication.name}-${var.geo_replication.location_short}-${var.domain}-flexible-postgresql-replica"
+  name                = local.replica_prefix
   resource_group_name = var.resource_group_name
   location            = var.geo_replication.location
 

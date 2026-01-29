@@ -138,16 +138,28 @@ module "embedded_nsg" {
 
       inbound_rules = [
         can(module.idh_loader.idh_resource_configuration.nsg.service) ?
-        {
-          target_service               = module.idh_loader.idh_resource_configuration.nsg.service
-          name                         = "Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}On${title(module.idh_loader.idh_resource_configuration.nsg.service)}"
-          priority                     = 200
-          source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
-          description                  = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
-          destination_port_ranges      = null
-          destination_address_prefixes = module.subnet.address_prefixes
-          protocol                     = null
-          } : {
+        merge(
+          {
+            target_service               = module.idh_loader.idh_resource_configuration.nsg.service
+            name                         = "Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}On${title(module.idh_loader.idh_resource_configuration.nsg.service)}"
+            priority                     = 200
+            source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
+            description                  = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
+            destination_port_ranges      = null
+            destination_address_prefixes = module.subnet.address_prefixes
+            protocol                     = null
+          },
+          {
+            target_service               = module.idh_loader.idh_resource_configuration.nsg.service
+            name                         = "AllowIntraSubnet"
+            priority                     = 210
+            source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
+            description                  = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from same subnet"
+            destination_port_ranges      = null
+            destination_address_prefixes = var.embedded_nsg_configuration.source_address_prefixes
+            protocol                     = null
+          }
+          ) : {
           name                         = "Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}"
           priority                     = 200
           protocol                     = module.idh_loader.idh_resource_configuration.nsg.custom.protocol
