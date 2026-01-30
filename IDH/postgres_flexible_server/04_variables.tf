@@ -14,9 +14,14 @@ variable "env" {
   description = "(Required) Environment for which the resource will be created"
 }
 
-variable "name" {
-  type        = string
-  description = "(Required) The name which should be used for this PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created."
+variable "prefix" {
+  type = string
+  validation {
+    condition = (
+      length(var.prefix) <= 6
+    )
+    error_message = "Max length is 6 chars."
+  }
 }
 
 variable "location" {
@@ -24,9 +29,30 @@ variable "location" {
   description = "(Required) The Azure Region where the PostgreSQL Flexible Server should exist."
 }
 
+variable "location_short" {
+  type = string
+  validation {
+    condition = (
+      length(var.location_short) == 3
+    )
+    error_message = "Length must be 3 chars."
+  }
+  description = "One of wue, neu"
+}
+
 variable "resource_group_name" {
   type        = string
   description = "(Required) The name of the Resource Group where the PostgreSQL Flexible Server should exist."
+}
+
+variable "domain" {
+  type = string
+  validation {
+    condition = (
+      length(var.domain) <= 12
+    )
+    error_message = "Max length is 12 chars."
+  }
 }
 
 
@@ -45,14 +71,6 @@ variable "private_dns_zone_id" {
   default     = null
   description = "(Optional) The ID of the private dns zone to create the PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created."
 }
-
-variable "delegated_subnet_id" {
-  type        = string
-  default     = null
-  description = "(Optional) The ID of the virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated."
-}
-
-
 
 #
 # Administration
@@ -232,16 +250,16 @@ variable "databases" {
 variable "geo_replication" {
   type = object({
     enabled                     = bool
-    name                        = optional(string, null)
     subnet_id                   = optional(string, null)
     location                    = optional(string, null)
+    location_short              = optional(string, null)
     private_dns_registration_ve = optional(bool, false)
   })
   default = {
     enabled                     = false
-    name                        = null
     subnet_id                   = null
     location                    = null
+    location_short              = null
     private_dns_registration_ve = false
   }
   description = "(Optional) Map of geo replication settings"
@@ -253,7 +271,7 @@ variable "geo_replication" {
 
   validation {
     error_message = "If geo_replication is enabled, 'name' and 'location' must be provided"
-    condition     = var.geo_replication.enabled ? (var.geo_replication.name != null && var.geo_replication.location != null) : true
+    condition     = var.geo_replication.enabled ? var.geo_replication.location != null : true
   }
 }
 
@@ -295,12 +313,6 @@ variable "embedded_subnet" {
     vnet_rg_name         = null
     replica_vnet_name    = null
     replica_vnet_rg_name = null
-  }
-
-
-  validation {
-    condition     = var.embedded_subnet.enabled ? var.delegated_subnet_id == null : true
-    error_message = "If 'embedded_subnet' is enabled, 'delegated_subnet_id' must be null."
   }
 
   validation {
@@ -345,11 +357,25 @@ variable "nsg_flow_log_configuration" {
 variable "embedded_nsg_configuration" {
   type = object({
     source_address_prefixes      = list(string)
-    source_address_prefixes_name = string # short name for source_address_prefixes
+    source_address_prefixes_name = string ## short name for source_address_prefixes
+    create_self_inbound          = optional(bool, true)
   })
   description = "(Optional) List of allowed cidr and name . Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration"
   default = {
     source_address_prefixes : ["*"]
     source_address_prefixes_name = "All"
+    create_self_inbound          = true
+  }
+}
+
+variable "create_self_inbound_nsg_rule" {
+  type = object({
+    embedded = bool
+    custom   = bool
+  })
+  description = "(Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope"
+  default = {
+    embedded = true
+    custom   = true
   }
 }

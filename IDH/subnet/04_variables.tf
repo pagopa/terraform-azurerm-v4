@@ -50,11 +50,14 @@ variable "embedded_nsg_configuration" {
   type = object({
     source_address_prefixes      = list(string)
     source_address_prefixes_name = string # short name for source_address_prefixes
+    create_self_inbound          = bool
+
   })
   description = "(Optional) List of allowed cidr and name. Available only if the subnet tier supports embedded nsg Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration"
   default = {
     source_address_prefixes : ["*"]
     source_address_prefixes_name = "All"
+    create_self_inbound          = true
   }
 
   validation {
@@ -122,6 +125,18 @@ variable "nsg_flow_log_configuration" {
   validation {
     condition     = var.nsg_flow_log_configuration.enabled ? var.nsg_flow_log_configuration.traffic_analytics_law_rg != null && try(var.nsg_flow_log_configuration.traffic_analytics_law_rg, "") != "" : true
     error_message = "'nsg_flow_log_configuration.traffic_analytics_law_rg' must not be null or empty when 'nsg_flow_log_configuration.enabled' is 'true'"
+  }
+}
+
+variable "create_self_inbound_nsg_rule" {
+  type = object({
+    embedded = bool
+    custom   = bool
+  })
+  description = "(Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope"
+  default = {
+    embedded = true
+    custom   = true
   }
 }
 
