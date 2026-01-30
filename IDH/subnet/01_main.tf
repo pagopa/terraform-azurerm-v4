@@ -140,7 +140,7 @@ module "embedded_nsg" {
         can(module.idh_loader.idh_resource_configuration.nsg.service) ? [
           {
             target_service               = module.idh_loader.idh_resource_configuration.nsg.service
-            name                         = "Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}On${title(module.idh_loader.idh_resource_configuration.nsg.service)}"
+            name                         = replace("Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}On${title(module.idh_loader.idh_resource_configuration.nsg.service)}", "-", "")
             priority                     = 200
             source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
             description                  = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
@@ -151,7 +151,7 @@ module "embedded_nsg" {
           var.create_self_inbound_nsg_rule.embedded ? [
             {
               target_service               = module.idh_loader.idh_resource_configuration.nsg.service
-              name                         = "AllowIntraSubnetOn${title(module.idh_loader.idh_resource_configuration.nsg.service)}"
+              name                         = replace("AllowIntraSubnetOn${title(module.idh_loader.idh_resource_configuration.nsg.service)}", "-", "")
               priority                     = 210
               source_address_prefixes      = module.subnet.address_prefixes
               description                  = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from same subnet"
@@ -162,7 +162,7 @@ module "embedded_nsg" {
         ] :
         [
           {
-            name                         = "Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}"
+            name                         = replace("Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}", "-", "")
             priority                     = 200
             protocol                     = module.idh_loader.idh_resource_configuration.nsg.custom.protocol
             source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
@@ -234,7 +234,7 @@ module "custom_nsg" {
       inbound_rules = flatten([
         try(var.custom_nsg_configuration.target_service, null) != null ? [
           {
-            name                         = "Allow${title(var.custom_nsg_configuration.source_address_prefixes_name)}On${title(var.custom_nsg_configuration.target_service)}"
+            name                         = replace("Allow${title(var.custom_nsg_configuration.source_address_prefixes_name)}On${title(var.custom_nsg_configuration.target_service)}", "-", "")
             priority                     = 1000
             protocol                     = null
             source_address_prefixes      = var.custom_nsg_configuration.source_address_prefixes
@@ -245,7 +245,7 @@ module "custom_nsg" {
           },
           var.create_self_inbound_nsg_rule.custom ?
           [{
-            name                         = "AllowIntraSubnetOn${title(var.custom_nsg_configuration.target_service)}"
+            name                         = replace("AllowIntraSubnetOn${title(var.custom_nsg_configuration.target_service)}", "-", "")
             priority                     = 1010
             protocol                     = null
             source_address_prefixes      = module.subnet.address_prefixes
@@ -255,7 +255,7 @@ module "custom_nsg" {
             target_service               = var.custom_nsg_configuration.target_service
           }] : []
           ] : [{
-            name                         = "Allow${title(var.custom_nsg_configuration.source_address_prefixes_name)}"
+            name                         = replace("Allow${title(var.custom_nsg_configuration.source_address_prefixes_name)}", "-", "")
             priority                     = 1000
             protocol                     = var.custom_nsg_configuration.protocol
             source_address_prefixes      = var.custom_nsg_configuration.source_address_prefixes

@@ -8,11 +8,12 @@ module "idh_loader" {
 }
 
 locals {
-  pgbouncer_enabled = var.pg_bouncer_enabled != null ? var.pg_bouncer_enabled : module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled
-  zone              = var.zone != null ? var.zone : module.idh_loader.idh_resource_configuration.zone
-  product_prefix    = "${var.prefix}-${lower(substr(var.env, 0, 1))}"
-  primary_prefix    = "${local.product_prefix}-${var.location_short}-${var.domain}-pgflex"
-  replica_prefix    = "${local.product_prefix}-${var.geo_replication.location_short}-${var.domain}-pgflex-replica"
+  pgbouncer_enabled     = var.pg_bouncer_enabled != null ? var.pg_bouncer_enabled : module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled
+  zone                  = var.zone != null ? var.zone : module.idh_loader.idh_resource_configuration.zone
+  product_prefix        = "${var.prefix}-${lower(substr(var.env, 0, 1))}"
+  primary_prefix        = "${local.product_prefix}-${var.location_short}-${var.domain}-pgflex"
+  replica_prefix        = "${local.product_prefix}-${var.geo_replication.location_short}-${var.domain}-pgflex-replica"
+  intra_subnet_priority = 4080
 }
 
 # IDH/subnet
@@ -33,14 +34,6 @@ module "pgflex_snet" {
   create_self_inbound_nsg_rule = var.create_self_inbound_nsg_rule
 
   tags = var.tags
-}
-
-data "azurerm_network_security_group" "primary_embedded_nsg" {
-  count      = var.embedded_subnet.enabled ? 1 : 0
-  depends_on = [module.pgflex_snet]
-
-  name                = module.pgflex_snet[0].embedded_nsg_details.name
-  resource_group_name = module.pgflex_snet[0].embedded_nsg_details.resource_group_name
 }
 
 module "pgflex_primary_nsg" {
@@ -70,7 +63,7 @@ module "pgflex_primary_nsg" {
         {
           target_service               = "postgresql"
           name                         = "AllowReplicaToPrimaryPostgres"
-          priority                     = max(100, (floor(max([for p in data.azurerm_network_security_group.primary_embedded_nsg[0].security_rule[*].priority : p if p < 4090]...) / 10) * 10) + 10)
+          priority                     = local.intra_subnet_priority
           source_address_prefixes      = module.pgflex_replica_snet[0].address_prefixes
           access                       = "Allow"
           destination_port_ranges      = null
@@ -105,14 +98,6 @@ module "pgflex_replica_snet" {
   tags = var.tags
 }
 
-data "azurerm_network_security_group" "replica_embedded_nsg" {
-  count      = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
-  depends_on = [module.pgflex_replica_snet]
-
-  name                = module.pgflex_replica_snet[0].embedded_nsg_details.name
-  resource_group_name = module.pgflex_replica_snet[0].embedded_nsg_details.resource_group_name
-}
-
 module "pgflex_replica_nsg" {
   source = "../../network_security_group"
   count  = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
@@ -139,8 +124,8 @@ module "pgflex_replica_nsg" {
       inbound_rules = [
         {
           target_service               = "postgresql"
-          name                         = "AllowReplicaToPrimaryPostgres"
-          priority                     = max(100, (floor(max([for p in data.azurerm_network_security_group.replica_embedded_nsg[0].security_rule[*].priority : p if p < 4090]...) / 10) * 10) + 10)
+          name                         = "AllowPrimaryToReplicaPostgres"
+          priority                     = local.intra_subnet_priority
           source_address_prefixes      = module.pgflex_snet[0].address_prefixes
           access                       = "Allow"
           destination_port_ranges      = null
@@ -217,33 +202,39 @@ module "pgflex" {
 
 # Message    : FATAL: unsupported startup parameter: extra_float_digits
 resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_ignore_startup_parameters" {
-  count     = local.pgbouncer_enabled ? 1 : 0
+  count      = local.pgbouncer_enabled ? 1 : 0
+  depends_on = [azurerm_postgresql_flexible_server_configuration.azure_extensions]
+
   name      = "pgbouncer.ignore_startup_parameters"
   server_id = module.pgflex.id
   value     = "extra_float_digits,search_path"
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_min_pool_size" {
-  count     = local.pgbouncer_enabled ? 1 : 0
+  count      = local.pgbouncer_enabled ? 1 : 0
+  depends_on = [azurerm_postgresql_flexible_server_configuration.azure_extensions]
+
   name      = "pgbouncer.min_pool_size"
   server_id = module.pgflex.id
   value     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_min_pool_size
 }
 resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_default_pool_size" {
-  count     = local.pgbouncer_enabled ? 1 : 0
+  count      = local.pgbouncer_enabled ? 1 : 0
+  depends_on = [azurerm_postgresql_flexible_server_configuration.azure_extensions]
+
   name      = "pgbouncer.default_pool_size"
   server_id = module.pgflex.id
   value     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_default_pool_size
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_max_client_conn" {
-  count     = local.pgbouncer_enabled ? 1 : 0
+  count      = local.pgbouncer_enabled ? 1 : 0
+  depends_on = [azurerm_postgresql_flexible_server_configuration.azure_extensions]
+
   name      = "pgbouncer.max_client_conn"
   server_id = module.pgflex.id
   value     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_max_client_conn
 }
-
-
 
 resource "azurerm_postgresql_flexible_server_configuration" "max_worker_process" {
   name      = "max_worker_processes"
@@ -316,7 +307,6 @@ module "replica" {
   log_analytics_workspace_id = var.log_analytics_workspace_id
   zone                       = local.zone
   tags                       = var.tags
-
 }
 
 
