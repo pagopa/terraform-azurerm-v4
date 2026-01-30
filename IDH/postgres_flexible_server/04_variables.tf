@@ -72,14 +72,6 @@ variable "private_dns_zone_id" {
   description = "(Optional) The ID of the private dns zone to create the PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created."
 }
 
-variable "delegated_subnet_id" {
-  type        = string
-  default     = null
-  description = "(Optional) The ID of the virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated."
-}
-
-
-
 #
 # Administration
 #
@@ -321,12 +313,6 @@ variable "embedded_subnet" {
     vnet_rg_name         = null
     replica_vnet_name    = null
     replica_vnet_rg_name = null
-  }
-
-
-  validation {
-    condition     = var.embedded_subnet.enabled ? var.delegated_subnet_id == null : true
-    error_message = "If 'embedded_subnet' is enabled, 'delegated_subnet_id' must be null."
   }
 
   validation {
