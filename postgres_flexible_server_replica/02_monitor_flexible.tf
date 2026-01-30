@@ -34,6 +34,8 @@ resource "azurerm_monitor_metric_alert" "replica_alerts" {
     operator         = each.value.operator
     threshold        = each.value.threshold
   }
+
+  tags = var.tags
 }
 
 resource "azurerm_monitor_metric_alert" "main_server_alerts" {
@@ -65,6 +67,8 @@ resource "azurerm_monitor_metric_alert" "main_server_alerts" {
     operator         = each.value.operator
     threshold        = each.value.threshold
   }
+
+  tags = var.tags
 }
 
 ##
@@ -86,4 +90,5 @@ resource "azurerm_monitor_diagnostic_setting" "this" {
     category = "AllMetrics"
     enabled  = false
   }
+
 }
