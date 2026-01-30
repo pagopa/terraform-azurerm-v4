@@ -123,11 +123,13 @@ No resources.
 | <a name="output_legacy_primary_sql_connection_strings"></a> [legacy\_primary\_sql\_connection\_strings](#output\_legacy\_primary\_sql\_connection\_strings) | n/a |
 | <a name="output_legacy_secondary_sql_connection_strings"></a> [legacy\_secondary\_sql\_connection\_strings](#output\_legacy\_secondary\_sql\_connection\_strings) | n/a |
 | <a name="output_name"></a> [name](#output\_name) | The name of the CosmosDB created. |
+| <a name="output_primary_connection_string_readonly"></a> [primary\_connection\_string\_readonly](#output\_primary\_connection\_string\_readonly) | n/a |
 | <a name="output_primary_connection_strings"></a> [primary\_connection\_strings](#output\_primary\_connection\_strings) | n/a |
 | <a name="output_primary_key"></a> [primary\_key](#output\_primary\_key) | n/a |
 | <a name="output_primary_master_key"></a> [primary\_master\_key](#output\_primary\_master\_key) | @deprecated |
 | <a name="output_primary_readonly_key"></a> [primary\_readonly\_key](#output\_primary\_readonly\_key) | n/a |
 | <a name="output_primary_readonly_master_key"></a> [primary\_readonly\_master\_key](#output\_primary\_readonly\_master\_key) | @deprecated |
+| <a name="output_primary_sql_connection_string_readonly"></a> [primary\_sql\_connection\_string\_readonly](#output\_primary\_sql\_connection\_string\_readonly) | n/a |
 | <a name="output_primary_sql_connection_strings"></a> [primary\_sql\_connection\_strings](#output\_primary\_sql\_connection\_strings) | n/a |
 | <a name="output_principal_id"></a> [principal\_id](#output\_principal\_id) | n/a |
 | <a name="output_read_endpoints"></a> [read\_endpoints](#output\_read\_endpoints) | A list of read endpoints available for CosmosDB account. |
