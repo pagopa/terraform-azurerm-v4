@@ -14,14 +14,9 @@ variable "env" {
   description = "(Required) Environment for which the resource will be created"
 }
 
-variable "prefix" {
-  type = string
-  validation {
-    condition = (
-      length(var.prefix) <= 6
-    )
-    error_message = "Max length is 6 chars."
-  }
+variable "name" {
+  type        = string
+  description = "(Required) The name which should be used for this PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created."
 }
 
 variable "location" {
@@ -64,6 +59,12 @@ variable "idh_resource_tier" {
 #
 # Network
 #
+
+variable "delegated_subnet_id" {
+  type        = string
+  default     = null
+  description = "(Optional) The ID of the virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated."
+}
 
 
 variable "private_dns_zone_id" {
@@ -250,14 +251,14 @@ variable "databases" {
 variable "geo_replication" {
   type = object({
     enabled                     = bool
+    name                        = optional(string, null)
     location                    = optional(string, null)
-    location_short              = optional(string, null)
     private_dns_registration_ve = optional(bool, false)
   })
   default = {
     enabled                     = false
+    name                        = null
     location                    = null
-    location_short              = null
     private_dns_registration_ve = false
   }
   description = "(Optional) Map of geo replication settings"
@@ -269,7 +270,7 @@ variable "geo_replication" {
 
   validation {
     error_message = "If geo_replication is enabled, 'name' and 'location' must be provided"
-    condition     = var.geo_replication.enabled ? var.geo_replication.location != null : true
+    condition     = var.geo_replication.enabled ? (var.geo_replication.name != null && var.geo_replication.location != null) : true
   }
 }
 
@@ -298,17 +299,47 @@ variable "additional_azure_extensions" {
 
 variable "embedded_subnet" {
   type = object({
+    enabled              = bool
     vnet_name            = optional(string, null)
     vnet_rg_name         = optional(string, null)
     replica_vnet_name    = optional(string, null)
     replica_vnet_rg_name = optional(string, null)
   })
-  description = "(Required) Configuration for creating an embedded Subnet for the PostgreSQL Flexible Server"
+  description = "(Optional) Configuration for creating an embedded Subnet for the PostgreSQL Flexible Server. If 'enabled' is true, 'delegated_subnet_id' must be null"
+  default = {
+    enabled              = false
+    vnet_name            = null
+    vnet_rg_name         = null
+    replica_vnet_name    = null
+    replica_vnet_rg_name = null
+  }
+
 
   validation {
-    error_message = "If 'geo_replication' is enabled, both 'embedded_subnet.replica_vnet_name' and 'embedded_subnet.replica_vnet_rg_name' must be provided."
-    condition     = var.geo_replication.enabled ? (var.embedded_subnet.replica_vnet_name != null && var.embedded_subnet.replica_vnet_rg_name != null) : true
+    condition     = var.embedded_subnet.enabled ? var.delegated_subnet_id == null : true
+    error_message = "If 'embedded_subnet' is enabled, 'delegated_subnet_id' must be null."
   }
+
+  validation {
+    condition     = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
+    error_message = "If 'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
+  }
+
+  validation {
+    error_message = "If 'embedded_subnet' is enabled and geo_replication is enabled, both 'embedded_subnet.replica_vnet_name' and 'embedded_subnet.replica_vnet_rg_name' must be provided."
+    condition     = (var.embedded_subnet.enabled && var.geo_replication.enabled) ? (var.embedded_subnet.replica_vnet_name != null && var.embedded_subnet.replica_vnet_rg_name != null) : true
+  }
+
+  validation {
+    error_message = "If 'embedded_subnet' is enabled and geo_replication is enabled, geo_replication.subnet_id must be null."
+    condition     = (var.embedded_subnet.enabled && var.geo_replication.enabled) ? var.geo_replication.subnet_id == null : true
+  }
+
+  validation {
+    error_message = "If geo_replication is enabled and embedded_subnet is disabled, 'subnet_id' must be provided"
+    condition     = var.geo_replication.enabled ? (var.embedded_subnet.enabled ? true : var.geo_replication.subnet_id != null) : true
+  }
+
 }
 
 

@@ -10,16 +10,15 @@ module "idh_loader" {
 locals {
   pgbouncer_enabled     = var.pg_bouncer_enabled != null ? var.pg_bouncer_enabled : module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled
   zone                  = var.zone != null ? var.zone : module.idh_loader.idh_resource_configuration.zone
-  product_prefix        = "${var.prefix}-${lower(substr(var.env, 0, 1))}"
-  primary_prefix        = "${local.product_prefix}-${var.location_short}-${var.domain}-pgflex"
-  replica_prefix        = "${local.product_prefix}-${var.geo_replication.location_short}-${var.domain}-pgflex-replica"
   intra_subnet_priority = 4080
 }
 
 # IDH/subnet
 module "pgflex_snet" {
-  source               = "../subnet"
-  name                 = "${local.primary_prefix}-snet"
+  source = "../subnet"
+  count  = var.embedded_subnet.enabled ? 1 : 0
+
+  name                 = "${var.name}-snet"
   resource_group_name  = var.embedded_subnet.vnet_rg_name
   virtual_network_name = var.embedded_subnet.vnet_name
   service_endpoints    = ["Microsoft.Storage"]
@@ -37,17 +36,17 @@ module "pgflex_snet" {
 
 module "pgflex_primary_nsg" {
   source = "../../network_security_group"
-  count  = var.geo_replication.enabled ? 1 : 0
+  count  = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
 
-  depends_on = [module.pgflex_snet, module.pgflex_replica_snet]
+  depends_on = [module.pgflex_snet[0], module.pgflex_replica_snet]
 
   location            = var.location
-  prefix              = var.prefix
-  resource_group_name = module.pgflex_snet.embedded_nsg_details.resource_group_name
+  prefix              = var.name
+  resource_group_name = module.pgflex_snet[0].embedded_nsg_details.resource_group_name
 
   enabled_only_rules = {
     enabled             = true
-    security_group_name = module.pgflex_snet.embedded_nsg_details.name
+    security_group_name = module.pgflex_snet[0].embedded_nsg_details.name
   }
 
   vnets = {
@@ -56,8 +55,8 @@ module "pgflex_primary_nsg" {
 
   custom_security_group = {
     pgflex_primary_nsg = {
-      target_subnet_id   = module.pgflex_snet.id
-      target_subnet_cidr = module.pgflex_snet.address_prefixes[0]
+      target_subnet_id   = module.pgflex_snet[0].id
+      target_subnet_cidr = module.pgflex_snet[0].address_prefixes[0]
       inbound_rules = [
         {
           target_service               = "postgresql"
@@ -66,7 +65,7 @@ module "pgflex_primary_nsg" {
           source_address_prefixes      = module.pgflex_replica_snet[0].address_prefixes
           access                       = "Allow"
           destination_port_ranges      = null
-          destination_address_prefixes = module.pgflex_snet.address_prefixes
+          destination_address_prefixes = module.pgflex_snet[0].address_prefixes
           protocol                     = null
           description                  = "Allow inbound traffic from the Geo-Replica PostgreSQL instance to the Primary instance"
         }
@@ -79,9 +78,9 @@ module "pgflex_primary_nsg" {
 
 # IDH/subnet
 module "pgflex_replica_snet" {
-  count                = var.geo_replication.enabled ? 1 : 0
+  count                = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
   source               = "../subnet"
-  name                 = "${local.replica_prefix}-snet"
+  name                 = "${var.name}-snet"
   resource_group_name  = var.embedded_subnet.replica_vnet_rg_name
   virtual_network_name = var.embedded_subnet.replica_vnet_name
   service_endpoints    = ["Microsoft.Storage"]
@@ -99,12 +98,12 @@ module "pgflex_replica_snet" {
 
 module "pgflex_replica_nsg" {
   source = "../../network_security_group"
-  count  = var.geo_replication.enabled ? 1 : 0
+  count  = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
 
   depends_on = [module.pgflex_snet, module.pgflex_replica_snet]
 
   location            = var.location
-  prefix              = var.prefix
+  prefix              = var.name
   resource_group_name = module.pgflex_replica_snet[0].embedded_nsg_details.resource_group_name
 
   enabled_only_rules = {
@@ -125,7 +124,7 @@ module "pgflex_replica_nsg" {
           target_service               = "postgresql"
           name                         = "AllowPrimaryToReplicaPostgres"
           priority                     = local.intra_subnet_priority
-          source_address_prefixes      = module.pgflex_snet.address_prefixes
+          source_address_prefixes      = module.pgflex_snet[0].address_prefixes
           access                       = "Allow"
           destination_port_ranges      = null
           destination_address_prefixes = module.pgflex_replica_snet[0].address_prefixes
@@ -151,7 +150,7 @@ module "pgflex" {
   high_availability_enabled = module.idh_loader.idh_resource_configuration.high_availability_enabled
   standby_availability_zone = module.idh_loader.idh_resource_configuration.standby_availability_zone
   location                  = var.location
-  name                      = local.primary_prefix
+  name                      = var.name
   private_endpoint_enabled  = module.idh_loader.idh_resource_configuration.private_endpoint_enabled
   resource_group_name       = var.resource_group_name
   sku_name                  = module.idh_loader.idh_resource_configuration.sku_name
@@ -163,6 +162,7 @@ module "pgflex" {
   create_mode                  = module.idh_loader.idh_resource_configuration.create_mode
   zone                         = local.zone
 
+  delegated_subnet_id           = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? (var.embedded_subnet.enabled ? module.pgflex_snet[0].subnet_id : var.delegated_subnet_id) : null
   private_dns_zone_id           = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_dns_zone_id : null
   public_network_access_enabled = module.idh_loader.idh_resource_configuration.public_network_access_enabled
 
@@ -283,7 +283,7 @@ module "replica" {
   source = "../../postgres_flexible_server_replica"
   count  = var.geo_replication.enabled && module.idh_loader.idh_resource_configuration.geo_replication_allowed ? 1 : 0
 
-  name                = local.replica_prefix
+  name                = var.geo_replication.name
   resource_group_name = var.resource_group_name
   location            = var.geo_replication.location
 
@@ -309,7 +309,7 @@ module "replica" {
 
 resource "azurerm_postgresql_flexible_server_virtual_endpoint" "virtual_endpoint" {
   count             = var.geo_replication.enabled && module.idh_loader.idh_resource_configuration.geo_replication_allowed ? 1 : 0
-  name              = "${local.primary_prefix}-ve"
+  name              = "${var.name}-ve"
   source_server_id  = module.pgflex.id
   replica_server_id = module.replica[0].id
   type              = "ReadWrite"
