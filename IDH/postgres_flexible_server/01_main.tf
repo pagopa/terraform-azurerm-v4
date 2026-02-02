@@ -18,7 +18,6 @@ locals {
 
 # IDH/subnet
 module "pgflex_snet" {
-  count                = var.embedded_subnet.enabled ? 1 : 0
   source               = "../subnet"
   name                 = "${local.primary_prefix}-snet"
   resource_group_name  = var.embedded_subnet.vnet_rg_name
@@ -38,17 +37,17 @@ module "pgflex_snet" {
 
 module "pgflex_primary_nsg" {
   source = "../../network_security_group"
-  count  = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
+  count  = var.geo_replication.enabled ? 1 : 0
 
   depends_on = [module.pgflex_snet, module.pgflex_replica_snet]
 
   location            = var.location
   prefix              = var.prefix
-  resource_group_name = module.pgflex_snet[0].embedded_nsg_details.resource_group_name
+  resource_group_name = module.pgflex_snet.embedded_nsg_details.resource_group_name
 
   enabled_only_rules = {
     enabled             = true
-    security_group_name = module.pgflex_snet[0].embedded_nsg_details.name
+    security_group_name = module.pgflex_snet.embedded_nsg_details.name
   }
 
   vnets = {
@@ -57,8 +56,8 @@ module "pgflex_primary_nsg" {
 
   custom_security_group = {
     pgflex_primary_nsg = {
-      target_subnet_id   = module.pgflex_snet[0].id
-      target_subnet_cidr = module.pgflex_snet[0].address_prefixes[0]
+      target_subnet_id   = module.pgflex_snet.id
+      target_subnet_cidr = module.pgflex_snet.address_prefixes[0]
       inbound_rules = [
         {
           target_service               = "postgresql"
@@ -67,7 +66,7 @@ module "pgflex_primary_nsg" {
           source_address_prefixes      = module.pgflex_replica_snet[0].address_prefixes
           access                       = "Allow"
           destination_port_ranges      = null
-          destination_address_prefixes = module.pgflex_snet[0].address_prefixes
+          destination_address_prefixes = module.pgflex_snet.address_prefixes
           protocol                     = null
           description                  = "Allow inbound traffic from the Geo-Replica PostgreSQL instance to the Primary instance"
         }
@@ -80,7 +79,7 @@ module "pgflex_primary_nsg" {
 
 # IDH/subnet
 module "pgflex_replica_snet" {
-  count                = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
+  count                = var.geo_replication.enabled ? 1 : 0
   source               = "../subnet"
   name                 = "${local.replica_prefix}-snet"
   resource_group_name  = var.embedded_subnet.replica_vnet_rg_name
@@ -100,7 +99,7 @@ module "pgflex_replica_snet" {
 
 module "pgflex_replica_nsg" {
   source = "../../network_security_group"
-  count  = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
+  count  = var.geo_replication.enabled ? 1 : 0
 
   depends_on = [module.pgflex_snet, module.pgflex_replica_snet]
 
@@ -126,7 +125,7 @@ module "pgflex_replica_nsg" {
           target_service               = "postgresql"
           name                         = "AllowPrimaryToReplicaPostgres"
           priority                     = local.intra_subnet_priority
-          source_address_prefixes      = module.pgflex_snet[0].address_prefixes
+          source_address_prefixes      = module.pgflex_snet.address_prefixes
           access                       = "Allow"
           destination_port_ranges      = null
           destination_address_prefixes = module.pgflex_replica_snet[0].address_prefixes

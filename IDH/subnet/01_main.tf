@@ -148,7 +148,7 @@ module "embedded_nsg" {
             destination_address_prefixes = module.subnet.address_prefixes
             protocol                     = null
           },
-          var.create_self_inbound_nsg_rule.embedded ? [
+          var.create_self_inbound_nsg_rule ? [
             {
               target_service               = module.idh_loader.idh_resource_configuration.nsg.service
               name                         = replace("AllowIntraSubnetOn${title(module.idh_loader.idh_resource_configuration.nsg.service)}", "-", "")
@@ -172,7 +172,7 @@ module "embedded_nsg" {
             destination_address_prefixes = module.subnet.address_prefixes
 
           },
-          var.create_self_inbound_nsg_rule.embedded ?
+          var.create_self_inbound_nsg_rule ?
           [{
             name                         = "AllowIntraSubnetCustom"
             priority                     = 210
@@ -243,7 +243,7 @@ module "custom_nsg" {
             destination_address_prefixes = module.subnet.address_prefixes
             target_service               = var.custom_nsg_configuration.target_service
           },
-          var.create_self_inbound_nsg_rule.custom ?
+          var.create_self_inbound_nsg_rule ?
           [{
             name                         = replace("AllowIntraSubnetOn${title(var.custom_nsg_configuration.target_service)}", "-", "")
             priority                     = 1010
@@ -264,7 +264,7 @@ module "custom_nsg" {
             destination_address_prefixes = module.subnet.address_prefixes
             target_service               = null
           },
-          var.create_self_inbound_nsg_rule.custom ?
+          var.create_self_inbound_nsg_rule ?
           [{
             name                         = "AllowIntraSubnetCustom"
             priority                     = 1010

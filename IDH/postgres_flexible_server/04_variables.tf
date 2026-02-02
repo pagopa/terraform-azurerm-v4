@@ -250,14 +250,12 @@ variable "databases" {
 variable "geo_replication" {
   type = object({
     enabled                     = bool
-    subnet_id                   = optional(string, null)
     location                    = optional(string, null)
     location_short              = optional(string, null)
     private_dns_registration_ve = optional(bool, false)
   })
   default = {
     enabled                     = false
-    subnet_id                   = null
     location                    = null
     location_short              = null
     private_dns_registration_ve = false
@@ -300,41 +298,17 @@ variable "additional_azure_extensions" {
 
 variable "embedded_subnet" {
   type = object({
-    enabled              = bool
     vnet_name            = optional(string, null)
     vnet_rg_name         = optional(string, null)
     replica_vnet_name    = optional(string, null)
     replica_vnet_rg_name = optional(string, null)
   })
-  description = "(Optional) Configuration for creating an embedded Subnet for the PostgreSQL Flexible Server. If 'enabled' is true, 'delegated_subnet_id' must be null"
-  default = {
-    enabled              = false
-    vnet_name            = null
-    vnet_rg_name         = null
-    replica_vnet_name    = null
-    replica_vnet_rg_name = null
-  }
+  description = "(Required) Configuration for creating an embedded Subnet for the PostgreSQL Flexible Server"
 
   validation {
-    condition     = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
-    error_message = "If 'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
+    error_message = "If 'geo_replication' is enabled, both 'embedded_subnet.replica_vnet_name' and 'embedded_subnet.replica_vnet_rg_name' must be provided."
+    condition     = var.geo_replication.enabled ? (var.embedded_subnet.replica_vnet_name != null && var.embedded_subnet.replica_vnet_rg_name != null) : true
   }
-
-  validation {
-    error_message = "If 'embedded_subnet' is enabled and geo_replication is enabled, both 'embedded_subnet.replica_vnet_name' and 'embedded_subnet.replica_vnet_rg_name' must be provided."
-    condition     = (var.embedded_subnet.enabled && var.geo_replication.enabled) ? (var.embedded_subnet.replica_vnet_name != null && var.embedded_subnet.replica_vnet_rg_name != null) : true
-  }
-
-  validation {
-    error_message = "If 'embedded_subnet' is enabled and geo_replication is enabled, geo_replication.subnet_id must be null."
-    condition     = (var.embedded_subnet.enabled && var.geo_replication.enabled) ? var.geo_replication.subnet_id == null : true
-  }
-
-  validation {
-    error_message = "If geo_replication is enabled and embedded_subnet is disabled, 'subnet_id' must be provided"
-    condition     = var.geo_replication.enabled ? (var.embedded_subnet.enabled ? true : var.geo_replication.subnet_id != null) : true
-  }
-
 }
 
 
@@ -364,18 +338,11 @@ variable "embedded_nsg_configuration" {
   default = {
     source_address_prefixes : ["*"]
     source_address_prefixes_name = "All"
-    create_self_inbound          = true
   }
 }
 
 variable "create_self_inbound_nsg_rule" {
-  type = object({
-    embedded = bool
-    custom   = bool
-  })
+  type        = bool
   description = "(Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope"
-  default = {
-    embedded = true
-    custom   = true
-  }
+  default     = true
 }
