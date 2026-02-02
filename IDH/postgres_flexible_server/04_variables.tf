@@ -332,7 +332,6 @@ variable "embedded_nsg_configuration" {
   type = object({
     source_address_prefixes      = list(string)
     source_address_prefixes_name = string ## short name for source_address_prefixes
-    create_self_inbound          = optional(bool, true)
   })
   description = "(Optional) List of allowed cidr and name . Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration"
   default = {
