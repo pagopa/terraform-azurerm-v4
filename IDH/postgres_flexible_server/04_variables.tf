@@ -24,32 +24,10 @@ variable "location" {
   description = "(Required) The Azure Region where the PostgreSQL Flexible Server should exist."
 }
 
-variable "location_short" {
-  type = string
-  validation {
-    condition = (
-      length(var.location_short) == 3
-    )
-    error_message = "Length must be 3 chars."
-  }
-  description = "One of wue, neu"
-}
-
 variable "resource_group_name" {
   type        = string
   description = "(Required) The name of the Resource Group where the PostgreSQL Flexible Server should exist."
 }
-
-variable "domain" {
-  type = string
-  validation {
-    condition = (
-      length(var.domain) <= 12
-    )
-    error_message = "Max length is 12 chars."
-  }
-}
-
 
 variable "idh_resource_tier" {
   type        = string
@@ -60,17 +38,17 @@ variable "idh_resource_tier" {
 # Network
 #
 
-variable "delegated_subnet_id" {
-  type        = string
-  default     = null
-  description = "(Optional) The ID of the virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated."
-}
-
 
 variable "private_dns_zone_id" {
   type        = string
   default     = null
   description = "(Optional) The ID of the private dns zone to create the PostgreSQL Flexible Server. Changing this forces a new PostgreSQL Flexible Server to be created."
+}
+
+variable "delegated_subnet_id" {
+  type        = string
+  default     = null
+  description = "(Optional) The ID of the virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated."
 }
 
 #
@@ -252,12 +230,14 @@ variable "geo_replication" {
   type = object({
     enabled                     = bool
     name                        = optional(string, null)
+    subnet_id                   = optional(string, null)
     location                    = optional(string, null)
     private_dns_registration_ve = optional(bool, false)
   })
   default = {
     enabled                     = false
     name                        = null
+    subnet_id                   = null
     location                    = null
     private_dns_registration_ve = false
   }
