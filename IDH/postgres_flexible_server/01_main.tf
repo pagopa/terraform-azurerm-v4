@@ -42,11 +42,11 @@ module "pgflex_primary_nsg" {
 
   location            = var.location
   prefix              = var.name
-  resource_group_name = module.pgflex_snet[0].embedded_nsg_details.resource_group_name
+  resource_group_name = module.pgflex_snet[0].nsg_details.resource_group_name
 
-  enabled_only_rules = {
+  rules_only = {
     enabled             = true
-    security_group_name = module.pgflex_snet[0].embedded_nsg_details.name
+    security_group_name = module.pgflex_snet[0].nsg_details.name
   }
 
   vnets = {
@@ -104,11 +104,11 @@ module "pgflex_replica_nsg" {
 
   location            = var.location
   prefix              = var.name
-  resource_group_name = module.pgflex_replica_snet[0].embedded_nsg_details.resource_group_name
+  resource_group_name = module.pgflex_replica_snet[0].nsg_details.resource_group_name
 
-  enabled_only_rules = {
+  rules_only = {
     enabled             = true
-    security_group_name = module.pgflex_replica_snet[0].embedded_nsg_details.name
+    security_group_name = module.pgflex_replica_snet[0].nsg_details.name
   }
 
   vnets = {
@@ -323,5 +323,3 @@ resource "azurerm_private_dns_cname_record" "cname_record" {
   ttl                 = var.private_dns_cname_record_ttl
   record              = "${azurerm_postgresql_flexible_server_virtual_endpoint.virtual_endpoint[0].name}.writer.postgres.database.azure.com"
 }
-
-

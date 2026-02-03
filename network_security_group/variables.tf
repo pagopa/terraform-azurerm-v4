@@ -363,7 +363,7 @@ variable "flow_logs" {
   description = "(Optional) Parameters required to configure the network watcher"
 }
 
-variable "enabled_only_rules" {
+variable "rules_only" {
   type = object({
     enabled             = bool
     security_group_name = optional(string, null)
@@ -376,7 +376,7 @@ variable "enabled_only_rules" {
   }
 
   validation {
-    condition     = var.enabled_only_rules.enabled ? var.enabled_only_rules.security_group_name != null : true
+    condition     = var.rules_only.enabled ? var.rules_only.security_group_name != null : true
     error_message = "When 'enabled_only_rules.enabled' is true, a valid 'security_group_name' must be provided."
   }
 }

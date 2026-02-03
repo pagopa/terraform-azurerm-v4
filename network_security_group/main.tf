@@ -1,5 +1,5 @@
 resource "azurerm_network_security_group" "custom_nsg" {
-  for_each = var.enabled_only_rules.enabled ? {} : var.custom_security_group
+  for_each = var.rules_only.enabled ? {} : var.custom_security_group
 
   name                = "${var.prefix}-${each.key}-nsg"
   resource_group_name = var.resource_group_name
@@ -27,19 +27,19 @@ resource "azurerm_network_security_rule" "custom_security_rule" {
 
   resource_group_name = var.resource_group_name
 
-  network_security_group_name = var.enabled_only_rules.enabled ? var.enabled_only_rules.security_group_name : azurerm_network_security_group.custom_nsg[each.value.nsg_name].name
+  network_security_group_name = var.rules_only.enabled ? var.rules_only.security_group_name : azurerm_network_security_group.custom_nsg[each.value.nsg_name].name
 }
 
 
 resource "azurerm_subnet_network_security_group_association" "nsg_association" {
-  for_each = !var.enabled_only_rules.enabled ? var.custom_security_group : {}
+  for_each = !var.rules_only.enabled ? var.custom_security_group : {}
 
   subnet_id                 = each.value.target_subnet_id != null ? each.value.target_subnet_id : data.azurerm_subnet.subnet["${each.value.target_subnet_name}-${each.value.target_subnet_vnet_name}"].id
   network_security_group_id = azurerm_network_security_group.custom_nsg[each.key].id
 }
 
 resource "azurerm_network_watcher_flow_log" "network_watcher_flow_log" {
-  for_each = !var.enabled_only_rules.enabled && var.flow_logs != null ? var.custom_security_group : {}
+  for_each = !var.rules_only.enabled && var.flow_logs != null ? var.custom_security_group : {}
 
   network_watcher_name = var.flow_logs.network_watcher_name
   resource_group_name  = var.flow_logs.network_watcher_rg
