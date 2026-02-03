@@ -50,6 +50,7 @@ variable "embedded_nsg_configuration" {
   type = object({
     source_address_prefixes      = list(string)
     source_address_prefixes_name = string # short name for source_address_prefixes
+
   })
   description = "(Optional) List of allowed cidr and name. Available only if the subnet tier supports embedded nsg Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration"
   default = {
@@ -83,7 +84,13 @@ variable "custom_nsg_configuration" {
     condition     = var.custom_nsg_configuration != null && try(var.custom_nsg_configuration.target_service, null) == null ? (var.custom_nsg_configuration.target_ports != null && var.custom_nsg_configuration.protocol != null) : true
     error_message = "If target_service is NOT defined,  (target_ports, protocol) must be defined"
   }
+
+  validation {
+    condition     = !(var.custom_nsg_configuration != null && can(module.idh_loader.idh_resource_configuration.nsg))
+    error_message = "Cannot use 'custom_nsg_configuration' because an NSG is already defined in the IDH loader"
+  }
 }
+
 
 variable "nsg_flow_log_configuration" {
   type = object({
@@ -123,6 +130,12 @@ variable "nsg_flow_log_configuration" {
     condition     = var.nsg_flow_log_configuration.enabled ? var.nsg_flow_log_configuration.traffic_analytics_law_rg != null && try(var.nsg_flow_log_configuration.traffic_analytics_law_rg, "") != "" : true
     error_message = "'nsg_flow_log_configuration.traffic_analytics_law_rg' must not be null or empty when 'nsg_flow_log_configuration.enabled' is 'true'"
   }
+}
+
+variable "create_self_inbound_nsg_rule" {
+  type        = bool
+  description = "(Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope"
+  default     = true
 }
 
 variable "tags" {

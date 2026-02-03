@@ -29,7 +29,6 @@ variable "resource_group_name" {
   description = "(Required) The name of the Resource Group where the PostgreSQL Flexible Server should exist."
 }
 
-
 variable "idh_resource_tier" {
   type        = string
   description = "(Required) The name od IDH resource key to be created."
@@ -51,8 +50,6 @@ variable "delegated_subnet_id" {
   default     = null
   description = "(Optional) The ID of the virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated."
 }
-
-
 
 #
 # Administration
@@ -345,11 +342,17 @@ variable "nsg_flow_log_configuration" {
 variable "embedded_nsg_configuration" {
   type = object({
     source_address_prefixes      = list(string)
-    source_address_prefixes_name = string # short name for source_address_prefixes
+    source_address_prefixes_name = string ## short name for source_address_prefixes
   })
   description = "(Optional) List of allowed cidr and name . Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration"
   default = {
     source_address_prefixes : ["*"]
     source_address_prefixes_name = "All"
   }
+}
+
+variable "create_self_inbound_nsg_rule" {
+  type        = bool
+  description = "(Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope"
+  default     = true
 }

@@ -59,8 +59,9 @@ module "postgres_flexible_snet" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_create_self_inbound_nsg_rule"></a> [create\_self\_inbound\_nsg\_rule](#input\_create\_self\_inbound\_nsg\_rule) | (Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope | `bool` | `true` | no |
 | <a name="input_custom_nsg_configuration"></a> [custom\_nsg\_configuration](#input\_custom\_nsg\_configuration) | (Optional) Custom NSG configuration, additional to eventually present embedded nsg | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string # short name for source_address_prefixes<br/>    target_ports                 = optional(list(string), null)<br/>    protocol                     = optional(string, null)<br/>    target_service               = optional(string, null)<br/>  })</pre> | `null` | no |
-| <a name="input_embedded_nsg_configuration"></a> [embedded\_nsg\_configuration](#input\_embedded\_nsg\_configuration) | (Optional) List of allowed cidr and name. Available only if the subnet tier supports embedded nsg Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string # short name for source_address_prefixes<br/>  })</pre> | <pre>{<br/>  "source_address_prefixes": [<br/>    "*"<br/>  ],<br/>  "source_address_prefixes_name": "All"<br/>}</pre> | no |
+| <a name="input_embedded_nsg_configuration"></a> [embedded\_nsg\_configuration](#input\_embedded\_nsg\_configuration) | (Optional) List of allowed cidr and name. Available only if the subnet tier supports embedded nsg Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string # short name for source_address_prefixes<br/><br/>  })</pre> | <pre>{<br/>  "source_address_prefixes": [<br/>    "*"<br/>  ],<br/>  "source_address_prefixes_name": "All"<br/>}</pre> | no |
 | <a name="input_env"></a> [env](#input\_env) | n/a | `string` | n/a | yes |
 | <a name="input_idh_resource_tier"></a> [idh\_resource\_tier](#input\_idh\_resource\_tier) | (Required) The name od IDH resource key to be created. | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | (Required) Name of the subnet to be created | `string` | n/a | yes |
@@ -81,6 +82,7 @@ module "postgres_flexible_snet" {
 | <a name="output_id"></a> [id](#output\_id) | n/a |
 | <a name="output_last_ip_address"></a> [last\_ip\_address](#output\_last\_ip\_address) | Last usable ip address in the subnet |
 | <a name="output_name"></a> [name](#output\_name) | n/a |
+| <a name="output_nsg_details"></a> [nsg\_details](#output\_nsg\_details) | n/a |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | n/a |
 | <a name="output_subnet_id"></a> [subnet\_id](#output\_subnet\_id) | n/a |
 | <a name="output_subnet_name"></a> [subnet\_name](#output\_subnet\_name) | n/a |

@@ -250,10 +250,13 @@ No modules.
 | <a name="input_location"></a> [location](#input\_location) | Location of the resource group where the nsg will be saved | `string` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | Prefix for all resources | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Name of the resource group where the nsg will be saved | `string` | n/a | yes |
+| <a name="input_rules_only"></a> [rules\_only](#input\_rules\_only) | (Optional) Enables a 'rules-only' mode. If 'enabled' is set to true, the module skips the creation of the NSG, association, and flow logs | <pre>object({<br/>    enabled             = bool<br/>    security_group_name = optional(string, null)<br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "security_group_name": null<br/>}</pre> | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to be applied to the nsg | `map(string)` | n/a | yes |
 | <a name="input_vnets"></a> [vnets](#input\_vnets) | (Required) Map of virtual networks names and their resource groups where the involved (target, source, destination) subnets are located | `map(string)` | n/a | yes |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_nsg_custom_details"></a> [nsg\_custom\_details](#output\_nsg\_custom\_details) | Detailed map of created NSGs including names and resource groups |
 <!-- END_TF_DOCS -->

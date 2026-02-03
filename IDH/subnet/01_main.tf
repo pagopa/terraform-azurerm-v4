@@ -127,7 +127,7 @@ module "embedded_nsg" {
   location            = data.azurerm_virtual_network.vnet.location
 
   vnets = {
-    "${data.azurerm_virtual_network.vnet.name}" = data.azurerm_virtual_network.vnet.resource_group_name
+    (data.azurerm_virtual_network.vnet.name) = data.azurerm_virtual_network.vnet.resource_group_name
   }
 
   custom_security_group = {
@@ -136,28 +136,57 @@ module "embedded_nsg" {
       target_subnet_cidr = module.subnet.address_prefixes[0]
       watcher_enabled    = true
 
-      inbound_rules = [
-        can(module.idh_loader.idh_resource_configuration.nsg.service) ?
-        {
-          target_service               = module.idh_loader.idh_resource_configuration.nsg.service
-          name                         = "Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}On${title(module.idh_loader.idh_resource_configuration.nsg.service)}"
-          priority                     = 200
-          source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
-          description                  = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
-          destination_port_ranges      = null
-          destination_address_prefixes = module.subnet.address_prefixes
-          protocol                     = null
-          } : {
-          name                         = "Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}"
-          priority                     = 200
-          protocol                     = module.idh_loader.idh_resource_configuration.nsg.custom.protocol
-          source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
-          destination_port_ranges      = module.idh_loader.idh_resource_configuration.nsg.custom.ports
-          description                  = "Allow traffic from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
-          target_service               = null
-          destination_address_prefixes = module.subnet.address_prefixes
+      inbound_rules = flatten([
+        can(module.idh_loader.idh_resource_configuration.nsg.service) ? [
+          {
+            target_service               = module.idh_loader.idh_resource_configuration.nsg.service
+            name                         = replace("Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}On${title(module.idh_loader.idh_resource_configuration.nsg.service)}", "-", "")
+            priority                     = 200
+            source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
+            description                  = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
+            destination_port_ranges      = null
+            destination_address_prefixes = module.subnet.address_prefixes
+            protocol                     = null
+          },
+          var.create_self_inbound_nsg_rule ? [
+            {
+              target_service               = module.idh_loader.idh_resource_configuration.nsg.service
+              name                         = replace("AllowIntraSubnetOn${title(module.idh_loader.idh_resource_configuration.nsg.service)}", "-", "")
+              priority                     = 210
+              source_address_prefixes      = module.subnet.address_prefixes
+              description                  = "Allow traffic for ${module.idh_loader.idh_resource_configuration.nsg.service} from same subnet"
+              destination_port_ranges      = null
+              destination_address_prefixes = module.subnet.address_prefixes
+              protocol                     = null
+          }] : []
+        ] :
+        [
+          {
+            name                         = replace("Allow${title(var.embedded_nsg_configuration.source_address_prefixes_name)}", "-", "")
+            priority                     = 200
+            protocol                     = module.idh_loader.idh_resource_configuration.nsg.custom.protocol
+            source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
+            destination_port_ranges      = module.idh_loader.idh_resource_configuration.nsg.custom.ports
+            description                  = "Allow traffic from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
+            target_service               = null
+            destination_address_prefixes = module.subnet.address_prefixes
 
-        },
+          },
+          var.create_self_inbound_nsg_rule ?
+          [{
+            name                         = "AllowIntraSubnetCustom"
+            priority                     = 210
+            protocol                     = module.idh_loader.idh_resource_configuration.nsg.custom.protocol
+            source_address_prefixes      = module.subnet.address_prefixes
+            destination_port_ranges      = module.idh_loader.idh_resource_configuration.nsg.custom.ports
+            description                  = "Allow traffic from ${var.embedded_nsg_configuration.source_address_prefixes_name}"
+            target_service               = null
+            destination_address_prefixes = module.subnet.address_prefixes
+          }] : []
+        ],
+        #
+        # 🚨 Rule with priority 4080 is already in use within the IDH/postgres_flexible_server module to enable bidirectional communication between the primary and the replica
+        #
         {
           name                    = "DenyFromAllVNet"
           priority                = 4090
@@ -167,7 +196,8 @@ module "embedded_nsg" {
           description             = "Deny everyone else"
           access                  = "Deny"
         }
-      ]
+      ])
+
       outbound_rules = []
     }
   }
@@ -194,9 +224,8 @@ module "custom_nsg" {
   resource_group_name = azurerm_resource_group.nsg_rg.name
   location            = data.azurerm_virtual_network.vnet.location
 
-
   vnets = {
-    "${var.virtual_network_name}" = var.resource_group_name
+    (var.virtual_network_name) = var.resource_group_name
   }
 
   custom_security_group = {
@@ -205,26 +234,51 @@ module "custom_nsg" {
       target_subnet_cidr = module.subnet.address_prefixes[0]
       watcher_enabled    = true
 
-      inbound_rules = [
-        try(var.custom_nsg_configuration.target_service, null) != null ? {
-          name                         = "Allow${title(var.custom_nsg_configuration.source_address_prefixes_name)}On${title(var.custom_nsg_configuration.target_service)}"
-          priority                     = 1000
-          protocol                     = null
-          source_address_prefixes      = var.custom_nsg_configuration.source_address_prefixes
-          destination_port_ranges      = null
-          description                  = "Allow traffic from ${var.custom_nsg_configuration.source_address_prefixes_name}"
-          destination_address_prefixes = module.subnet.address_prefixes
-          target_service               = var.custom_nsg_configuration.target_service
-          } : {
-          name                         = "Allow${title(var.custom_nsg_configuration.source_address_prefixes_name)}"
-          priority                     = 1000
-          protocol                     = var.custom_nsg_configuration.protocol
-          source_address_prefixes      = var.custom_nsg_configuration.source_address_prefixes
-          destination_port_ranges      = var.custom_nsg_configuration.target_ports
-          description                  = "Allow traffic from ${var.custom_nsg_configuration.source_address_prefixes_name}"
-          destination_address_prefixes = module.subnet.address_prefixes
-          target_service               = null
-        },
+      inbound_rules = flatten([
+        try(var.custom_nsg_configuration.target_service, null) != null ? [
+          {
+            name                         = replace("Allow${title(var.custom_nsg_configuration.source_address_prefixes_name)}On${title(var.custom_nsg_configuration.target_service)}", "-", "")
+            priority                     = 1000
+            protocol                     = null
+            source_address_prefixes      = var.custom_nsg_configuration.source_address_prefixes
+            destination_port_ranges      = null
+            description                  = "Allow traffic from ${var.custom_nsg_configuration.source_address_prefixes_name}"
+            destination_address_prefixes = module.subnet.address_prefixes
+            target_service               = var.custom_nsg_configuration.target_service
+          },
+          var.create_self_inbound_nsg_rule ?
+          [{
+            name                         = replace("AllowIntraSubnetOn${title(var.custom_nsg_configuration.target_service)}", "-", "")
+            priority                     = 1010
+            protocol                     = null
+            source_address_prefixes      = module.subnet.address_prefixes
+            destination_port_ranges      = null
+            description                  = "Allow traffic from same subnet on ${var.custom_nsg_configuration.target_service}"
+            destination_address_prefixes = module.subnet.address_prefixes
+            target_service               = var.custom_nsg_configuration.target_service
+          }] : []
+          ] : [{
+            name                         = replace("Allow${title(var.custom_nsg_configuration.source_address_prefixes_name)}", "-", "")
+            priority                     = 1000
+            protocol                     = var.custom_nsg_configuration.protocol
+            source_address_prefixes      = var.custom_nsg_configuration.source_address_prefixes
+            destination_port_ranges      = var.custom_nsg_configuration.target_ports
+            description                  = "Allow traffic from ${var.custom_nsg_configuration.source_address_prefixes_name}"
+            destination_address_prefixes = module.subnet.address_prefixes
+            target_service               = null
+          },
+          var.create_self_inbound_nsg_rule ?
+          [{
+            name                         = "AllowIntraSubnetCustom"
+            priority                     = 1010
+            protocol                     = var.custom_nsg_configuration.protocol
+            source_address_prefixes      = module.subnet.address_prefixes
+            destination_port_ranges      = var.custom_nsg_configuration.target_ports
+            description                  = "Allow traffic from same subnet on custom ports"
+            destination_address_prefixes = module.subnet.address_prefixes
+            target_service               = null
+          }] : []
+        ],
         {
           name                         = "DenyFromAllVNet"
           priority                     = 4090
@@ -235,7 +289,7 @@ module "custom_nsg" {
           description                  = "Deny everyone else"
           access                       = "Deny"
         }
-      ]
+      ])
       outbound_rules = []
     }
 

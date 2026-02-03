@@ -8,14 +8,16 @@ module "idh_loader" {
 }
 
 locals {
-  pgbouncer_enabled = var.pg_bouncer_enabled != null ? var.pg_bouncer_enabled : module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled
-  zone              = var.zone != null ? var.zone : module.idh_loader.idh_resource_configuration.zone
+  pgbouncer_enabled     = var.pg_bouncer_enabled != null ? var.pg_bouncer_enabled : module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_enabled
+  zone                  = var.zone != null ? var.zone : module.idh_loader.idh_resource_configuration.zone
+  intra_subnet_priority = 4080
 }
 
 # IDH/subnet
 module "pgflex_snet" {
-  count                = var.embedded_subnet.enabled ? 1 : 0
-  source               = "../subnet"
+  source = "../subnet"
+  count  = var.embedded_subnet.enabled ? 1 : 0
+
   name                 = "${var.name}-snet"
   resource_group_name  = var.embedded_subnet.vnet_rg_name
   virtual_network_name = var.embedded_subnet.vnet_name
@@ -25,10 +27,52 @@ module "pgflex_snet" {
   idh_resource_tier = "postgres_flexible"
   product_name      = var.product_name
 
-  nsg_flow_log_configuration = var.nsg_flow_log_configuration
-  embedded_nsg_configuration = var.embedded_nsg_configuration
+  nsg_flow_log_configuration   = var.nsg_flow_log_configuration
+  embedded_nsg_configuration   = var.embedded_nsg_configuration
+  create_self_inbound_nsg_rule = var.create_self_inbound_nsg_rule
 
+  tags = var.tags
+}
 
+module "pgflex_primary_nsg" {
+  source = "../../network_security_group"
+  count  = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
+
+  depends_on = [module.pgflex_snet[0], module.pgflex_replica_snet]
+
+  location            = var.location
+  prefix              = var.name
+  resource_group_name = module.pgflex_snet[0].nsg_details.resource_group_name
+
+  rules_only = {
+    enabled             = true
+    security_group_name = module.pgflex_snet[0].nsg_details.name
+  }
+
+  vnets = {
+    (var.embedded_subnet.vnet_name) = var.embedded_subnet.vnet_rg_name
+  }
+
+  custom_security_group = {
+    pgflex_primary_nsg = {
+      target_subnet_id   = module.pgflex_snet[0].id
+      target_subnet_cidr = module.pgflex_snet[0].address_prefixes[0]
+      inbound_rules = [
+        {
+          target_service               = "postgresql"
+          name                         = "AllowReplicaToPrimaryPostgres"
+          priority                     = local.intra_subnet_priority
+          source_address_prefixes      = module.pgflex_replica_snet[0].address_prefixes
+          access                       = "Allow"
+          destination_port_ranges      = null
+          destination_address_prefixes = module.pgflex_snet[0].address_prefixes
+          protocol                     = null
+          description                  = "Allow inbound traffic from the Geo-Replica PostgreSQL instance to the Primary instance"
+        }
+      ]
+      outbound_rules = []
+    }
+  }
   tags = var.tags
 }
 
@@ -45,12 +89,54 @@ module "pgflex_replica_snet" {
   idh_resource_tier = "postgres_flexible"
   product_name      = var.product_name
 
-  nsg_flow_log_configuration = var.nsg_flow_log_configuration
-  embedded_nsg_configuration = var.embedded_nsg_configuration
+  nsg_flow_log_configuration   = var.nsg_flow_log_configuration
+  embedded_nsg_configuration   = var.embedded_nsg_configuration
+  create_self_inbound_nsg_rule = var.create_self_inbound_nsg_rule
 
   tags = var.tags
 }
 
+module "pgflex_replica_nsg" {
+  source = "../../network_security_group"
+  count  = var.embedded_subnet.enabled && var.geo_replication.enabled ? 1 : 0
+
+  depends_on = [module.pgflex_snet, module.pgflex_replica_snet]
+
+  location            = var.location
+  prefix              = var.name
+  resource_group_name = module.pgflex_replica_snet[0].nsg_details.resource_group_name
+
+  rules_only = {
+    enabled             = true
+    security_group_name = module.pgflex_replica_snet[0].nsg_details.name
+  }
+
+  vnets = {
+    (var.embedded_subnet.vnet_name) = var.embedded_subnet.vnet_rg_name
+  }
+
+  custom_security_group = {
+    pgflex_primary_nsg = {
+      target_subnet_id   = module.pgflex_replica_snet[0].id
+      target_subnet_cidr = module.pgflex_replica_snet[0].address_prefixes[0]
+      inbound_rules = [
+        {
+          target_service               = "postgresql"
+          name                         = "AllowPrimaryToReplicaPostgres"
+          priority                     = local.intra_subnet_priority
+          source_address_prefixes      = module.pgflex_snet[0].address_prefixes
+          access                       = "Allow"
+          destination_port_ranges      = null
+          destination_address_prefixes = module.pgflex_replica_snet[0].address_prefixes
+          protocol                     = null
+          description                  = "Allow inbound traffic from the PostgreSQL instance to the Replica instance"
+        }
+      ]
+      outbound_rules = []
+    }
+  }
+  tags = var.tags
+}
 
 # -------------------------------------------------------------------
 # Postgres Flexible Server
@@ -114,33 +200,39 @@ module "pgflex" {
 
 # Message    : FATAL: unsupported startup parameter: extra_float_digits
 resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_ignore_startup_parameters" {
-  count     = local.pgbouncer_enabled ? 1 : 0
+  count      = local.pgbouncer_enabled ? 1 : 0
+  depends_on = [azurerm_postgresql_flexible_server_configuration.azure_extensions]
+
   name      = "pgbouncer.ignore_startup_parameters"
   server_id = module.pgflex.id
   value     = "extra_float_digits,search_path"
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_min_pool_size" {
-  count     = local.pgbouncer_enabled ? 1 : 0
+  count      = local.pgbouncer_enabled ? 1 : 0
+  depends_on = [azurerm_postgresql_flexible_server_configuration.azure_extensions]
+
   name      = "pgbouncer.min_pool_size"
   server_id = module.pgflex.id
   value     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_min_pool_size
 }
 resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_default_pool_size" {
-  count     = local.pgbouncer_enabled ? 1 : 0
+  count      = local.pgbouncer_enabled ? 1 : 0
+  depends_on = [azurerm_postgresql_flexible_server_configuration.azure_extensions]
+
   name      = "pgbouncer.default_pool_size"
   server_id = module.pgflex.id
   value     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_default_pool_size
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "pgbouncer_max_client_conn" {
-  count     = local.pgbouncer_enabled ? 1 : 0
+  count      = local.pgbouncer_enabled ? 1 : 0
+  depends_on = [azurerm_postgresql_flexible_server_configuration.azure_extensions]
+
   name      = "pgbouncer.max_client_conn"
   server_id = module.pgflex.id
   value     = module.idh_loader.idh_resource_configuration.server_parameters.pgbouncer_max_client_conn
 }
-
-
 
 resource "azurerm_postgresql_flexible_server_configuration" "max_worker_process" {
   name      = "max_worker_processes"
@@ -196,7 +288,6 @@ module "replica" {
   location            = var.geo_replication.location
 
   private_dns_zone_id      = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? var.private_dns_zone_id : null
-  delegated_subnet_id      = module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? (var.embedded_subnet.enabled ? module.pgflex_replica_snet[0].subnet_id : var.geo_replication.subnet_id) : null
   private_endpoint_enabled = module.idh_loader.idh_resource_configuration.private_endpoint_enabled
 
   sku_name = module.idh_loader.idh_resource_configuration.sku_name
@@ -213,7 +304,6 @@ module "replica" {
   log_analytics_workspace_id = var.log_analytics_workspace_id
   zone                       = local.zone
   tags                       = var.tags
-
 }
 
 
@@ -233,5 +323,3 @@ resource "azurerm_private_dns_cname_record" "cname_record" {
   ttl                 = var.private_dns_cname_record_ttl
   record              = "${azurerm_postgresql_flexible_server_virtual_endpoint.virtual_endpoint[0].name}.writer.postgres.database.azure.com"
 }
-
-

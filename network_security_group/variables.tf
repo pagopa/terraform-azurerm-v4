@@ -60,6 +60,24 @@ variable "custom_security_group" {
   default = null
 
   validation {
+    condition = var.custom_security_group == null ? true : alltrue([
+      for nsg in var.custom_security_group : (
+        length(distinct([for rule in nsg.inbound_rules : rule.name])) == length(nsg.inbound_rules)
+      )
+    ])
+    error_message = "inbound_rules: rule name must be unique within the security group."
+  }
+
+  validation {
+    condition = var.custom_security_group == null ? true : alltrue([
+      for nsg in var.custom_security_group : (
+        length(distinct([for rule in nsg.outbound_rules : rule.name])) == length(nsg.outbound_rules)
+      )
+    ])
+    error_message = "outbound_rules: rule name must be unique within the security group."
+  }
+
+  validation {
     condition = var.custom_security_group == null ? true : alltrue(flatten([
       [
         for nsg in var.custom_security_group : [
@@ -343,4 +361,22 @@ variable "flow_logs" {
   })
   default     = null
   description = "(Optional) Parameters required to configure the network watcher"
+}
+
+variable "rules_only" {
+  type = object({
+    enabled             = bool
+    security_group_name = optional(string, null)
+  })
+  description = "(Optional) Enables a 'rules-only' mode. If 'enabled' is set to true, the module skips the creation of the NSG, association, and flow logs"
+
+  default = {
+    enabled             = false
+    security_group_name = null
+  }
+
+  validation {
+    condition     = var.rules_only.enabled ? var.rules_only.security_group_name != null : true
+    error_message = "When 'enabled_only_rules.enabled' is true, a valid 'security_group_name' must be provided."
+  }
 }
