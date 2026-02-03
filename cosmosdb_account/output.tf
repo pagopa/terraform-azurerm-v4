@@ -85,3 +85,13 @@ output "legacy_secondary_sql_connection_strings" {
   value     = "DefaultEndpointsProtocol=https;AccountName=${var.name};AccountKey=${azurerm_cosmosdb_account.this.secondary_key};TableEndpoint=https://${var.name}.table.cosmos.azure.com:443/;"
   sensitive = true
 }
+
+output "primary_connection_string_readonly" {
+  value     = azurerm_cosmosdb_account.this.primary_readonly_mongodb_connection_string
+  sensitive = true
+}
+
+output "primary_sql_connection_string_readonly" {
+  value     = azurerm_cosmosdb_account.this.primary_readonly_sql_connection_string
+  sensitive = true
+}
