@@ -184,6 +184,9 @@ module "embedded_nsg" {
             destination_address_prefixes = module.subnet.address_prefixes
           }] : []
         ],
+        #
+        # 🚨 Rule with priority 4080 is already in use within the IDH/postgres_flexible_server module to enable bidirectional communication between the primary and the replica
+        #
         {
           name                    = "DenyFromAllVNet"
           priority                = 4090
