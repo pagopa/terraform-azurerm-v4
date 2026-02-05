@@ -140,6 +140,10 @@ module "staging_slot" {
   ruby_version        = var.ruby_version
   health_check_path   = var.health_check_path
 
+  docker_registry_url      = var.docker_registry_url
+  docker_registry_username = var.docker_registry_username
+  docker_registry_password = var.docker_registry_password
+
   allowed_subnets              = var.allowed_subnet_ids
   allowed_ips                  = var.allowed_ips
   allowed_service_tags         = var.allowed_service_tags
