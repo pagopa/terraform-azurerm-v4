@@ -59,7 +59,7 @@ module "aks_overlay_snet" {
   source = "../subnet"
   count  = var.embedded_subnet.enabled ? 1 : 0
 
-  name                 = "${var.name}-aks-overlay-snet"
+  name                 = "${var.embedded_subnet.subnet_name}-aks-overlay-snet"
   resource_group_name  = var.embedded_subnet.vnet_rg_name
   virtual_network_name = var.embedded_subnet.vnet_name
 
@@ -72,4 +72,11 @@ module "aks_overlay_snet" {
   create_self_inbound_nsg_rule = var.create_self_inbound_nsg_rule
 
   tags = var.tags
+}
+
+resource "azurerm_subnet_nat_gateway_association" "aks_overlay_snet_nat_association" {
+  count = var.embedded_subnet.enabled ? 1 : 0
+
+  subnet_id      = module.aks_overlay_snet[0].subnet_id
+  nat_gateway_id = var.embedded_subnet.natgw_id
 }
