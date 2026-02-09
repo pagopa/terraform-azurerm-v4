@@ -50,6 +50,8 @@ module "aks_node_pool" {
   )
 
   tags = var.tags
+
+  depends_on = [module.aks_overlay_snet]
 }
 
 # IDH/subnet
