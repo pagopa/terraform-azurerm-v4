@@ -12,7 +12,7 @@ module "aks_node_pool" {
   # Core identifiers
   name                  = var.name
   kubernetes_cluster_id = var.kubernetes_cluster_id
-  vnet_subnet_id        = var.embedded_subnet.enabled ? module.aks_overlay_snet.id : var.vnet_subnet_id
+  vnet_subnet_id        = var.embedded_subnet.enabled ? module.aks_overlay_snet.subnet_id : var.vnet_subnet_id
 
   ###############################################################
   # Compute & Storage settings (safe‑lookup + try() wrapper)
