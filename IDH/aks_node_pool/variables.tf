@@ -38,12 +38,14 @@ variable "embedded_subnet" {
     enabled      = bool
     vnet_name    = optional(string, null)
     vnet_rg_name = optional(string, null)
+    subnet_name  = optional(string, null)
   })
   description = "(Optional) Configuration for creating an embedded Subnet for the AKS Nodepool. If 'enabled' is true, 'vnet_subnet_id' must be null"
   default = {
     enabled      = false
     vnet_name    = null
     vnet_rg_name = null
+    subnet_name  = null
   }
 
 
