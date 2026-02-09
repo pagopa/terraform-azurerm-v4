@@ -12,7 +12,7 @@ module "aks_node_pool" {
   # Core identifiers
   name                  = var.name
   kubernetes_cluster_id = var.kubernetes_cluster_id
-  vnet_subnet_id        = var.vnet_subnet_id
+  vnet_subnet_id        = var.embedded_subnet.enabled ? module.aks_overlay_snet.id : var.vnet_subnet_id
 
   ###############################################################
   # Compute & Storage settings (safe‑lookup + try() wrapper)
@@ -48,6 +48,26 @@ module "aks_node_pool" {
     lookup(module.idh_loader.idh_resource_configuration, "node_tags", {}),
     coalesce(var.node_tags, {})
   )
+
+  tags = var.tags
+}
+
+# IDH/subnet
+module "aks_overlay_snet" {
+  source = "../subnet"
+  count  = var.embedded_subnet.enabled ? 1 : 0
+
+  name                 = "${var.name}-aks-overlay-snet"
+  resource_group_name  = var.embedded_subnet.vnet_rg_name
+  virtual_network_name = var.embedded_subnet.vnet_name
+
+  env               = var.env
+  idh_resource_tier = "aks_overlay"
+  product_name      = var.product_name
+
+  nsg_flow_log_configuration   = var.nsg_flow_log_configuration
+  embedded_nsg_configuration   = var.embedded_nsg_configuration
+  create_self_inbound_nsg_rule = var.create_self_inbound_nsg_rule
 
   tags = var.tags
 }
