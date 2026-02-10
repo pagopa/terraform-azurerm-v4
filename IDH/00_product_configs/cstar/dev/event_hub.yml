@@ -1,0 +1,10 @@
+standard:
+  capacity: 1
+  auto_inflate_enabled: false
+  sku: "Standard"
+  maximum_throughput_units: 3
+  public_network_access_enabled: false
+  alerts_enabled: false
+  private_endpoint_enabled: true
+  create_metric_alerts: true
+  minimum_tls_version: "1.2"
