@@ -1,4 +1,4 @@
-standard:
+standard_private:
   capacity: 1
   auto_inflate_enabled: false
   sku: "Standard"
