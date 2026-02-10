@@ -23,7 +23,7 @@ jobs:
           start_folder: "/"
           include_patterns: "/"
           ignore_patterns: ".github,.devops,.vscode,.gitignore,.terraform-version"
-          include_folders: ".scripts,.utils,IDH,subnet,network_security_group,app_service,kubernetes_cluster_node_pool,app_service_slot,function_app,function_app_slot,key_vault,eventhub,cosmosdb_account,redis_cache,postgres_flexible_server,storage_account"
+          include_folders: ".scripts,.utils,IDH,subnet,network_security_group,app_service,kubernetes_cluster_node_pool,app_service_slot,function_app,function_app_slot,key_vault,eventhub,cosmosdb_account,redis_cache,postgres_flexible_server,postgres_flexible_server_replica,storage_account"
           stopper_folders: "env,tests,docs,helm,packer,logs-generic,yaml,dashboard,dashboards,templates,rules"
 
       - name: 👀 See folders downloaded
