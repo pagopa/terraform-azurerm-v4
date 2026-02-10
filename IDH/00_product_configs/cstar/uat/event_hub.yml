@@ -1,8 +1,8 @@
-standard:
-  capacity: 1
-  auto_inflate_enabled: false
+standard_private:
+  capacity: 5
+  auto_inflate_enabled: true
   sku: "Standard"
-  maximum_throughput_units:
+  maximum_throughput_units: 5
   public_network_access_enabled: false
   alerts_enabled: false
   private_endpoint_enabled: true
