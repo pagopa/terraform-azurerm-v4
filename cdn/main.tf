@@ -510,7 +510,12 @@ resource "null_resource" "apex_custom_hostname" {
 
   # https://docs.microsoft.com/it-it/cli/azure/cdn/custom-domain?view=azure-cli-latest
   provisioner "local-exec" {
-    command = ""
+    command = <<EOT
+      az cdn custom-domain list \
+      --endpoint-name ${self.triggers.endpoint_name} \
+      --profile-name ${self.triggers.profile_name} \
+      --resource-group ${self.triggers.resource_group_name}
+    EOT
     # command = <<EOT
     #   az cdn custom-domain create \
     #     --resource-group ${self.triggers.resource_group_name} \
@@ -534,7 +539,12 @@ resource "null_resource" "apex_custom_hostname" {
   # https://docs.microsoft.com/it-it/cli/azure/cdn/custom-domain?view=azure-cli-latest
   provisioner "local-exec" {
     when    = destroy
-    command = ""
+    command = <<EOT
+      az cdn custom-domain list \
+      --endpoint-name ${self.triggers.endpoint_name} \
+      --profile-name ${self.triggers.profile_name} \
+      --resource-group ${self.triggers.resource_group_name}
+    EOT
     # command = <<EOT
     #   az cdn custom-domain disable-https \
     #     --resource-group ${self.triggers.resource_group_name} \
@@ -569,7 +579,12 @@ resource "null_resource" "custom_hostname" {
 
   # https://docs.microsoft.com/it-it/cli/azure/cdn/custom-domain?view=azure-cli-latest
   provisioner "local-exec" {
-    command = ""
+    command = <<EOT
+      az cdn custom-domain list \
+      --endpoint-name ${self.triggers.endpoint_name} \
+      --profile-name ${self.triggers.profile_name} \
+      --resource-group ${self.triggers.resource_group_name}
+    EOT
     # command = <<EOT
     #   az cdn custom-domain create \
     #     --resource-group ${self.triggers.resource_group_name} \
@@ -588,7 +603,12 @@ resource "null_resource" "custom_hostname" {
   # https://docs.microsoft.com/it-it/cli/azure/cdn/custom-domain?view=azure-cli-latest
   provisioner "local-exec" {
     when    = destroy
-    command = ""
+    command = <<EOT
+      az cdn custom-domain list \
+      --endpoint-name ${self.triggers.endpoint_name} \
+      --profile-name ${self.triggers.profile_name} \
+      --resource-group ${self.triggers.resource_group_name}
+    EOT
     # command = <<EOT
     #   az cdn custom-domain disable-https \
     #     --resource-group ${self.triggers.resource_group_name} \
@@ -626,7 +646,12 @@ resource "null_resource" "custom_hostname_kv_certificate" {
 
   # https://docs.microsoft.com/it-it/cli/azure/cdn/custom-domain?view=azure-cli-latest
   provisioner "local-exec" {
-    command = ""
+    command = <<EOT
+      az cdn custom-domain list \
+      --endpoint-name ${self.triggers.endpoint_name} \
+      --profile-name ${self.triggers.profile_name} \
+      --resource-group ${self.triggers.resource_group_name}
+    EOT
     # command = <<EOT
     #   az cdn custom-domain create \
     #     --resource-group ${self.triggers.resource_group_name} \
@@ -650,7 +675,12 @@ resource "null_resource" "custom_hostname_kv_certificate" {
   # https://docs.microsoft.com/it-it/cli/azure/cdn/custom-domain?view=azure-cli-latest
   provisioner "local-exec" {
     when    = destroy
-    command = ""
+    command = <<EOT
+      az cdn custom-domain list \
+      --endpoint-name ${self.triggers.endpoint_name} \
+      --profile-name ${self.triggers.profile_name} \
+      --resource-group ${self.triggers.resource_group_name}
+    EOT
     # command = <<EOT
     #   az cdn custom-domain disable-https \
     #     --resource-group ${self.triggers.resource_group_name} \
