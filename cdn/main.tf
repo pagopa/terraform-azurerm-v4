@@ -486,7 +486,7 @@ resource "azurerm_cdn_endpoint" "this" {
 
 /*
 * Custom Domain
-*/
+*
 resource "null_resource" "apex_custom_hostname" {
   count = var.dns_zone_name == var.hostname ? 1 : 0
 
@@ -547,6 +547,7 @@ resource "null_resource" "apex_custom_hostname" {
     EOT
   }
 }
+*/
 
 resource "null_resource" "custom_hostname" {
   count = var.dns_zone_name != var.hostname && !var.custom_hostname_kv_enabled ? 1 : 0
