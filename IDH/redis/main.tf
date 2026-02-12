@@ -12,7 +12,7 @@ locals {
 }
 
 resource "terraform_data" "validation" {
-  input = timestamp()
+  input = "${module.idh_loader.idh_resource_configuration.private_endpoint_enabled}.${var.embedded_subnet.enabled}.${try(var.private_endpoint.subnet_id, "")}"
 
   lifecycle {
     precondition {
