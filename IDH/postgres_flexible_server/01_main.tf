@@ -249,7 +249,7 @@ resource "azurerm_postgresql_flexible_server_configuration" "wal_level" {
 resource "azurerm_postgresql_flexible_server_configuration" "shared_preoload_libraries" {
   name      = "shared_preload_libraries"
   server_id = module.pgflex.id
-  value     = module.idh_loader.idh_resource_configuration.server_parameters.shared_preload_libraries
+  value     = length(var.additional_preload_libraries) > 0 ? join(",", [module.idh_loader.idh_resource_configuration.server_parameters.shared_preload_libraries, join(",", var.additional_preload_libraries)]) : module.idh_loader.idh_resource_configuration.server_parameters.shared_preload_libraries
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "azure_extensions" {

@@ -276,6 +276,16 @@ variable "additional_azure_extensions" {
   }
 }
 
+variable "additional_preload_libraries" {
+  type        = list(string)
+  default     = []
+  description = "(Optional) List of additional shared preload libraries to be installed on the server"
+  validation {
+    condition     = alltrue([for ext in var.additional_preload_libraries : !contains(split(",", module.idh_loader.idh_resource_configuration.server_parameters.shared_preload_libraries), ext)])
+    error_message = "At least one of the additional_preload_libraries is already included in the preconfigured libraries: ${module.idh_loader.idh_resource_configuration.server_parameters.shared_preload_libraries}"
+  }
+}
+
 
 variable "embedded_subnet" {
   type = object({
