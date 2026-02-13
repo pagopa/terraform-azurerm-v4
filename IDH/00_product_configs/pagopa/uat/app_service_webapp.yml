@@ -9,7 +9,7 @@ basic:
   premium_plan_auto_scale_enabled: false
   ip_restriction_default_action: "Deny"
   slot_staging_enabled: false
-  autoscale_enabled: true
+  autoscale_enabled: false
   autoscale_default_capacity: 1
   autoscale_min_capacity: 1
   private_endpoint_enabled: true
