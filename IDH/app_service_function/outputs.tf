@@ -1,16 +1,13 @@
 output "default_key" {
-  value     = module.main_slot.default_key
-  sensitive = true
+  value = module.main_slot.default_key
 }
 
 output "master_key" {
-  value     = module.main_slot.master_key
-  sensitive = true
+  value = module.main_slot.master_key
 }
 
 output "primary_key" {
-  value     = module.main_slot.primary_key
-  sensitive = true
+  value = module.main_slot.primary_key
 }
 
 output "name" {
