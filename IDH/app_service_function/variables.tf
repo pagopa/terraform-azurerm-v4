@@ -59,6 +59,11 @@ variable "app_settings" {
   type    = map(string)
   default = {}
 }
+variable "export_keys" {
+  type        = bool
+  default     = false
+  description = "Enable app function key exports. (Default: false)"
+}
 variable "allowed_subnet_ids" {
   type        = list(string)
   description = "(Optional) List of subnet allowed to call the appserver endpoint."
