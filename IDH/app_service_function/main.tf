@@ -145,7 +145,7 @@ module "main_slot" {
   use_custom_runtime             = var.use_custom_runtime
   use_dotnet_isolated_runtime    = var.use_dotnet_isolated_runtime
 
-  export_keys = false
+  export_keys = true
 
   runtime_version = module.idh_loader.idh_resource_configuration.runtime_version
   storage_account_info = {
