@@ -56,7 +56,7 @@ variable "job_settings" {
     http_client_timeout          = optional(number, 30000)         #(Optional) Default http client response timeout, in milliseconds
     default_duration_limit       = optional(number, 10000)         #(Optional) Duration limit applied if none is given in the monitoring configuration. in milliseconds
     availability_prefix          = optional(string, "synthetic")   #(Optional) Prefix used for prefixing availability test names
-    workload_profile             = optional(string, "Consumption") #(Optional) Container App workload profile to be used for the monitoring job. If not provided, defaults to the "consumption"
+    workload_profile             = optional(string, "Consumption") #(Optional) Container App workload profile to be used for the monitoring job. If not provided, defaults to the "consumption". Set "None" to use a regular container app without workload profile
   })
   default = {
     container_app_environment_id = null
