@@ -111,7 +111,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
     replica_completion_count = 1
   }
 
-  workload_profile_name = "Consumption"
+  workload_profile_name = var.job_settings.workload_profile == "None" ? null : var.job_settings.workload_profile
 
   template {
     container {

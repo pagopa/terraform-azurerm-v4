@@ -5,9 +5,9 @@ basic:
   sku_name: "Basic"
   enable_authentication: true
   version: 6
-  public_network_access_enabled: true
+  public_network_access_enabled: false
   zones: []
-  private_endpoint_enabled: false
+  private_endpoint_enabled: true
   alert_enabled: false
   data_persistence_authentication_method: "SAS"
   subnet_integration: false
@@ -26,4 +26,3 @@ basic:
       start_hour_utc: 23
     - day_of_week: "Saturday"
       start_hour_utc: 23
-

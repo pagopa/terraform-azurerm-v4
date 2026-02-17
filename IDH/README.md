@@ -50,3 +50,5 @@ You can then access your `yml`content using the following syntax: `module.idh_lo
 
 [Here's](./LIBRARY.md) the list of `idh_resource_tier` available for this module
 ```
+
+6. If you need to **deprecate** an `idh_resource_tier` you can do it by adding the following field to the corresponding `yml` file: `deprecated: true`. This is going to print a warning in the documentation for that specific tier
