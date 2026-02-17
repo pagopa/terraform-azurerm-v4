@@ -39,7 +39,7 @@ module "log_analytics_workspace" {
   location            = var.location
 
   ## LAW Properties
-  law_sku                        = module.idh_loader.idh_resource_configuration.sku
+  law_sku                        = module.idh_loader.idh_resource_configuration.law_sku
   law_daily_quota_gb             = module.idh_loader.idh_resource_configuration.law_daily_quota_gb
   law_retention_in_days          = module.idh_loader.idh_resource_configuration.law_retention_in_days
   law_internet_ingestion_enabled = module.idh_loader.idh_resource_configuration.law_internet_ingestion_enabled
