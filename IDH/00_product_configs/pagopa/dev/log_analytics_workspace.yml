@@ -4,6 +4,7 @@ standard:
   law_retention_in_days: 30
   law_internet_query_enabled: true
   law_internet_ingestion_enabled: false
+  linked_law_enabled: true
   application_insights_application_type: "other"
   application_insights_daily_data_cap_in_gb: 1
   application_insights_daily_data_cap_notifications_disabled: false

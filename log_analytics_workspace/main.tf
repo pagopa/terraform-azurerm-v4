@@ -1,5 +1,6 @@
 
-resource "azurerm_log_analytics_workspace" "log_analytics_workspace" {
+resource "azurerm_log_analytics_workspace" "linked_log_analytics_workspace" {
+  count               = var.linked_law_enabled ? 1 : 0
   name                = var.name
   location            = var.location
   resource_group_name = var.resource_group_name
@@ -17,6 +18,22 @@ resource "azurerm_log_analytics_workspace" "log_analytics_workspace" {
       sku
     ]
   }
+}
+
+resource "azurerm_log_analytics_workspace" "log_analytics_workspace" {
+  count = var.linked_law_enabled ? 0 : 1
+
+  name                = var.name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  sku                 = var.law_sku
+  retention_in_days   = var.law_retention_in_days
+  daily_quota_gb      = var.law_daily_quota_gb
+
+  internet_query_enabled     = var.law_internet_query_enabled
+  internet_ingestion_enabled = var.law_internet_ingestion_enabled
+
+  tags = var.tags
 }
 
 # Application insights
@@ -38,7 +55,7 @@ resource "azurerm_application_insights" "application_insights" {
   internet_query_enabled     = var.law_internet_query_enabled
   internet_ingestion_enabled = var.law_internet_ingestion_enabled
 
-  workspace_id = azurerm_log_analytics_workspace.log_analytics_workspace.id
+  workspace_id = local.created_law.id
 
   tags = var.tags
 }
@@ -53,7 +70,7 @@ resource "azurerm_log_analytics_workspace_table" "log_analytics_tables" {
   for_each = var.log_analytics_workspace_tables
 
   name                    = each.key
-  workspace_id            = azurerm_log_analytics_workspace.log_analytics_workspace.id
+  workspace_id            = local.created_law.id
   retention_in_days       = each.value.retention_in_days
   total_retention_in_days = each.value.total_retention_in_days
 }
@@ -67,7 +84,7 @@ resource "azurerm_private_endpoint" "private_endpoint" {
 
   private_service_connection {
     name                           = "${var.name}-psc"
-    private_connection_resource_id = azurerm_log_analytics_workspace.log_analytics_workspace.id
+    private_connection_resource_id = local.created_law.id
     is_manual_connection           = false
     subresource_names              = ["azuremonitor"]
   }

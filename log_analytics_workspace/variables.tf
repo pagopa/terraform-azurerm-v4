@@ -19,6 +19,12 @@ variable "tags" {
   description = "(Required) A mapping of tags which should be assigned to the Resource."
 }
 
+variable "linked_law_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable or Disable linked cluster log analytics workspace."
+}
+
 variable "law_sku" {
   type        = string
   description = "Sku of the Log Analytics Workspace"

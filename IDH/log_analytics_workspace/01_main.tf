@@ -47,6 +47,7 @@ module "log_analytics_workspace" {
   law_retention_in_days          = module.idh_loader.idh_resource_configuration.law_retention_in_days
   law_internet_ingestion_enabled = module.idh_loader.idh_resource_configuration.law_internet_ingestion_enabled
   law_internet_query_enabled     = module.idh_loader.idh_resource_configuration.law_internet_query_enabled
+  linked_law_enabled             = module.idh_loader.idh_resource_configuration.linked_law_enabled
 
   ## APP Insight properties
   create_application_insights              = var.create_application_insights

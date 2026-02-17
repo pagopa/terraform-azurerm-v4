@@ -1,15 +1,15 @@
 output "id" {
-  value       = azurerm_log_analytics_workspace.log_analytics_workspace.id
+  value       = local.created_law.id
   description = "The ID of the Log Analytics Workspace."
 }
 
 output "name" {
-  value       = azurerm_log_analytics_workspace.log_analytics_workspace.name
+  value       = local.created_law.name
   description = "The name of the Log Analytics Workspace."
 }
 
 output "resource_group" {
-  value       = azurerm_log_analytics_workspace.log_analytics_workspace.resource_group_name
+  value       = local.created_law.resource_group_name
   description = "The resource group of the Log Analytics Workspace."
 }
 
