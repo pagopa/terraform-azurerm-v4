@@ -9,8 +9,8 @@ pgflex2:
   create_mode: Default
   max_connections: '859'
   enable_private_dns_registration: true
-  public_network_access_enabled: true
-  private_endpoint_enabled: false
+  public_network_access_enabled: false
+  private_endpoint_enabled: true
   high_availability_enabled: false
   alerts_enabled: false
   geo_replication_allowed: false
@@ -38,8 +38,8 @@ pgflex4:
   create_mode: Default
   max_connections: '1718'
   enable_private_dns_registration: true
-  public_network_access_enabled: true
-  private_endpoint_enabled: false
+  public_network_access_enabled: false
+  private_endpoint_enabled: true
   alerts_enabled: false
   geo_replication_allowed: false
   maintenance_window_config:
