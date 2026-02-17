@@ -1,0 +1,12 @@
+standard:
+  law_sku: PerGB2018
+  law_daily_quota_gb: 5
+  law_retention_in_days: 60
+  law_internet_query_enabled: true
+  law_internet_ingestion_enabled: false
+  application_insights_application_type: "other"
+  application_insights_daily_data_cap_in_gb: 2
+  application_insights_daily_data_cap_notifications_disabled: false
+  application_insights_disable_ip_masking: false
+  application_insights_local_authentication_disabled: true
+  private_endpoint_enabled: true
