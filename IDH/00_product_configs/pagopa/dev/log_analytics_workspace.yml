@@ -3,12 +3,12 @@ standard:
   law_daily_quota_gb: 2
   law_retention_in_days: 30
   law_internet_query_enabled: true
-  law_internet_ingestion_enabled: false
+  law_internet_ingestion_enabled: true
   linked_law_enabled: true
   application_insights_application_type: "other"
   application_insights_daily_data_cap_in_gb: 1
   application_insights_daily_data_cap_notifications_disabled: false
   application_insights_disable_ip_masking: false
   application_insights_local_authentication_disabled: true
-  private_endpoint_enabled: true
+  private_endpoint_enabled: false
   create_self_inbound_nsg_rule: true
