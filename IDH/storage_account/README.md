@@ -28,6 +28,15 @@ module "storage_account" {
 }
 ```
 
+## Upgrade v8.x -> v9.x
+
+Only for `pagopa` product in `dev` environment:
+
+- Change `idh_resource_tier` from `basic` to `basic_public` (or migrate to `basic` if allowed)
+
+The new `basic` and tier is private, as the standard requires
+
+
 
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->

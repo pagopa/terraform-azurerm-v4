@@ -14,8 +14,8 @@ cosmos_sql4:
   burst_capacity_enabled: false
   enable_automatic_failover: false
   minimal_tls_version: Tls12
-  private_endpoint_enabled: false
-  public_network_access_enabled: true
+  private_endpoint_enabled: true
+  public_network_access_enabled: false
   is_virtual_network_filter_enabled: false
   backup_continuous_enabled: false
   backup_periodic_enabled:
@@ -42,8 +42,8 @@ cosmos_sql6:
   burst_capacity_enabled: false
   enable_automatic_failover: false
   minimal_tls_version: Tls12
-  private_endpoint_enabled: false
-  public_network_access_enabled: true
+  private_endpoint_enabled: true
+  public_network_access_enabled: false
   is_virtual_network_filter_enabled: false
   backup_continuous_enabled: false
   backup_periodic_enabled:
@@ -71,8 +71,8 @@ cosmos_mongo4:
   burst_capacity_enabled: false
   enable_automatic_failover: false
   minimal_tls_version: Tls12
-  private_endpoint_enabled: false
-  public_network_access_enabled: true
+  private_endpoint_enabled: true
+  public_network_access_enabled: false
   is_virtual_network_filter_enabled: false
   backup_continuous_enabled: false
   backup_periodic_enabled:
@@ -100,8 +100,8 @@ cosmos_mongo6:
   burst_capacity_enabled: false
   enable_automatic_failover: false
   minimal_tls_version: Tls12
-  private_endpoint_enabled: false
-  public_network_access_enabled: true
+  private_endpoint_enabled: true
+  public_network_access_enabled: false
   is_virtual_network_filter_enabled: false
   backup_continuous_enabled: false
   backup_periodic_enabled:

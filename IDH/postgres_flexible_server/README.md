@@ -107,6 +107,16 @@ Also handles:
 ```
 
 
+## Upgrade v8.x -> v9.x
+
+Only for `pagopa` product in `dev` environment:
+
+- Change `idh_resource_tier` from `pgflex2` to `pgflex2_public` (or migrate to `pgflex2` if allowed)
+- Change `idh_resource_tier` from `pgflex4` to `pgflex4_public` (or migrate to `pgflex4` if allowed)
+
+The new `pgflex2` and `pgflex4` tiers are private, as the standard requires
+
+
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
