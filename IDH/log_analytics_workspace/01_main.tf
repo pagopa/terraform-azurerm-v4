@@ -9,19 +9,26 @@ module "idh_loader" {
 
 # IDH/subnet
 module "private_endpoint_snet" {
-  count                = var.embedded_subnet.enabled ? 1 : 0
-  source               = "../subnet"
-  name                 = "${var.name}-pe-snet"
-  resource_group_name  = var.embedded_subnet.vnet_rg_name
-  virtual_network_name = var.embedded_subnet.vnet_name
-
+  count             = var.embedded_subnet.enabled ? 1 : 0
+  source            = "../subnet"
   env               = var.env
   idh_resource_tier = "slash28_privatelink_true"
   product_name      = var.product_name
 
-  create_self_inbound_nsg_rule = true
+  name                 = "${var.name}-pe-snet"
+  resource_group_name  = var.embedded_subnet.vnet_rg_name
+  virtual_network_name = var.embedded_subnet.vnet_name
 
-  nsg_flow_log_configuration = var.nsg_flow_log_configuration
+  ## NSG Rules embedded
+  create_self_inbound_nsg_rule = module.idh_loader.idh_resource_configuration.create_self_inbound_nsg_rule
+  embedded_nsg_configuration   = var.embedded_nsg_configuration
+  nsg_flow_log_configuration = {
+    traffic_analytics_law_name = module.log_analytics_workspace.name
+    traffic_analytics_law_rg   = module.log_analytics_workspace.resource_group
+    enabled                    = var.nsg_flow_log_configuration.enabled
+    network_watcher_name       = var.nsg_flow_log_configuration.network_watcher_name
+    storage_account_id         = var.nsg_flow_log_configuration.storage_account_id
+  }
 
   tags = var.tags
 }

@@ -105,12 +105,10 @@ variable "embedded_subnet" {
 
 variable "nsg_flow_log_configuration" {
   type = object({
-    enabled                    = bool
-    network_watcher_name       = optional(string, null)
-    network_watcher_rg         = optional(string, null)
-    storage_account_id         = optional(string, null)
-    traffic_analytics_law_name = optional(string, null)
-    traffic_analytics_law_rg   = optional(string, null)
+    enabled              = bool
+    network_watcher_name = optional(string, null)
+    network_watcher_rg   = optional(string, null)
+    storage_account_id   = optional(string, null)
   })
   description = "(Optional) NSG flow log configuration"
   default = {

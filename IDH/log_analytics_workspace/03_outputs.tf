@@ -9,6 +9,11 @@ output "name" {
   description = "The name of the Log Analytics Workspace."
 }
 
+output "resource_group" {
+  value       = module.log_analytics_workspace.resource_group
+  description = "The resource group of the Log Analytics Workspace."
+}
+
 output "application_insights_id" {
   value       = module.log_analytics_workspace.application_insights_id
   description = "The ID of the Application Insights resource."

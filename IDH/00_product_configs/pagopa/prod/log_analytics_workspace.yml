@@ -10,3 +10,4 @@ standard:
   application_insights_disable_ip_masking: false
   application_insights_local_authentication_disabled: true
   private_endpoint_enabled: true
+  create_self_inbound_nsg_rule: true

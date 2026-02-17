@@ -8,6 +8,11 @@ output "name" {
   description = "The name of the Log Analytics Workspace."
 }
 
+output "resource_group" {
+  value       = azurerm_log_analytics_workspace.log_analytics_workspace.resource_group_name
+  description = "The resource group of the Log Analytics Workspace."
+}
+
 output "application_insights_id" {
   value       = var.application_insights_id != null ? var.application_insights_id : (length(azurerm_application_insights.application_insights) > 0 ? azurerm_application_insights.application_insights[0].id : null)
   description = "The ID of the Application Insights resource."
