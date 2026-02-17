@@ -57,8 +57,8 @@ def load_yaml_file(file_path: str) -> Optional[Dict]:
 
 def append_platform_header(module_docs: List[str], platform: str) -> None:
       module_docs.append(f"## {platform}")
-      module_docs.append("| Product  | Environment | Tier | Description |")
-      module_docs.append("|:-------------:|:----------------:|:---------:|:----------------|")
+      module_docs.append("| Product  | Environment | Tier | Deprecated | Description |")
+      module_docs.append("|:-------------:|:----------------:|:---------:|:---------:|:----------------|")
       print_debug(f"Added platform header for {platform}")
 
 def doc_generate() -> None:
@@ -155,9 +155,10 @@ def doc_generate() -> None:
             for resource_name in sorted(config['idh_resources'].keys()):
                 resource_data = config['idh_resources'][resource_name]
                 flat_data = flatten_dict(resource_data, '', "_")
+                deprecated = flat_data.get('deprecated', False)
                 description = desc_template.format_map(Default(flat_data))
                 module_docs.append(
-                    f"| {config['platform']} | {config['environment']} |  {resource_name} | {description} |"
+                    f"| {config['platform']} | {config['environment']} |  {resource_name} | {'**Deprecated**' if deprecated else '-'} | {description} |"
                 )
 
 

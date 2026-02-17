@@ -26,4 +26,3 @@ basic:
       start_hour_utc: 23
     - day_of_week: "Saturday"
       start_hour_utc: 23
-
