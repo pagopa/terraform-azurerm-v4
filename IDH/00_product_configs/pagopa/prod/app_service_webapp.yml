@@ -19,7 +19,7 @@ basic_high_performance:
   zone_balancing_enabled: false
   https_only: true
   minimum_tls_version: "1.3"
-  public_network_access_enabled: true
+  public_network_access_enabled: false
   client_cert_enabled: false
   premium_plan_auto_scale_enabled: false
   ip_restriction_default_action: "Deny"
@@ -34,7 +34,7 @@ premium:
   zone_balancing_enabled: true
   https_only: true
   minimum_tls_version: "1.3"
-  public_network_access_enabled: true
+  public_network_access_enabled: false
   client_cert_enabled: false
   premium_plan_auto_scale_enabled: false
   ip_restriction_default_action: "Deny"
@@ -49,7 +49,7 @@ premium_low_load:
   zone_balancing_enabled: false
   https_only: true
   minimum_tls_version: "1.3"
-  public_network_access_enabled: true
+  public_network_access_enabled: false
   client_cert_enabled: false
   premium_plan_auto_scale_enabled: false
   ip_restriction_default_action: "Deny"
@@ -64,7 +64,7 @@ premium_high_performance:
   zone_balancing_enabled: true
   https_only: true
   minimum_tls_version: "1.3"
-  public_network_access_enabled: true
+  public_network_access_enabled: false
   client_cert_enabled: false
   premium_plan_auto_scale_enabled: false
   ip_restriction_default_action: "Deny"
