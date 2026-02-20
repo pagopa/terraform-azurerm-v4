@@ -204,7 +204,7 @@ variable "diagnostic_frontend_response" {
 variable "diagnostic_operation_name_format" {
   type = string
   description = "The format of the operation name in the logs. Possible values are Name, Url"
-  default = "Name"
+  default = null
 }
 
 
