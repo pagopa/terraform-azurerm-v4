@@ -178,6 +178,7 @@ resource "azurerm_api_management_logger" "this" {
 
 }
 
+
 resource "azurerm_api_management_diagnostic" "this" {
   count = var.application_insights.enabled ? 1 : 0
 
@@ -191,7 +192,7 @@ resource "azurerm_api_management_diagnostic" "this" {
   log_client_ip             = var.diagnostic_log_client_ip
   verbosity                 = var.diagnostic_verbosity
   http_correlation_protocol = var.diagnostic_http_correlation_protocol
-
+  operation_name_format     = var.diagnostic_operation_name_format
 
   dynamic "backend_request" {
     for_each = var.diagnostic_backend_request
