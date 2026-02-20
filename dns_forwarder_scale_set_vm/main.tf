@@ -68,6 +68,15 @@ resource "azurerm_linux_virtual_machine_scale_set" "this" {
       tags["__AzureDevOpsElasticPoolTimeStamp"],
     ]
   }
+
+  dynamic "scale_in" {
+    for_each = var.scale_in != null ? [1] : []
+    content {
+      force_deletion_enabled = var.scale_in.force_deletion_enabled
+      rule                   = var.scale_in.rule
+    }
+  }
+
   tags = var.tags
 }
 

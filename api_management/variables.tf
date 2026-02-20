@@ -201,6 +201,12 @@ variable "diagnostic_frontend_response" {
   default = []
 }
 
+variable "diagnostic_operation_name_format" {
+  type        = string
+  description = "The format of the operation name in the logs. Possible values are Name, Url"
+  default     = null
+}
+
 
 variable "metric_alerts" {
   default = {}
