@@ -1,10 +1,18 @@
+terraform {
+  required_providers {
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "3.4.0"
+    }
+  }
+}
 locals {
   display_name = join("-", compact([var.prefix, var.env, var.domain, "keycloak"]))
 }
 
-data "azuread_group" "ad_owners" {
-  for_each     = toset(var.ad_owners)
-  display_name = each.value
+data "azuread_user" "ad_owners" {
+  for_each            = toset(var.ad_user_owners)
+  user_principal_name = each.value
 }
 
 data "azuread_group" "groups" {
@@ -19,7 +27,7 @@ data "azuread_service_principal" "graph" {
 resource "azuread_application" "keycloak" {
   display_name = local.display_name
   owners = [
-    for i in data.azuread_group.ad_owners : i.id
+    for i in data.azuread_user.ad_owners : i.object_id
   ]
 
   web {

@@ -23,9 +23,9 @@ variable "domain" {
   default = null
 }
 
-variable "ad_owners" {
+variable "ad_user_owners" {
   type        = list(string)
-  description = "List of Azure Active Directory group display names that will be assigned as owners of the Keycloak Enterprise Application and App Registration"
+  description = "List of Azure Active Directory user display names that will be assigned as owners of the Keycloak Enterprise Application and App Registration"
   default     = []
 }
 
