@@ -1,11 +1,3 @@
-terraform {
-  required_providers {
-    azuread = {
-      source  = "hashicorp/azuread"
-      version = "3.4.0"
-    }
-  }
-}
 locals {
   display_name = join("-", compact([var.prefix, var.env, var.domain, "keycloak"]))
 }
@@ -75,6 +67,9 @@ resource "azuread_application" "keycloak" {
 # This object is required to manage local directory assignments, such as users and groups.
 resource "azuread_service_principal" "keycloak_sp" {
   client_id = azuread_application.keycloak.client_id
+  owners = [
+    for i in data.azuread_user.ad_owners : i.object_id
+  ]
 }
 
 # Automatically grant Admin Consent for the required Microsoft Graph permissions.

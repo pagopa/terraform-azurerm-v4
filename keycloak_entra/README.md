@@ -6,7 +6,9 @@
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_azuread"></a> [azuread](#requirement\_azuread) | 3.4.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
+| <a name="requirement_azuread"></a> [azuread](#requirement\_azuread) | ~> 3.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.0 |
 
 ## Modules
 
@@ -16,14 +18,14 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [azuread_app_role_assignment.keycloak_groups](https://registry.terraform.io/providers/hashicorp/azuread/3.4.0/docs/resources/app_role_assignment) | resource |
-| [azuread_application.keycloak](https://registry.terraform.io/providers/hashicorp/azuread/3.4.0/docs/resources/application) | resource |
-| [azuread_application_password.client_secret](https://registry.terraform.io/providers/hashicorp/azuread/3.4.0/docs/resources/application_password) | resource |
-| [azuread_service_principal.keycloak_sp](https://registry.terraform.io/providers/hashicorp/azuread/3.4.0/docs/resources/service_principal) | resource |
-| [azuread_service_principal_delegated_permission_grant.consent](https://registry.terraform.io/providers/hashicorp/azuread/3.4.0/docs/resources/service_principal_delegated_permission_grant) | resource |
-| [azuread_group.groups](https://registry.terraform.io/providers/hashicorp/azuread/3.4.0/docs/data-sources/group) | data source |
-| [azuread_service_principal.graph](https://registry.terraform.io/providers/hashicorp/azuread/3.4.0/docs/data-sources/service_principal) | data source |
-| [azuread_user.ad_owners](https://registry.terraform.io/providers/hashicorp/azuread/3.4.0/docs/data-sources/user) | data source |
+| [azuread_app_role_assignment.keycloak_groups](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/app_role_assignment) | resource |
+| [azuread_application.keycloak](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/application) | resource |
+| [azuread_application_password.client_secret](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/application_password) | resource |
+| [azuread_service_principal.keycloak_sp](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/service_principal) | resource |
+| [azuread_service_principal_delegated_permission_grant.consent](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/service_principal_delegated_permission_grant) | resource |
+| [azuread_group.groups](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/group) | data source |
+| [azuread_service_principal.graph](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/service_principal) | data source |
+| [azuread_user.ad_owners](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/user) | data source |
 
 ## Inputs
 
