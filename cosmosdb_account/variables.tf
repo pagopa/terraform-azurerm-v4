@@ -182,6 +182,17 @@ variable "private_endpoint_table_name" {
   default     = null
 }
 
+variable "private_endpoint_rg_name" {
+  type        = string
+  description = "The resource group where the private endpoint should be created. If not set, it will be created in the same resource group as the CosmosDB account."
+  default     = null
+}
+
+variable "private_endpoint_location" {
+  type    = string
+  default = null
+}
+
 variable "public_network_access_enabled" {
   type        = bool
   description = "Whether or not public network access is allowed for this CosmosDB account"
