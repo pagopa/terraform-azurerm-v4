@@ -6,7 +6,7 @@ Standard_D8ads_v5_active:
   ultra_ssd_enabled: false
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
-  node_min_allowed: 3
+  node_min_allowed: 2
 Standard_D8ads_v5_passive:
   vm_size: "Standard_D8ads_v5"
   os_disk_type: "Ephemeral"
