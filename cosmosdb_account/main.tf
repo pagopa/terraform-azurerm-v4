@@ -90,8 +90,8 @@ resource "azurerm_private_endpoint" "sql" {
   count = var.private_endpoint_enabled && length(var.private_dns_zone_sql_ids) > 0 ? 1 : 0
 
   name                = coalesce(var.private_endpoint_sql_name, format("%s-private-endpoint-sql", var.name))
-  location            = var.location
-  resource_group_name = var.resource_group_name
+  location            = var.private_endpoint_location != null ? var.private_endpoint_location : var.location
+  resource_group_name = var.private_endpoint_rg_name != null ? var.private_endpoint_rg_name : var.resource_group_name
   subnet_id           = var.subnet_id
 
   private_service_connection {
@@ -115,8 +115,8 @@ resource "azurerm_private_endpoint" "mongo" {
   count = var.private_endpoint_enabled && length(var.private_dns_zone_mongo_ids) > 0 && contains(var.capabilities, "EnableMongo") ? 1 : 0
 
   name                = coalesce(var.private_endpoint_mongo_name, format("%s-private-endpoint-mongo", var.name))
-  location            = var.location
-  resource_group_name = var.resource_group_name
+  location            = var.private_endpoint_location != null ? var.private_endpoint_location : var.location
+  resource_group_name = var.private_endpoint_rg_name != null ? var.private_endpoint_rg_name : var.resource_group_name
   subnet_id           = var.subnet_id
 
   private_service_connection {
@@ -140,8 +140,8 @@ resource "azurerm_private_endpoint" "cassandra" {
   count = var.private_endpoint_enabled && length(var.private_dns_zone_cassandra_ids) > 0 && contains(var.capabilities, "EnableCassandra") ? 1 : 0
 
   name                = coalesce(var.private_endpoint_cassandra_name, format("%s-private-endpoint-cassandra", var.name))
-  location            = var.location
-  resource_group_name = var.resource_group_name
+  location            = var.private_endpoint_location != null ? var.private_endpoint_location : var.location
+  resource_group_name = var.private_endpoint_rg_name != null ? var.private_endpoint_rg_name : var.resource_group_name
   subnet_id           = var.subnet_id
 
   private_service_connection {
@@ -165,8 +165,8 @@ resource "azurerm_private_endpoint" "table" {
   count = var.private_endpoint_enabled && length(var.private_dns_zone_table_ids) > 0 && contains(var.capabilities, "EnableTable") ? 1 : 0
 
   name                = coalesce(var.private_endpoint_table_name, format("%s-private-endpoint-table", var.name))
-  location            = var.location
-  resource_group_name = var.resource_group_name
+  location            = var.private_endpoint_location != null ? var.private_endpoint_location : var.location
+  resource_group_name = var.private_endpoint_rg_name != null ? var.private_endpoint_rg_name : var.resource_group_name
   subnet_id           = var.subnet_id
 
   private_service_connection {
