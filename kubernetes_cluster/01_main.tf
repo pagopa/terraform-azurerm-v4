@@ -32,6 +32,19 @@ resource "azurerm_kubernetes_cluster" "this" {
   private_cluster_enabled = var.private_cluster_enabled
 
   #
+  # AKS API Gateway
+  #
+  dynamic "ingress_application_gateway" {
+    for_each = var.aks_gateway_api.enabled ? [1] : []
+    content {
+      gateway_id   = var.aks_gateway_api.gateway_id
+      gateway_name = var.aks_gateway_api.gateway_name
+      subnet_cidr  = var.aks_gateway_api.subnet_cidr
+      subnet_id    = var.aks_gateway_api.subnet_id
+    }
+  }
+
+  #
   # System node pool
   #
   default_node_pool {
