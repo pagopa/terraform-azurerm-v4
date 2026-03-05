@@ -256,6 +256,32 @@ variable "vnet_user_subnet_id" {
   default     = null
 }
 
+variable "aks_gateway_api" {
+  type = object({
+    enabled      = optional(bool, false)
+    gateway_id   = optional(string, null)
+    gateway_name = optional(string, null)
+    subnet_cidr  = optional(string, null)
+    subnet_id    = optional(string, null)
+  })
+  description = "(Optional) The Application Gateway associated with the ingress controller deployed to this Kubernetes Cluster."
+  validation {
+    condition = (
+      !var.aks_gateway_api.enabled ? true : (
+        count([
+          for v in [
+            var.aks_gateway_api.gateway_id,
+            var.aks_gateway_api.gateway_name,
+            var.aks_gateway_api.subnet_cidr,
+            var.aks_gateway_api.subnet_id
+          ] : v if v != null
+        ]) == 1
+      )
+    )
+    error_message = "Exactly one of gateway_id, gateway_name, subnet_id, or subnet_cidr must be specified."
+  }
+}
+
 variable "automatic_channel_upgrade" {
   type        = string
   description = "(Optional) The upgrade channel for this Kubernetes Cluster. Possible values are patch, rapid, node-image and stable. Omitting this field sets this value to none."
