@@ -112,7 +112,21 @@ variable "application_insights_action_group_ids" {
 
 variable "monitoring_configuration_encoded" {
   type        = string
-  description = "(Required) monitoring configuration provided in JSON string format (use jsonencode)"
+  description = <<-EOT
+    (Required) Monitoring configuration provided in JSON string format (use jsonencode).
+    Each item supports an optional `alertConfiguration` object with the following fields:
+      - enabled                  (bool)   - whether the alert is enabled
+      - severity                 (number) - alert severity (0–4)
+      - frequency                (string) - evaluation frequency in ISO 8601 (e.g. "PT1M")
+      - auto_mitigate            (bool)   - whether to auto-resolve the alert
+      - operator                 (string) - comparison operator: GreaterThan, LessThan, GreaterOrLessThan
+      - aggregation              (string) - metric aggregation (e.g. "Average")
+      - alert_sensitivity        (string) - dynamic threshold sensitivity: Low, Medium (default), High
+      - evaluation_failure_count (number) - number of failing evaluation windows required to trigger
+                                            the alert (default 4); must be ≤ evaluation_total_count
+      - evaluation_total_count   (number) - size of the lookback window in evaluation periods (default 4)
+      - customActionGroupIds     (list of strings) - additional action group IDs
+  EOT
 
   validation {
     condition = alltrue([
