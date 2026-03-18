@@ -264,6 +264,7 @@ variable "aks_gateway_api" {
     subnet_cidr  = optional(string, null)
     subnet_id    = optional(string, null)
   })
+  default     = {}
   description = "(Optional) The Application Gateway associated with the ingress controller deployed to this Kubernetes Cluster."
   validation {
     condition = (
