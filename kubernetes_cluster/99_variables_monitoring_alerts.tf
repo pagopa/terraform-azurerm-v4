@@ -74,29 +74,6 @@ variable "default_metric_alerts" {
         }
       ],
     }
-    pods_failed = {
-      aggregation      = "Average"
-      metric_namespace = "Microsoft.ContainerService/managedClusters"
-      description      = "Pod state phase failed"
-      metric_name      = "kube_pod_status_phase"
-      operator         = "GreaterThan"
-      threshold        = 0
-      severity         = 1
-      frequency        = "PT15M"
-      window_size      = "PT1H"
-      dimension = [
-        {
-          name     = "phase"
-          operator = "Include"
-          values   = ["Failed"]
-        },
-        {
-          name     = "namespace"
-          operator = "Include"
-          values   = ["*"]
-        }
-      ]
-    }
   }
 }
 
