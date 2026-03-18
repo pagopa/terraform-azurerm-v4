@@ -166,14 +166,14 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
 #
 locals {
   default_alert_configuration = {
-    enabled                  = true,
-    severity                 = 0,
-    frequency                = "PT1M"
-    auto_mitigate            = var.alert_set_auto_mitigate
-    operator                 = "LessThan"
-    aggregation              = "Average"
-    threshold                = 100
-    alert_sensitivity        = "High"
+    enabled           = true,
+    severity          = 0,
+    frequency         = "PT1M"
+    auto_mitigate     = var.alert_set_auto_mitigate
+    operator          = "LessThan"
+    aggregation       = "Average"
+    threshold         = 100
+    alert_sensitivity = "High"
   }
 
   default_custom_action_groups = []
