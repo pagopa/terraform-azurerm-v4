@@ -109,12 +109,46 @@ resource "azurerm_role_assignment" "datareaderrole" {
 }
 
 resource "azurerm_dashboard_grafana_managed_private_endpoint" "this" {
+  count                        = var.cross_region ? 0 : 1
   grafana_id                   = data.azurerm_dashboard_grafana.grafana.id
   name                         = "pagopa${var.tags["Environment"]}${var.location_short}GrafPam"
-  location                     = data.azurerm_dashboard_grafana.grafana.location
+  location                     = var.custom_gf_location != null ? var.custom_gf_location : var.location
   private_link_resource_id     = data.azurerm_monitor_workspace.this.id
   group_ids                    = ["prometheusMetrics"]
-  private_link_resource_region = data.azurerm_dashboard_grafana.grafana.location
+  private_link_resource_region = data.azurerm_monitor_workspace.this.location
+  request_message              = "Approved"
+
+  depends_on = [data.azurerm_monitor_workspace.this]
+}
+
+moved {
+  from = azurerm_dashboard_grafana_managed_private_endpoint.this
+  to   = azurerm_dashboard_grafana_managed_private_endpoint.this[0]
+}
+
+# Cross-Region compatibility for resolve connection issues from Grafana to workspace
+resource "azapi_resource" "grafana_managed_private_endpoint_ma" {
+  count = var.cross_region ? 1 : 0
+
+  type      = "Microsoft.Dashboard/grafana/managedPrivateEndpoints@2023-10-01-preview"
+  name      = "pagopa${var.tags["Environment"]}${var.location_short}GrafPam"
+  location  = var.custom_gf_location != null ? var.custom_gf_location : var.location
+  tags      = var.tags
+  parent_id = data.azurerm_dashboard_grafana.grafana.id
+  body = {
+    properties = {
+      groupIds = [
+        "prometheusMetrics"
+      ]
+      privateLinkResourceId     = data.azurerm_monitor_workspace.this.id
+      privateLinkResourceRegion = data.azurerm_monitor_workspace.this.location
+      requestMessage            = "Approved"
+    }
+
+  }
+  lifecycle {
+    ignore_changes = [tags]
+  }
 
   depends_on = [data.azurerm_monitor_workspace.this]
 }
