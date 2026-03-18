@@ -223,8 +223,8 @@ resource "azurerm_monitor_metric_alert" "alert" {
       metric_namespace         = "microsoft.insights/components"
       operator                 = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "operator", local.default_alert_configuration.operator)
       alert_sensitivity        = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "alert_sensitivity", local.default_alert_configuration.alert_sensitivity)
-      evaluation_failure_count = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "evaluation_failure_count", local.default_alert_configuration.evaluation_failure_count)
-      evaluation_total_count   = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "evaluation_total_count", local.default_alert_configuration.evaluation_total_count)
+      evaluation_failure_count = each.value.alertConfiguration.evaluation_failure_count
+      evaluation_total_count   = each.value.alertConfiguration.evaluation_total_count
       dimension {
         name     = "availabilityResult/name"
         operator = "Include"
