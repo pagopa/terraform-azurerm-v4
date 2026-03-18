@@ -172,9 +172,9 @@ locals {
     auto_mitigate            = var.alert_set_auto_mitigate
     operator                 = "LessThan"
     aggregation              = "Average"
-    alert_sensitivity        = "Medium"
-    evaluation_failure_count = 4
-    evaluation_total_count   = 4
+    alert_sensitivity        = "High"
+    evaluation_failure_count = 1
+    evaluation_total_count   = 1
   }
 
   default_custom_action_groups = []
