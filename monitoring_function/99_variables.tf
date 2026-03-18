@@ -115,17 +115,26 @@ variable "monitoring_configuration_encoded" {
   description = <<-EOT
     (Required) Monitoring configuration provided in JSON string format (use jsonencode).
     Each item supports an optional `alertConfiguration` object with the following fields:
-      - enabled                  (bool)   - whether the alert is enabled
-      - severity                 (number) - alert severity (0–4)
-      - frequency                (string) - evaluation frequency in ISO 8601 (e.g. "PT1M")
-      - auto_mitigate            (bool)   - whether to auto-resolve the alert
-      - operator                 (string) - comparison operator: GreaterThan, LessThan, GreaterOrLessThan
-      - aggregation              (string) - metric aggregation (e.g. "Average")
-      - alert_sensitivity        (string) - dynamic threshold sensitivity: Low, Medium (default), High
-      - evaluation_failure_count (number) - number of failing evaluation windows required to trigger
-                                            the alert (default 4); must be ≤ evaluation_total_count
-      - evaluation_total_count   (number) - size of the lookback window in evaluation periods (default 4)
-      - customActionGroupIds     (list of strings) - additional action group IDs
+      - enabled           (bool)   - whether the alert is enabled
+      - severity          (number) - alert severity (0–4)
+      - frequency         (string) - evaluation frequency in ISO 8601 (e.g. "PT1M")
+      - auto_mitigate     (bool)   - whether to auto-resolve the alert
+      - operator          (string) - comparison operator: GreaterThan, LessThan, GreaterOrLessThan
+      - aggregation       (string) - metric aggregation (e.g. "Average")
+      - customActionGroupIds (list of strings) - additional action group IDs
+
+    The following two sets of fields are mutually exclusive:
+
+    Static threshold (criteria) — used when evaluation_failure_count and
+    evaluation_total_count are NOT present:
+      - threshold         (number, default 100) - static metric threshold value
+
+    Dynamic threshold (dynamic_criteria) — activated when BOTH of the following
+    are explicitly present in alertConfiguration:
+      - evaluation_failure_count (number) - number of failing evaluation windows required
+                                            to trigger the alert; must be ≤ evaluation_total_count
+      - evaluation_total_count   (number) - size of the lookback window in evaluation periods
+      - alert_sensitivity        (string, default "Medium") - Low, Medium, High
   EOT
 
   validation {

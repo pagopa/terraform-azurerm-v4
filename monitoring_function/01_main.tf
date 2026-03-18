@@ -172,9 +172,8 @@ locals {
     auto_mitigate            = var.alert_set_auto_mitigate
     operator                 = "LessThan"
     aggregation              = "Average"
+    threshold                = 100
     alert_sensitivity        = "High"
-    evaluation_failure_count = 1
-    evaluation_total_count   = 1
   }
 
   default_custom_action_groups = []
@@ -193,25 +192,51 @@ resource "azurerm_monitor_metric_alert" "alert" {
   auto_mitigate = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "auto_mitigate", local.default_alert_configuration.auto_mitigate)
   enabled       = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "enabled", local.default_alert_configuration.enabled)
 
-  dynamic_criteria {
-    aggregation              = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "aggregation", local.default_alert_configuration.aggregation)
-    metric_name              = "availabilityResults/availabilityPercentage"
-    metric_namespace         = "microsoft.insights/components"
-    operator                 = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "operator", local.default_alert_configuration.operator)
-    alert_sensitivity        = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "alert_sensitivity", local.default_alert_configuration.alert_sensitivity)
-    evaluation_failure_count = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "evaluation_failure_count", local.default_alert_configuration.evaluation_failure_count)
-    evaluation_total_count   = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "evaluation_total_count", local.default_alert_configuration.evaluation_total_count)
-    dimension {
-      name     = "availabilityResult/name"
-      operator = "Include"
-      values = [
-        "${var.job_settings.availability_prefix}-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName}-${each.value.apiName}"
-      ]
+  dynamic "criteria" {
+    for_each = try(each.value.alertConfiguration.evaluation_failure_count > 0 && each.value.alertConfiguration.evaluation_total_count > 0, false) ? [] : [1]
+    content {
+      aggregation      = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "aggregation", local.default_alert_configuration.aggregation)
+      metric_name      = "availabilityResults/availabilityPercentage"
+      metric_namespace = "microsoft.insights/components"
+      operator         = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "operator", local.default_alert_configuration.operator)
+      threshold        = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "threshold", local.default_alert_configuration.threshold)
+      dimension {
+        name     = "availabilityResult/name"
+        operator = "Include"
+        values = [
+          "${var.job_settings.availability_prefix}-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName}-${each.value.apiName}"
+        ]
+      }
+      dimension {
+        name     = "availabilityResult/location"
+        operator = "Include"
+        values   = [each.value.type]
+      }
     }
-    dimension {
-      name     = "availabilityResult/location"
-      operator = "Include"
-      values   = [each.value.type]
+  }
+
+  dynamic "dynamic_criteria" {
+    for_each = try(each.value.alertConfiguration.evaluation_failure_count > 0 && each.value.alertConfiguration.evaluation_total_count > 0, false) ? [1] : [0]
+    content {
+      aggregation              = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "aggregation", local.default_alert_configuration.aggregation)
+      metric_name              = "availabilityResults/availabilityPercentage"
+      metric_namespace         = "microsoft.insights/components"
+      operator                 = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "operator", local.default_alert_configuration.operator)
+      alert_sensitivity        = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "alert_sensitivity", local.default_alert_configuration.alert_sensitivity)
+      evaluation_failure_count = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "evaluation_failure_count", local.default_alert_configuration.evaluation_failure_count)
+      evaluation_total_count   = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "evaluation_total_count", local.default_alert_configuration.evaluation_total_count)
+      dimension {
+        name     = "availabilityResult/name"
+        operator = "Include"
+        values = [
+          "${var.job_settings.availability_prefix}-${contains(keys(each.value), "domain") ? "${each.value.domain}-" : ""}${each.value.appName}-${each.value.apiName}"
+        ]
+      }
+      dimension {
+        name     = "availabilityResult/location"
+        operator = "Include"
+        values   = [each.value.type]
+      }
     }
   }
 
