@@ -143,6 +143,30 @@ variable "monitoring_configuration_encoded" {
     ])
     error_message = "apiName and appName must not contain '-' symbol"
   }
+
+  validation {
+    condition = alltrue([
+      for c in jsondecode(var.monitoring_configuration_encoded) : (
+        !contains(keys(lookup(c, "alertConfiguration", {})), "threshold") ||
+        (
+          !contains(keys(lookup(c, "alertConfiguration", {})), "evaluation_failure_count") &&
+          !contains(keys(lookup(c, "alertConfiguration", {})), "evaluation_total_count")
+        )
+      )
+    ])
+    error_message = "In alertConfiguration, 'threshold' is mutually exclusive with 'evaluation_failure_count' and 'evaluation_total_count': use 'threshold' for static criteria or 'evaluation_*' for dynamic criteria, not both."
+  }
+
+  validation {
+    condition = alltrue([
+      for c in jsondecode(var.monitoring_configuration_encoded) : (
+        contains(keys(lookup(c, "alertConfiguration", {})), "evaluation_failure_count") ==
+        contains(keys(lookup(c, "alertConfiguration", {})), "evaluation_total_count")
+      )
+    ])
+    error_message = "In alertConfiguration, 'evaluation_failure_count' and 'evaluation_total_count' must always be specified together."
+  }
+
 }
 
 

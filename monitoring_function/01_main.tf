@@ -193,7 +193,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
   enabled       = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "enabled", local.default_alert_configuration.enabled)
 
   dynamic "criteria" {
-    for_each = try(each.value.alertConfiguration.evaluation_failure_count > 0 && each.value.alertConfiguration.evaluation_total_count > 0, false) ? [] : [1]
+    for_each = try(each.value.alertConfiguration.evaluation_failure_count > 0 && each.value.alertConfiguration.evaluation_total_count > 0, false) ? [] : ["dummy"]
     content {
       aggregation      = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "aggregation", local.default_alert_configuration.aggregation)
       metric_name      = "availabilityResults/availabilityPercentage"
@@ -216,7 +216,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
   }
 
   dynamic "dynamic_criteria" {
-    for_each = try(each.value.alertConfiguration.evaluation_failure_count > 0 && each.value.alertConfiguration.evaluation_total_count > 0, false) ? [1] : [0]
+    for_each = try(each.value.alertConfiguration.evaluation_failure_count > 0 && each.value.alertConfiguration.evaluation_total_count > 0, false) ? ["dummy"] : []
     content {
       aggregation              = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "aggregation", local.default_alert_configuration.aggregation)
       metric_name              = "availabilityResults/availabilityPercentage"
