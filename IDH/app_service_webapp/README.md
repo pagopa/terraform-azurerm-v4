@@ -28,15 +28,26 @@ module "metabase_app_service" {
   docker_image        = "metabase/metabase"
   docker_image_tag    = "latest"
   docker_registry_url = "https://index.docker.io"
-  subnet_id           = module.app_service_snet.subnet_id
   tags                = module.tag_config.tags
   
   # which subnet is allowed to reach this app service
   allowed_subnet_ids = [data.azurerm_subnet.vpn_subnet.id]
 
   private_endpoint_dns_zone_id = data.azurerm_private_dns_zone.azurewebsites.id
-  private_endpoint_subnet_id   = data.azurerm_subnet.private_endpoint_subnet.id
+  
+  embedded_subnet = {
+    enabled      = true
+    vnet_name    = local.spoke_compute_vnet_name
+    vnet_rg_name = local.spoke_compute_vnet_resource_group_name
+  }
 
+  embedded_nsg_configuration = {
+    source_address_prefixes      = ["*"]
+    source_address_prefixes_name = "All"
+    target_ports                 = ["*"]
+    protocol                     = "Tcp"
+  }
+  
   autoscale_settings = {
     max_capacity                  = 3
     scale_up_requests_threshold   = 250
@@ -78,6 +89,7 @@ module "metabase_app_service" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_allow_from_apim"></a> [allow\_from\_apim](#input\_allow\_from\_apim) | If enabled set minimum\_tls\_version to 1.2 to be reached from APIM. | `bool` | `false` | no |
 | <a name="input_allowed_ips"></a> [allowed\_ips](#input\_allowed\_ips) | (Optional) List of ips allowed to call the appserver endpoint. | `list(string)` | `[]` | no |
 | <a name="input_allowed_service_tags"></a> [allowed\_service\_tags](#input\_allowed\_service\_tags) | (Optional) List of service tags allowed to call the appserver endpoint. | `list(string)` | `[]` | no |
 | <a name="input_allowed_subnet_ids"></a> [allowed\_subnet\_ids](#input\_allowed\_subnet\_ids) | (Optional) List of subnet allowed to call the appserver endpoint. | `list(string)` | `[]` | no |
@@ -124,5 +136,23 @@ module "metabase_app_service" {
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_autoscale_settings_id"></a> [autoscale\_settings\_id](#output\_autoscale\_settings\_id) | The ID of the autoscale settings. |
+| <a name="output_custom_domain_verification_id"></a> [custom\_domain\_verification\_id](#output\_custom\_domain\_verification\_id) | The custom domain verification ID of the main App Service slot. |
+| <a name="output_default_site_hostname"></a> [default\_site\_hostname](#output\_default\_site\_hostname) | The default site hostname of the main App Service slot. |
+| <a name="output_egress_snet_id"></a> [egress\_snet\_id](#output\_egress\_snet\_id) | The ID of the subnet used for egress traffic. |
+| <a name="output_id"></a> [id](#output\_id) | The ID of the main App Service slot. |
+| <a name="output_idh_resource_configuration"></a> [idh\_resource\_configuration](#output\_idh\_resource\_configuration) | The IDH resource configuration object. |
+| <a name="output_name"></a> [name](#output\_name) | The name of the main App Service slot. |
+| <a name="output_plan_id"></a> [plan\_id](#output\_plan\_id) | The ID of the App Service Plan. |
+| <a name="output_plan_name"></a> [plan\_name](#output\_plan\_name) | The name of the App Service Plan. |
+| <a name="output_principal_id"></a> [principal\_id](#output\_principal\_id) | The principal ID of the system-assigned identity for the main App Service slot. |
+| <a name="output_private_endpoint_main_slot"></a> [private\_endpoint\_main\_slot](#output\_private\_endpoint\_main\_slot) | The private endpoint resource of the main App Service slot. |
+| <a name="output_private_endpoint_snet_id"></a> [private\_endpoint\_snet\_id](#output\_private\_endpoint\_snet\_id) | The ID of the subnet used for the private endpoint. |
+| <a name="output_private_endpoint_staging_slot"></a> [private\_endpoint\_staging\_slot](#output\_private\_endpoint\_staging\_slot) | The private endpoint resource of the staging App Service slot. |
+| <a name="output_staging_default_site_hostname"></a> [staging\_default\_site\_hostname](#output\_staging\_default\_site\_hostname) | The default site hostname of the staging App Service slot. |
+| <a name="output_staging_id"></a> [staging\_id](#output\_staging\_id) | The ID of the staging App Service slot. |
+| <a name="output_staging_name"></a> [staging\_name](#output\_staging\_name) | The name of the staging App Service slot. |
+| <a name="output_staging_principal_id"></a> [staging\_principal\_id](#output\_staging\_principal\_id) | The principal ID of the system-assigned identity for the staging App Service slot. |
 <!-- END_TF_DOCS -->

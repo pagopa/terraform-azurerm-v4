@@ -21,6 +21,8 @@ resource "azurerm_application_insights_standard_web_test" "this" {
   retry_enabled           = var.retry_enabled
   timeout                 = var.timeout
 
+  tags = var.tags
+
   request {
     url                              = "${var.https_endpoint}${var.https_endpoint_path}"
     body                             = var.https_probe_body
@@ -71,6 +73,8 @@ resource "azurerm_monitor_metric_alert" "alert_this" {
   auto_mitigate       = var.alert_auto_mitigate
   enabled             = var.alert_enabled
   window_size         = var.metric_window_size
+
+  tags = var.tags
 
   dynamic "criteria" {
     for_each = var.alert_use_web_test_criteria ? [] : [1]

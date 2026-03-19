@@ -111,3 +111,13 @@ variable "capacity_minimum_count" {
 variable "tags" {
   type = map(any)
 }
+
+
+variable "scale_in" {
+  type = object({
+    force_deletion_enabled = bool
+    rule                   = string
+  })
+  description = "(Optional) A scale_in block as defined below. This is used to configure the behavior of scale-in operations for the Virtual Machine Scale Set. "
+  default     = null
+}

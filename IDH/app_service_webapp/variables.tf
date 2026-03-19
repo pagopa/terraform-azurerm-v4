@@ -55,7 +55,7 @@ variable "app_service_plan_id" {
   description = "(Optional) If External. Specifies the id of the App Service Plan component. Changing this forces a new resource to be created."
   default     = null
   validation {
-    condition     = var.plan_type == "external" ? var.app_service_plan_id != null : null
+    condition     = var.plan_type == "external" ? var.app_service_plan_id != null : var.app_service_plan_id == null
     error_message = "If 'plan_type' is external, 'app_service_plan_id' must be passed as an argument to the module."
   }
 }
@@ -108,6 +108,12 @@ variable "ftps_state" {
   type        = string
   description = "(Optional) Enable FTPS connection ( Default: Disabled )"
   default     = "Disabled"
+}
+
+variable "allow_from_apim" {
+  type        = bool
+  default     = false
+  description = "If enabled set minimum_tls_version to 1.2 to be reached from APIM."
 }
 
 variable "health_check_maxpingfailures" {

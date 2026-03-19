@@ -20,6 +20,20 @@ module "my_function" {
   resource_group_name = azurerm_resource_group.metabase_rg.name
 
   app_service_plan_name = "${local.project}-test-plan"
+  
+  embedded_subnet = {
+    enabled      = true
+    vnet_name    = local.spoke_compute_vnet_name
+    vnet_rg_name = local.spoke_compute_vnet_resource_group_name
+  }
+
+  embedded_nsg_configuration = {
+    source_address_prefixes      = ["*"]
+    source_address_prefixes_name = "All"
+    target_ports                 = ["*"]
+    protocol                     = "Tcp"
+  }
+  
   app_settings = {
     PROPERTY_1           = "..."
     PROPERTY_2           = "..."
@@ -29,13 +43,11 @@ module "my_function" {
   docker_image        = "my_image/image_name"
   docker_image_tag    = "latest"
   docker_registry_url = "https://index.docker.io"
-  subnet_id           = module.function_app_service_snet.subnet_id
   tags                = module.tag_config.tags
 
   allowed_subnet_ids = [data.azurerm_subnet.vpn_subnet.id]
 
   private_endpoint_dns_zone_id = data.azurerm_private_dns_zone.azurewebsites.id
-  private_endpoint_subnet_id   = data.azurerm_subnet.private_endpoint_subnet.id
 
   application_insights_instrumentation_key = data.azurerm_application_insights.application_insights.instrumentation_key
   #optional
@@ -76,6 +88,7 @@ module "my_function" {
 |------|--------|---------|
 | <a name="module_egress_snet"></a> [egress\_snet](#module\_egress\_snet) | ../subnet | n/a |
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
+| <a name="module_internal_storage_private_endpoint_snet"></a> [internal\_storage\_private\_endpoint\_snet](#module\_internal\_storage\_private\_endpoint\_snet) | ../subnet | n/a |
 | <a name="module_main_slot"></a> [main\_slot](#module\_main\_slot) | ../../function_app | n/a |
 | <a name="module_private_endpoint_snet"></a> [private\_endpoint\_snet](#module\_private\_endpoint\_snet) | ../subnet | n/a |
 | <a name="module_staging_slot"></a> [staging\_slot](#module\_staging\_slot) | ../../function_app_slot | n/a |
@@ -115,11 +128,12 @@ module "my_function" {
 | <a name="input_embedded_nsg_configuration"></a> [embedded\_nsg\_configuration](#input\_embedded\_nsg\_configuration) | (Optional) NSG configuration | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string # short name for source_address_prefixes<br/>    target_ports                 = list(string)<br/>    protocol                     = string<br/>  })</pre> | <pre>{<br/>  "protocol": "*",<br/>  "source_address_prefixes": [<br/>    "*"<br/>  ],<br/>  "source_address_prefixes_name": "All",<br/>  "target_ports": [<br/>    "*"<br/>  ]<br/>}</pre> | no |
 | <a name="input_embedded_subnet"></a> [embedded\_subnet](#input\_embedded\_subnet) | (Optional) Configuration for creating an embedded Subnet for the Cosmos private endpoint. When enabled, 'private\_endpoint\_subnet\_id' must be null. | <pre>object({<br/>    enabled      = bool<br/>    vnet_name    = optional(string, null)<br/>    vnet_rg_name = optional(string, null)<br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "vnet_name": null,<br/>  "vnet_rg_name": null<br/>}</pre> | no |
 | <a name="input_env"></a> [env](#input\_env) | (Required) Environment for which the resource will be created | `string` | n/a | yes |
+| <a name="input_export_keys"></a> [export\_keys](#input\_export\_keys) | Enable app function key exports. (Default: false) | `bool` | `false` | no |
 | <a name="input_health_check_maxpingfailures"></a> [health\_check\_maxpingfailures](#input\_health\_check\_maxpingfailures) | Max ping failures allowed | `number` | `null` | no |
 | <a name="input_health_check_path"></a> [health\_check\_path](#input\_health\_check\_path) | (Optional) The health check path to be pinged by App Service. | `string` | `null` | no |
 | <a name="input_healthcheck_threshold"></a> [healthcheck\_threshold](#input\_healthcheck\_threshold) | The healthcheck threshold. If metric average is under this value, the alert will be triggered. Default is 50 | `number` | `50` | no |
 | <a name="input_idh_resource_tier"></a> [idh\_resource\_tier](#input\_idh\_resource\_tier) | (Required) The name of IDH resource key to be created. | `string` | n/a | yes |
-| <a name="input_internal_storage"></a> [internal\_storage](#input\_internal\_storage) | n/a | <pre>object({<br/>    enable                     = bool<br/>    private_endpoint_subnet_id = string<br/>    private_dns_zone_blob_ids  = list(string)<br/>    private_dns_zone_queue_ids = list(string)<br/>    private_dns_zone_table_ids = list(string)<br/>    queues                     = list(string) # Queues names<br/>    containers                 = list(string) # Containers names<br/>    blobs_retention_days       = number<br/>  })</pre> | <pre>{<br/>  "blobs_retention_days": 1,<br/>  "containers": [],<br/>  "enable": false,<br/>  "private_dns_zone_blob_ids": [],<br/>  "private_dns_zone_queue_ids": [],<br/>  "private_dns_zone_table_ids": [],<br/>  "private_endpoint_subnet_id": "dummy",<br/>  "queues": []<br/>}</pre> | no |
+| <a name="input_internal_storage"></a> [internal\_storage](#input\_internal\_storage) | n/a | <pre>object({<br/>    enable                     = bool<br/>    private_endpoint_subnet_id = optional(string, null) #deprecated, use 'embedded_subnet' instead to automatically create it<br/>    private_dns_zone_blob_ids  = list(string)<br/>    private_dns_zone_queue_ids = list(string)<br/>    private_dns_zone_table_ids = list(string)<br/>    queues                     = list(string) # Queues names<br/>    containers                 = list(string) # Containers names<br/>    blobs_retention_days       = number<br/>  })</pre> | <pre>{<br/>  "blobs_retention_days": 1,<br/>  "containers": [],<br/>  "enable": false,<br/>  "private_dns_zone_blob_ids": [],<br/>  "private_dns_zone_queue_ids": [],<br/>  "private_dns_zone_table_ids": [],<br/>  "private_endpoint_subnet_id": null,<br/>  "queues": []<br/>}</pre> | no |
 | <a name="input_java_version"></a> [java\_version](#input\_java\_version) | n/a | `string` | `null` | no |
 | <a name="input_location"></a> [location](#input\_location) | n/a | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | App service name, used as prefix in resource names | `string` | n/a | yes |

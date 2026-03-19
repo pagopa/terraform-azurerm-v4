@@ -17,6 +17,7 @@ app_service:
     actions:
     - Microsoft.Network/virtualNetworks/subnets/action
 private_endpoint:
+  deprecated: true
   private_link_service_network_policies_enabled: true
   private_endpoint_network_policies: Enabled
   prefix_length: 26

@@ -86,6 +86,10 @@ resource "azuread_service_principal_delegated_permission_grant" "argocd_user_rea
   resource_service_principal_object_id = data.azuread_service_principal.graph.object_id
   claim_values                         = ["User.Read"]
   user_object_id                       = data.azurerm_client_config.current.object_id
+
+  lifecycle {
+    ignore_changes = [user_object_id]
+  }
 }
 
 # Assign groups to Enterprise Application (ApplicationGroup claims)

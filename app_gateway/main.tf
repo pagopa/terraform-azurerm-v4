@@ -63,6 +63,7 @@ resource "azurerm_application_gateway" "this" {
       request_timeout                     = backend.value.request_timeout
       probe_name                          = backend.value.probe_name
       pick_host_name_from_backend_address = backend.value.pick_host_name_from_backend
+      trusted_root_certificate_names      = backend.value.trusted_root_certificate_names
     }
   }
 
@@ -112,6 +113,15 @@ resource "azurerm_application_gateway" "this" {
     content {
       name = t.value.secret_name
       data = data.azurerm_key_vault_secret.client_cert[t.value.secret_name].value
+    }
+  }
+
+  dynamic "trusted_root_certificate" {
+    for_each = var.trusted_root_certificates
+    iterator = t
+    content {
+      name                = t.value.secret_name
+      key_vault_secret_id = t.value.key_vault_id
     }
   }
 

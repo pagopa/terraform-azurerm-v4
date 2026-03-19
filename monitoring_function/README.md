@@ -50,28 +50,57 @@ In addition to the fields required by the monitoring function, you can specify t
 
 ### Alert configuration
 
-In addition to the properties defined above, `alertConfiguration` can be specified to customize the alert associated to the monitored api
+In addition to the properties defined above, `alertConfiguration` can be specified to customize the alert associated to the monitored API.
 
-That's an example of the properties that can be specified, containing the default values that will be used if not specified
+The module supports **two mutually exclusive criteria modes**. The mode is selected automatically based on which fields are present in `alertConfiguration`:
+
+#### Mode 1 — Static threshold (`criteria`)
+
+Used when **neither** `evaluation_failure_count` **nor** `evaluation_total_count` are present. The alert fires when the metric crosses a fixed numeric threshold.
+
 ```json
 {
-    "enabled" : true, # (Optional) enables the alert
-    "severity" : 0,   # (Optional) The severity of this Metric Alert. Possible values are 0, 1, 2, 3 and 4
-    "frequency" : "PT1M", # (Optional) The evaluation frequency of this Metric Alert, represented in ISO 8601 duration format. Possible values are PT1M, PT5M, PT15M, PT30M and PT1H
-    "auto_mitigate" : true, # (Optional) Should the alerts in this Metric Alert be auto resolved? Defaults to true
-    "threshold" : 100, # (Optional) The criteria threshold value that activates the alert
-    "operator" : "LessThan" # (Optional) The criteria operator. Possible values are Equals, GreaterThan, GreaterThanOrEqual, LessThan and LessThanOrEqual
-    "aggregation": "Average" # (Required) The statistic that runs over the metric values. Possible values are Average, Count, Minimum, Maximum and Total.
-    "customActionGroupIds": [] # (OPtional) List of additional action group ids associated to this specific alert
+    "enabled"              : true,     // (Optional) Enables the alert. Default: true
+    "severity"             : 0,        // (Optional) Alert severity: 0, 1, 2, 3 or 4. Default: 0
+    "frequency"            : "PT1M",   // (Optional) Evaluation frequency in ISO 8601: PT1M, PT5M, PT15M, PT30M, PT1H. Default: "PT1M"
+    "auto_mitigate"        : true,     // (Optional) Auto-resolve the alert. Default: true (inherits alert_set_auto_mitigate)
+    "operator"             : "LessThan", // (Optional) Comparison operator: Equals, GreaterThan, GreaterThanOrEqual, LessThan, LessThanOrEqual. Default: "LessThan"
+    "aggregation"          : "Average", // (Optional) Metric aggregation: Average, Count, Minimum, Maximum, Total. Default: "Average"
+    "threshold"            : 100,      // (Optional) Static threshold value that triggers the alert. Default: 100
+    "customActionGroupIds" : []        // (Optional) Additional action group IDs for this alert. Default: []
 }
 ```
+
+#### Mode 2 — Dynamic threshold (`dynamic_criteria`)
+
+Used when **both** `evaluation_failure_count` **and** `evaluation_total_count` are present. The alert uses Azure Monitor's dynamic threshold algorithm instead of a fixed value. `threshold` **must not** be specified when using this mode.
+
+```json
+{
+    "enabled"                  : true,     // (Optional) Enables the alert. Default: true
+    "severity"                 : 0,        // (Optional) Alert severity: 0, 1, 2, 3 or 4. Default: 0
+    "frequency"                : "PT1M",   // (Optional) Evaluation frequency in ISO 8601. Default: "PT1M"
+    "auto_mitigate"            : true,     // (Optional) Auto-resolve the alert. Default: true
+    "operator"                 : "LessThan", // (Optional) Comparison operator. Default: "LessThan"
+    "aggregation"              : "Average", // (Optional) Metric aggregation. Default: "Average"
+    "alert_sensitivity"        : "High",   // (Optional) Dynamic threshold sensitivity: Low, Medium, High. Default: "High"
+    "evaluation_failure_count" : 2,        // (Required for dynamic mode) Number of failing evaluation windows to trigger the alert. Must be ≤ evaluation_total_count
+    "evaluation_total_count"   : 4,        // (Required for dynamic mode) Lookback window size in evaluation periods
+    "customActionGroupIds"     : []        // (Optional) Additional action group IDs for this alert. Default: []
+}
+```
+
+> ⚠️ **Validation constraints enforced on `monitoring_configuration_encoded`:**
+> - `apiName` and `appName` must **not** contain the `-` character.
+> - `threshold` is **mutually exclusive** with `evaluation_failure_count` / `evaluation_total_count`. You cannot specify both in the same `alertConfiguration`.
+> - `evaluation_failure_count` and `evaluation_total_count` must **always be specified together**. You cannot specify only one of them.
 
 This module creates a table storage to save the provided monitoring configuration; if the private endpoint is enabled it requires the `table` private dns zone group
 
 ```hcl
 
 module "synthetic_monitoring_subnet" {
-  source               = "git::https://github.com/pagopa/terraform-azurerm-v3.git//subnet?ref=v8.8.0"
+  source               = "git::https://github.com/pagopa/terraform-azurerm-v4.git//subnet?ref=v8.8.0"
   name                 = "${var.prefix}-synthetic-monitoring-snet"
   address_prefixes     = ["10.1.182.0/23"]
   resource_group_name  = "dvopla-d-vnet-rg"
@@ -101,53 +130,53 @@ resource "azurerm_container_app_environment" "container_app_environment" {
 
 # basic
 module "monitoring_function" {
-  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//monitoring_function?ref=v8.8.0"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v4.git//monitoring_function?ref=<ref>"
 
   location = "northeurope"
-  prefix = "dvopla-d"
+  prefix   = "dvopla-d" 
   resource_group_name = azurerm_resource_group.monitor_rg.name
 
-  application_insight_name = azurerm_application_insights.application_insights.name
-  application_insight_rg_name = azurerm_application_insights.application_insights.resource_group_name
+  application_insight_name              = azurerm_application_insights.application_insights.name
+  application_insight_rg_name           = azurerm_application_insights.application_insights.resource_group_name
   application_insights_action_group_ids = [azurerm_monitor_action_group.slack.id]
 
   docker_settings = {
-    image_tag    = "beta-poc"
+    image_tag = "beta-poc"
   }
 
   job_settings = {
-    cron_scheduling              = "* * * 8 *"
+    cron_scheduling              = "*/5 * * * *"
     container_app_environment_id = azurerm_container_app_environment.monitoring_container_app_environment.id
   }
 
   storage_account_settings = {
-    private_endpoint_enabled = false
-    private_dns_zone_id      = null
+    private_endpoint_enabled  = false
+    table_private_dns_zone_id = null
   }
 
-  monitoring_configuration_encoded = jsonencode( [{
-        "apiName" : "getSomething",
-        "appName": "myService",
-        "url": "https://dev01.blueprint.internal.devopslab.pagopa.it/blueprint/v5-java-helm-complete-test/",
-        "type": "private",
-        "checkCertificate": true,
-        "method": "GET",
-        "expectedCodes": ["200-299", "303"],
-        "tags": {
-            "description": "AKS ingress tested from internal network"
-        },
-        "durationLimit": 1000
-    }] )
+  monitoring_configuration_encoded = jsonencode([{
+    "apiName" : "getSomething",
+    "appName": "myService",
+    "url": "https://dev01.blueprint.internal.devopslab.pagopa.it/blueprint/v5-java-helm-complete-test/",
+    "type": "private",
+    "checkCertificate": true,
+    "method": "GET",
+    "expectedCodes": ["200-299", "303"],
+    "tags": {
+        "description": "AKS ingress tested from internal network"
+    },
+    "durationLimit": 1000
+  }])
 
   tags = var.tags
 }
 
-# with private endpoint and custom alert configuration
+# with private endpoint, static alert configuration override
 module "monitoring_function" {
-  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//monitoring_function?ref=v8.8.0"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v4.git//monitoring_function?ref=<ref>"
 
   location = "northeurope"
-  prefix = "dvopla-d"
+  prefix = "dvoplad"  # note: prefix must not contain '-' (used in storage account name)
   resource_group_name = azurerm_resource_group.monitor_rg.name
 
   application_insight_name = azurerm_application_insights.application_insights.name
@@ -159,40 +188,82 @@ module "monitoring_function" {
   }
 
   job_settings = {
-    cron_scheduling              = "* * * 8 *"
+    cron_scheduling              = "*/5 * * * *"
     container_app_environment_id = azurerm_container_app_environment.monitoring_container_app_environment.id
   }
 
   storage_account_settings = {
-    private_endpoint_enabled = true
-    private_dns_zone_id      = azurerm_private_dns_zone.storage_account_table.id
+    private_endpoint_enabled  = true
+    table_private_dns_zone_id = azurerm_private_dns_zone.storage_account_table.id
   }
-  
-  private_endpoint_subnet_id = module.private_endpoints_snet.id
-  
-  monitoring_configuration_encoded = jsonencode( [{
-        "apiName" : "getSomething",
-        "appName": "myService",
-        "url": "https://dev01.blueprint.internal.devopslab.pagopa.it/blueprint/v5-java-helm-complete-test/",
-        "type": "private",
-        "checkCertificate": true,
-        "method": "GET",
-        "expectedCodes": ["200-299", "303"],
-        "tags": {
-            "description": "AKS ingress tested from internal network"
-        },
-        "durationLimit": 1000,
-        # partial override of alert configuration
-        "alertConfiguration": {
-          "enabled" : false,
-          "severity": 0
-        }
-    }] )
-  
-    # disables the alert on the availability metric monitoring this job itself
-    self_alert_configuration = {
-      enabled = false
+
+  storage_private_endpoint_subnet_id = module.private_endpoints_snet.id
+
+  monitoring_configuration_encoded = jsonencode([{
+    "apiName" : "getSomething",
+    "appName": "myService",
+    "url": "https://dev01.blueprint.internal.devopslab.pagopa.it/blueprint/v5-java-helm-complete-test/",
+    "type": "private",
+    "checkCertificate": true,
+    "method": "GET",
+    "expectedCodes": ["200-299", "303"],
+    "tags": {
+        "description": "AKS ingress tested from internal network"
+    },
+    "durationLimit": 1000,
+    # partial override — static threshold mode (threshold only, no evaluation_* fields)
+    "alertConfiguration": {
+      "enabled"   : false,
+      "severity"  : 0,
+      "threshold" : 80
     }
+  }])
+
+  # disables the alert on the availability metric monitoring this job itself
+  self_alert_configuration = {
+    enabled = false
+  }
+
+  tags = var.tags
+}
+
+# with dynamic criteria alert configuration
+module "monitoring_function" {
+  source = "git::https://github.com/pagopa/terraform-azurerm-v4.git//monitoring_function?ref=<ref>"
+
+  location = "northeurope"
+  prefix   = "dvoplad"
+  resource_group_name = azurerm_resource_group.monitor_rg.name
+
+  application_insight_name              = azurerm_application_insights.application_insights.name
+  application_insight_rg_name           = azurerm_application_insights.application_insights.resource_group_name
+  application_insights_action_group_ids = [azurerm_monitor_action_group.slack.id]
+
+  job_settings = {
+    cron_scheduling              = "*/5 * * * *"
+    container_app_environment_id = azurerm_container_app_environment.monitoring_container_app_environment.id
+  }
+
+  storage_account_settings = {
+    private_endpoint_enabled  = false
+    table_private_dns_zone_id = null
+  }
+
+  monitoring_configuration_encoded = jsonencode([{
+    "apiName" : "getSomething",
+    "appName": "myService",
+    "url": "https://myservice.internal.example.com/health",
+    "type": "private",
+    "checkCertificate": true,
+    "method": "GET",
+    "expectedCodes": ["200-299"],
+    # dynamic criteria mode — both evaluation_* fields present, threshold must NOT be set
+    "alertConfiguration": {
+      "alert_sensitivity"        : "High",
+      "evaluation_failure_count" : 2,
+      "evaluation_total_count"   : 4
+    }
+  }])
 
   tags = var.tags
 }
@@ -246,10 +317,10 @@ module "monitoring_function" {
 | <a name="input_application_insights_action_group_ids"></a> [application\_insights\_action\_group\_ids](#input\_application\_insights\_action\_group\_ids) | (Required) Application insights action group ids | `list(string)` | n/a | yes |
 | <a name="input_docker_settings"></a> [docker\_settings](#input\_docker\_settings) | n/a | <pre>object({<br/>    registry_url = optional(string, "ghcr.io")                           #(Optional) Docker container registry url where to find the monitoring image<br/>    image_tag    = string                                                #(Optional) Docker image tag<br/>    image_name   = optional(string, "pagopa/azure-synthetic-monitoring") #(Optional) Docker image name<br/>  })</pre> | <pre>{<br/>  "image_name": "pagopa/azure-synthetic-monitoring",<br/>  "image_tag": "v1.10.0@sha256:1686c4a719dc1a3c270f98f527ebc34179764ddf53ee3089febcb26df7a2d71d",<br/>  "registry_url": "ghcr.io"<br/>}</pre> | no |
 | <a name="input_enabled_sythetic_dashboard"></a> [enabled\_sythetic\_dashboard](#input\_enabled\_sythetic\_dashboard) | (Optional) Enabled sythetic dashboard on grafana | `bool` | `false` | no |
-| <a name="input_job_settings"></a> [job\_settings](#input\_job\_settings) | n/a | <pre>object({<br/>    container_app_environment_id = string                          #(Required) If defined, the id of the container app environment tu be used to run the monitoring job. If provided, skips the creation of a dedicated subnet<br/>    cert_validity_range_days     = optional(number, 7)             #(Optional) Number of days before the expiration date of a certificate over which the check is considered success<br/>    execution_timeout_seconds    = optional(number, 300)           #(Optional) Job execution timeout, in seconds<br/>    cron_scheduling              = optional(string, "*/5 * * * *") #(Optional) Cron expression defining the execution scheduling of the monitoring function<br/>    cpu_requirement              = optional(number, 0.25)          #(Optional) Decimal; cpu requirement<br/>    memory_requirement           = optional(string, "0.5Gi")       #(Optional) Memory requirement<br/>    http_client_timeout          = optional(number, 30000)         #(Optional) Default http client response timeout, in milliseconds<br/>    default_duration_limit       = optional(number, 10000)         #(Optional) Duration limit applied if none is given in the monitoring configuration. in milliseconds<br/>    availability_prefix          = optional(string, "synthetic")   #(Optional) Prefix used for prefixing availability test names<br/>  })</pre> | <pre>{<br/>  "availability_prefix": "synthetic",<br/>  "cert_validity_range_days": 7,<br/>  "container_app_environment_id": null,<br/>  "cpu_requirement": 0.25,<br/>  "cron_scheduling": "*/5 * * * *",<br/>  "default_duration_limit": 10000,<br/>  "execution_timeout_seconds": 300,<br/>  "http_client_timeout": 30000,<br/>  "memory_requirement": "0.5Gi"<br/>}</pre> | no |
+| <a name="input_job_settings"></a> [job\_settings](#input\_job\_settings) | n/a | <pre>object({<br/>    container_app_environment_id = string                          #(Required) If defined, the id of the container app environment tu be used to run the monitoring job. If provided, skips the creation of a dedicated subnet<br/>    cert_validity_range_days     = optional(number, 7)             #(Optional) Number of days before the expiration date of a certificate over which the check is considered success<br/>    execution_timeout_seconds    = optional(number, 300)           #(Optional) Job execution timeout, in seconds<br/>    cron_scheduling              = optional(string, "*/5 * * * *") #(Optional) Cron expression defining the execution scheduling of the monitoring function<br/>    cpu_requirement              = optional(number, 0.25)          #(Optional) Decimal; cpu requirement<br/>    memory_requirement           = optional(string, "0.5Gi")       #(Optional) Memory requirement<br/>    http_client_timeout          = optional(number, 30000)         #(Optional) Default http client response timeout, in milliseconds<br/>    default_duration_limit       = optional(number, 10000)         #(Optional) Duration limit applied if none is given in the monitoring configuration. in milliseconds<br/>    availability_prefix          = optional(string, "synthetic")   #(Optional) Prefix used for prefixing availability test names<br/>    workload_profile             = optional(string, "Consumption") #(Optional) Container App workload profile to be used for the monitoring job. If not provided, defaults to the "consumption". Set "None" to use a regular container app without workload profile<br/>  })</pre> | <pre>{<br/>  "availability_prefix": "synthetic",<br/>  "cert_validity_range_days": 7,<br/>  "container_app_environment_id": null,<br/>  "cpu_requirement": 0.25,<br/>  "cron_scheduling": "*/5 * * * *",<br/>  "default_duration_limit": 10000,<br/>  "execution_timeout_seconds": 300,<br/>  "http_client_timeout": 30000,<br/>  "memory_requirement": "0.5Gi",<br/>  "workload_profile": "Consumption"<br/>}</pre> | no |
 | <a name="input_location"></a> [location](#input\_location) | (Required) Resource location | `string` | n/a | yes |
 | <a name="input_location_display_name"></a> [location\_display\_name](#input\_location\_display\_name) | (Required) Region location display name, like 'Italy North' | `string` | n/a | yes |
-| <a name="input_monitoring_configuration_encoded"></a> [monitoring\_configuration\_encoded](#input\_monitoring\_configuration\_encoded) | (Required) monitoring configuration provided in JSON string format (use jsonencode) | `string` | n/a | yes |
+| <a name="input_monitoring_configuration_encoded"></a> [monitoring\_configuration\_encoded](#input\_monitoring\_configuration\_encoded) | (Required) Monitoring configuration provided in JSON string format (use jsonencode).<br/>Each item supports an optional `alertConfiguration` object with the following fields:<br/>  - enabled           (bool)   - whether the alert is enabled<br/>  - severity          (number) - alert severity (0–4)<br/>  - frequency         (string) - evaluation frequency in ISO 8601 (e.g. "PT1M")<br/>  - auto\_mitigate     (bool)   - whether to auto-resolve the alert<br/>  - operator          (string) - comparison operator: GreaterThan, LessThan, GreaterOrLessThan<br/>  - aggregation       (string) - metric aggregation (e.g. "Average")<br/>  - customActionGroupIds (list of strings) - additional action group IDs<br/><br/>The following two sets of fields are mutually exclusive:<br/><br/>Static threshold (criteria) — used when evaluation\_failure\_count and<br/>evaluation\_total\_count are NOT present:<br/>  - threshold         (number, default 100) - static metric threshold value<br/><br/>Dynamic threshold (dynamic\_criteria) — activated when BOTH of the following<br/>are explicitly present in alertConfiguration:<br/>  - evaluation\_failure\_count (number) - number of failing evaluation windows required<br/>                                        to trigger the alert; must be ≤ evaluation\_total\_count<br/>  - evaluation\_total\_count   (number) - size of the lookback window in evaluation periods<br/>  - alert\_sensitivity        (string, default "Medium") - Low, Medium, High | `string` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | (Required) Prefix for dedicated resource names | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (Required) Name of the resource group in which the function and its related components are created | `string` | n/a | yes |
 | <a name="input_self_alert_configuration"></a> [self\_alert\_configuration](#input\_self\_alert\_configuration) | Configuration for the alert on the job itself | <pre>object({<br/>    enabled     = optional(bool, true)         # "(Optional) if true, enables the alert on the self monitoring availability metric"<br/>    frequency   = optional(string, "PT1M")     # (Optional) The evaluation frequency of this Metric Alert, represented in ISO 8601 duration format. Possible values are PT1M, PT5M, PT15M, PT30M and PT1H<br/>    severity    = optional(number, 0)          # (Optional) The severity of this Metric Alert. Possible values are 0, 1, 2, 3 and 4<br/>    threshold   = optional(number, 100)        # (Optional) The criteria threshold value that activates the alert<br/>    operator    = optional(string, "LessThan") # (Optional) The criteria operator. Possible values are Equals, GreaterThan, GreaterThanOrEqual, LessThan and LessThanOrEqual<br/>    aggregation = optional(string, "Average")  # (Required) The statistic that runs over the metric values. Possible values are Average, Count, Minimum, Maximum and Total.<br/>  })</pre> | <pre>{<br/>  "aggregation": "Average",<br/>  "enabled": true,<br/>  "frequency": "PT1M",<br/>  "operator": "LessThan",<br/>  "severity": 0,<br/>  "threshold": 100<br/>}</pre> | no |

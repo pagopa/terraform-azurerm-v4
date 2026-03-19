@@ -35,3 +35,7 @@ output "last_ip_address" {
   value       = terraform_data.subnet_last_ip.output
   description = "Last usable ip address in the subnet"
 }
+
+output "nsg_details" {
+  value = var.custom_nsg_configuration != null ? try(module.custom_nsg[0].nsg_custom_details["custom"], null) : try(module.embedded_nsg[0].nsg_custom_details["embedded"], null)
+}

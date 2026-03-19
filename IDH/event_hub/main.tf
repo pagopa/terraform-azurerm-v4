@@ -8,7 +8,7 @@ module "idh_loader" {
 }
 
 resource "terraform_data" "validation" {
-  input = timestamp()
+  input = module.idh_loader.idh_resource_configuration.auto_inflate_enabled
 
   lifecycle {
     precondition {

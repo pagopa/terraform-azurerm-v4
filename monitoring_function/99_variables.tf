@@ -56,6 +56,7 @@ variable "job_settings" {
     http_client_timeout          = optional(number, 30000)         #(Optional) Default http client response timeout, in milliseconds
     default_duration_limit       = optional(number, 10000)         #(Optional) Duration limit applied if none is given in the monitoring configuration. in milliseconds
     availability_prefix          = optional(string, "synthetic")   #(Optional) Prefix used for prefixing availability test names
+    workload_profile             = optional(string, "Consumption") #(Optional) Container App workload profile to be used for the monitoring job. If not provided, defaults to the "consumption". Set "None" to use a regular container app without workload profile
   })
   default = {
     container_app_environment_id = null
@@ -67,6 +68,7 @@ variable "job_settings" {
     http_client_timeout          = 30000
     default_duration_limit       = 10000
     availability_prefix          = "synthetic"
+    workload_profile             = "Consumption"
   }
   validation {
     condition     = length(var.job_settings.availability_prefix) > 0
@@ -110,7 +112,30 @@ variable "application_insights_action_group_ids" {
 
 variable "monitoring_configuration_encoded" {
   type        = string
-  description = "(Required) monitoring configuration provided in JSON string format (use jsonencode)"
+  description = <<-EOT
+    (Required) Monitoring configuration provided in JSON string format (use jsonencode).
+    Each item supports an optional `alertConfiguration` object with the following fields:
+      - enabled           (bool)   - whether the alert is enabled
+      - severity          (number) - alert severity (0–4)
+      - frequency         (string) - evaluation frequency in ISO 8601 (e.g. "PT1M")
+      - auto_mitigate     (bool)   - whether to auto-resolve the alert
+      - operator          (string) - comparison operator: GreaterThan, LessThan, GreaterOrLessThan
+      - aggregation       (string) - metric aggregation (e.g. "Average")
+      - customActionGroupIds (list of strings) - additional action group IDs
+
+    The following two sets of fields are mutually exclusive:
+
+    Static threshold (criteria) — used when evaluation_failure_count and
+    evaluation_total_count are NOT present:
+      - threshold         (number, default 100) - static metric threshold value
+
+    Dynamic threshold (dynamic_criteria) — activated when BOTH of the following
+    are explicitly present in alertConfiguration:
+      - evaluation_failure_count (number) - number of failing evaluation windows required
+                                            to trigger the alert; must be ≤ evaluation_total_count
+      - evaluation_total_count   (number) - size of the lookback window in evaluation periods
+      - alert_sensitivity        (string, default "Medium") - Low, Medium, High
+  EOT
 
   validation {
     condition = alltrue([
@@ -118,6 +143,30 @@ variable "monitoring_configuration_encoded" {
     ])
     error_message = "apiName and appName must not contain '-' symbol"
   }
+
+  validation {
+    condition = alltrue([
+      for c in jsondecode(var.monitoring_configuration_encoded) : (
+        !contains(keys(lookup(c, "alertConfiguration", {})), "threshold") ||
+        (
+          !contains(keys(lookup(c, "alertConfiguration", {})), "evaluation_failure_count") &&
+          !contains(keys(lookup(c, "alertConfiguration", {})), "evaluation_total_count")
+        )
+      )
+    ])
+    error_message = "In alertConfiguration, 'threshold' is mutually exclusive with 'evaluation_failure_count' and 'evaluation_total_count': use 'threshold' for static criteria or 'evaluation_*' for dynamic criteria, not both."
+  }
+
+  validation {
+    condition = alltrue([
+      for c in jsondecode(var.monitoring_configuration_encoded) : (
+        contains(keys(lookup(c, "alertConfiguration", {})), "evaluation_failure_count") ==
+        contains(keys(lookup(c, "alertConfiguration", {})), "evaluation_total_count")
+      )
+    ])
+    error_message = "In alertConfiguration, 'evaluation_failure_count' and 'evaluation_total_count' must always be specified together."
+  }
+
 }
 
 

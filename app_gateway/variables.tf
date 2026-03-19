@@ -47,16 +47,17 @@ variable "public_ip_id" {
 
 variable "backends" {
   type = map(object({
-    protocol                    = string                              # The Protocol which should be used. Possible values are Http and Https
-    host                        = string                              # The Hostname used for this Probe. If the Application Gateway is configured for a single site, by default the Host name should be specified as ‘127.0.0.1’, unless otherwise configured in custom probe. Cannot be set if pick_host_name_from_backend_http_settings is set to true
-    port                        = number                              # Custom port which will be used for probing the backend servers. The valid value ranges from 1 to 65535. In case not set, port from http settings will be used.
-    ip_addresses                = list(string)                        # A list of IP Addresses which should be part of the Backend Address Pool.
-    fqdns                       = list(string)                        # A list of FQDN's which should be part of the Backend Address Pool.
-    probe                       = string                              # The Path used for this Probe.
-    probe_name                  = string                              # The Name of the Probe.
-    probe_status_code           = optional(list(string), ["200-399"]) # The status codes accepted by the probe
-    request_timeout             = number                              # The Timeout used for this Probe, which indicates when a probe becomes unhealthy. Possible values range from 1 second to a maximum of 86,400 seconds.
-    pick_host_name_from_backend = bool                                # Whether the host header should be picked from the backend http settings
+    protocol                       = string                              # The Protocol which should be used. Possible values are Http and Https
+    host                           = string                              # The Hostname used for this Probe. If the Application Gateway is configured for a single site, by default the Host name should be specified as ‘127.0.0.1’, unless otherwise configured in custom probe. Cannot be set if pick_host_name_from_backend_http_settings is set to true
+    port                           = number                              # Custom port which will be used for probing the backend servers. The valid value ranges from 1 to 65535. In case not set, port from http settings will be used.
+    ip_addresses                   = list(string)                        # A list of IP Addresses which should be part of the Backend Address Pool.
+    fqdns                          = list(string)                        # A list of FQDN's which should be part of the Backend Address Pool.
+    probe                          = string                              # The Path used for this Probe.
+    probe_name                     = string                              # The Name of the Probe.
+    probe_status_code              = optional(list(string), ["200-399"]) # The status codes accepted by the probe
+    request_timeout                = number                              # The Timeout used for this Probe, which indicates when a probe becomes unhealthy. Possible values range from 1 second to a maximum of 86,400 seconds.
+    pick_host_name_from_backend    = bool                                # Whether the host header should be picked from the backend http settings
+    trusted_root_certificate_names = optional(list(string), null)        # Name of trusted root certificates, referencing the name in the trusted_root_certificates variable
   }))
 
   description = "Obj that allow to configure: backend_address_pool, backend_http_settings, probe"
@@ -101,6 +102,17 @@ variable "trusted_client_certificates" {
     secret_name  = string # The name of the Trusted Client Certificate that is unique within this Application Gateway.
     key_vault_id = string # Key vault id, that contains the certificate.
   }))
+}
+
+# Note: the attribute secret_name refers to the secret contaning the client certificate.
+# Secrects'name in the key vault can't have low hyphens but just hyphens in it.
+variable "trusted_root_certificates" {
+  description = "Root certificates used to trust backend certificates"
+  type = list(object({
+    secret_name  = string # The name of the Trusted Root Certificate that is unique within this Application Gateway.
+    key_vault_id = string # Key vault id, that contains the certificate.
+  }))
+  default = []
 }
 
 variable "routes" {

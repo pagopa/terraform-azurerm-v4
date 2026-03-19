@@ -29,7 +29,71 @@ variable "kubernetes_cluster_id" {
 
 variable "vnet_subnet_id" {
   type        = string
-  description = "(Required): Subnet id for the node pool."
+  description = "(Optional): Subnet id for the node pool."
+  default     = null
+}
+
+variable "embedded_subnet" {
+  type = object({
+    enabled      = bool
+    vnet_name    = optional(string, null)
+    vnet_rg_name = optional(string, null)
+    subnet_name  = optional(string, null)
+    natgw_id     = optional(string, null)
+  })
+  description = "(Optional) Configuration for creating an embedded Subnet for the AKS Nodepool. If 'enabled' is true, 'vnet_subnet_id' must be null"
+  default = {
+    enabled      = false
+    vnet_name    = null
+    vnet_rg_name = null
+    subnet_name  = null
+    natgw_id     = null
+  }
+
+
+  validation {
+    condition     = var.embedded_subnet.enabled ? var.vnet_subnet_id == null : true
+    error_message = "If 'embedded_subnet' is enabled, 'vnet_subnet_id' must be null."
+  }
+
+  validation {
+    condition     = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
+    error_message = "If 'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
+  }
+}
+
+variable "nsg_flow_log_configuration" {
+  type = object({
+    enabled                    = bool
+    network_watcher_name       = optional(string, null)
+    network_watcher_rg         = optional(string, null)
+    storage_account_id         = optional(string, null)
+    traffic_analytics_law_name = optional(string, null)
+    traffic_analytics_law_rg   = optional(string, null)
+  })
+  description = "(Optional) NSG flow log configuration"
+  default = {
+    enabled = false
+  }
+
+}
+
+variable "embedded_nsg_configuration" {
+  type = object({
+    source_address_prefixes      = list(string)
+    source_address_prefixes_name = string ## short name for source_address_prefixes
+  })
+  description = "(Optional) List of allowed cidr and name . Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration"
+  default = {
+    source_address_prefixes : ["*"]
+    source_address_prefixes_name = "All"
+  }
+}
+
+variable "create_self_inbound_nsg_rule" {
+  type        = bool
+  description = "(Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope"
+  default     = true
 }
 
 variable "autoscale_enabled" {

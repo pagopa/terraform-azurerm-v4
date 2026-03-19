@@ -74,6 +74,12 @@ variable "custom_gf_location" {
   default     = null
 }
 
+variable "cross_region" {
+  type        = bool
+  default     = false
+  description = "Cross-Region compatibility for resolve connection issues from Grafana to workspace"
+}
+
 variable "action_groups_id" {
   description = "The ID of the Action Group to use for the Alerts."
   type        = list(string)

@@ -30,24 +30,9 @@ Also handles:
     key_vault_id = data.azurerm_key_vault.key_vault.id
   }
 
-  # Postgres Flexible Server subnet
-  module "postgres_flexible_snet" {
-    source                                        = "./.terraform/modules/__v4__/IDH/subnet"
-    name                                          = "${local.product}-test-idh-snet"
-    resource_group_name                           = data.azurerm_resource_group.rg_vnet.name
-    virtual_network_name                          = data.azurerm_virtual_network.vnet.name
-    service_endpoints                             = ["Microsoft.Storage"]
-    private_link_service_network_policies_enabled = true
   
-    idh_resource_tier = "postgres_flexible"
-    product_name = var.product_name
-    env = var.env
-
-  }
-
   resource "azurerm_private_dns_zone" "privatelink_postgres_database_azure_com" {
-
-    name                = "privatelink.postgres.database.azure.com"
+    name                = "private.postgres.database.azure.com"
     resource_group_name = data.azurerm_resource_group.rg_vnet.name
 
     tags = var.tags
@@ -64,8 +49,17 @@ Also handles:
   product_name = var.product_name
   env = var.env
 
-  private_dns_zone_id           = var.env_short != "d" ? data.azurerm_private_dns_zone.postgres[0].id : null
-  delegated_subnet_id           = module.postgres_flexible_snet.id
+  private_dns_zone_id           =  data.azurerm_private_dns_zone.privatelink_postgres_database_azure_com.id 
+  embedded_subnet = {
+    enabled              = true
+    vnet_name            = local.spoke_data_vnet_name
+    vnet_rg_name         = local.spoke_data_vnet_resource_group_name
+  }
+    
+  embedded_nsg_configuration = {
+    source_address_prefixes      = ["*"]
+    source_address_prefixes_name = local.domain
+  }
 
   administrator_login    = data.azurerm_key_vault_secret.pgres_flex_admin_login.value
   administrator_password = data.azurerm_key_vault_secret.pgres_flex_admin_pwd.value
@@ -113,6 +107,16 @@ Also handles:
 ```
 
 
+## Upgrade v8.x -> v9.x
+
+Only for `pagopa` product in `dev` environment:
+
+- Change `idh_resource_tier` from `pgflex2` to `pgflex2_public` (or migrate to `pgflex2` if allowed)
+- Change `idh_resource_tier` from `pgflex4` to `pgflex4_public` (or migrate to `pgflex4` if allowed)
+
+The new `pgflex2` and `pgflex4` tiers are private, as the standard requires
+
+
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -129,6 +133,8 @@ Also handles:
 |------|--------|---------|
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 | <a name="module_pgflex"></a> [pgflex](#module\_pgflex) | ../../postgres_flexible_server | n/a |
+| <a name="module_pgflex_primary_nsg"></a> [pgflex\_primary\_nsg](#module\_pgflex\_primary\_nsg) | ../../network_security_group | n/a |
+| <a name="module_pgflex_replica_nsg"></a> [pgflex\_replica\_nsg](#module\_pgflex\_replica\_nsg) | ../../network_security_group | n/a |
 | <a name="module_pgflex_replica_snet"></a> [pgflex\_replica\_snet](#module\_pgflex\_replica\_snet) | ../subnet | n/a |
 | <a name="module_pgflex_snet"></a> [pgflex\_snet](#module\_pgflex\_snet) | ../subnet | n/a |
 | <a name="module_replica"></a> [replica](#module\_replica) | ../../postgres_flexible_server_replica | n/a |
@@ -155,10 +161,12 @@ Also handles:
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_additional_azure_extensions"></a> [additional\_azure\_extensions](#input\_additional\_azure\_extensions) | (Optional) List of additional azure extensions to be installed on the server | `list(string)` | `[]` | no |
+| <a name="input_additional_preload_libraries"></a> [additional\_preload\_libraries](#input\_additional\_preload\_libraries) | (Optional) List of additional shared preload libraries to be installed on the server | `list(string)` | `[]` | no |
 | <a name="input_administrator_login"></a> [administrator\_login](#input\_administrator\_login) | Flexible PostgreSql server administrator\_login | `string` | n/a | yes |
 | <a name="input_administrator_password"></a> [administrator\_password](#input\_administrator\_password) | Flexible PostgreSql server administrator\_password | `string` | n/a | yes |
 | <a name="input_alert_action"></a> [alert\_action](#input\_alert\_action) | The ID of the Action Group and optional map of custom string properties to include with the post webhook operation. | <pre>set(object(<br/>    {<br/>      action_group_id    = string<br/>      webhook_properties = map(string)<br/>    }<br/>  ))</pre> | `[]` | no |
 | <a name="input_auto_grow_enabled"></a> [auto\_grow\_enabled](#input\_auto\_grow\_enabled) | (Optional) Is the storage auto grow for PostgreSQL Flexible Server enabled? Defaults to false | `bool` | `false` | no |
+| <a name="input_create_self_inbound_nsg_rule"></a> [create\_self\_inbound\_nsg\_rule](#input\_create\_self\_inbound\_nsg\_rule) | (Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope | `bool` | `true` | no |
 | <a name="input_custom_metric_alerts"></a> [custom\_metric\_alerts](#input\_custom\_metric\_alerts) | Map of name = criteria objects | <pre>map(object({<br/>    # criteria.*.aggregation to be one of [Average Count Minimum Maximum Total]<br/>    aggregation = string<br/>    metric_name = string<br/>    # "Insights.Container/pods" "Insights.Container/nodes"<br/>    metric_namespace = string<br/>    # criteria.0.operator to be one of [Equals NotEquals GreaterThan GreaterThanOrEqual LessThan LessThanOrEqual]<br/>    operator  = string<br/>    threshold = number<br/>    # Possible values are PT1M, PT5M, PT15M, PT30M and PT1H<br/>    frequency = string<br/>    # Possible values are PT1M, PT5M, PT15M, PT30M, PT1H, PT6H, PT12H and P1D.<br/>    window_size = string<br/>    # severity: The severity of this Metric Alert. Possible values are 0, 1, 2, 3 and 4. Defaults to 3.<br/>    severity = number<br/>  }))</pre> | `null` | no |
 | <a name="input_customer_managed_key_enabled"></a> [customer\_managed\_key\_enabled](#input\_customer\_managed\_key\_enabled) | enable customer\_managed\_key | `bool` | `false` | no |
 | <a name="input_customer_managed_key_kv_key_id"></a> [customer\_managed\_key\_kv\_key\_id](#input\_customer\_managed\_key\_kv\_key\_id) | The ID of the Key Vault Key | `string` | `null` | no |
@@ -167,7 +175,7 @@ Also handles:
 | <a name="input_delegated_subnet_id"></a> [delegated\_subnet\_id](#input\_delegated\_subnet\_id) | (Optional) The ID of the virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated. | `string` | `null` | no |
 | <a name="input_diagnostic_setting_destination_storage_id"></a> [diagnostic\_setting\_destination\_storage\_id](#input\_diagnostic\_setting\_destination\_storage\_id) | (Optional) The ID of the Storage Account where logs should be sent. Changing this forces a new resource to be created. | `string` | `null` | no |
 | <a name="input_diagnostic_settings_enabled"></a> [diagnostic\_settings\_enabled](#input\_diagnostic\_settings\_enabled) | Is diagnostic settings enabled? | `bool` | `true` | no |
-| <a name="input_embedded_nsg_configuration"></a> [embedded\_nsg\_configuration](#input\_embedded\_nsg\_configuration) | (Optional) List of allowed cidr and name . Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string # short name for source_address_prefixes<br/>  })</pre> | <pre>{<br/>  "source_address_prefixes": [<br/>    "*"<br/>  ],<br/>  "source_address_prefixes_name": "All"<br/>}</pre> | no |
+| <a name="input_embedded_nsg_configuration"></a> [embedded\_nsg\_configuration](#input\_embedded\_nsg\_configuration) | (Optional) List of allowed cidr and name . Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string ## short name for source_address_prefixes<br/>  })</pre> | <pre>{<br/>  "source_address_prefixes": [<br/>    "*"<br/>  ],<br/>  "source_address_prefixes_name": "All"<br/>}</pre> | no |
 | <a name="input_embedded_subnet"></a> [embedded\_subnet](#input\_embedded\_subnet) | (Optional) Configuration for creating an embedded Subnet for the PostgreSQL Flexible Server. If 'enabled' is true, 'delegated\_subnet\_id' must be null | <pre>object({<br/>    enabled              = bool<br/>    vnet_name            = optional(string, null)<br/>    vnet_rg_name         = optional(string, null)<br/>    replica_vnet_name    = optional(string, null)<br/>    replica_vnet_rg_name = optional(string, null)<br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "replica_vnet_name": null,<br/>  "replica_vnet_rg_name": null,<br/>  "vnet_name": null,<br/>  "vnet_rg_name": null<br/>}</pre> | no |
 | <a name="input_env"></a> [env](#input\_env) | (Required) Environment for which the resource will be created | `string` | n/a | yes |
 | <a name="input_geo_replication"></a> [geo\_replication](#input\_geo\_replication) | (Optional) Map of geo replication settings | <pre>object({<br/>    enabled                     = bool<br/>    name                        = optional(string, null)<br/>    subnet_id                   = optional(string, null)<br/>    location                    = optional(string, null)<br/>    private_dns_registration_ve = optional(bool, false)<br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "location": null,<br/>  "name": null,<br/>  "private_dns_registration_ve": false,<br/>  "subnet_id": null<br/>}</pre> | no |

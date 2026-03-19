@@ -59,6 +59,11 @@ variable "app_settings" {
   type    = map(string)
   default = {}
 }
+variable "export_keys" {
+  type        = bool
+  default     = false
+  description = "Enable app function key exports. (Default: false)"
+}
 variable "allowed_subnet_ids" {
   type        = list(string)
   description = "(Optional) List of subnet allowed to call the appserver endpoint."
@@ -235,7 +240,7 @@ variable "storage_account_access_key" {
 variable "internal_storage" {
   type = object({
     enable                     = bool
-    private_endpoint_subnet_id = string
+    private_endpoint_subnet_id = optional(string, null) #deprecated, use 'embedded_subnet' instead to automatically create it
     private_dns_zone_blob_ids  = list(string)
     private_dns_zone_queue_ids = list(string)
     private_dns_zone_table_ids = list(string)
@@ -246,13 +251,18 @@ variable "internal_storage" {
 
   default = {
     enable                     = false
-    private_endpoint_subnet_id = "dummy"
+    private_endpoint_subnet_id = null
     private_dns_zone_blob_ids  = []
     private_dns_zone_queue_ids = []
     private_dns_zone_table_ids = []
     queues                     = []
     containers                 = []
     blobs_retention_days       = 1
+  }
+
+  validation {
+    condition     = var.embedded_subnet.enabled ? var.internal_storage.private_endpoint_subnet_id == null : var.internal_storage.private_endpoint_subnet_id != null
+    error_message = "If 'embedded_subnet' is enabled, 'internal_storage.private_endpoint_subnet_id' must be null."
   }
 }
 

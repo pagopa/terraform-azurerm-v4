@@ -29,6 +29,8 @@ resource "azurerm_monitor_metric_alert" "this" {
     operator         = each.value.operator
     threshold        = each.value.threshold
   }
+
+  tags = var.tags
 }
 
 #

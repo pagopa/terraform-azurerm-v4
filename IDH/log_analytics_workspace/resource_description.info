@@ -1,0 +1,1 @@
+Log Analystics Workspace sku: {law_sku}, Daily Quota: {law_daily_quota_gb} GB, Retention in days: {law_retention_in_days}, Applicaiton Insight app type: {application_insights_application_type}, Application insight data cap: {application_insights_daily_data_cap_in_gb}, Private Endpoint Enabled: {private_endpoint_enabled}, Linked cluster: {linked_law_enabled}

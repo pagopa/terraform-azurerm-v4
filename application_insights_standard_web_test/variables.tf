@@ -154,3 +154,9 @@ variable "availability_failed_location_threshold" {
   description = "(Optional) number of failed location that should trigger the alert. used when 'alert_use_web_test_criteria' is true"
   default     = 1
 }
+
+variable "tags" {
+  type        = map(string)
+  description = "(Optional) Tags to apply to the resource"
+  default     = {}
+}

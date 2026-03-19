@@ -189,7 +189,9 @@ No modules.
 | <a name="input_private_dns_zone_table_ids"></a> [private\_dns\_zone\_table\_ids](#input\_private\_dns\_zone\_table\_ids) | Used only for private endpoints | `list(string)` | `[]` | no |
 | <a name="input_private_endpoint_cassandra_name"></a> [private\_endpoint\_cassandra\_name](#input\_private\_endpoint\_cassandra\_name) | Private endpoint name. If null it will assume the cosmosdb account name. | `string` | `null` | no |
 | <a name="input_private_endpoint_enabled"></a> [private\_endpoint\_enabled](#input\_private\_endpoint\_enabled) | Enable private endpoint | `bool` | `true` | no |
+| <a name="input_private_endpoint_location"></a> [private\_endpoint\_location](#input\_private\_endpoint\_location) | n/a | `string` | `null` | no |
 | <a name="input_private_endpoint_mongo_name"></a> [private\_endpoint\_mongo\_name](#input\_private\_endpoint\_mongo\_name) | Private endpoint name. If null it will assume the cosmosdb account name. | `string` | `null` | no |
+| <a name="input_private_endpoint_rg_name"></a> [private\_endpoint\_rg\_name](#input\_private\_endpoint\_rg\_name) | The resource group where the private endpoint should be created. If not set, it will be created in the same resource group as the CosmosDB account. | `string` | `null` | no |
 | <a name="input_private_endpoint_sql_name"></a> [private\_endpoint\_sql\_name](#input\_private\_endpoint\_sql\_name) | Private endpoint name. If null it will assume the cosmosdb account name. | `string` | `null` | no |
 | <a name="input_private_endpoint_table_name"></a> [private\_endpoint\_table\_name](#input\_private\_endpoint\_table\_name) | Private endpoint name. If null it will assume the cosmosdb account name. | `string` | `null` | no |
 | <a name="input_private_service_connection_cassandra_name"></a> [private\_service\_connection\_cassandra\_name](#input\_private\_service\_connection\_cassandra\_name) | Private service connection name. If null, it will assume the cosmos db account name | `string` | `null` | no |
@@ -207,15 +209,21 @@ No modules.
 |------|-------------|
 | <a name="output_endpoint"></a> [endpoint](#output\_endpoint) | The endpoint used to connect to the CosmosDB account. |
 | <a name="output_id"></a> [id](#output\_id) | The id of the CosmosDB account. |
+| <a name="output_legacy_primary_sql_connection_strings"></a> [legacy\_primary\_sql\_connection\_strings](#output\_legacy\_primary\_sql\_connection\_strings) | n/a |
+| <a name="output_legacy_secondary_sql_connection_strings"></a> [legacy\_secondary\_sql\_connection\_strings](#output\_legacy\_secondary\_sql\_connection\_strings) | n/a |
 | <a name="output_name"></a> [name](#output\_name) | The name of the CosmosDB created. |
+| <a name="output_primary_connection_string_readonly"></a> [primary\_connection\_string\_readonly](#output\_primary\_connection\_string\_readonly) | n/a |
 | <a name="output_primary_connection_strings"></a> [primary\_connection\_strings](#output\_primary\_connection\_strings) | n/a |
 | <a name="output_primary_key"></a> [primary\_key](#output\_primary\_key) | n/a |
 | <a name="output_primary_master_key"></a> [primary\_master\_key](#output\_primary\_master\_key) | @deprecated |
 | <a name="output_primary_readonly_key"></a> [primary\_readonly\_key](#output\_primary\_readonly\_key) | n/a |
 | <a name="output_primary_readonly_master_key"></a> [primary\_readonly\_master\_key](#output\_primary\_readonly\_master\_key) | @deprecated |
+| <a name="output_primary_sql_connection_string_readonly"></a> [primary\_sql\_connection\_string\_readonly](#output\_primary\_sql\_connection\_string\_readonly) | n/a |
+| <a name="output_primary_sql_connection_strings"></a> [primary\_sql\_connection\_strings](#output\_primary\_sql\_connection\_strings) | n/a |
 | <a name="output_principal_id"></a> [principal\_id](#output\_principal\_id) | n/a |
 | <a name="output_read_endpoints"></a> [read\_endpoints](#output\_read\_endpoints) | A list of read endpoints available for this CosmosDB account. |
 | <a name="output_secondary_connection_strings"></a> [secondary\_connection\_strings](#output\_secondary\_connection\_strings) | n/a |
 | <a name="output_secondary_key"></a> [secondary\_key](#output\_secondary\_key) | n/a |
+| <a name="output_secondary_sql_connection_strings"></a> [secondary\_sql\_connection\_strings](#output\_secondary\_sql\_connection\_strings) | n/a |
 | <a name="output_write_endpoints"></a> [write\_endpoints](#output\_write\_endpoints) | A list of write endpoints available for this CosmosDB account. |
 <!-- END_TF_DOCS -->

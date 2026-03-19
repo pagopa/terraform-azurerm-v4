@@ -25,6 +25,7 @@ variable "custom_security_group" {
     target_subnet_name      = optional(string, null)
     target_subnet_vnet_name = optional(string, null)
     target_subnet_id        = optional(string, null) # optional target subnet id. overrides the pair <target_subnet_name, target_subnet_vnet_name>. useful when subnet not yet created
+    target_subnet_cidr      = optional(string, null) # optional, instead of using the pair <target_subnet_name, target_subnet_vnet_name>. useful when subnet not yet created
     watcher_enabled         = optional(bool, false)
     inbound_rules = list(object({
       name                         = string
@@ -59,6 +60,24 @@ variable "custom_security_group" {
   default = null
 
   validation {
+    condition = var.custom_security_group == null ? true : alltrue([
+      for nsg in var.custom_security_group : (
+        length(distinct([for rule in nsg.inbound_rules : rule.name])) == length(nsg.inbound_rules)
+      )
+    ])
+    error_message = "inbound_rules: rule name must be unique within the security group."
+  }
+
+  validation {
+    condition = var.custom_security_group == null ? true : alltrue([
+      for nsg in var.custom_security_group : (
+        length(distinct([for rule in nsg.outbound_rules : rule.name])) == length(nsg.outbound_rules)
+      )
+    ])
+    error_message = "outbound_rules: rule name must be unique within the security group."
+  }
+
+  validation {
     condition = var.custom_security_group == null ? true : alltrue(flatten([
       [
         for nsg in var.custom_security_group : [
@@ -67,6 +86,17 @@ variable "custom_security_group" {
       ]
     ]))
     error_message = "target_subnet_id and (target_subnet_name, target_subnet_vnet_name) are mutually exclusive"
+  }
+
+  validation {
+    condition = var.custom_security_group == null ? true : alltrue(flatten([
+      [
+        for nsg in var.custom_security_group : [
+          (nsg.target_subnet_id != null && nsg.target_subnet_cidr != null) || (nsg.target_subnet_id == null && nsg.target_subnet_cidr == null)
+        ]
+      ]
+    ]))
+    error_message = "target_subnet_id and target_subnet_cidr must be both defined or both null"
   }
 
   validation {
@@ -331,4 +361,22 @@ variable "flow_logs" {
   })
   default     = null
   description = "(Optional) Parameters required to configure the network watcher"
+}
+
+variable "rules_only" {
+  type = object({
+    enabled             = bool
+    security_group_name = optional(string, null)
+  })
+  description = "(Optional) Enables a 'rules-only' mode. If 'enabled' is set to true, the module skips the creation of the NSG, association, and flow logs"
+
+  default = {
+    enabled             = false
+    security_group_name = null
+  }
+
+  validation {
+    condition     = var.rules_only.enabled ? var.rules_only.security_group_name != null : true
+    error_message = "When 'enabled_only_rules.enabled' is true, a valid 'security_group_name' must be provided."
+  }
 }

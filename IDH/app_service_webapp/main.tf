@@ -59,7 +59,7 @@ module "main_slot" {
   https_only                    = module.idh_loader.idh_resource_configuration.https_only
   client_affinity_enabled       = var.client_affinity_enabled
   ftps_state                    = var.ftps_state
-  minimum_tls_version           = module.idh_loader.idh_resource_configuration.minimum_tls_version
+  minimum_tls_version           = var.allow_from_apim ? "1.2" : module.idh_loader.idh_resource_configuration.minimum_tls_version
   public_network_access_enabled = module.idh_loader.idh_resource_configuration.public_network_access_enabled
 
   # App service plan
@@ -120,7 +120,7 @@ module "staging_slot" {
   https_only                    = module.idh_loader.idh_resource_configuration.https_only
   client_certificate_enabled    = module.idh_loader.idh_resource_configuration.client_cert_enabled
   public_network_access_enabled = module.idh_loader.idh_resource_configuration.public_network_access_enabled
-  minimum_tls_version           = module.idh_loader.idh_resource_configuration.minimum_tls_version
+  minimum_tls_version           = var.allow_from_apim ? "1.2" : module.idh_loader.idh_resource_configuration.minimum_tls_version
   ip_restriction_default_action = module.idh_loader.idh_resource_configuration.ip_restriction_default_action
   vnet_integration              = module.idh_loader.idh_resource_configuration.vnet_integration
 
@@ -139,6 +139,10 @@ module "staging_slot" {
   python_version      = var.python_version
   ruby_version        = var.ruby_version
   health_check_path   = var.health_check_path
+
+  docker_registry_url      = var.docker_registry_url
+  docker_registry_username = var.docker_registry_username
+  docker_registry_password = var.docker_registry_password
 
   allowed_subnets              = var.allowed_subnet_ids
   allowed_ips                  = var.allowed_ips
@@ -294,7 +298,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
       content {
         metric_trigger {
           metric_name              = "CpuPercentage"
-          metric_resource_id       = module.main_slot.id
+          metric_resource_id       = module.main_slot.plan_id
           metric_namespace         = "microsoft.web/serverfarms"
           time_grain               = "PT1M"
           statistic                = "Average"
@@ -319,32 +323,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_settings" {
       content {
         metric_trigger {
           metric_name              = "CpuPercentage"
-          metric_resource_id       = module.main_slot.id
-          metric_namespace         = "microsoft.web/serverfarms"
-          time_grain               = "PT1M"
-          statistic                = "Average"
-          time_window              = "PT5M"
-          time_aggregation         = "Average"
-          operator                 = "LessThan"
-          threshold                = var.autoscale_settings.scale_down_cpu_threshold
-          divide_by_instance_count = false
-        }
-
-        scale_action {
-          direction = "Decrease"
-          type      = "ChangeCount"
-          value     = "1"
-          cooldown  = "PT20M"
-        }
-      }
-    }
-
-    dynamic "rule" {
-      for_each = var.autoscale_settings.scale_down_cpu_threshold != null ? [1] : []
-      content {
-        metric_trigger {
-          metric_name              = "CpuPercentage"
-          metric_resource_id       = module.main_slot.id
+          metric_resource_id       = module.main_slot.plan_id
           metric_namespace         = "microsoft.web/serverfarms"
           time_grain               = "PT1M"
           statistic                = "Average"

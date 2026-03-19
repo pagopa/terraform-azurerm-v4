@@ -29,7 +29,6 @@ variable "resource_group_name" {
   description = "(Required) The name of the Resource Group where the PostgreSQL Flexible Server should exist."
 }
 
-
 variable "idh_resource_tier" {
   type        = string
   description = "(Required) The name od IDH resource key to be created."
@@ -51,8 +50,6 @@ variable "delegated_subnet_id" {
   default     = null
   description = "(Optional) The ID of the virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated."
 }
-
-
 
 #
 # Administration
@@ -279,6 +276,16 @@ variable "additional_azure_extensions" {
   }
 }
 
+variable "additional_preload_libraries" {
+  type        = list(string)
+  default     = []
+  description = "(Optional) List of additional shared preload libraries to be installed on the server"
+  validation {
+    condition     = alltrue([for ext in var.additional_preload_libraries : !contains(split(",", module.idh_loader.idh_resource_configuration.server_parameters.shared_preload_libraries), ext)])
+    error_message = "At least one of the additional_preload_libraries is already included in the preconfigured libraries: ${module.idh_loader.idh_resource_configuration.server_parameters.shared_preload_libraries}"
+  }
+}
+
 
 variable "embedded_subnet" {
   type = object({
@@ -345,11 +352,17 @@ variable "nsg_flow_log_configuration" {
 variable "embedded_nsg_configuration" {
   type = object({
     source_address_prefixes      = list(string)
-    source_address_prefixes_name = string # short name for source_address_prefixes
+    source_address_prefixes_name = string ## short name for source_address_prefixes
   })
   description = "(Optional) List of allowed cidr and name . Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration"
   default = {
     source_address_prefixes : ["*"]
     source_address_prefixes_name = "All"
   }
+}
+
+variable "create_self_inbound_nsg_rule" {
+  type        = bool
+  description = "(Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope"
+  default     = true
 }
