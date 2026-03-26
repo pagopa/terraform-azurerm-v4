@@ -6,6 +6,11 @@ variable "otel_kube_namespace" {
 variable "opentelemetry_operator_helm_version" {
   type        = string
   description = "Helm chart version for otel operator"
+
+  validation {
+    condition     = can(regex("^[0-9]]\\.(5[8-9]|[6-9][0-9])\\..*$", var.opentelemetry_operator_helm_version))
+    error_message = "The OpenTelemetry Operator Helm chart version must be 0.58.0 or higher."
+  }
 }
 
 variable "elasticsearch_apm_host" {

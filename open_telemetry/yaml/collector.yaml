@@ -5,7 +5,7 @@ metadata:
   namespace: ${namespace}
 spec:
   mode: deployment # This configuration is omittable.
-  config: |
+  config:
     receivers:
       otlp:
         protocols:
