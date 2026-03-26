@@ -114,7 +114,9 @@ module "subnet" {
 }
 
 resource "azurerm_resource_group" "nsg_rg" {
-  name     = "${var.name}-nsg-rg"
+  count = length(var.resource_group_nsg_name) > 0 ? 0 : 1
+
+  name     = coalesce(var.resource_group_nsg_name, "${var.name}-nsg-rg")
   location = data.azurerm_virtual_network.vnet.location
 }
 
@@ -123,7 +125,7 @@ module "embedded_nsg" {
   count  = can(module.idh_loader.idh_resource_configuration.nsg) ? 1 : 0
 
   prefix              = var.name
-  resource_group_name = azurerm_resource_group.nsg_rg.name
+  resource_group_name = length(var.resource_group_nsg_name) > 0 ? var.resource_group_nsg_name : azurerm_resource_group.nsg_rg[0].name
   location            = data.azurerm_virtual_network.vnet.location
 
   vnets = {
@@ -221,7 +223,7 @@ module "custom_nsg" {
   count      = var.custom_nsg_configuration != null ? 1 : 0
 
   prefix              = var.name
-  resource_group_name = azurerm_resource_group.nsg_rg.name
+  resource_group_name = length(var.resource_group_nsg_name) > 0 ? var.resource_group_nsg_name : azurerm_resource_group.nsg_rg[0].name
   location            = data.azurerm_virtual_network.vnet.location
 
   vnets = {
