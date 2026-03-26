@@ -72,8 +72,10 @@ spec:
         ]
 
     exporters:
-      logging:
-        loglevel: warn
+      debug:
+        verbosity: detailed
+        sampling_initial: 5
+        sampling_thereafter: 200
 
       otlphttp/elastic:
         tls:
