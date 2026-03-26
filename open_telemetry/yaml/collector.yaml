@@ -93,12 +93,12 @@ spec:
         traces:
           receivers: [otlp]
           processors: [resource %{ if sampling_enabled }, tail_sampling%{endif}]
-          exporters: [logging, otlphttp/elastic]
+          exporters: [debug, otlphttp/elastic]
         metrics:
           receivers: [otlp]
           processors: [resource]
-          exporters: [logging, otlphttp/elastic]
+          exporters: [debug, otlphttp/elastic]
         logs:
           receivers: [otlp]
           processors: [resource]
-          exporters: [logging, otlphttp/elastic]
+          exporters: [debug, otlphttp/elastic]
