@@ -5,6 +5,7 @@ metadata:
   namespace: ${namespace}
 spec:
   mode: deployment # This configuration is omittable.
+  managementState: Managed
   config:
     receivers:
       otlp:
