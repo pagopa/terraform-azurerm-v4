@@ -8,7 +8,7 @@ resource "kubernetes_role_binding" "group_edit" {
   for_each = toset(var.ad_group_ids)
 
   metadata {
-    name      = "ad-group-edit-binding"
+    name      = "ad-group-edit-binding-${each.key}"
     namespace = kubernetes_namespace.this.metadata[0].name
   }
 
