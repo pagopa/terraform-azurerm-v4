@@ -1,49 +1,121 @@
-# Open telemetry controller and collector
+# Open Telemetry Controller and Collector
 
-This module deploys an otel manager and otel collector in the given cluster
+This module deploys an OpenTelemetry Operator (via Helm) and an OpenTelemetry Collector on an existing AKS cluster, configured to forward APM traces to an Elastic APM endpoint. It supports tail-based sampling, probe-path filtering, memory limiting, and optional namespace creation.
 
-## Configurations
+## Description
 
-## How to use it
+The module provisions the following Kubernetes resources:
+
+- **Namespace** _(optional)_: A dedicated Kubernetes namespace for the OpenTelemetry components, created only when `create_namespace = true`.
+- **Helm Release**: The `opentelemetry-operator` Helm chart from the official OpenTelemetry Helm repository, with optional node affinity configuration.
+- **OpenTelemetryCollector**: A `kubectl_manifest` resource that deploys an `OpenTelemetryCollector` custom resource (CRD) in `deployment` mode, wired with:
+  - An OTLP gRPC receiver on a configurable port
+  - A memory limiter processor
+  - Tail-based sampling (with per-path probe sampling overrides)
+  - An OTLP/HTTP exporter targeting Elastic APM
+
+## Usage
 
 ```hcl
-# variables example
+module "otel_collector" {
+  source = "./.terraform/modules/__v4__/open_telemetry"
 
-aks_config = [
-  {
-    name = "pagopa-u-weu-uat-aks"
-    otel = {
-      namespace = "elastic-system"
-      create_ns = false
-    }
-  }
-]
+  # Required
+  elasticsearch_api_key               = data.azurerm_key_vault_secret.elasticsearch_api_key.value
+  elasticsearch_apm_host              = data.ec_deployment.deployment.integrations_server[0].https_endpoint
+  opentelemetry_operator_helm_version = "0.58.0"
+  otel_kube_namespace                 = "elastic-system"
+  deployment_env                      = var.env
 
-sampling_configuration = {
-    enabled                    = true
-    probes_sampling_percentage = 10
+  # Optional
+  create_namespace   = true                   # optional, default: true
+  grpc_receiver_port = 4317                   # optional, default: 4317
+  elastic_namespace  = "myprefix.uat"         # optional, default: "default"
+  affinity_selector  = null                   # optional, default: null
+
+  sampling = {                                # optional — sampling disabled by default
+    enabled                    = false
+    probes_sampling_percentage = 1
     sampling_percentage        = 50
-    probe_paths = ["/actuator/health/liveness", "/actuator/health/readiness", "/actuator/health/{*path}", "/health/liveness", "/health/readiness"]
-}
+    probe_paths                = []
+  }
 
-# module usage example
+  otlp_exporter_config = {                   # optional — sensible defaults provided
+    queue_size       = 1000
+    consumers        = 10
+    memory_limit_mib = 2000
+  }
+}
+```
+
+## Examples
+
+### Minimal — sampling disabled, namespace pre-existing
+
+```hcl
 module "otel_collector" {
   source = "./.terraform/modules/__v4__/open_telemetry"
 
   elasticsearch_api_key               = data.azurerm_key_vault_secret.elasticsearch_api_key.value
   elasticsearch_apm_host              = data.ec_deployment.deployment.integrations_server[0].https_endpoint
-  opentelemetry_operator_helm_version = var.opentelemetry_operator_helm_version
-  otel_kube_namespace                 = var.aks_config[0].otel.namespace
-  create_namespace                    = var.aks_config[0].otel.create_ns
-  grpc_receiver_port                  = var.aks_config[0].otel.receiver_port
-  deployment_env                      = var.env
-  elastic_namespace                   = "${var.prefix}.${var.env}"
+  opentelemetry_operator_helm_version = "0.75.0"
+  otel_kube_namespace                 = "elastic-system"
+  deployment_env                      = "uat"
 
-  affinity_selector = var.aks_config[0].otel.affinity_selector
-  
-  sampling = var.sampling_configuration
+  create_namespace = false # namespace already exists in the cluster
 }
 ```
+
+### Full — sampling enabled, affinity, custom OTLP exporter tuning
+
+```hcl
+module "otel_collector" {
+  source = "./.terraform/modules/__v4__/open_telemetry"
+
+  elasticsearch_api_key               = data.azurerm_key_vault_secret.elasticsearch_api_key.value
+  elasticsearch_apm_host              = data.ec_deployment.deployment.integrations_server[0].https_endpoint
+  opentelemetry_operator_helm_version = "0.75.0"
+  otel_kube_namespace                 = "elastic-system"
+  deployment_env                      = "prod"
+  elastic_namespace                   = "myprefix.prod"
+  create_namespace                    = true
+  grpc_receiver_port                  = 4317
+
+  affinity_selector = {
+    key   = "node-type"
+    value = "monitoring"
+  }
+
+  sampling = {
+    enabled                    = true
+    sampling_percentage        = 20
+    probes_sampling_percentage = 5
+    probe_paths = [
+      "/actuator/health/liveness",
+      "/actuator/health/readiness",
+      "/actuator/health/{*path}",
+      "/health/liveness",
+      "/health/readiness"
+    ]
+  }
+
+  otlp_exporter_config = {
+    queue_size       = 2000
+    consumers        = 20
+    memory_limit_mib = 4000
+  }
+}
+```
+
+## Notes
+
+- **Helm version constraint**: `opentelemetry_operator_helm_version` must follow SemVer (`X.Y.Z`) and the chart version must be `>= 0.58.0`. Older versions are rejected by a built-in Terraform validation rule.
+- **Sensitive variable**: `elasticsearch_api_key` is marked as `sensitive = true`. Always source this value from Azure Key Vault (e.g. via `data.azurerm_key_vault_secret`) and never hardcode it.
+- **Namespace lifecycle**: Set `create_namespace = true` (the default) to let the module create the Kubernetes namespace. If the namespace already exists in the cluster, set it to `false` to avoid conflicts.
+- **Affinity**: `affinity_selector` defaults to `null` (no affinity rules applied). When provided, node affinity is applied to both the operator manager and the collector pods via `requiredDuringSchedulingIgnoredDuringExecution`.
+- **Tail-based sampling**: When `sampling.enabled = true`, the collector applies tail-based sampling across all traces. Errors (`status_code = ERROR`) are **always** sampled regardless of the configured percentage. Probe paths listed in `probe_paths` are sampled at `probes_sampling_percentage`, while all other traces are sampled at `sampling_percentage`.
+- **Provider requirements**: A pre-configured `helm` provider (pointing to the target AKS cluster) and a `kubectl` provider are required in the calling module. These are not configured by this module.
+
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
