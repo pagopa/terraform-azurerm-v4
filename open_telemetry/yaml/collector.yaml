@@ -73,7 +73,7 @@ spec:
 
     exporters:
       debug:
-        verbosity: detailed
+        verbosity: basic
         sampling_initial: 5
         sampling_thereafter: 200
 
