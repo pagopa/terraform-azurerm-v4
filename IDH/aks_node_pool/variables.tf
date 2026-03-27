@@ -112,30 +112,32 @@ variable "primary_secondary_node_pool" {
     enabled = optional(bool, false)
     node_pool_primary = object({
       subnet_id      = optional(string, null)
-      node_count_min = optional(number, var.node_count_min)
-      node_count_max = optional(number, var.node_count_max)
+      node_count_min = optional(number, null)
+      node_count_max = optional(number, null)
     })
     node_pool_secondary = object({
       subnet_id      = optional(string, null)
-      node_count_min = optional(number, var.node_count_min)
-      node_count_max = optional(number, var.node_count_max)
+      node_count_min = optional(number, null)
+      node_count_max = optional(number, null)
     })
 
   })
   default = {
     enabled = false,
     node_pool_primary = {
-      subnet_id      = var.vnet_subnet_id,
-      node_count_min = var.node_count_min,
-      node_count_max = var.node_count_max
+      subnet_id      = null,
+      node_count_min = null,
+      node_count_max = null
       },
     node_pool_secondary = {
       subnet_id      = null,
-      node_count_min = var.node_count_min,
-      node_count_max = var.node_count_max
+      node_count_min = null,
+      node_count_max = null
     }
   }
-  description = "(Optional) Configuration for creating a secondary node pool. If 'enabled' is true, a secondary node pool will be created with the specified configuration. If 'subnet_id' is not provided for the primary or secondary node pool, it will default to 'vnet_subnet_id'. The 'node_count_min' and 'node_count_max' for both node pools will default to the values of 'node_count_min' and 'node_count_max' variables respectively."
+  description = ""
+
+
 }
 
 

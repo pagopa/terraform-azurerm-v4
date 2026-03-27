@@ -14,6 +14,4 @@ output "subnet_name" {
   value = var.embedded_subnet.enabled ? module.aks_overlay_snet.subnet_name : ""
 }
 
-output "subnet_b_id" {
-  value = ""
-}
+
