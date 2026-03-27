@@ -42,6 +42,7 @@ module "private_endpoint_snet" {
     source_address_prefixes_name = var.embedded_nsg_configuration.source_address_prefixes_name
     target_service               = "redis"
   }
+  resource_group_nsg_name    = var.resource_group_nsg_name
   nsg_flow_log_configuration = var.nsg_flow_log_configuration
   tags                       = var.tags
 }
