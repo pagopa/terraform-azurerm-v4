@@ -22,6 +22,11 @@ variable "resource_group_name" {
   description = "(Required) The name of the Resource Group where the subnet should exist."
 }
 
+variable "resource_group_nsg_name" {
+  type        = string
+  description = "(Optional) The name of the nsg Resource Group."
+  default     = ""
+}
 
 variable "idh_resource_tier" {
   type        = string
