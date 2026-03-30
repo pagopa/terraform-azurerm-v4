@@ -67,6 +67,7 @@ module "evh" {
 | <a name="input_private_endpoint_subnet_id"></a> [private\_endpoint\_subnet\_id](#input\_private\_endpoint\_subnet\_id) | (Deprecated) The id of the subnet that will be used for the private endpoint. Use embedded\_subnet instead. | `string` | `null` | no |
 | <a name="input_product_name"></a> [product\_name](#input\_product\_name) | (Required) prefix used to identify the platform for which the resource will be created | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Resource Group | `string` | n/a | yes |
+| <a name="input_resource_group_nsg_name"></a> [resource\_group\_nsg\_name](#input\_resource\_group\_nsg\_name) | (Optional) The name of the nsg Resource Group. | `string` | `""` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | n/a | yes |
 
 ## Outputs
