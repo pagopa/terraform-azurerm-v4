@@ -6,9 +6,7 @@ module "idh_loader" {
   idh_resource_type = "aks_node_pool"
 }
 
-#
-# node pool primary / only node pool if pri-sec disabled
-#
+
 
 # IDH/subnet
 module "aks_overlay_snet" {
@@ -39,11 +37,20 @@ resource "azurerm_subnet_nat_gateway_association" "aks_overlay_snet_nat_associat
 }
 
 
-module "aks_node_pool" {
+#
+# node pool foo / only node pool if pri-sec disabled
+#
+moved {
+  from = module.aks_node_pool
+  to   = module.aks_node_pool_foo
+}
+
+
+module "aks_node_pool_foo" {
   source = "../../kubernetes_cluster_node_pool"
 
   # Core identifiers
-  name                  = var.primary_secondary_node_pool.enabled ? "${var.name}pri" : var.name
+  name                  = var.double_node_pool.enabled ? "${var.name}foo" : var.name
   kubernetes_cluster_id = var.kubernetes_cluster_id
   vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) : var.vnet_subnet_id
 
@@ -60,8 +67,8 @@ module "aks_node_pool" {
   # Autoscaling
   ###############################################################
   autoscale_enabled = var.autoscale_enabled
-  node_count_min    = var.primary_secondary_node_pool.enabled ? (var.primary_secondary_node_pool.node_pool_primary.active ? var.node_count_min : 0) : var.node_count_min
-  node_count_max    = var.primary_secondary_node_pool.enabled ? (var.primary_secondary_node_pool.node_pool_primary.active ? var.node_count_max : 0) : var.node_count_max
+  node_count_min    = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.node_count_min : 0) : var.node_count_min
+  node_count_max    = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.node_count_max : 0) : var.node_count_max
 
   ###############################################################
   # Kubernetes runtime metadata
@@ -87,15 +94,12 @@ module "aks_node_pool" {
 
 
 #
-# node pool secondary
+# node pool bar
 #
-
-
-
-module "aks_node_pool_secondary" {
+module "aks_node_pool_bar" {
   source = "../../kubernetes_cluster_node_pool"
 
-  count = var.primary_secondary_node_pool.enabled ? 1 : 0
+  count = var.double_node_pool.enabled ? 1 : 0
 
   # Core identifiers
   name                  = "${var.name}sec"
@@ -115,8 +119,8 @@ module "aks_node_pool_secondary" {
   # Autoscaling
   ###############################################################
   autoscale_enabled = var.autoscale_enabled
-  node_count_min    = var.primary_secondary_node_pool.node_pool_secondary.active ? var.node_count_min : 0
-  node_count_max    = var.primary_secondary_node_pool.node_pool_secondary.active ? var.node_count_max : 0
+  node_count_min    = var.double_node_pool.node_pool_bar.active ? var.node_count_min : 0
+  node_count_max    = var.double_node_pool.node_pool_bar.active ? var.node_count_max : 0
 
   ###############################################################
   # Kubernetes runtime metadata

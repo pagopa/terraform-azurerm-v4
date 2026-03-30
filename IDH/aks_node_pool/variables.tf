@@ -22,8 +22,8 @@ variable "name" {
   }
 
   validation {
-    condition     = var.primary_secondary_node_pool.enabled ? length(var.name) <= 9 : true
-    error_message = "If 'primary_secondary_node_pool' is enabled, the node pool name must not exceed 9 characters to accommodate the pri/sec node pool naming convention."
+    condition     = var.double_node_pool.enabled ? length(var.name) <= 9 : true
+    error_message = "If 'double_node_pool' is enabled, the node pool name must not exceed 9 characters to accommodate the foo/bar node pool naming convention."
   }
 }
 
@@ -112,28 +112,28 @@ variable "autoscale_enabled" {
   description = "(Optional): Enable autoscaling for the node pool. Defaults to true."
 }
 
-variable "primary_secondary_node_pool" {
+variable "double_node_pool" {
   type = object({
     enabled = optional(bool, false)
-    node_pool_primary = object({
+    node_pool_foo = object({
       active = bool
     })
-    node_pool_secondary = object({
+    node_pool_bar = object({
       active = bool
     })
 
   })
   default = {
     enabled = false,
-    node_pool_primary = {
+    node_pool_foo = {
       active = true
     },
-    node_pool_secondary = {
+    node_pool_bar = {
       active = false
     }
   }
 
-  description = "(Optional) Configuration for primary/secondary node pool setup. If 'enabled' is true, two node pools will be created with the provided configuration. 'node_pool_primary.active' and 'node_pool_secondary.active' flags determine which node pool is active at deployment. Only the active node pool will have a non-zero minimum node count, while the other will be set to zero to prevent provisioning of nodes."
+  description = "(Optional) Configuration for double foo/bar node pool setup. If 'enabled' is true, two node pools will be created with the provided configuration. 'node_pool_foo.active' and 'node_pool_bar.active' flags determine which node pool is active at deployment. Only the active node pool will have a non-zero minimum node count, while the other will be set to zero to prevent provisioning of nodes."
 
 }
 
