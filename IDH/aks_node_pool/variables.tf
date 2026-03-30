@@ -111,28 +111,20 @@ variable "primary_secondary_node_pool" {
   type = object({
     enabled = optional(bool, false)
     node_pool_primary = object({
-      subnet_id      = optional(string, null)
-      node_count_min = optional(number, null)
-      node_count_max = optional(number, null)
+      active = bool
     })
     node_pool_secondary = object({
-      subnet_id      = optional(string, null)
-      node_count_min = optional(number, null)
-      node_count_max = optional(number, null)
+      active = bool
     })
 
   })
   default = {
     enabled = false,
     node_pool_primary = {
-      subnet_id      = null,
-      node_count_min = null,
-      node_count_max = null
+      active = true
       },
     node_pool_secondary = {
-      subnet_id      = null,
-      node_count_min = null,
-      node_count_max = null
+      active = false
     }
   }
   description = ""

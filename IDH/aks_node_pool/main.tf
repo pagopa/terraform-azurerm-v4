@@ -37,13 +37,14 @@ resource "azurerm_subnet_nat_gateway_association" "aks_overlay_snet_nat_associat
   nat_gateway_id = var.embedded_subnet.natgw_id
 }
 
+
 module "aks_node_pool" {
   source = "../../kubernetes_cluster_node_pool"
 
   # Core identifiers
   name                  = var.primary_secondary_node_pool.enabled ? "${var.name}pri" : var.name
   kubernetes_cluster_id = var.kubernetes_cluster_id
-  vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) : (var.primary_secondary_node_pool.node_pool_primary.subnet_id != null ? var.primary_secondary_node_pool.node_pool_primary.subnet_id : var.vnet_subnet_id)
+  vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) :  var.vnet_subnet_id
 
   ###############################################################
   # Compute & Storage settings (safe‑lookup + try() wrapper)
@@ -58,8 +59,8 @@ module "aks_node_pool" {
   # Autoscaling
   ###############################################################
   autoscale_enabled = var.autoscale_enabled
-  node_count_min    = var.primary_secondary_node_pool.node_pool_primary.node_count_min != null ? var.primary_secondary_node_pool.node_pool_primary.node_count_min : var.node_count_min # must be >= node_min_allowed
-  node_count_max    = var.primary_secondary_node_pool.node_pool_primary.node_count_max != null ? var.primary_secondary_node_pool.node_pool_primary.node_count_max : var.node_count_max
+  node_count_min    = var.primary_secondary_node_pool.enabled ? (var.primary_secondary_node_pool.node_pool_primary.active ? var.node_count_min : 0 ) : var.node_count_min
+  node_count_max    = var.primary_secondary_node_pool.enabled ? (var.primary_secondary_node_pool.node_pool_primary.active ? var.node_count_max : 0 ) : var.node_count_max
 
   ###############################################################
   # Kubernetes runtime metadata
@@ -98,7 +99,7 @@ module "aks_node_pool_secondary" {
   # Core identifiers
   name                  = "${var.name}sec"
   kubernetes_cluster_id = var.kubernetes_cluster_id
-  vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) : (var.primary_secondary_node_pool.node_pool_secondary.subnet_id != null ? var.primary_secondary_node_pool.node_pool_secondary.subnet_id : var.vnet_subnet_id)
+  vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) :  var.vnet_subnet_id
 
   ###############################################################
   # Compute & Storage settings (safe‑lookup + try() wrapper)
@@ -113,8 +114,8 @@ module "aks_node_pool_secondary" {
   # Autoscaling
   ###############################################################
   autoscale_enabled = var.autoscale_enabled
-  node_count_min    = var.primary_secondary_node_pool.node_pool_secondary.node_count_min != null ? var.primary_secondary_node_pool.node_pool_secondary.node_count_min : var.node_count_min # must be >= node_min_allowed
-  node_count_max    = var.primary_secondary_node_pool.node_pool_secondary.node_count_max != null ? var.primary_secondary_node_pool.node_pool_secondary.node_count_max : var.node_count_max
+  node_count_min    = var.primary_secondary_node_pool.node_pool_secondary.active ?  var.node_count_min: 0
+  node_count_max    = var.primary_secondary_node_pool.node_pool_secondary.active ?  var.node_count_max: 0
 
   ###############################################################
   # Kubernetes runtime metadata
