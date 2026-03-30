@@ -27,3 +27,8 @@
 | cstar | uat |  Standard_D8ads_v5_passive | - | VM Size: Standard_D8ads_v5, Disk: Ephemeral 128GB, Nodes: --- |
 | cstar | uat |  Standard_D8ds_v5_active | - | VM Size: Standard_D8ds_v5, Disk: Ephemeral 128GB, Nodes: --- |
 | cstar | uat |  Standard_D8ds_v5_passive | - | VM Size: Standard_D8ds_v5, Disk: Ephemeral 128GB, Nodes: --- |
+## pagopa
+| Product  | Environment | Tier | Deprecated | Description |
+|:-------------:|:----------------:|:---------:|:---------:|:----------------|
+| pagopa | dev |  Standard_B2ms | - | VM Size: Standard_B2ms, Disk: Managed 128GB, Nodes: --- |
+| pagopa | dev |  Standard_B4ms | - | VM Size: Standard_B4ms, Disk: Managed 128GB, Nodes: --- |
