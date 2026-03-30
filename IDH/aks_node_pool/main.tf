@@ -93,6 +93,8 @@ module "aks_node_pool" {
 module "aks_node_pool_secondary" {
   source = "../../kubernetes_cluster_node_pool"
 
+  count = var.primary_secondary_node_pool.enabled ? 1 : 0
+
   # Core identifiers
   name                  = "${var.name}sec"
   kubernetes_cluster_id = var.kubernetes_cluster_id
