@@ -26,6 +26,7 @@ module "aks_overlay_snet" {
   nsg_flow_log_configuration   = var.nsg_flow_log_configuration
   embedded_nsg_configuration   = var.embedded_nsg_configuration
   create_self_inbound_nsg_rule = var.create_self_inbound_nsg_rule
+  resource_group_nsg_name      = var.resource_group_nsg_name
 
   tags = var.tags
 }

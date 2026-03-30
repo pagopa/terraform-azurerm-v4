@@ -80,7 +80,12 @@ variable "nsg_flow_log_configuration" {
   default = {
     enabled = false
   }
+}
 
+variable "resource_group_nsg_name" {
+  type        = string
+  description = "(Optional) The name of the nsg Resource Group."
+  default     = ""
 }
 
 variable "embedded_nsg_configuration" {

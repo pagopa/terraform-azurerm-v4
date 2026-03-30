@@ -33,6 +33,7 @@ module "private_endpoint_snet" {
   idh_resource_tier = "slash28_privatelink_true"
   product_name      = var.product_name
 
+  resource_group_nsg_name = var.resource_group_nsg_name
   custom_nsg_configuration = {
     target_service               = "storage"
     source_address_prefixes      = var.embedded_nsg_configuration.source_address_prefixes
