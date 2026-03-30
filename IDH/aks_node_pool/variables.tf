@@ -122,13 +122,13 @@ variable "primary_secondary_node_pool" {
     enabled = false,
     node_pool_primary = {
       active = true
-      },
+    },
     node_pool_secondary = {
       active = false
     }
   }
-  description = ""
 
+  description = "(Optional) Configuration for primary/secondary node pool setup. If 'enabled' is true, two node pools will be created with the provided configuration. 'node_pool_primary.active' and 'node_pool_secondary.active' flags determine which node pool is active at deployment. Only the active node pool will have a non-zero minimum node count, while the other will be set to zero to prevent provisioning of nodes."
 
 }
 
