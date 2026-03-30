@@ -22,8 +22,8 @@ variable "name" {
   }
 
   validation {
-    condition     = var.primary_secondary_node_pool.enabled ? length(var.name) < 10 : true
-    error_message = "If 'primary_secondary_node_pool' is enabled, the node pool name must not exceed 10 characters to accommodate the pri/sec node pool naming convention."
+    condition     = var.primary_secondary_node_pool.enabled ? length(var.name) <= 9 : true
+    error_message = "If 'primary_secondary_node_pool' is enabled, the node pool name must not exceed 9 characters to accommodate the pri/sec node pool naming convention."
   }
 }
 
