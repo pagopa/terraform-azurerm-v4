@@ -38,4 +38,5 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_id"></a> [id](#output\_id) | The id of the Data Factory. |
+| <a name="output_principal_id"></a> [principal\_id](#output\_principal\_id) | n/a |
 <!-- END_TF_DOCS -->
