@@ -6,53 +6,7 @@ module "idh_loader" {
   idh_resource_type = "aks_node_pool"
 }
 
-module "aks_node_pool" {
-  source = "../../kubernetes_cluster_node_pool"
 
-  # Core identifiers
-  name                  = var.name
-  kubernetes_cluster_id = var.kubernetes_cluster_id
-  vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) : var.vnet_subnet_id
-
-  ###############################################################
-  # Compute & Storage settings (safe‑lookup + try() wrapper)
-  ###############################################################
-  vm_size                = module.idh_loader.idh_resource_configuration.vm_size
-  os_disk_type           = var.os_disk_type != null ? var.os_disk_type : module.idh_loader.idh_resource_configuration.os_disk_type
-  os_disk_size_gb        = var.os_disk_size_gb != null ? var.os_disk_size_gb : module.idh_loader.idh_resource_configuration.os_disk_size_gb
-  ultra_ssd_enabled      = module.idh_loader.idh_resource_configuration.ultra_ssd_enabled
-  enable_host_encryption = module.idh_loader.idh_resource_configuration.enable_host_encryption
-
-  ###############################################################
-  # Autoscaling
-  ###############################################################
-  autoscale_enabled = var.autoscale_enabled
-  node_count_min    = var.node_count_min # must be >= node_min_allowed
-  node_count_max    = var.node_count_max
-
-  ###############################################################
-  # Kubernetes runtime metadata
-  ###############################################################
-  node_labels = var.node_labels
-  node_taints = var.node_taints
-
-  ###############################################################
-  # Upgrade surge settings
-  ###############################################################
-  upgrade_settings_max_surge = module.idh_loader.idh_resource_configuration.upgrade_settings_max_surge
-
-  ###############################################################
-  # Azure resource tagging
-  ###############################################################
-  node_tags = merge(
-    lookup(module.idh_loader.idh_resource_configuration, "node_tags", {}),
-    coalesce(var.node_tags, {})
-  )
-
-  tags = var.tags
-
-  depends_on = [module.aks_overlay_snet]
-}
 
 # IDH/subnet
 module "aks_overlay_snet" {
@@ -80,4 +34,112 @@ resource "azurerm_subnet_nat_gateway_association" "aks_overlay_snet_nat_associat
 
   subnet_id      = module.aks_overlay_snet[0].subnet_id
   nat_gateway_id = var.embedded_subnet.natgw_id
+}
+
+
+#
+# node pool foo / only node pool if pri-sec disabled
+#
+moved {
+  from = module.aks_node_pool
+  to   = module.aks_node_pool_foo
+}
+
+
+module "aks_node_pool_foo" {
+  source = "../../kubernetes_cluster_node_pool"
+
+  # Core identifiers
+  name                  = var.double_node_pool.enabled ? "${var.name}foo" : var.name
+  kubernetes_cluster_id = var.kubernetes_cluster_id
+  vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) : var.vnet_subnet_id
+
+  ###############################################################
+  # Compute & Storage settings (safe‑lookup + try() wrapper)
+  ###############################################################
+  vm_size                = module.idh_loader.idh_resource_configuration.vm_size
+  os_disk_type           = var.os_disk_type != null ? var.os_disk_type : module.idh_loader.idh_resource_configuration.os_disk_type
+  os_disk_size_gb        = var.os_disk_size_gb != null ? var.os_disk_size_gb : module.idh_loader.idh_resource_configuration.os_disk_size_gb
+  ultra_ssd_enabled      = module.idh_loader.idh_resource_configuration.ultra_ssd_enabled
+  enable_host_encryption = module.idh_loader.idh_resource_configuration.enable_host_encryption
+
+  ###############################################################
+  # Autoscaling
+  ###############################################################
+  autoscale_enabled = var.autoscale_enabled
+  node_count_min    = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.node_count_min : 0) : var.node_count_min
+  node_count_max    = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.node_count_max : 0) : var.node_count_max
+
+  ###############################################################
+  # Kubernetes runtime metadata
+  ###############################################################
+  node_labels = var.node_labels
+  node_taints = var.node_taints
+
+  ###############################################################
+  # Upgrade surge settings
+  ###############################################################
+  upgrade_settings_max_surge = module.idh_loader.idh_resource_configuration.upgrade_settings_max_surge
+
+  ###############################################################
+  # Azure resource tagging
+  ###############################################################
+  node_tags = merge(
+    lookup(module.idh_loader.idh_resource_configuration, "node_tags", {}),
+    coalesce(var.node_tags, {})
+  )
+
+  tags = var.tags
+}
+
+
+#
+# node pool bar
+#
+module "aks_node_pool_bar" {
+  source = "../../kubernetes_cluster_node_pool"
+
+  count = var.double_node_pool.enabled ? 1 : 0
+
+  # Core identifiers
+  name                  = "${var.name}sec"
+  kubernetes_cluster_id = var.kubernetes_cluster_id
+  vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) : var.vnet_subnet_id
+
+  ###############################################################
+  # Compute & Storage settings (safe‑lookup + try() wrapper)
+  ###############################################################
+  vm_size                = module.idh_loader.idh_resource_configuration.vm_size
+  os_disk_type           = var.os_disk_type != null ? var.os_disk_type : module.idh_loader.idh_resource_configuration.os_disk_type
+  os_disk_size_gb        = var.os_disk_size_gb != null ? var.os_disk_size_gb : module.idh_loader.idh_resource_configuration.os_disk_size_gb
+  ultra_ssd_enabled      = module.idh_loader.idh_resource_configuration.ultra_ssd_enabled
+  enable_host_encryption = module.idh_loader.idh_resource_configuration.enable_host_encryption
+
+  ###############################################################
+  # Autoscaling
+  ###############################################################
+  autoscale_enabled = var.autoscale_enabled
+  node_count_min    = var.double_node_pool.node_pool_bar.active ? var.node_count_min : 0
+  node_count_max    = var.double_node_pool.node_pool_bar.active ? var.node_count_max : 0
+
+  ###############################################################
+  # Kubernetes runtime metadata
+  ###############################################################
+  node_labels = var.node_labels
+  node_taints = var.node_taints
+
+  ###############################################################
+  # Upgrade surge settings
+  ###############################################################
+  upgrade_settings_max_surge = module.idh_loader.idh_resource_configuration.upgrade_settings_max_surge
+
+  ###############################################################
+  # Azure resource tagging
+  ###############################################################
+  node_tags = merge(
+    lookup(module.idh_loader.idh_resource_configuration, "node_tags", {}),
+    coalesce(var.node_tags, {})
+  )
+
+  tags = var.tags
 }
