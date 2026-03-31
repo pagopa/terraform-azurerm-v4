@@ -1,23 +1,23 @@
-Standard_B2ms:
-  vm_size: "Standard_B2ms"
+Standard_D4ds:
+  vm_size: "Standard_D4ds_v5"
   os_disk_type: "Managed"
   os_disk_size_gb: 128
   ultra_ssd_enabled: false
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
-Standard_B4ms:
-  vm_size: "Standard_B4ms"
+Standard_D8ds:
+  vm_size: "Standard_D8ds_v5"
   os_disk_type: "Managed"
-  os_disk_size_gb: 128
+  os_disk_size_gb: 300
   ultra_ssd_enabled: false
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
-Standard_B8ms:
-  vm_size: "Standard_B8ms"
+Standard_D16ds:
+  vm_size: "Standard_D16ds_v5"
   os_disk_type: "Managed"
-  os_disk_size_gb: 128
+  os_disk_size_gb: 300
   ultra_ssd_enabled: false
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"

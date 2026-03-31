@@ -32,3 +32,12 @@
 |:-------------:|:----------------:|:---------:|:---------:|:----------------|
 | pagopa | dev |  Standard_B2ms | - | VM Size: Standard_B2ms, Disk: Managed 128GB, Nodes: --- |
 | pagopa | dev |  Standard_B4ms | - | VM Size: Standard_B4ms, Disk: Managed 128GB, Nodes: --- |
+| pagopa | dev |  Standard_B8ms | - | VM Size: Standard_B8ms, Disk: Managed 128GB, Nodes: --- |
+|---|---|---|---|
+| pagopa | prod |  Standard_D16ds | - | VM Size: Standard_D16ds_v5, Disk: Managed 300GB, Nodes: --- |
+| pagopa | prod |  Standard_D4ds | - | VM Size: Standard_D4ds_v5, Disk: Managed 128GB, Nodes: --- |
+| pagopa | prod |  Standard_D8ds | - | VM Size: Standard_D8ds_v5, Disk: Managed 300GB, Nodes: --- |
+|---|---|---|---|
+| pagopa | uat |  Standard_D16ds | - | VM Size: Standard_D16ds_v5, Disk: Managed 300GB, Nodes: --- |
+| pagopa | uat |  Standard_D4ds | - | VM Size: Standard_D4ds_v5, Disk: Managed 128GB, Nodes: --- |
+| pagopa | uat |  Standard_D8ds | - | VM Size: Standard_D8ds_v5, Disk: Managed 300GB, Nodes: --- |
