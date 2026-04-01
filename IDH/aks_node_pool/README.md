@@ -95,6 +95,7 @@ module "aks_node_pool" {
     }
     node_pool_bar = {
       active = false  # workersbar is standby (min = 0); rotate here on next cycle
+      version_override = "1.34.2"  # optional override to use a different Kubernetes version than the cluster default
     }
   }
 
