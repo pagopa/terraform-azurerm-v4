@@ -49,6 +49,8 @@ moved {
 module "aks_node_pool_foo" {
   source = "../../kubernetes_cluster_node_pool"
 
+  orchestrator_version = var.double_node_pool.node_pool_foo.version_override
+
   # Core identifiers
   name                  = var.double_node_pool.enabled ? "${var.name}foo" : var.name
   kubernetes_cluster_id = var.kubernetes_cluster_id
@@ -98,6 +100,7 @@ module "aks_node_pool_foo" {
 #
 module "aks_node_pool_bar" {
   source = "../../kubernetes_cluster_node_pool"
+  orchestrator_version = var.double_node_pool.node_pool_bar.version_override
 
   count = var.double_node_pool.enabled ? 1 : 0
 
