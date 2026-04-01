@@ -31,8 +31,8 @@ basic:
   system_identity_enabled: false
   use_32_bit_worker_process: false
   vnet_integration: true
-  slot_staging_enabled: true
-  autoscale_enabled: true
+  slot_staging_enabled: false
+  autoscale_enabled: false
   autoscale_default_capacity: 3
   autoscale_min_capacity: 3
   private_endpoint_enabled: true
