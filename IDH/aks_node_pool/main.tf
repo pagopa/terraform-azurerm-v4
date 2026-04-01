@@ -38,7 +38,7 @@ resource "azurerm_subnet_nat_gateway_association" "aks_overlay_snet_nat_associat
 
 
 #
-# node pool foo / only node pool if pri-sec disabled
+# node pool foo / only node pool if double_node_pool disabled
 #
 moved {
   from = module.aks_node_pool
@@ -49,10 +49,12 @@ moved {
 module "aks_node_pool_foo" {
   source = "../../kubernetes_cluster_node_pool"
 
+
   # Core identifiers
   name                  = var.double_node_pool.enabled ? "${var.name}foo" : var.name
   kubernetes_cluster_id = var.kubernetes_cluster_id
   vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) : var.vnet_subnet_id
+  orchestrator_version  = var.double_node_pool.enabled ? var.double_node_pool.node_pool_foo.version_override : null
 
   ###############################################################
   # Compute & Storage settings (safe‑lookup + try() wrapper)
@@ -66,7 +68,7 @@ module "aks_node_pool_foo" {
   ###############################################################
   # Autoscaling
   ###############################################################
-  autoscale_enabled = var.autoscale_enabled
+  autoscale_enabled = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.autoscale_enabled : false) : var.autoscale_enabled
   node_count_min    = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.node_count_min : 0) : var.node_count_min
   node_count_max    = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.node_count_max : 0) : var.node_count_max
 
@@ -102,9 +104,10 @@ module "aks_node_pool_bar" {
   count = var.double_node_pool.enabled ? 1 : 0
 
   # Core identifiers
-  name                  = "${var.name}sec"
+  name                  = "${var.name}bar"
   kubernetes_cluster_id = var.kubernetes_cluster_id
   vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) : var.vnet_subnet_id
+  orchestrator_version  = var.double_node_pool.node_pool_bar.version_override
 
   ###############################################################
   # Compute & Storage settings (safe‑lookup + try() wrapper)
@@ -118,7 +121,7 @@ module "aks_node_pool_bar" {
   ###############################################################
   # Autoscaling
   ###############################################################
-  autoscale_enabled = var.autoscale_enabled
+  autoscale_enabled = var.double_node_pool.node_pool_bar.active ? var.autoscale_enabled : false
   node_count_min    = var.double_node_pool.node_pool_bar.active ? var.node_count_min : 0
   node_count_max    = var.double_node_pool.node_pool_bar.active ? var.node_count_max : 0
 

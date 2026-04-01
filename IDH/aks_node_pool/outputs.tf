@@ -9,12 +9,12 @@ output "name" {
 }
 
 output "node_pool_ids" {
-  value       = var.double_node_pool.enabled ? [module.aks_node_pool_foo.id, module.aks_node_pool_bar.id] : [module.aks_node_pool_foo.id]
+  value       = var.double_node_pool.enabled ? [module.aks_node_pool_foo.id, module.aks_node_pool_bar[0].id] : [module.aks_node_pool_foo.id]
   description = "List of AKS node pool IDs. If double_node_pool is enabled, both node pool IDs are returned, otherwise only the first node pool ID is returned."
 }
 
 output "node_pool_names" {
-  value       = var.double_node_pool.enabled ? [module.aks_node_pool_foo.name, module.aks_node_pool_bar.name] : [module.aks_node_pool_foo.name]
+  value       = var.double_node_pool.enabled ? [module.aks_node_pool_foo.name, module.aks_node_pool_bar[0].name] : [module.aks_node_pool_foo.name]
   description = "List of AKS node pool names. If double_node_pool is enabled, both node pool names are returned, otherwise only the first node pool name is returned."
 }
 
