@@ -116,11 +116,11 @@ variable "double_node_pool" {
   type = object({
     enabled = optional(bool, false)
     node_pool_foo = object({
-      active = bool
+      active           = bool
       version_override = optional(string, null) ## if provided, overrides the kubernetes version of the cluster for this node pool
     })
     node_pool_bar = object({
-      active = bool
+      active           = bool
       version_override = optional(string, null) ## if provided, overrides the kubernetes version of the cluster for this node pool
     })
 
@@ -128,11 +128,11 @@ variable "double_node_pool" {
   default = {
     enabled = false,
     node_pool_foo = {
-      active = true
+      active           = true
       version_override = null
     },
     node_pool_bar = {
-      active = false
+      active           = false
       version_override = null
     }
   }

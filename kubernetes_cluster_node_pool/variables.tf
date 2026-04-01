@@ -100,3 +100,9 @@ variable "tags" {
   type        = map(any)
   description = "(Required): Base tags."
 }
+
+variable "orchestrator_version" {
+  type        = string
+  default     = null
+  description = "(Optional): Kubernetes version for the node pool. If not specified, it will inherit the cluster's Kubernetes version."
+}

@@ -49,12 +49,12 @@ moved {
 module "aks_node_pool_foo" {
   source = "../../kubernetes_cluster_node_pool"
 
-  orchestrator_version = var.double_node_pool.node_pool_foo.version_override
 
   # Core identifiers
   name                  = var.double_node_pool.enabled ? "${var.name}foo" : var.name
   kubernetes_cluster_id = var.kubernetes_cluster_id
   vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) : var.vnet_subnet_id
+  orchestrator_version  = var.double_node_pool.enabled ? var.double_node_pool.node_pool_foo.version_override : null
 
   ###############################################################
   # Compute & Storage settings (safe‑lookup + try() wrapper)
@@ -100,14 +100,14 @@ module "aks_node_pool_foo" {
 #
 module "aks_node_pool_bar" {
   source = "../../kubernetes_cluster_node_pool"
-  orchestrator_version = var.double_node_pool.node_pool_bar.version_override
 
   count = var.double_node_pool.enabled ? 1 : 0
 
   # Core identifiers
-  name                  = "${var.name}sec"#fixme
+  name                  = "${var.name}bar"
   kubernetes_cluster_id = var.kubernetes_cluster_id
   vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) : var.vnet_subnet_id
+  orchestrator_version  = var.double_node_pool.node_pool_bar.version_override
 
   ###############################################################
   # Compute & Storage settings (safe‑lookup + try() wrapper)
