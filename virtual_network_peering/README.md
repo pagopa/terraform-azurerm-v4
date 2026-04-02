@@ -1,28 +1,75 @@
-# Virtual network peering
+# Virtual Network Peering
 
-This module allow the creation of a virtual network peering
+## Description
 
-## How to use it
+This module provisions bidirectional virtual network peering between two Azure virtual networks, enabling communication between resources across peered networks with configurable access controls.
 
-```ts
+## Usage
+
+```hcl
 module "vnet_peering_core_2_aks" {
-  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//virtual_network_peering?ref=v8.8.0"
+  source = "./"
 
-  for_each = { for n in var.aks_networks : n.domain_name => n }
-
-  location = var.location
-
+  # Required variables
   source_resource_group_name       = data.azurerm_resource_group.rg_vnet.name
   source_virtual_network_name      = data.azurerm_virtual_network.vnet.name
   source_remote_virtual_network_id = data.azurerm_virtual_network.vnet.id
-  source_allow_gateway_transit     = false # needed by vpn gateway for enabling routing from vnet to vnet_integration
 
-  target_resource_group_name       = azurerm_resource_group.rg_vnet_aks[each.key].name
-  target_virtual_network_name      = module.vnet_aks[each.key].name
-  target_remote_virtual_network_id = module.vnet_aks[each.key].id
-  target_use_remote_gateways       = false # needed by vpn gateway for enabling routing from vnet to vnet_integration
+  target_resource_group_name       = azurerm_resource_group.rg_vnet_aks.name
+  target_virtual_network_name      = module.vnet_aks.name
+  target_remote_virtual_network_id = module.vnet_aks.id
+
+  # Optional variables
+  source_allow_gateway_transit = false # needed by vpn gateway for enabling routing from vnet to vnet_integration
+  target_use_remote_gateways   = false # needed by vpn gateway for enabling routing from vnet to vnet_integration
 }
 ```
+
+## Examples
+
+### Basic bidirectional peering
+
+```hcl
+module "vnet_peering" {
+  source = "./"
+
+  source_resource_group_name       = azurerm_resource_group.source.name
+  source_virtual_network_name      = azurerm_virtual_network.source.name
+  source_remote_virtual_network_id = azurerm_virtual_network.target.id
+
+  target_resource_group_name       = azurerm_resource_group.target.name
+  target_virtual_network_name      = azurerm_virtual_network.target.name
+  target_remote_virtual_network_id = azurerm_virtual_network.source.id
+}
+```
+
+### Peering with custom names and gateway transit
+
+```hcl
+module "vnet_peering_with_gateway" {
+  source = "./"
+
+  source_resource_group_name       = azurerm_resource_group.hub.name
+  source_virtual_network_name      = azurerm_virtual_network.hub.name
+  source_remote_virtual_network_id = azurerm_virtual_network.spoke.id
+  source_allow_gateway_transit     = true
+
+  target_resource_group_name       = azurerm_resource_group.spoke.name
+  target_virtual_network_name      = azurerm_virtual_network.spoke.name
+  target_remote_virtual_network_id = azurerm_virtual_network.hub.id
+  target_use_remote_gateways       = true
+
+  source_custom_name = "hub-to-spoke-peering"
+  target_custom_name = "spoke-to-hub-peering"
+}
+```
+
+## Notes
+
+- This module creates **bidirectional** peering between two virtual networks. Each direction is controlled separately with `source_*` and `target_*` variables.
+- Default peering names are automatically generated as `{source_vnet_name}-to-{target_vnet_name}` and `{target_vnet_name}-to-{source_vnet_name}` unless custom names are provided.
+- By default, virtual network access is enabled (`true`) for both directions, but forwarded traffic and gateway transit are disabled (`false`).
+- When using gateway transit patterns (hub-and-spoke topology), enable `source_allow_gateway_transit` on the hub and `target_use_remote_gateways` on the spoke.
 
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->
@@ -69,8 +116,8 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_source_id"></a> [source\_id](#output\_source\_id) | n/a |
-| <a name="output_source_name"></a> [source\_name](#output\_source\_name) | n/a |
-| <a name="output_target_id"></a> [target\_id](#output\_target\_id) | n/a |
-| <a name="output_target_name"></a> [target\_name](#output\_target\_name) | n/a |
+| <a name="output_source_id"></a> [source\_id](#output\_source\_id) | The ID of the source virtual network peering resource |
+| <a name="output_source_name"></a> [source\_name](#output\_source\_name) | The name of the source virtual network peering |
+| <a name="output_target_id"></a> [target\_id](#output\_target\_id) | The ID of the target virtual network peering resource |
+| <a name="output_target_name"></a> [target\_name](#output\_target\_name) | The name of the target virtual network peering |
 <!-- END_TF_DOCS -->
