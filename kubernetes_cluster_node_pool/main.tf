@@ -4,8 +4,11 @@ resource "random_string" "rotation" {
   special = false
 }
 
+
 resource "azurerm_kubernetes_cluster_node_pool" "this" {
   kubernetes_cluster_id = var.kubernetes_cluster_id
+
+  orchestrator_version = var.orchestrator_version
 
   name = var.name
 

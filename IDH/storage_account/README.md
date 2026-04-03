@@ -91,6 +91,7 @@ No resources.
 | <a name="input_product_name"></a> [product\_name](#input\_product\_name) | (Required) product\_name used to identify the platform for which the resource will be created | `string` | n/a | yes |
 | <a name="input_replication_type"></a> [replication\_type](#input\_replication\_type) | (Optional) storage account replication type. Default is the minimum replication type for the environment. | `string` | `null` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (Required) Resource group name where to save the storage account | `string` | n/a | yes |
+| <a name="input_resource_group_nsg_name"></a> [resource\_group\_nsg\_name](#input\_resource\_group\_nsg\_name) | (Optional) The name of the nsg Resource Group. | `string` | `""` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | n/a | yes |
 
 ## Outputs

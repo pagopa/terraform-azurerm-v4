@@ -130,10 +130,13 @@ variable "embedded_subnet" {
     condition     = var.embedded_subnet.enabled && module.idh_loader.idh_resource_configuration.private_endpoint_enabled ? length(var.embedded_subnet.private_dns_zone_ids) > 0 : true
     error_message = "If 'embedded_subnet' is enabled and private endpoint is enabled, 'private_dns_zone_ids' must contain at least one DNS zone ID."
   }
-
-
 }
 
+variable "resource_group_nsg_name" {
+  type        = string
+  description = "(Optional) The name of the nsg Resource Group."
+  default     = ""
+}
 
 variable "nsg_flow_log_configuration" {
   type = object({

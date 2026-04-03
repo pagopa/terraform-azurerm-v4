@@ -48,6 +48,10 @@ resource "azurerm_postgresql_flexible_server" "this" {
     }
   }
 
+  lifecycle {
+    ignore_changes = [zone, high_availability[0].standby_availability_zone]
+  }
+
   tags = var.tags
 
 } # end azurerm_postgresql_flexible_server

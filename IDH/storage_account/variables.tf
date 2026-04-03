@@ -241,8 +241,11 @@ variable "embedded_subnet" {
 
 }
 
-
-
+variable "resource_group_nsg_name" {
+  type        = string
+  description = "(Optional) The name of the nsg Resource Group."
+  default     = ""
+}
 
 variable "nsg_flow_log_configuration" {
   type = object({

@@ -20,6 +20,11 @@ variable "name" {
     condition     = length(var.name) <= 12
     error_message = "The node pool name must not exceed 12 characters."
   }
+
+  validation {
+    condition     = var.double_node_pool.enabled ? length(var.name) <= 9 : true
+    error_message = "If 'double_node_pool' is enabled, the node pool name must not exceed 9 characters to accommodate the foo/bar node pool naming convention."
+  }
 }
 
 variable "kubernetes_cluster_id" {
@@ -75,7 +80,12 @@ variable "nsg_flow_log_configuration" {
   default = {
     enabled = false
   }
+}
 
+variable "resource_group_nsg_name" {
+  type        = string
+  description = "(Optional) The name of the nsg Resource Group."
+  default     = ""
 }
 
 variable "embedded_nsg_configuration" {
@@ -101,6 +111,36 @@ variable "autoscale_enabled" {
   type        = bool
   description = "(Optional): Enable autoscaling for the node pool. Defaults to true."
 }
+
+variable "double_node_pool" {
+  type = object({
+    enabled = optional(bool, false)
+    node_pool_foo = object({
+      active           = bool
+      version_override = optional(string, null) ## if provided, overrides the kubernetes version of the cluster for this node pool
+    })
+    node_pool_bar = object({
+      active           = bool
+      version_override = optional(string, null) ## if provided, overrides the kubernetes version of the cluster for this node pool
+    })
+
+  })
+  default = {
+    enabled = false,
+    node_pool_foo = {
+      active           = true
+      version_override = null
+    },
+    node_pool_bar = {
+      active           = false
+      version_override = null
+    }
+  }
+
+  description = "(Optional) Configuration for double foo/bar node pool setup. If 'enabled' is true, two node pools will be created with the provided configuration. 'node_pool_foo.active' and 'node_pool_bar.active' flags determine which node pool is active at deployment. Only the active node pool will have a non-zero minimum node count, while the other will be set to zero to prevent provisioning of nodes."
+
+}
+
 
 variable "node_count_min" {
   type        = number

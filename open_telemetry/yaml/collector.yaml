@@ -1,11 +1,12 @@
-apiVersion: opentelemetry.io/v1alpha1
+apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
   name: otel
   namespace: ${namespace}
 spec:
   mode: deployment # This configuration is omittable.
-  config: |
+  managementState: managed
+  config:
     receivers:
       otlp:
         protocols:
@@ -71,8 +72,10 @@ spec:
         ]
 
     exporters:
-      logging:
-        loglevel: warn
+      debug:
+        verbosity: basic
+        sampling_initial: 5
+        sampling_thereafter: 200
 
       otlphttp/elastic:
         tls:
@@ -90,12 +93,12 @@ spec:
         traces:
           receivers: [otlp]
           processors: [resource %{ if sampling_enabled }, tail_sampling%{endif}]
-          exporters: [logging, otlphttp/elastic]
+          exporters: [debug, otlphttp/elastic]
         metrics:
           receivers: [otlp]
           processors: [resource]
-          exporters: [logging, otlphttp/elastic]
+          exporters: [debug, otlphttp/elastic]
         logs:
           receivers: [otlp]
           processors: [resource]
-          exporters: [logging, otlphttp/elastic]
+          exporters: [debug, otlphttp/elastic]
