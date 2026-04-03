@@ -178,7 +178,6 @@ No modules.
 | <a name="input_min_api_version"></a> [min\_api\_version](#input\_min\_api\_version) | (Optional) The minimum API version | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | n/a | `string` | n/a | yes |
 | <a name="input_notification_sender_email"></a> [notification\_sender\_email](#input\_notification\_sender\_email) | Email address from which the notification will be sent. | `string` | `null` | no |
-| <a name="input_policy_path"></a> [policy\_path](#input\_policy\_path) | (Deprecated). Path of the policy file. | `string` | `null` | no |
 | <a name="input_public_ip_address_id"></a> [public\_ip\_address\_id](#input\_public\_ip\_address\_id) | A Public Ip resource ID | `string` | `null` | no |
 | <a name="input_publisher_email"></a> [publisher\_email](#input\_publisher\_email) | The email of publisher/company. | `string` | n/a | yes |
 | <a name="input_publisher_name"></a> [publisher\_name](#input\_publisher\_name) | The name of publisher/company. | `string` | n/a | yes |

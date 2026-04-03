@@ -79,16 +79,6 @@ variable "domain" {
   }
 }
 
-variable "enable_automatic_failover" {
-  type        = bool
-  default     = true
-  description = "Enable automatic fail over for this Cosmos DB account."
-  validation {
-    condition     = var.enable_automatic_failover == true || var.enable_automatic_failover == false
-    error_message = "Enable automatic failover must be a boolean value."
-  }
-}
-
 #########################################
 # Geo-replication
 #########################################

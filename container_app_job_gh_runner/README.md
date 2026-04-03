@@ -102,7 +102,6 @@ No modules.
 | <a name="input_key_vault_name"></a> [key\_vault\_name](#input\_key\_vault\_name) | Name of the KeyVault which stores PAT as secret | `string` | n/a | yes |
 | <a name="input_key_vault_rg"></a> [key\_vault\_rg](#input\_key\_vault\_rg) | Resource group of the KeyVault which stores PAT as secret | `string` | n/a | yes |
 | <a name="input_key_vault_secret_name"></a> [key\_vault\_secret\_name](#input\_key\_vault\_secret\_name) | Data of the KeyVault which stores PAT as secret | `string` | n/a | yes |
-| <a name="input_location"></a> [location](#input\_location) | Resource group and resources location | `string` | n/a | yes |
 | <a name="input_parallelism"></a> [parallelism](#input\_parallelism) | (Optional) Number of parallel replicas of a job that can run at a given time. | `number` | `1` | no |
 | <a name="input_polling_interval_in_seconds"></a> [polling\_interval\_in\_seconds](#input\_polling\_interval\_in\_seconds) | (Optional) Interval to check each event source in seconds. | `number` | `30` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | Project prefix | `string` | n/a | yes |

@@ -9,11 +9,6 @@ variable "name" {
   description = "(Required) The name of the Linux Virtual Machine Scale Set. Changing this forces a new resource to be created."
 }
 
-variable "subscription_name" {
-  type        = string
-  description = "(Required) Azure subscription name"
-}
-
 variable "subscription_id" {
   type        = string
   description = "(Required) Azure subscription id"
@@ -27,23 +22,6 @@ variable "resource_group_name" {
 variable "source_image_name" {
   type        = string
   description = "(Optional) The name of an Image which each Virtual Machine in this Scale Set should be based on. It must be stored in the same subscription & resource group of this resource"
-}
-
-# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine_scale_set#source_image_reference
-variable "image_reference" {
-  type = object({
-    publisher = string
-    offer     = string
-    sku       = string
-    version   = string
-  })
-  description = "(Optional) A source_image_reference block as defined below."
-  default = {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts-gen2"
-    version   = "latest"
-  }
 }
 
 variable "vm_sku" {

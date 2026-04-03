@@ -194,7 +194,6 @@ module "staging_slot" {
   storage_account_access_key               = try(module.main_slot.storage_account.primary_access_key, null)
   name                                     = "staging"
   resource_group_name                      = var.resource_group_name
-  location                                 = var.location
   application_insights_instrumentation_key = var.application_insights_instrumentation_key
 
   always_on         = var.always_on
