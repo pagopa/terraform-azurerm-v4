@@ -6,11 +6,6 @@ variable "tags" {
   }
 }
 
-variable "location" {
-  type        = string
-  description = "Resource group and resources location"
-}
-
 variable "resource_group_name" {
   type        = string
   description = "Resource group name"

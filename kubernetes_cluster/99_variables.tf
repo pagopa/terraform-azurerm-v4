@@ -440,12 +440,6 @@ variable "storage_profile_disk_driver_enabled" {
   description = "(Optional) Is the Disk CSI driver enabled? Defaults to true"
 }
 
-variable "storage_profile_disk_driver_version" {
-  type        = string
-  default     = "v1"
-  description = "(Optional) Disk CSI Driver version to be used. Possible values are v1 and v2. Defaults to v1"
-}
-
 ### Monitoring
 variable "oms_agent_msi_auth_for_monitoring_enabled" {
   type        = bool

@@ -53,11 +53,6 @@ variable "vm_sku" {
   default     = "Standard_B2ms"
 }
 
-variable "prefix" {
-  type        = string
-  description = "(Required) prefix used in resource creation"
-}
-
 variable "build_rg_name" {
   type        = string
   description = "(Optional) Packer build temporary resource group name"

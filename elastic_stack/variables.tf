@@ -53,13 +53,6 @@ variable "dedicated_log_instance_name" {
   type = list(string)
 }
 
-variable "env_short" {
-  type = string
-}
-variable "env" {
-  type = string
-}
-
 variable "eck_license" {
   type = string
 }

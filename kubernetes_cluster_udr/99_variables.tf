@@ -181,12 +181,6 @@ variable "user_node_pool_enable_host_encryption" {
   default     = false
 }
 
-variable "user_node_pool_only_critical_addons_enabled" {
-  type        = bool
-  description = "(Optional) Enabling this option will taint default node pool with CriticalAddonsOnly=true:NoSchedule taint. Changing this forces a new resource to be created."
-  default     = true
-}
-
 variable "user_node_pool_ultra_ssd_enabled" {
   type        = bool
   description = "(Optional) Used to specify whether the UltraSSD is enabled in the Default Node Pool. Defaults to false."
@@ -246,12 +240,6 @@ variable "vnet_subnet_id" {
 variable "vnet_user_subnet_id" {
   type        = string
   description = "(Optional) The ID of a Subnet where the Kubernetes Node Pool should exist. Changing this forces a new resource to be created."
-  default     = null
-}
-
-variable "dns_prefix_private_cluster" {
-  type        = string
-  description = "Specifies the DNS prefix to use with private clusters. Changing this forces a new resource to be created."
   default     = null
 }
 
@@ -320,13 +308,6 @@ variable "monitor_metrics" {
   description = "(Optional) Specifies a comma-separated list of Kubernetes annotation keys that will be used in the resource's labels metric."
 }
 
-
-# Kubernetes RBAC
-variable "rbac_enabled" {
-  type        = bool
-  description = "Is Role Based Access Control Enabled?"
-  default     = true
-}
 
 #
 # Logs

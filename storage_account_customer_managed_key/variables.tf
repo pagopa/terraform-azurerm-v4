@@ -3,14 +3,6 @@ variable "tenant_id" {
   default = null
 }
 
-variable "location" {
-  type = string
-}
-
-variable "resource_group_name" {
-  type = string
-}
-
 variable "key_vault_id" {
   description = "The id of the keyvault containing the customer key to use for encryption"
   type        = string
