@@ -23,7 +23,7 @@ variable "aad_admin_group_ids" {
 }
 
 #
-# 🤖 System node pool
+# Default node pool
 #
 
 variable "system_node_pool_name" {
@@ -104,17 +104,10 @@ variable "system_node_pool_tags" {
   description = "(Optional) A mapping of tags to assign to the Node Pool."
   default     = {}
 }
-
-variable "system_node_pool_upgrade_settings_drain_timeout_in_minutes" {
-  type        = string
-  default     = 30
-  description = "(Optional) The amount of time in minutes to wait on eviction of pods and graceful termination per node. This eviction wait time honors pod disruption budgets for upgrades. If this time is exceeded, the upgrade fails. Unsetting this after configuring it will force a new resource to be created."
-}
-
-### <END SYSTEM NODE POOL/>
+### END SYSTEM NODE POOL
 
 #
-# 👤 User node pool
+# User node pool
 #
 variable "user_node_pool_enabled" {
   type        = bool
@@ -131,13 +124,13 @@ variable "user_node_pool_name" {
     )
     error_message = "Max length is 12 chars."
   }
-  default = ""
+  default = null
 }
 
 variable "user_node_pool_vm_size" {
   type        = string
-  description = "(Required) The size of the Virtual Machine, such as Standard_B4ms or Standard_D4s_vX. See https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/134840344/Best+practice+su+prodotti"
-  default     = ""
+  description = "(Optional) The size of the Virtual Machine, such as Standard_B4ms or Standard_D4s_vX. See https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/134840344/Best+practice+su+prodotti"
+  default     = null
 }
 
 variable "user_node_pool_os_disk_type" {
@@ -154,13 +147,13 @@ variable "user_node_pool_os_disk_size_gb" {
 
 variable "user_node_pool_node_count_min" {
   type        = number
-  description = "(Required) The minimum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 1000."
+  description = "(Optional) The minimum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 1000."
   default     = 0
 }
 
 variable "user_node_pool_node_count_max" {
   type        = number
-  description = "(Required) The maximum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 1000."
+  description = "(Optinal) The maximum number of nodes which should exist in this Node Pool. If specified this must be between 1 and 1000."
   default     = 0
 }
 
@@ -205,13 +198,6 @@ variable "user_node_pool_tags" {
   description = "(Optional) A mapping of tags to assign to the Node Pool."
   default     = {}
 }
-
-variable "user_node_pool_upgrade_settings_drain_timeout_in_minutes" {
-  type        = string
-  default     = 30
-  description = "(Optional) The amount of time in minutes to wait on eviction of pods and graceful termination per node. This eviction wait time honors pod disruption budgets for upgrades. If this time is exceeded, the upgrade fails. Unsetting this after configuring it will force a new resource to be created."
-}
-
 ### END USER NODE POOL
 
 variable "upgrade_settings_max_surge" {
@@ -232,7 +218,7 @@ variable "kubernetes_version" {
 }
 
 #
-# ☁️ Network
+# Network
 #
 variable "private_cluster_enabled" {
   type        = bool
@@ -250,37 +236,11 @@ variable "vnet_subnet_id" {
   description = "(Optional) The ID of a Subnet where the Kubernetes Node Pool should exist. Changing this forces a new resource to be created."
   default     = null
 }
+
 variable "vnet_user_subnet_id" {
   type        = string
-  description = "(Optional) The ID of a Subnet where the Kubernetes User Node Pool should exist. Changing this forces a new resource to be created."
+  description = "(Optional) The ID of a Subnet where the Kubernetes Node Pool should exist. Changing this forces a new resource to be created."
   default     = null
-}
-
-variable "aks_gateway_api" {
-  type = object({
-    enabled      = optional(bool, false)
-    gateway_id   = optional(string, null)
-    gateway_name = optional(string, null)
-    subnet_cidr  = optional(string, null)
-    subnet_id    = optional(string, null)
-  })
-  default     = {}
-  description = "(Optional) The Application Gateway associated with the ingress controller deployed to this Kubernetes Cluster."
-  validation {
-    condition = (
-      !var.aks_gateway_api.enabled ? true : (
-        count([
-          for v in [
-            var.aks_gateway_api.gateway_id,
-            var.aks_gateway_api.gateway_name,
-            var.aks_gateway_api.subnet_cidr,
-            var.aks_gateway_api.subnet_id
-          ] : v if v != null
-        ]) == 1
-      )
-    )
-    error_message = "Exactly one of gateway_id, gateway_name, subnet_id, or subnet_cidr must be specified."
-  }
 }
 
 variable "automatic_channel_upgrade" {
@@ -295,33 +255,22 @@ variable "node_os_upgrade_channel" {
   default     = "None"
 }
 
-### Cluster auto upgrade
-variable "force_upgrade_enabled" {
-  type        = bool
-  description = "(Optional) If set to true, cluster will be forced to upgrade even if the latest version of the control plane and agents is not available."
-  default     = false
+variable "api_server_authorized_ip_ranges" {
+  type        = list(string)
+  description = "The IP ranges to whitelist for incoming traffic to the masters."
+  default     = []
 }
 
 variable "network_profile" {
   type = object({
-    dns_service_ip          = optional(string, "10.2.0.10")    # e.g. '10.2.0.10'. IP address within the Kubernetes service address range that will be used by cluster service discovery (kube-dns)
-    network_policy          = optional(string, "azure")        # e.g. 'azure'. Sets up network policy to be used with Azure CNI. Currently supported values are calico and azure.
-    network_plugin          = optional(string, "azure")        # e.g. 'azure'. Network plugin to use for networking. Currently supported values are azure and kubenet
-    network_plugin_mode     = optional(string, null)           # e.g. 'azure'. Network plugin mode to use for networking. Currently supported value is overlay
-    outbound_type           = optional(string, "loadBalancer") # e.g. 'loadBalancer'. The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are loadBalancer, userDefinedRouting, managedNATGateway and userAssignedNATGateway. Defaults to loadBalancer
-    service_cidr            = optional(string, "10.2.0.0/16")  # e.g. '10.2.0.0/16'. The Network Range used by the Kubernetes service
-    network_data_plane      = optional(string, "azure")        # e.g. 'azure'. (Optional) Specifies the data plane used for building the Kubernetes network. Possible values are azure and cilium. Defaults to azure. Disabling this forces a new resource to be created.
-    idle_timeout_in_minutes = optional(string, 30)             # e.g. 'idle_timeout_in_minutes'. (Optional) Desired outbound flow idle timeout in minutes for the cluster load balancer. Must be between 4 and 100 inclusive. Defaults to 30.
+    network_plugin      = string # e.g. 'azure'. Network plugin to use for networking. Currently supported values are azure and kubenet
+    outbound_type       = string # e.g. 'loadBalancer'. The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are loadBalancer, userDefinedRouting, managedNATGateway and userAssignedNATGateway. Defaults to loadBalancer
+    network_plugin_mode = string
   })
   default = {
-    dns_service_ip          = "10.2.0.10"
-    network_policy          = "azure"
-    network_plugin          = "azure"
-    network_plugin_mode     = null
-    outbound_type           = "loadBalancer"
-    service_cidr            = "10.2.0.0/16"
-    network_data_plane      = "azure"
-    idle_timeout_in_minutes = 30
+    network_plugin      = "azure"
+    outbound_type       = "userDefinedRouting"
+    network_plugin_mode = "Overlay"
   }
   description = "See variable description to understand how to use it, and see examples"
 }
@@ -359,16 +308,9 @@ variable "monitor_metrics" {
   description = "(Optional) Specifies a comma-separated list of Kubernetes annotation keys that will be used in the resource's labels metric."
 }
 
-# The sku_tier must be set to Standard or Premium to enable this feature.
-# Enabling this will add Kubernetes Namespace and Deployment details to the Cost Analysis views in the Azure portal.
-variable "cost_analysis_enabled" {
-  type        = bool
-  default     = false
-  description = "(Optional) Should cost analysis be enabled for this Kubernetes Cluster? Defaults to false."
-}
 
 #
-# 📄 Logs
+# Logs
 #
 variable "log_analytics_workspace_id" {
   type        = string
@@ -382,9 +324,6 @@ variable "microsoft_defender_log_analytics_workspace_id" {
   default     = null
 }
 
-#
-# 🚓 Security
-#
 variable "sec_log_analytics_workspace_id" {
   type        = string
   default     = null
@@ -401,56 +340,10 @@ variable "tags" {
   type = map(any)
 }
 
-variable "workload_identity_enabled" {
-  type        = bool
-  description = "(Optional) Specifies whether Azure AD Workload Identity should be enabled for the Cluster. Defaults to false."
-  default     = false
-}
-
-variable "oidc_issuer_enabled" {
-  type        = bool
-  description = "(Optional) Enable or Disable the OIDC issuer URL"
-  default     = false
-}
-
-#
-# Storage profile
-#
-variable "storage_profile_blob_driver_enabled" {
-  type        = bool
-  default     = false
-  description = "(Optional) Is the Blob CSI driver enabled? Defaults to false"
-}
-
-variable "storage_profile_file_driver_enabled" {
-  type        = bool
-  default     = true
-  description = "(Optional) Is the File CSI driver enabled? Defaults to true"
-}
-
-variable "storage_profile_snapshot_controller_enabled" {
-  type        = bool
-  default     = true
-  description = "(Optional) Is the Snapshot Controller enabled? Defaults to true"
-}
-
-variable "storage_profile_disk_driver_enabled" {
-  type        = bool
-  default     = true
-  description = "(Optional) Is the Disk CSI driver enabled? Defaults to true"
-}
-
-### Monitoring
-variable "oms_agent_msi_auth_for_monitoring_enabled" {
-  type        = bool
-  description = "(Optional) Is managed identity authentication for monitoring enabled? Default false"
-  default     = false
-}
-
-variable "oms_agent_monitoring_metrics_role_assignment_enabled" {
-  type        = bool
-  description = "Enabled oms agent monitoring metrics roles"
-  default     = true
+variable "disk_encryption_set_id" {
+  type        = string
+  default     = null
+  description = "ID of the disk EncryptionSet ."
 }
 
 ### Prometheus managed
@@ -489,13 +382,276 @@ variable "maintenance_windows_node_os" {
   }
 }
 
-variable "workload_autoscaler_profile_keda_enabled" {
-  type        = bool
-  description = "(Optional) Enable or disable KEDA autoscaler"
-  default     = false
+#
+# Alerts
+#
+variable "default_metric_alerts" {
+  description = <<EOD
+  Map of name = criteria objects
+  EOD
+
+  type = map(object({
+    # criteria.*.aggregation to be one of [Average Count Minimum Maximum Total]
+    aggregation = string
+    # "Insights.Container/pods" "Insights.Container/nodes"
+    metric_namespace = string
+    metric_name      = string
+    # criteria.0.operator to be one of [Equals NotEquals GreaterThan GreaterThanOrEqual LessThan LessThanOrEqual]
+    operator  = string
+    threshold = number
+    # Possible values are PT1M, PT5M, PT15M, PT30M and PT1H
+    frequency = string
+    # Possible values are PT1M, PT5M, PT15M, PT30M, PT1H, PT6H, PT12H and P1D.
+    window_size = string
+
+    dimension = list(object(
+      {
+        name     = string
+        operator = string
+        values   = list(string)
+      }
+    ))
+  }))
+
+  default = {
+    node_cpu = {
+      aggregation      = "Average"
+      metric_namespace = "Insights.Container/nodes"
+      metric_name      = "cpuUsagePercentage"
+      operator         = "GreaterThan"
+      threshold        = 80
+      frequency        = "PT5M"
+      window_size      = "PT30M"
+      dimension = [
+        {
+          name     = "host"
+          operator = "Include"
+          values   = ["*"]
+        }
+      ],
+    }
+    node_memory = {
+      aggregation      = "Average"
+      metric_namespace = "Insights.Container/nodes"
+      metric_name      = "memoryWorkingSetPercentage"
+      operator         = "GreaterThan"
+      threshold        = 80
+      frequency        = "PT5M"
+      window_size      = "PT30M"
+      dimension = [
+        {
+          name     = "host"
+          operator = "Include"
+          values   = ["*"]
+        }
+      ],
+    }
+    node_disk = {
+      aggregation      = "Average"
+      metric_namespace = "Insights.Container/nodes"
+      metric_name      = "DiskUsedPercentage"
+      operator         = "GreaterThan"
+      threshold        = 80
+      frequency        = "PT5M"
+      window_size      = "PT30M"
+      dimension = [
+        {
+          name     = "host"
+          operator = "Include"
+          values   = ["*"]
+        },
+        {
+          name     = "device"
+          operator = "Include"
+          values   = ["*"]
+        }
+      ],
+    }
+    node_not_ready = {
+      aggregation      = "Average"
+      metric_namespace = "Insights.Container/nodes"
+      metric_name      = "nodesCount"
+      operator         = "GreaterThan"
+      threshold        = 0
+      frequency        = "PT5M"
+      window_size      = "PT30M"
+      dimension = [
+        {
+          name     = "status"
+          operator = "Include"
+          values   = ["NotReady"]
+        }
+      ],
+    }
+    pods_failed = {
+      aggregation      = "Average"
+      metric_namespace = "Insights.Container/pods"
+      metric_name      = "podCount"
+      operator         = "GreaterThan"
+      threshold        = 0
+      frequency        = "PT5M"
+      window_size      = "PT30M"
+      dimension = [
+        {
+          name     = "phase"
+          operator = "Include"
+          values   = ["Failed"]
+        }
+      ]
+    }
+    pods_ready = {
+      aggregation      = "Average"
+      metric_namespace = "Insights.Container/pods"
+      metric_name      = "PodReadyPercentage"
+      operator         = "LessThan"
+      threshold        = 80
+      frequency        = "PT5M"
+      window_size      = "PT30M"
+      dimension = [
+        {
+          name     = "kubernetes namespace"
+          operator = "Include"
+          values   = ["*"]
+        },
+        {
+          name     = "controllerName"
+          operator = "Include"
+          values   = ["*"]
+        }
+      ]
+    }
+    container_cpu = {
+      aggregation      = "Average"
+      metric_namespace = "Insights.Container/containers"
+      metric_name      = "cpuExceededPercentage"
+      operator         = "GreaterThan"
+      threshold        = 95
+      frequency        = "PT5M"
+      window_size      = "PT30M"
+      dimension = [
+        {
+          name     = "kubernetes namespace"
+          operator = "Include"
+          values   = ["*"]
+        },
+        {
+          name     = "controllerName"
+          operator = "Include"
+          values   = ["*"]
+        }
+      ]
+    }
+    container_memory = {
+      aggregation      = "Average"
+      metric_namespace = "Insights.Container/containers"
+      metric_name      = "memoryWorkingSetExceededPercentage"
+      operator         = "GreaterThan"
+      threshold        = 95
+      frequency        = "PT5M"
+      window_size      = "PT30M"
+      dimension = [
+        {
+          name     = "kubernetes namespace"
+          operator = "Include"
+          values   = ["*"]
+        },
+        {
+          name     = "controllerName"
+          operator = "Include"
+          values   = ["*"]
+        }
+      ]
+    }
+    container_oom = {
+      aggregation      = "Average"
+      metric_namespace = "Insights.Container/pods"
+      metric_name      = "oomKilledContainerCount"
+      operator         = "GreaterThan"
+      threshold        = 0
+      frequency        = "PT5M"
+      window_size      = "PT30M"
+      dimension = [
+        {
+          name     = "kubernetes namespace"
+          operator = "Include"
+          values   = ["*"]
+        },
+        {
+          name     = "controllerName"
+          operator = "Include"
+          values   = ["*"]
+        }
+      ]
+    }
+    container_restart = {
+      aggregation      = "Average"
+      metric_namespace = "Insights.Container/pods"
+      metric_name      = "restartingContainerCount"
+      operator         = "GreaterThan"
+      threshold        = 0
+      frequency        = "PT5M"
+      window_size      = "PT30M"
+      dimension = [
+        {
+          name     = "kubernetes namespace"
+          operator = "Include"
+          values   = ["*"]
+        },
+        {
+          name     = "controllerName"
+          operator = "Include"
+          values   = ["*"]
+        }
+      ]
+    }
+  }
 }
-variable "workload_autoscaler_profile_vertical_pod_autoscaler_enabled" {
-  type        = bool
-  description = "(Optional) Enable or disable Vertical Pod Autoscaler"
-  default     = false
+
+variable "custom_metric_alerts" {
+  description = <<EOD
+  Map of name = criteria objects
+  EOD
+
+  default = {}
+
+  type = map(object({
+    # criteria.*.aggregation to be one of [Average Count Minimum Maximum Total]
+    aggregation = string
+    # "Insights.Container/pods" "Insights.Container/nodes"
+    metric_namespace = string
+    metric_name      = string
+    # criteria.0.operator to be one of [Equals NotEquals GreaterThan GreaterThanOrEqual LessThan LessThanOrEqual]
+    operator  = string
+    threshold = number
+    # Possible values are PT1M, PT5M, PT15M, PT30M and PT1H
+    frequency = string
+    # Possible values are PT1M, PT5M, PT15M, PT30M, PT1H, PT6H, PT12H and P1D.
+    window_size = string
+
+    dimension = list(object(
+      {
+        name     = string
+        operator = string
+        values   = list(string)
+      }
+    ))
+  }))
 }
+
+variable "action" {
+  description = "The ID of the Action Group and optional map of custom string properties to include with the post webhook operation."
+  type = set(object(
+    {
+      action_group_id    = string
+      webhook_properties = map(string)
+    }
+  ))
+  default = []
+}
+
+variable "alerts_enabled" {
+  type        = bool
+  default     = true
+  description = "Should Metrics Alert be enabled?"
+}
+

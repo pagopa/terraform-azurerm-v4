@@ -1,3 +1,4 @@
+fail_fast: true
 repos:
   - repo: local
     hooks:
@@ -6,7 +7,11 @@ repos:
         entry: .scripts/generate-idh-docs.sh
         language: python
         types: [python]
-
+      - id: check-variables-tf
+        name: Check Terraform variables.tf conventions
+        entry: .scripts/check-variables-tf.sh
+        language: python
+        types: [python]
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.96.2
     hooks:
