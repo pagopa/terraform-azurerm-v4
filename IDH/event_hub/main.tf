@@ -73,7 +73,7 @@ module "event_hub" {
   metric_alerts                        = var.metric_alerts
   action                               = var.action
 
-  eventhubs = []
+  eventhubs = var.eventhubs
 
   tags = var.tags
 }
