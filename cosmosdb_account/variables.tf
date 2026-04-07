@@ -211,12 +211,6 @@ variable "allowed_virtual_network_subnet_ids" {
   default     = []
 }
 
-variable "enable_multiple_write_locations" {
-  type        = bool
-  description = "Enable multi-master support for this Cosmos DB account."
-  default     = false
-}
-
 variable "ip_range" {
   type        = list(string)
   description = "The set of IP addresses or IP address ranges in CIDR form to be included as the allowed list of client IP's for a given database account."

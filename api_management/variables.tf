@@ -85,12 +85,6 @@ variable "virtual_network_type" {
   default     = null
 }
 
-variable "policy_path" {
-  type        = string
-  default     = null
-  description = "(Deprecated). Path of the policy file."
-}
-
 variable "xml_content" {
   type        = string
   default     = null

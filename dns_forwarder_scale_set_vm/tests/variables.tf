@@ -31,7 +31,3 @@ variable "vms_subnet_cidr" {
   default = ["10.0.1.0/26"]
 }
 
-variable "source_image_name" {
-  type    = string
-  default = "dns-forwarder-ubuntu2204-image-v1"
-}
