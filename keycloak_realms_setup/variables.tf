@@ -95,6 +95,18 @@ variable "key_vault_rg" {
   description = "Key vault resource group"
 }
 
+variable "admin_entra_group_ids" {
+  description = "List of Entra ID group Object IDs for the Admin role"
+  type        = list(string)
+  default     = []
+}
+
+variable "viewer_entra_group_ids" {
+  description = "List of Entra ID group Object IDs for the Viewer role"
+  type        = list(string)
+  default     = []
+}
+
 variable "tags" {
   type = map(any)
 }

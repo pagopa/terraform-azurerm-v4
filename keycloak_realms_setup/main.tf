@@ -10,14 +10,68 @@ locals {
     "query-users",
     "query-clients"
   ]
+
+  domain_admin_composite_roles = [
+    "manage-users", "manage-clients", "manage-events", "view-realm",
+    "view-users", "query-groups", "query-users", "query-clients",
+    "view-clients", "view-events"
+  ]
+
+  domain_viewer_composite_roles = [
+    "view-realm", "view-users", "query-groups", "query-users",
+    "query-clients", "view-clients", "view-events"
+  ]
+
+  admin_mappers = flatten([
+    for realm_key, realm_obj in keycloak_realm.this : [
+      for i, group_id in var.admin_entra_group_ids : {
+        key       = "${realm_key}-admin-${i}"
+        realm_key = realm_key
+        group_id  = group_id
+      }
+    ]
+  ])
+
+  viewer_mappers = flatten([
+    for realm_key, realm_obj in keycloak_realm.this : [
+      for i, group_id in var.viewer_entra_group_ids : {
+        key       = "${realm_key}-viewer-${i}"
+        realm_key = realm_key
+        group_id  = group_id
+      }
+    ]
+  ])
 }
 
 # Data
 data "keycloak_openid_client" "this" {
-  for_each = { for i in keycloak_realm.this : i.name => i }
+  for_each = keycloak_realm.this
 
   realm_id  = "master"
   client_id = "${each.key}-realm"
+}
+
+data "keycloak_role" "management_roles" {
+  for_each = {
+    for i in flatten([
+      for realm_key, realm_obj in keycloak_realm.this : [
+        for role in distinct(concat(local.domain_admin_composite_roles, local.domain_viewer_composite_roles)) : {
+          key       = "${realm_key}-${role}"
+          realm_key = realm_key
+          role_name = role
+        }
+      ]
+    ]) : i.key => i
+  }
+
+  realm_id  = "master"
+  client_id = data.keycloak_openid_client.this[each.value.realm_key].id
+  name      = each.value.role_name
+}
+
+data "keycloak_openid_client" "master_realm_client" {
+  realm_id  = "master"
+  client_id = "master-realm"
 }
 
 data "azurerm_key_vault" "this" {
@@ -58,50 +112,58 @@ resource "keycloak_realm" "this" {
   access_code_lifespan_login   = each.value.access_code_lifespan_login
 
   # --- SMTP ---
-  smtp_server {
-    host                  = each.value.smtp_server.host
-    port                  = each.value.smtp_server.port
-    from                  = each.value.smtp_server.from
-    from_display_name     = each.value.smtp_server.from_display_name
-    reply_to              = each.value.smtp_server.reply_to
-    reply_to_display_name = each.value.smtp_server.reply_to_display_name
-    ssl                   = each.value.smtp_server.ssl
-    starttls              = each.value.smtp_server.starttls
+  dynamic "smtp_server" {
+    for_each = each.value.smtp_server != null ? [each.value.smtp_server] : []
+    content {
+      host                  = smtp_server.value.host
+      port                  = smtp_server.value.port
+      from                  = smtp_server.value.from
+      from_display_name     = smtp_server.value.from_display_name
+      reply_to              = smtp_server.value.reply_to
+      reply_to_display_name = smtp_server.value.reply_to_display_name
+      ssl                   = smtp_server.value.ssl
+      starttls              = smtp_server.value.starttls
 
-    auth {
-      username = each.value.smtp_server.auth.username
-      password = each.value.smtp_server.auth.password
+      auth {
+        username = smtp_server.value.auth.username
+        password = smtp_server.value.auth.password
+      }
     }
   }
 
   # --- Internationalization ---
-  internationalization {
-    supported_locales = each.value.internationalization.supported_locales
-    default_locale    = each.value.internationalization.default_locale
+  dynamic "internationalization" {
+    for_each = each.value.internationalization != null ? [each.value.internationalization] : []
+    content {
+      supported_locales = internationalization.value.supported_locales
+      default_locale    = internationalization.value.default_locale
+    }
   }
 
   # --- Security Defenses & Brute Force ---
   # Configures security headers to prevent Clickjacking, XSS, etc.
-  security_defenses {
-    headers {
-      x_frame_options                     = each.value.security_defenses.headers.x_frame_options
-      content_security_policy             = each.value.security_defenses.headers.content_security_policy
-      content_security_policy_report_only = each.value.security_defenses.headers.content_security_policy_report_only
-      x_content_type_options              = each.value.security_defenses.headers.x_content_type_options
-      x_robots_tag                        = each.value.security_defenses.headers.x_robots_tag
-      x_xss_protection                    = each.value.security_defenses.headers.x_xss_protection
-      strict_transport_security           = each.value.security_defenses.headers.strict_transport_security
-    }
+  dynamic "security_defenses" {
+    for_each = each.value.security_defenses != null ? [each.value.security_defenses] : []
+    content {
+      headers {
+        x_frame_options                     = security_defenses.value.headers.x_frame_options
+        content_security_policy             = security_defenses.value.headers.content_security_policy
+        content_security_policy_report_only = security_defenses.value.headers.content_security_policy_report_only
+        x_content_type_options              = security_defenses.value.headers.x_content_type_options
+        x_robots_tag                        = security_defenses.value.headers.x_robots_tag
+        x_xss_protection                    = security_defenses.value.headers.x_xss_protection
+        strict_transport_security           = security_defenses.value.headers.strict_transport_security
+      }
 
-    # Prevents brute force attacks by locking accounts or adding delays
-    brute_force_detection {
-      permanent_lockout                = each.value.security_defenses.brute_force_detection.permanent_lockout
-      max_failure_wait_seconds         = each.value.security_defenses.brute_force_detection.max_failure_wait_seconds
-      minimum_quick_login_wait_seconds = each.value.security_defenses.brute_force_detection.minimum_quick_login_wait_seconds
-      wait_increment_seconds           = each.value.security_defenses.brute_force_detection.wait_increment_seconds
-      quick_login_check_milli_seconds  = each.value.security_defenses.brute_force_detection.quick_login_check_milli_seconds
-      max_login_failures               = each.value.security_defenses.brute_force_detection.max_login_failures
-      failure_reset_time_seconds       = each.value.security_defenses.brute_force_detection.failure_reset_time_seconds
+      brute_force_detection {
+        permanent_lockout                = security_defenses.value.brute_force_detection.permanent_lockout
+        max_failure_wait_seconds         = security_defenses.value.brute_force_detection.max_failure_wait_seconds
+        minimum_quick_login_wait_seconds = security_defenses.value.brute_force_detection.minimum_quick_login_wait_seconds
+        wait_increment_seconds           = security_defenses.value.brute_force_detection.wait_increment_seconds
+        quick_login_check_milli_seconds  = security_defenses.value.brute_force_detection.quick_login_check_milli_seconds
+        max_login_failures               = security_defenses.value.brute_force_detection.max_login_failures
+        failure_reset_time_seconds       = security_defenses.value.brute_force_detection.failure_reset_time_seconds
+      }
     }
   }
 
@@ -121,10 +183,10 @@ resource "keycloak_openid_client" "this" {
 resource "keycloak_openid_client_service_account_role" "this" {
   for_each = {
     for i in flatten([
-      for realm in keycloak_realm.this : [
+      for realm_key, realm_obj in keycloak_realm.this : [
         for role in local.admin_roles : {
-          key   = "${realm}-${role}"
-          realm = realm
+          key   = "${realm_key}-${role}"
+          realm = realm_key
           role  = role
         }
       ]
@@ -136,6 +198,24 @@ resource "keycloak_openid_client_service_account_role" "this" {
 
   client_id = data.keycloak_openid_client.this[each.value.realm].id
   role      = each.value.role
+}
+
+resource "keycloak_openid_client_service_account_role" "master_global_read_access" {
+  for_each = toset([
+    "view-clients",
+    "query-clients",
+    "view-users",
+    "query-users",
+    "view-realm",
+    "view-identity-providers"
+  ])
+
+  realm_id                = "master"
+  service_account_user_id = keycloak_openid_client.this.service_account_user_id
+
+  client_id = data.keycloak_openid_client.master_realm_client.id
+
+  role = each.key
 }
 
 resource "azurerm_key_vault_secret" "client_id" {
@@ -150,4 +230,62 @@ resource "azurerm_key_vault_secret" "client_secret" {
   value        = keycloak_openid_client.this.client_secret
   key_vault_id = data.azurerm_key_vault.this.id
   tags         = var.tags
+}
+
+resource "keycloak_role" "domain_admin_role" {
+  for_each = keycloak_realm.this
+
+  realm_id    = "master"
+  name        = "${var.domain}_${each.key}-realm_domain-admin-role"
+  description = "Minimal admin: users, clients, events"
+
+  composite_roles = [
+    for role in local.domain_admin_composite_roles : data.keycloak_role.management_roles["${each.key}-${role}"].id
+  ]
+}
+
+resource "keycloak_role" "domain_view_role" {
+  for_each = keycloak_realm.this
+
+  realm_id    = "master"
+  name        = "${var.domain}_${each.key}-realm_domain-viewer-role"
+  description = "Viewer"
+
+  composite_roles = [
+    for role in local.domain_viewer_composite_roles : data.keycloak_role.management_roles["${each.key}-${role}"].id
+  ]
+}
+
+# --- Identity Provider Mappers ---
+
+resource "keycloak_custom_identity_provider_mapper" "domain_admin_realm_mapper" {
+  for_each = { for m in local.admin_mappers : m.key => m }
+
+  realm                    = "master"
+  name                     = "${var.domain}-${each.value.realm_key}-realm.entra-admin-${each.value.group_id}"
+  identity_provider_alias  = "azure-entra"
+  identity_provider_mapper = "oidc-role-idp-mapper"
+
+  extra_config = {
+    syncMode      = "FORCE"
+    claim         = "groups"
+    "claim.value" = each.value.group_id
+    role          = keycloak_role.domain_admin_role[each.value.realm_key].name
+  }
+}
+
+resource "keycloak_custom_identity_provider_mapper" "domain_view_realm_mapper" {
+  for_each = { for m in local.viewer_mappers : m.key => m }
+
+  realm                    = "master"
+  name                     = "${var.domain}-${each.value.realm_key}-realm.entra-domain-viewer-${each.value.group_id}"
+  identity_provider_alias  = "azure-entra"
+  identity_provider_mapper = "oidc-role-idp-mapper"
+
+  extra_config = {
+    syncMode      = "FORCE"
+    claim         = "groups"
+    "claim.value" = each.value.group_id
+    role          = keycloak_role.domain_view_role[each.value.realm_key].name
+  }
 }
