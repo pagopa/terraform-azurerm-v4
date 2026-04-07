@@ -63,11 +63,6 @@ variable "subscription_id" {
   description = "(Required) Azure subscription id"
 }
 
-variable "tenant_id" {
-  type        = string
-  description = "(Required) The Azure AD tenant ID that should be used for authenticating requests to the key vault."
-}
-
 variable "source_image_name" {
   type        = string
   description = "(Required) The name of an Image which each Virtual Machine in this Scale Set should be based on. It must be stored in the same subscription & resource group of this resource"
@@ -77,12 +72,6 @@ variable "vm_sku" {
   type        = string
   description = "(Optional) Size of VMs in the scale set. Default to Standard_B1s. See https://azure.microsoft.com/pricing/details/virtual-machines/ for size info."
   default     = "Standard_B1s"
-}
-
-variable "admin_password" {
-  type        = string
-  description = "(Optional) The Password which should be used for the local-administrator on this Virtual Machine. Changing this forces a new resource to be created. will be stored in the raw state as plain-text"
-  default     = null
 }
 
 variable "storage_sku" {

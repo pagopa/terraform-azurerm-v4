@@ -6,13 +6,6 @@ variable "key_vault_id" {
   type = string
 }
 
-variable "tags" {
-  type = map(any)
-  default = {
-    CreatedBy = "Terraform"
-  }
-}
-
 # cert info
 variable "cert_common_name" {
   type = string
@@ -56,10 +49,6 @@ variable "cert_province" {
 variable "cert_serial_number" {
   type    = string
   default = ""
-}
-
-variable "cert_password" {
-  type = string
 }
 
 variable "cert_validity_hours" {

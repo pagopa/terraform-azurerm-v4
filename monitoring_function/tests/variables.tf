@@ -48,20 +48,6 @@ variable "tags" {
   }
 }
 
-variable "legacy" {
-  type        = bool
-  description = "(Optional) Enable new terraform resource features for container app job."
-}
-
-#
-# Feature flags
-#
-variable "enabled_resource" {
-  type = object({
-    container_app_tools_cae = optional(bool, false),
-  })
-}
-
 variable "storage_account_replication_type" {
   type        = string
   description = "(Required) table storage replication type"

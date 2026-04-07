@@ -54,7 +54,6 @@ No modules.
 | <a name="input_cert_locality"></a> [cert\_locality](#input\_cert\_locality) | n/a | `string` | `""` | no |
 | <a name="input_cert_organization"></a> [cert\_organization](#input\_cert\_organization) | n/a | `string` | `""` | no |
 | <a name="input_cert_organizational_unit"></a> [cert\_organizational\_unit](#input\_cert\_organizational\_unit) | n/a | `string` | `""` | no |
-| <a name="input_cert_password"></a> [cert\_password](#input\_cert\_password) | n/a | `string` | n/a | yes |
 | <a name="input_cert_postal_code"></a> [cert\_postal\_code](#input\_cert\_postal\_code) | n/a | `string` | `""` | no |
 | <a name="input_cert_province"></a> [cert\_province](#input\_cert\_province) | n/a | `string` | `""` | no |
 | <a name="input_cert_serial_number"></a> [cert\_serial\_number](#input\_cert\_serial\_number) | n/a | `string` | `""` | no |
@@ -63,7 +62,6 @@ No modules.
 | <a name="input_early_renewal_hours"></a> [early\_renewal\_hours](#input\_early\_renewal\_hours) | n/a | `number` | `720` | no |
 | <a name="input_jwt_name"></a> [jwt\_name](#input\_jwt\_name) | n/a | `string` | n/a | yes |
 | <a name="input_key_vault_id"></a> [key\_vault\_id](#input\_key\_vault\_id) | n/a | `string` | n/a | yes |
-| <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | <pre>{<br/>  "CreatedBy": "Terraform"<br/>}</pre> | no |
 
 ## Outputs
 
