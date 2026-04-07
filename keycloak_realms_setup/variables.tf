@@ -9,33 +9,33 @@ variable "realms_configuration" {
     name                          = string
     display_name                  = string
     enabled                       = bool
-    login_theme                   = string
-    account_theme                 = string # Theme for the user account management pages
-    admin_theme                   = string
-    email_theme                   = string # Theme for emails sent by this realm
-    terraform_deletion_protection = bool
+    login_theme                   = optional(string)
+    account_theme                 = optional(string) # Theme for the user account management pages
+    admin_theme                   = optional(string)
+    email_theme                   = optional(string) # Theme for emails sent by this realm
+    terraform_deletion_protection = optional(bool)
 
     # --- Login & Registration Flow ---
-    login_with_email_allowed       = bool
-    registration_allowed           = bool
-    registration_email_as_username = bool # Use email as the username during registration
-    edit_username_allowed          = bool # Allow users to change their username
-    reset_password_allowed         = bool
-    remember_me                    = bool
-    verify_email                   = bool
-    duplicate_emails_allowed       = bool # Allow multiple users to have the same email
+    login_with_email_allowed       = optional(bool)
+    registration_allowed           = optional(bool)
+    registration_email_as_username = optional(bool) # Use email as the username during registration
+    edit_username_allowed          = optional(bool) # Allow users to change their username
+    reset_password_allowed         = optional(bool)
+    remember_me                    = optional(bool)
+    verify_email                   = optional(bool)
+    duplicate_emails_allowed       = optional(bool) # Allow multiple users to have the same email
     # --- Security & SSL ---
-    ssl_required = string # 'none', 'external' or 'all'
+    ssl_required = optional(string) # 'none', 'external' or 'all'
 
     # --- Session & Token Timeouts ---
-    access_token_lifespan        = string # Default: 5m
-    sso_session_idle_timeout     = string # Default: 30m
-    sso_session_max_lifespan     = string # Default: 10h
-    offline_session_idle_timeout = string # Default: 30 days
-    access_code_lifespan_login   = string # Time limit for login after code generation
+    access_token_lifespan        = optional(string) # Default: 5m
+    sso_session_idle_timeout     = optional(string) # Default: 30m
+    sso_session_max_lifespan     = optional(string) # Default: 10h
+    offline_session_idle_timeout = optional(string) # Default: 30 days
+    access_code_lifespan_login   = optional(string) # Time limit for login after code generation
 
     # --- SMTP Server Configuration ---
-    smtp_server = object({
+    smtp_server = optional(object({
       host                  = string
       port                  = string
       from                  = string
@@ -48,16 +48,16 @@ variable "realms_configuration" {
         username = string
         password = string
       })
-    })
+    }))
 
     # --- Internationalization ---
-    internationalization = object({
+    internationalization = optional(object({
       supported_locales = list(string)
       default_locale    = string
-    })
+    }))
 
     # --- Security Defenses (Headers) ---
-    security_defenses = object({
+    security_defenses = optional(object({
       headers = object({
         x_frame_options                     = string # Default: SAMEORIGIN
         content_security_policy             = string # Default: frame-src 'self'; frame-ancestors 'self'; object-src 'none';
@@ -76,10 +76,10 @@ variable "realms_configuration" {
         max_login_failures               = number
         failure_reset_time_seconds       = number
       })
-    })
+    }))
 
     # --- Extra Attributes ---
-    attributes = map(string) # Custom metadata for the realm
+    attributes = optional(map(string)) # Custom metadata for the realm
   }))
   default = []
 }
