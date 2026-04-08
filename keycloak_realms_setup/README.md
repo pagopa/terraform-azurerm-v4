@@ -47,5 +47,8 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_realm_ids"></a> [realm\_ids](#output\_realm\_ids) | Map of Keycloak realm IDs indexed by realm name |
+| <a name="output_realm_names"></a> [realm\_names](#output\_realm\_names) | Map of Keycloak realm names indexed by realm name |
 <!-- END_TF_DOCS -->

@@ -23,20 +23,20 @@ locals {
   ]
 
   admin_mappers = flatten([
-    for realm_key, realm_obj in keycloak_realm.this : [
+    for realm in var.realms_configuration : [
       for i, group_id in var.admin_entra_group_ids : {
-        key       = "${realm_key}-admin-${i}"
-        realm_key = realm_key
+        key       = "${realm.name}-admin-${i}"
+        realm_key = realm.name
         group_id  = group_id
       }
     ]
   ])
 
   viewer_mappers = flatten([
-    for realm_key, realm_obj in keycloak_realm.this : [
+    for realm in var.realms_configuration : [
       for i, group_id in var.viewer_entra_group_ids : {
-        key       = "${realm_key}-viewer-${i}"
-        realm_key = realm_key
+        key       = "${realm.name}-viewer-${i}"
+        realm_key = realm.name
         group_id  = group_id
       }
     ]
@@ -45,7 +45,7 @@ locals {
 
 # Data
 data "keycloak_openid_client" "this" {
-  for_each = keycloak_realm.this
+  for_each = { for i in var.realms_configuration : i.name => i }
 
   realm_id  = "master"
   client_id = "${each.key}-realm"
@@ -54,10 +54,10 @@ data "keycloak_openid_client" "this" {
 data "keycloak_role" "management_roles" {
   for_each = {
     for i in flatten([
-      for realm_key, realm_obj in keycloak_realm.this : [
+      for realm in var.realms_configuration : [
         for role in distinct(concat(local.domain_admin_composite_roles, local.domain_viewer_composite_roles)) : {
-          key       = "${realm_key}-${role}"
-          realm_key = realm_key
+          key       = "${realm.name}-${role}"
+          realm_key = realm.name
           role_name = role
         }
       ]
@@ -183,10 +183,10 @@ resource "keycloak_openid_client" "this" {
 resource "keycloak_openid_client_service_account_role" "this" {
   for_each = {
     for i in flatten([
-      for realm_key, realm_obj in keycloak_realm.this : [
+      for realm in var.realms_configuration : [
         for role in local.admin_roles : {
-          key   = "${realm_key}-${role}"
-          realm = realm_key
+          key   = "${realm.name}-${role}"
+          realm = realm.name
           role  = role
         }
       ]
@@ -233,7 +233,7 @@ resource "azurerm_key_vault_secret" "client_secret" {
 }
 
 resource "keycloak_role" "domain_admin_role" {
-  for_each = keycloak_realm.this
+  for_each = { for i in var.realms_configuration : i.name => i }
 
   realm_id    = "master"
   name        = "${var.domain}_${each.key}-realm_domain-admin-role"
@@ -245,7 +245,7 @@ resource "keycloak_role" "domain_admin_role" {
 }
 
 resource "keycloak_role" "domain_view_role" {
-  for_each = keycloak_realm.this
+  for_each = { for i in var.realms_configuration : i.name => i }
 
   realm_id    = "master"
   name        = "${var.domain}_${each.key}-realm_domain-viewer-role"
