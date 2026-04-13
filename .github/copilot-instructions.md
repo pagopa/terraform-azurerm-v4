@@ -56,6 +56,7 @@ cd ../..
 ```
 
 ### GitHub rules
+- Always ask confirmation before committing changes to git
 - Never push to a branch
 - Never delete a branch
 - All changes must be finally reviewed by humans

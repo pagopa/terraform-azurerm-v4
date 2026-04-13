@@ -1,20 +1,20 @@
 # Module Development Instructions
 
 ## Overview
-Guidelines for developing, maintaining, and documenting Terraform modules in the root folder of repository, not for IDH modules
+Guidelines for developing, maintaining, and documenting Terraform modules in the IDH folder of this repository only.
 
-## Module Creation Checklist
+## IDH Module Creation Checklist
 
 ### File Structure
-- [ ] Create module directory: `modulename/`
+- [ ] Create module directory: `IDH/modulename/`
 - [ ] Create `main.tf` with resource definitions
 - [ ] Create `variables.tf` with input variables
 - [ ] Create `outputs.tf` with resource outputs
 - [ ] Create `versions.tf` with provider requirements
 - [ ] Create `locals.tf` with local values if needed
 - [ ] Create `README.md` with full documentation
-- [ ] Include `test/` subdirectory with usage examples
-- [ ] If a subnet is needed, always expect to receive it as an input variable instead of creating it within the module
+- [ ] Create `modulename.yml` file in `IDH/00_product_configs/common` with a basic configuration for the module
+- [ ] If a subnet is needed, allow the user to optionally create an embedded subnet within the module, but require that either the embedded subnet or an external subnet is provided (mutually exclusive variables)
 - [ ] When creating alerts for a resource, expect a list of action groups as input variables, and use `for_each` to create the alert rules. This allows for greater flexibility and scalability in alert configuration.
 
 
@@ -26,6 +26,8 @@ Guidelines for developing, maintaining, and documenting Terraform modules in the
 - [ ] Include `validation` blocks for restricted values
 - [ ] Include `validation` blocks for mutually exclusive variables
 - [ ] Add `nullable = false` for required inputs
+- [ ] Include `idh_resource_tier` variable with description linking to LIBRARY.md for available tiers
+- [ ] Include `idh_resource_tier` variable with description linking to LIBRARY.md for available tiers
 
 ### Output Definition Standards
 - [ ] All outputs have `description` attribute
@@ -37,36 +39,39 @@ Guidelines for developing, maintaining, and documenting Terraform modules in the
 ### README.md Documentation
 Include the following sections:
 1. **Overview** - What the module does
-2. **Examples** - Common usage patterns
-3. **Notes** - Limitations, special considerations
-4. **Troubleshooting** - Common issues and solutions
+2. **IDH resources available** -  link to LIBRARY.md for details on available tiers as documented below 
+3. **Examples** - Common usage patterns
+4. **Notes** - Limitations, special considerations
+5. **Troubleshooting** - Common issues and solutions
 
 Never update the README below the auto-generated section beginning with `<!-- BEGIN_TF_DOCS -->`
 
 ### Code Quality Standards
-- [ ] Run `terraform fmt` on all files
-- [ ] Run `terraform validate` successfully
+- [ ] Run `git ls-files -- . | xargs pre-commit run --files` in the module folder
 - [ ] Include helpful comments for complex logic
 - [ ] Use meaningful variable and resource names
 - [ ] Follow DRY principle; avoid duplication
 - [ ] Use `count` or `for_each` for multiple resources
 - [ ] Handle null/optional inputs gracefully with `try()` or conditionals
-- [ ] Use all the attributes defined by the azurerm provider, leaving the freedom of configuration to the user, and avoiding hardcoding values in the module that the user may want to customize.
 
 ### Testing Before Commit
-- [ ] `terraform init` completes without errors
-- [ ] `terraform validate` passes
-- [ ] `terraform fmt` doesn't suggest changes
 - [ ] README is accurate and up-to-date; use terraform-doc-validator agent to very the documentation
 - [ ] Example code is current and functional
 
 ## Versioning
-- Follow semantic versioning in git tags
 - Document breaking changes in release notes
 - Maintain backward compatibility when possible
 - Mark deprecated functionality clearly
 
 ## Common Patterns
+
+### IDH library reference
+Use this fragment to write the "IDH resources available" section in the README.md of the module
+```markdown
+## IDH resources available
+
+[Here's](./LIBRARY.md) the list of `idh_resource_tier` available for this module
+```
 
 ### Optional Resources
 Use `count` to conditionally create resources:
@@ -97,6 +102,30 @@ output "resource_id" {
   value       = azurerm_resource.example.id
 }
 ```
+
+### Embedded subnet
+Use this fragment when defining the embedded_subnet variable for modules that require a subnet
+This can be extended with additional properties and validations as needed
+```hcl
+variable "embedded_subnet" {
+  type = object({
+    enabled      = bool
+    vnet_name    = optional(string, null)
+    vnet_rg_name = optional(string, null)
+  })
+  description = "(Optional) Configuration for creating an embedded Subnet for the EventHub private endpoint. When enabled, 'private_endpoint.subnet_id' must be null."
+  default = {
+    enabled      = false
+    vnet_name    = null
+    vnet_rg_name = null
+  }
+  
+  validation {
+    condition     = var.embedded_subnet.enabled ? (var.embedded_subnet.vnet_name != null && var.embedded_subnet.vnet_rg_name != null) : true
+    error_message = "If 'embedded_subnet' is enabled, both 'vnet_name' and 'vnet_rg_name' must be provided."
+  }
+}
+  ```
 
 ## Maintenance Tasks
 - Regular dependency updates for providers
