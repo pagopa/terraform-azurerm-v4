@@ -1,0 +1,47 @@
+# Redis Managed - Development Environment Configuration
+# Lightweight configurations for development and testing
+
+basic:
+  sku_name: Basic
+  family: C
+  capacity: 0
+  redis_version: "6"
+  enable_non_ssl_port: false
+  minimum_tls_version: "1.2"
+  shard_count: null
+  subnet_id: null
+  private_static_ip_address: null
+  public_network_access_enabled: false
+  custom_zones: [1]
+  enable_authentication: true
+  maxmemory_policy: "allkeys-lru"
+
+standard:
+  sku_name: Standard
+  family: C
+  capacity: 1
+  redis_version: "6"
+  enable_non_ssl_port: false
+  minimum_tls_version: "1.2"
+  shard_count: null
+  subnet_id: null
+  private_static_ip_address: null
+  public_network_access_enabled: false
+  custom_zones: [1, 2]
+  enable_authentication: true
+  maxmemory_policy: "allkeys-lru"
+
+premium:
+  sku_name: Premium
+  family: P
+  capacity: 1
+  redis_version: "6"
+  enable_non_ssl_port: false
+  minimum_tls_version: "1.2"
+  shard_count: 1
+  subnet_id: null
+  private_static_ip_address: null
+  public_network_access_enabled: false
+  custom_zones: [1, 2, 3]
+  enable_authentication: true
+  maxmemory_policy: "allkeys-lru"

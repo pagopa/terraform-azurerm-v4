@@ -1,0 +1,1 @@
+SKU: {sku_name}, TLS: {minimum_tls_version}, DB Eviction: {database_eviction_policy}, Persistence: {database_persistence}, Modules: {database_modules_count}, Auth: {database_authentication_enabled}
