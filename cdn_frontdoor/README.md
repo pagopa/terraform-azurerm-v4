@@ -120,7 +120,7 @@ locals {
         {
           action = "Append"
           name   = contains(["d"], var.env_short) ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy"
-          value  = "img-src 'self' https://assets.cdn.io.italia.it https://${module.cdn_idpay_bonuselettrodomestici.storage_primary_web_host};"
+          value  = "img-src 'self' https://assets.io.pagopa.it https://${module.cdn_idpay_bonuselettrodomestici.storage_primary_web_host};"
         }
       ]
     },
