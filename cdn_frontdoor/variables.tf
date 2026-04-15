@@ -151,7 +151,8 @@ variable "keyvault_id" {
 variable "global_delivery_rules" {
   type = list(object({
     order                          = number
-    cache_expiration_actions       = optional(list(object({ behavior = string, duration = string })), [])
+    query_string_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])
+    cache_expiration_actions       = optional(list(object({ behavior = string, duration = optional(string) })), [])
     cache_key_query_string_actions = optional(list(object({ behavior = string, parameters = string })), [])
     modify_request_header_actions  = optional(list(object({ action = string, name = string, value = string })), [])
     modify_response_header_actions = optional(list(object({ action = string, name = string, value = string })), [])
@@ -162,18 +163,36 @@ variable "global_delivery_rules" {
 
 variable "delivery_rule_url_path_condition_cache_expiration_action" {
   type = list(object({
-    name            = string
-    order           = number
-    operator        = string
-    match_values    = list(string)
-    behavior        = string
-    duration        = string
-    response_action = string
-    response_name   = string
-    response_value  = string
+    name  = string
+    order = number
+
+    url_path_conditions = optional(list(object({
+      operator         = string
+      match_values     = optional(list(string))
+      negate_condition = optional(bool, false)
+      transforms       = optional(list(string), [])
+    })), [])
+
+    query_string_conditions = optional(list(object({
+      operator         = string
+      match_values     = list(string)
+      negate_condition = optional(bool, false)
+      transforms       = optional(list(string), [])
+    })), [])
+
+    route_configuration_override = optional(object({
+      cache_behavior = string
+      cache_duration = optional(string)
+    }))
+
+    response_header_override = optional(object({
+      header_action = string
+      header_name   = string
+      value         = string
+    }))
   }))
   default     = []
-  description = "Rules that match URL paths to override caching behavior and optionally set a response header (for example custom TTLs)."
+  description = "Configuration for Front Door rules including path/query conditions and cache overrides."
 }
 
 variable "delivery_rule_request_scheme_condition" {
