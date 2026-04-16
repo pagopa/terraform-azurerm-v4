@@ -64,7 +64,6 @@ module "dns_forwarder" {
 |------|-------------|------|---------|:--------:|
 | <a name="input_address_prefixes_lb"></a> [address\_prefixes\_lb](#input\_address\_prefixes\_lb) | (Optional) The address prefixes to use for load balancer subnet. | `string` | `"10.1.200.0/29"` | no |
 | <a name="input_address_prefixes_vmss"></a> [address\_prefixes\_vmss](#input\_address\_prefixes\_vmss) | (Optional) The address prefixes to use for the virtual machine scale set subnet. | `string` | `"10.1.200.8/29"` | no |
-| <a name="input_admin_password"></a> [admin\_password](#input\_admin\_password) | (Optional) The Password which should be used for the local-administrator on this Virtual Machine. Changing this forces a new resource to be created. will be stored in the raw state as plain-text | `string` | `null` | no |
 | <a name="input_create_subnet_lb"></a> [create\_subnet\_lb](#input\_create\_subnet\_lb) | n/a | `bool` | `false` | no |
 | <a name="input_create_subnet_vmss"></a> [create\_subnet\_vmss](#input\_create\_subnet\_vmss) | n/a | `bool` | `false` | no |
 | <a name="input_create_vmss_nsg"></a> [create\_vmss\_nsg](#input\_create\_vmss\_nsg) | (Optional) Boolean flag to create the network security group to virtual machine scale set. | `bool` | `true` | no |
@@ -81,7 +80,6 @@ module "dns_forwarder" {
 | <a name="input_subnet_vmss_id"></a> [subnet\_vmss\_id](#input\_subnet\_vmss\_id) | (Optional) The subnet id of virtual machine scale set. | `string` | `null` | no |
 | <a name="input_subscription_id"></a> [subscription\_id](#input\_subscription\_id) | (Required) Azure subscription id | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | (Required) Tags of all resources. | `map(any)` | n/a | yes |
-| <a name="input_tenant_id"></a> [tenant\_id](#input\_tenant\_id) | (Required) The Azure AD tenant ID that should be used for authenticating requests to the key vault. | `string` | n/a | yes |
 | <a name="input_virtual_network_name"></a> [virtual\_network\_name](#input\_virtual\_network\_name) | (Required) The name of the virtual network in which the resources (Vmss, LB) are located. | `string` | n/a | yes |
 | <a name="input_vm_sku"></a> [vm\_sku](#input\_vm\_sku) | (Optional) Size of VMs in the scale set. Default to Standard\_B1s. See https://azure.microsoft.com/pricing/details/virtual-machines/ for size info. | `string` | `"Standard_B1s"` | no |
 

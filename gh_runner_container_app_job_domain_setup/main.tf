@@ -25,7 +25,6 @@ module "container_app_job" {
   key_vault_name        = var.key_vault.name
   key_vault_rg          = var.key_vault.rg
   key_vault_secret_name = var.key_vault.secret_name
-  location              = var.location
   prefix                = var.prefix
   resource_group_name   = var.resource_group_name
 

@@ -40,12 +40,6 @@ variable "public_network_access_enabled" {
   default     = false
 }
 
-variable "network_rule_bypass_option" {
-  type        = string
-  description = "(Optional) Whether to allow trusted Azure services to access a network restricted Container Registry? Possible values are None and AzureServices. Defaults to AzureServices."
-  default     = "AzureServices"
-}
-
 variable "georeplications" {
   type = list(object({
     location                  = string

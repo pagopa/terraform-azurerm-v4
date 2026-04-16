@@ -339,7 +339,3 @@ variable "auto_grow_enabled" {
   default     = false
   description = "(Optional) Is the storage auto grow for PostgreSQL Flexible Server enabled? Defaults to false"
 }
-
-locals {
-  metric_alerts = var.custom_metric_alerts != null ? var.custom_metric_alerts : var.default_metric_alerts
-}

@@ -109,13 +109,10 @@ module "staging_slot" {
 
   # App service plan
   # app_service_plan_id = module.printit_pdf_engine_app_service.plan_id
-  app_service_id   = module.main_slot.id
-  app_service_name = module.main_slot.name
+  app_service_id = module.main_slot.id
 
   # App service
-  name                = "staging"
-  resource_group_name = var.resource_group_name
-  location            = var.location
+  name = "staging"
 
   https_only                    = module.idh_loader.idh_resource_configuration.https_only
   client_certificate_enabled    = module.idh_loader.idh_resource_configuration.client_cert_enabled
