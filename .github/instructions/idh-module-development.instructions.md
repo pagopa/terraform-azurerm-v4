@@ -27,7 +27,7 @@ Guidelines for developing, maintaining, and documenting Terraform modules in the
 - [ ] Include `validation` blocks for mutually exclusive variables
 - [ ] Add `nullable = false` for required inputs
 - [ ] Include `idh_resource_tier` variable with description linking to LIBRARY.md for available tiers
-- [ ] Include `idh_resource_tier` variable with description linking to LIBRARY.md for available tiers
+- [ ] Allow variable controlled parameters only for parameters that can change 
 
 ### Output Definition Standards
 - [ ] All outputs have `description` attribute

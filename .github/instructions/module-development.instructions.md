@@ -33,6 +33,11 @@ Guidelines for developing, maintaining, and documenting Terraform modules in the
 - [ ] Include all important resource properties
 - [ ] Output resource IDs for dependency management
 
+### Resource definition Standards
+- [ ] Use all the attributes defined by the azurerm provider, leaving the freedom of configuration to the user, and avoiding hardcoding values in the module that the user may want to customize
+- [ ] If the resource allows it, create an optional private endpoint resource within the module
+- [ ] If the resource allows it, create optional alert rules within the module, and expect a list of action groups as input variables to configure the alerts with `for_each`, allowing for greater flexibility and scalability in alert configuration.
+- [ ] Never create a subnet within the module, but always expect it as an input variable, to allow for better modularity and separation of concerns between network configuration and resource configuration
 
 ### README.md Documentation
 Include the following sections:
@@ -51,7 +56,6 @@ Never update the README below the auto-generated section beginning with `<!-- BE
 - [ ] Follow DRY principle; avoid duplication
 - [ ] Use `count` or `for_each` for multiple resources
 - [ ] Handle null/optional inputs gracefully with `try()` or conditionals
-- [ ] Use all the attributes defined by the azurerm provider, leaving the freedom of configuration to the user, and avoiding hardcoding values in the module that the user may want to customize.
 
 ### Testing Before Commit
 - [ ] `terraform init` completes without errors
