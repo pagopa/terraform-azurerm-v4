@@ -704,6 +704,8 @@ resource "azurerm_dns_txt_record" "validation" {
     value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
   }
 
+  tags = var.tags
+
   lifecycle {
     precondition {
       condition     = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token != null && length(trimspace(azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token)) > 0
@@ -722,6 +724,8 @@ resource "azurerm_dns_a_record" "apex" {
   resource_group_name = each.value.dns_resource_group_name
   ttl                 = try(each.value.ttl, 3600)
   target_resource_id  = azurerm_cdn_frontdoor_endpoint.this.id
+
+  tags = var.tags
 }
 
 /* Points subdomains to AFD endpoint hostname via CNAME */
@@ -732,6 +736,8 @@ resource "azurerm_dns_cname_record" "subdomain" {
   resource_group_name = each.value.dns_resource_group_name
   ttl                 = try(each.value.ttl, 3600)
   record              = azurerm_cdn_frontdoor_endpoint.this.host_name
+
+  tags = var.tags
 }
 
 ############################################################
