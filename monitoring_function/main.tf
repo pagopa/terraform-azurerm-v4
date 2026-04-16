@@ -169,6 +169,7 @@ locals {
     enabled           = true,
     severity          = 0,
     frequency         = "PT1M"
+    window_size       = "PT5M"
     auto_mitigate     = var.alert_set_auto_mitigate
     operator          = "LessThan"
     aggregation       = "Average"
@@ -191,6 +192,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
   frequency     = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "frequency", local.default_alert_configuration.frequency)
   auto_mitigate = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "auto_mitigate", local.default_alert_configuration.auto_mitigate)
   enabled       = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "enabled", local.default_alert_configuration.enabled)
+  window_size   = lookup(lookup(each.value, "alertConfiguration", local.default_alert_configuration), "window_size", local.default_alert_configuration.window_size)
 
   dynamic "criteria" {
     for_each = try(each.value.alertConfiguration.evaluation_failure_count > 0 && each.value.alertConfiguration.evaluation_total_count > 0, false) ? [] : ["dummy"]
