@@ -167,7 +167,6 @@ resource "azurerm_cdn_frontdoor_rule" "rule_global" {
   ]
 }
 
-/* Sets per-path caching TTL and optional response header */
 resource "azurerm_cdn_frontdoor_rule" "rule_url_path_cache" {
   for_each                  = { for r in var.delivery_rule_url_path_condition_cache_expiration_action : r.order => r }
   name                      = each.value.name
@@ -176,29 +175,51 @@ resource "azurerm_cdn_frontdoor_rule" "rule_url_path_cache" {
   behavior_on_match         = "Continue"
 
   conditions {
-    url_path_condition {
-      operator         = each.value.operator
-      match_values     = [for v in each.value.match_values : trimprefix(v, "/")]
-      negate_condition = false
-      transforms       = []
+    dynamic "url_path_condition" {
+      for_each = each.value.url_path_conditions
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = [for v in c.value.match_values : trimprefix(v, "/")]
+        negate_condition = c.value.negate_condition
+        transforms       = c.value.transforms
+      }
+    }
+
+    dynamic "query_string_condition" {
+      for_each = each.value.query_string_conditions
+      iterator = c
+      content {
+        operator         = c.value.operator
+        match_values     = c.value.match_values
+        negate_condition = c.value.negate_condition
+        transforms       = c.value.transforms
+      }
     }
   }
 
   actions {
-    route_configuration_override_action {
-      cache_behavior = lookup({
-        "Override"     = "OverrideAlways",
-        "SetIfMissing" = "OverrideIfOriginMissing",
-        "BypassCache"  = "Disabled",
-        "HonorOrigin"  = "HonorOrigin"
-      }, each.value.behavior, "HonorOrigin")
-      cache_duration = each.value.duration
+    dynamic "route_configuration_override_action" {
+      for_each = each.value.route_configuration_override != null ? [each.value.route_configuration_override] : []
+      content {
+        cache_behavior = lookup({
+          "DisableCache" = "Disabled",
+          "Override"     = "OverrideAlways",
+          "SetIfMissing" = "OverrideIfOriginMissing",
+          "HonorOrigin"  = "HonorOrigin"
+        }, route_configuration_override_action.value.cache_behavior, "HonorOrigin")
+
+        cache_duration = route_configuration_override_action.value.cache_duration
+      }
     }
 
-    response_header_action {
-      header_action = each.value.response_action
-      header_name   = each.value.response_name
-      value         = each.value.response_value
+    dynamic "response_header_action" {
+      for_each = each.value.response_header_override != null ? [each.value.response_header_override] : []
+      content {
+        header_action = response_header_action.value.header_action
+        header_name   = response_header_action.value.header_name
+        value         = response_header_action.value.value
+      }
     }
   }
 
@@ -510,7 +531,7 @@ resource "azurerm_cdn_frontdoor_rule" "custom_rules" {
       iterator = c
       content {
         operator         = c.value.operator
-        match_values     = compact([for v in c.value.match_values : trimprefix(v, "/")])
+        match_values     = compact([for v in c.value.match_values : v])
         negate_condition = try(c.value.negate_condition, false)
         transforms       = try(c.value.transforms, [])
       }
@@ -683,6 +704,8 @@ resource "azurerm_dns_txt_record" "validation" {
     value = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token
   }
 
+  tags = var.tags
+
   lifecycle {
     precondition {
       condition     = azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token != null && length(trimspace(azurerm_cdn_frontdoor_custom_domain.this[each.key].validation_token)) > 0
@@ -701,6 +724,8 @@ resource "azurerm_dns_a_record" "apex" {
   resource_group_name = each.value.dns_resource_group_name
   ttl                 = try(each.value.ttl, 3600)
   target_resource_id  = azurerm_cdn_frontdoor_endpoint.this.id
+
+  tags = var.tags
 }
 
 /* Points subdomains to AFD endpoint hostname via CNAME */
@@ -711,6 +736,8 @@ resource "azurerm_dns_cname_record" "subdomain" {
   resource_group_name = each.value.dns_resource_group_name
   ttl                 = try(each.value.ttl, 3600)
   record              = azurerm_cdn_frontdoor_endpoint.this.host_name
+
+  tags = var.tags
 }
 
 ############################################################

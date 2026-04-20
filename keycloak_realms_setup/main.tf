@@ -14,12 +14,13 @@ locals {
   domain_admin_composite_roles = [
     "manage-users", "manage-clients", "manage-events", "view-realm",
     "view-users", "query-groups", "query-users", "query-clients",
-    "view-clients", "view-events"
+    "view-clients", "view-events", "manage-identity-providers", "view-identity-providers", "query-realms",
+    "manage-realm", "create-client"
   ]
 
   domain_viewer_composite_roles = [
     "view-realm", "view-users", "query-groups", "query-users",
-    "query-clients", "view-clients", "view-events"
+    "query-clients", "view-clients", "view-events", "view-identity-providers"
   ]
 
   admin_mappers = flatten([
