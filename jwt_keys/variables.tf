@@ -60,3 +60,7 @@ variable "early_renewal_hours" {
   type    = number
   default = 720
 }
+
+variable "tags" {
+  type = map(any)
+}
