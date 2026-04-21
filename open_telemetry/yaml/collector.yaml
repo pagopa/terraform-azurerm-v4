@@ -96,12 +96,12 @@ spec:
                 exporter:
                   prometheus:
                     host: 0.0.0.0
-                    port: 8889
+                    port: 9845
             - pull:
                 exporter:
                   prometheus:
                     host: 0.0.0.0
-                    port: 8889
+                    port: 9845
       pipelines:
         traces:
           receivers: [otlp]
