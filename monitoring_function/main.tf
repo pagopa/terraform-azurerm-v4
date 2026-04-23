@@ -180,7 +180,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
 #
 resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
   count                        = var.enable_synthetic_on_demand ? 1 : 0
-  name                         = "${var.prefix}-monitoring-app-job-ondemand"
+  name                         = "${var.prefix}-mon-app-job-od"
   resource_group_name          = var.resource_group_name
   location                     = var.location
   container_app_environment_id = var.job_settings.container_app_environment_id
