@@ -33,6 +33,7 @@ variable "storage_account_settings" {
     private_endpoint_enabled   = optional(bool, false)         #(Optional) enables the creation and usage of private endpoint
     advanced_threat_protection = optional(bool, false)         #(Optional) enables or not the advanced threat protection
     table_private_dns_zone_id  = string                        # (Optional) table storage private dns zone id
+    queue_private_dns_zone_id  = optional(string, null)        # (Optional) queue storage private dns zone id
   })
   default = {
     tier                      = "Standard"
@@ -42,6 +43,12 @@ variable "storage_account_settings" {
     backup_enabled            = false
     private_endpoint_enabled  = false
     table_private_dns_zone_id = null
+    queue_private_dns_zone_id = null
+  }
+
+  validation {
+    condition = var.enable_synthetic_on_demand ? var.storage_account_settings.queue_private_dns_zone_id != null : true
+    error_message = "queue_private_dns_zone_id must be defined when enable_synthetic_on_demand is true"
   }
 }
 
@@ -206,4 +213,11 @@ variable "enabled_sythetic_dashboard" {
   type        = bool
   description = "(Optional) Enabled sythetic dashboard on grafana"
   default     = false
+}
+
+
+variable "enable_synthetic_on_demand" {
+  type = bool
+  description = "(Optional) If true, enables the on demand synthetic tests execution API"
+  default = false
 }
