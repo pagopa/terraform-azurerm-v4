@@ -47,7 +47,7 @@ variable "storage_account_settings" {
   }
 
   validation {
-    condition = var.enable_synthetic_on_demand ? var.storage_account_settings.queue_private_dns_zone_id != null : true
+    condition     = var.enable_synthetic_on_demand ? var.storage_account_settings.queue_private_dns_zone_id != null : true
     error_message = "queue_private_dns_zone_id must be defined when enable_synthetic_on_demand is true"
   }
 }
@@ -217,7 +217,7 @@ variable "enabled_sythetic_dashboard" {
 
 
 variable "enable_synthetic_on_demand" {
-  type = bool
+  type        = bool
   description = "(Optional) If true, enables the on demand synthetic tests execution API"
-  default = false
+  default     = false
 }

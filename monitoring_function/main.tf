@@ -55,14 +55,14 @@ resource "azurerm_storage_table" "table_storage" {
 
 
 resource "azurerm_storage_queue" "inbound_queue" {
-  count = var.enable_synthetic_on_demand ? 1 : 0
-  name                 = "inbound-queue"
+  count              = var.enable_synthetic_on_demand ? 1 : 0
+  name               = "inbound-queue"
   storage_account_id = module.synthetic_monitoring_storage_account.id
 }
 
 resource "azurerm_storage_queue" "outbound_queue" {
-  count = var.enable_synthetic_on_demand ? 1 : 0
-  name                 = "outbound-queue"
+  count              = var.enable_synthetic_on_demand ? 1 : 0
+  name               = "outbound-queue"
   storage_account_id = module.synthetic_monitoring_storage_account.id
 }
 
@@ -179,7 +179,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
 # Container app JOB on demand
 #
 resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
-  count = var.enable_synthetic_on_demand ? 1 : 0
+  count                        = var.enable_synthetic_on_demand ? 1 : 0
   name                         = "${var.prefix}-monitoring-app-job-ondemand"
   resource_group_name          = var.resource_group_name
   location                     = var.location
@@ -190,16 +190,16 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
   }
 
   secret {
-    name = "storage-account-connection-string"
+    name  = "storage-account-connection-string"
     value = module.synthetic_monitoring_storage_account.primary_connection_string
   }
 
   event_trigger_config {
-    parallelism = 1
+    parallelism              = 1
     replica_completion_count = 1
     scale {
-      max_executions = 1
-      min_executions = 1
+      max_executions              = 1
+      min_executions              = 1
       polling_interval_in_seconds = 30
 
       rules {
@@ -210,10 +210,10 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
         custom_rule_type = "azure-queue"
         metadata = {
           accountName = module.synthetic_monitoring_storage_account.name
-          queueName = azurerm_storage_queue.inbound_queue[0].name
+          queueName   = azurerm_storage_queue.inbound_queue[0].name
           queueLength = 1
         }
-        name  = "inbound-queue-rule"
+        name = "inbound-queue-rule"
       }
     }
   }
