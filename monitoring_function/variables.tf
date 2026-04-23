@@ -45,11 +45,6 @@ variable "storage_account_settings" {
     table_private_dns_zone_id = null
     queue_private_dns_zone_id = null
   }
-
-  validation {
-    condition     = var.enable_synthetic_on_demand ? var.storage_account_settings.queue_private_dns_zone_id != null : true
-    error_message = "queue_private_dns_zone_id must be defined when enable_synthetic_on_demand is true"
-  }
 }
 
 variable "job_settings" {

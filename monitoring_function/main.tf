@@ -44,7 +44,7 @@ module "synthetic_monitoring_storage_account" {
 
   private_endpoint_enabled   = var.storage_account_settings.private_endpoint_enabled
   private_dns_zone_table_ids = [var.storage_account_settings.table_private_dns_zone_id]
-  private_dns_zone_queue_ids = var.enable_synthetic_on_demand ? [var.storage_account_settings.queue_private_dns_zone_id] : []
+  private_dns_zone_queue_ids = [var.storage_account_settings.queue_private_dns_zone_id]
   subnet_id                  = var.storage_private_endpoint_subnet_id
 }
 
