@@ -119,6 +119,15 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
     type = "SystemAssigned"
   }
 
+  secret {
+    name  = "application-insights-connection-string"
+    value = data.azurerm_application_insights.app_insight.connection_string
+  }
+  secret {
+    name = "storage-account-key"
+    value = module.synthetic_monitoring_storage_account.primary_access_key
+  }
+
   schedule_trigger_config {
     cron_expression          = var.job_settings.cron_scheduling
     parallelism              = 1
@@ -136,7 +145,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
 
       env {
         name  = "APP_INSIGHT_CONNECTION_STRING"
-        value = data.azurerm_application_insights.app_insight.connection_string
+        secret_name = "application-insights-connection-string"
       }
       env {
         name  = "STORAGE_ACCOUNT_NAME"
@@ -144,7 +153,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
       }
       env {
         name  = "STORAGE_ACCOUNT_KEY"
-        value = module.synthetic_monitoring_storage_account.primary_access_key
+        secret_name = "storage-account-key"
       }
       env {
         name  = "STORAGE_ACCOUNT_TABLE_NAME"
@@ -193,6 +202,14 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
     name  = "storage-account-connection-string"
     value = module.synthetic_monitoring_storage_account.primary_connection_string
   }
+  secret {
+    name  = "application-insights-connection-string"
+    value = data.azurerm_application_insights.app_insight.connection_string
+  }
+  secret {
+    name = "storage-account-key"
+    value = module.synthetic_monitoring_storage_account.primary_access_key
+  }
 
   event_trigger_config {
     parallelism              = var.queue_job_settings.parallelism
@@ -229,7 +246,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
 
       env {
         name  = "APP_INSIGHT_CONNECTION_STRING"
-        value = data.azurerm_application_insights.app_insight.connection_string
+        secret_name  = "application-insights-connection-string"
       }
       env {
         name  = "STORAGE_ACCOUNT_NAME"
@@ -237,7 +254,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
       }
       env {
         name  = "STORAGE_ACCOUNT_KEY"
-        value = module.synthetic_monitoring_storage_account.primary_access_key
+        secret_name = "storage-account-key"
       }
       env {
         name  = "STORAGE_ACCOUNT_TABLE_NAME"
@@ -265,7 +282,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
       }
       env {
         name  = "STORAGE_ACCOUNT_CONNECTION_STRING"
-        value = module.synthetic_monitoring_storage_account.primary_connection_string
+        secret_name  = "storage-account-connection-string"
       }
       env {
         name  = "INBOUND_QUEUE_NAME"
