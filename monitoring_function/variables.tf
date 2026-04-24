@@ -78,6 +78,26 @@ variable "job_settings" {
   }
 }
 
+variable "queue_job_settings" {
+  type = object({
+    inbound_queue_name         = optional(string, "inbound-queue")         #(Optional) Name of the queue where monitoring jobs consume messages
+    outbound_queue_name        = optional(string, "outbound-queue")        #(Optional) Name of the queue where monitoring job results are published
+    parallelism                = optional(number, 1)                       #(Optional) Number of parallel job instances to run concurrently
+    replica_completion_count   = optional(number, 1)                       #(Optional) Number of instances required to process each message before completion
+    polling_interval_in_seconds = optional(number, 300)                    #(Optional) Interval in seconds between queue polling checks for new messages
+    queue_length_threshold     = optional(number, 1)                       #(Optional) Minimum queue length required to trigger job execution when parallelism > 1
+  })
+  description = "(Optional) Settings for the queue-based job execution. If parallelism > 1, multiple instances of the monitoring job will run in parallel, consuming messages from the same queue. If replica_completion_count > 1, each message will be processed by that number of job instances, and considered completed only when all instances have processed it. Polling_interval_in_seconds defines how often the job checks for new messages in the queue. Queue_length_threshold defines the minimum number of messages in the queue required to trigger the execution of the monitoring job (if parallelism is greater than 1)."
+  default = {
+    inbound_queue_name         = "inbound-queue"
+    outbound_queue_name        = "outbound-queue"
+    parallelism                = 1
+    replica_completion_count   = 1
+    polling_interval_in_seconds = 300
+    queue_length_threshold     = 1
+  }
+}
+
 variable "docker_settings" {
   type = object({
     registry_url = optional(string, "ghcr.io")                           #(Optional) Docker container registry url where to find the monitoring image

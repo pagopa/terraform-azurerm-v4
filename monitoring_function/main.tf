@@ -56,13 +56,13 @@ resource "azurerm_storage_table" "table_storage" {
 
 resource "azurerm_storage_queue" "inbound_queue" {
   count              = var.enable_synthetic_on_demand ? 1 : 0
-  name               = "inbound-queue"
+  name               = var.queue_job_settings.inbound_queue_name
   storage_account_id = module.synthetic_monitoring_storage_account.id
 }
 
 resource "azurerm_storage_queue" "outbound_queue" {
   count              = var.enable_synthetic_on_demand ? 1 : 0
-  name               = "outbound-queue"
+  name               = var.queue_job_settings.outbound_queue_name
   storage_account_id = module.synthetic_monitoring_storage_account.id
 }
 
@@ -195,12 +195,12 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
   }
 
   event_trigger_config {
-    parallelism              = 1
-    replica_completion_count = 1
+    parallelism              = var.queue_job_settings.parallelism
+    replica_completion_count = var.queue_job_settings.replica_completion_count
     scale {
       max_executions              = 1
       min_executions              = 1
-      polling_interval_in_seconds = 30
+      polling_interval_in_seconds = var.queue_job_settings.polling_interval_in_seconds
 
       rules {
         authentication {
@@ -211,7 +211,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
         metadata = {
           accountName = module.synthetic_monitoring_storage_account.name
           queueName   = azurerm_storage_queue.inbound_queue[0].name
-          queueLength = 1
+          queueLength = var.queue_job_settings.queue_length_threshold
         }
         name = "inbound-queue-rule"
       }
