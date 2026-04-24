@@ -275,6 +275,10 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
         name  = "OUTBOUND_QUEUE_NAME"
         value = azurerm_storage_queue.outbound_queue[0].name
       }
+      env {
+        name  = "QUEUE_BATCH_SIZE"
+        value = var.queue_job_settings.queue_batch_size
+      }
     }
   }
 
