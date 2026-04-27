@@ -44,12 +44,26 @@ module "synthetic_monitoring_storage_account" {
 
   private_endpoint_enabled   = var.storage_account_settings.private_endpoint_enabled
   private_dns_zone_table_ids = [var.storage_account_settings.table_private_dns_zone_id]
+  private_dns_zone_queue_ids = [var.storage_account_settings.queue_private_dns_zone_id]
   subnet_id                  = var.storage_private_endpoint_subnet_id
 }
 
 resource "azurerm_storage_table" "table_storage" {
   name                 = "monitoringconfiguration"
   storage_account_name = module.synthetic_monitoring_storage_account.name
+}
+
+
+resource "azurerm_storage_queue" "inbound_queue" {
+  count              = var.enable_synthetic_on_demand ? 1 : 0
+  name               = var.queue_job_settings.inbound_queue_name
+  storage_account_id = module.synthetic_monitoring_storage_account.id
+}
+
+resource "azurerm_storage_queue" "outbound_queue" {
+  count              = var.enable_synthetic_on_demand ? 1 : 0
+  name               = var.queue_job_settings.outbound_queue_name
+  storage_account_id = module.synthetic_monitoring_storage_account.id
 }
 
 #
@@ -105,6 +119,15 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
     type = "SystemAssigned"
   }
 
+  secret {
+    name  = "application-insights-connection-string"
+    value = data.azurerm_application_insights.app_insight.connection_string
+  }
+  secret {
+    name  = "storage-account-key"
+    value = module.synthetic_monitoring_storage_account.primary_access_key
+  }
+
   schedule_trigger_config {
     cron_expression          = var.job_settings.cron_scheduling
     parallelism              = 1
@@ -121,16 +144,16 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
       image  = "${var.docker_settings.registry_url}/${var.docker_settings.image_name}:${var.docker_settings.image_tag}"
 
       env {
-        name  = "APP_INSIGHT_CONNECTION_STRING"
-        value = data.azurerm_application_insights.app_insight.connection_string
+        name        = "APP_INSIGHT_CONNECTION_STRING"
+        secret_name = "application-insights-connection-string"
       }
       env {
         name  = "STORAGE_ACCOUNT_NAME"
         value = module.synthetic_monitoring_storage_account.name
       }
       env {
-        name  = "STORAGE_ACCOUNT_KEY"
-        value = module.synthetic_monitoring_storage_account.primary_access_key
+        name        = "STORAGE_ACCOUNT_KEY"
+        secret_name = "storage-account-key"
       }
       env {
         name  = "STORAGE_ACCOUNT_TABLE_NAME"
@@ -151,6 +174,127 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
       env {
         name  = "CERT_VALIDITY_RANGE_DAYS"
         value = tostring(var.job_settings.cert_validity_range_days)
+      }
+    }
+  }
+
+  replica_retry_limit        = 1
+  replica_timeout_in_seconds = var.job_settings.execution_timeout_seconds
+
+  tags = var.tags
+}
+
+#
+# Container app JOB on demand
+#
+resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
+  count                        = var.enable_synthetic_on_demand ? 1 : 0
+  name                         = "${var.prefix}-mon-app-job-od"
+  resource_group_name          = var.resource_group_name
+  location                     = var.location
+  container_app_environment_id = var.job_settings.container_app_environment_id
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  secret {
+    name  = "storage-account-connection-string"
+    value = module.synthetic_monitoring_storage_account.primary_connection_string
+  }
+  secret {
+    name  = "application-insights-connection-string"
+    value = data.azurerm_application_insights.app_insight.connection_string
+  }
+  secret {
+    name  = "storage-account-key"
+    value = module.synthetic_monitoring_storage_account.primary_access_key
+  }
+
+  event_trigger_config {
+    parallelism              = var.queue_job_settings.parallelism
+    replica_completion_count = var.queue_job_settings.replica_completion_count
+    scale {
+      max_executions              = 1
+      min_executions              = 1
+      polling_interval_in_seconds = var.queue_job_settings.polling_interval_in_seconds
+
+      rules {
+        authentication {
+          secret_name       = "storage-account-connection-string"
+          trigger_parameter = "connection"
+        }
+        custom_rule_type = "azure-queue"
+        metadata = {
+          accountName = module.synthetic_monitoring_storage_account.name
+          queueName   = azurerm_storage_queue.inbound_queue[0].name
+          queueLength = var.queue_job_settings.queue_length_threshold
+        }
+        name = "inbound-queue-rule"
+      }
+    }
+  }
+
+  workload_profile_name = var.job_settings.workload_profile == "None" ? null : var.job_settings.workload_profile
+
+  template {
+    container {
+      cpu    = var.job_settings.cpu_requirement
+      memory = var.job_settings.memory_requirement
+      name   = "synthetic-monitoring"
+      image  = "${var.docker_settings.registry_url}/${var.docker_settings.image_name}:${var.docker_settings.image_tag}"
+
+      env {
+        name        = "APP_INSIGHT_CONNECTION_STRING"
+        secret_name = "application-insights-connection-string"
+      }
+      env {
+        name  = "STORAGE_ACCOUNT_NAME"
+        value = module.synthetic_monitoring_storage_account.name
+      }
+      env {
+        name        = "STORAGE_ACCOUNT_KEY"
+        secret_name = "storage-account-key"
+      }
+      env {
+        name  = "STORAGE_ACCOUNT_TABLE_NAME"
+        value = azurerm_storage_table.table_storage.name
+      }
+      env {
+        name  = "AVAILABILITY_PREFIX"
+        value = var.job_settings.availability_prefix
+      }
+      env {
+        name  = "HTTP_CLIENT_TIMEOUT"
+        value = tostring(var.job_settings.http_client_timeout)
+      }
+      env {
+        name  = "LOCATION"
+        value = var.location
+      }
+      env {
+        name  = "CERT_VALIDITY_RANGE_DAYS"
+        value = tostring(var.job_settings.cert_validity_range_days)
+      }
+      env {
+        name  = "OPERATION_MODE"
+        value = "queue"
+      }
+      env {
+        name        = "STORAGE_ACCOUNT_CONNECTION_STRING"
+        secret_name = "storage-account-connection-string"
+      }
+      env {
+        name  = "INBOUND_QUEUE_NAME"
+        value = azurerm_storage_queue.inbound_queue[0].name
+      }
+      env {
+        name  = "OUTBOUND_QUEUE_NAME"
+        value = azurerm_storage_queue.outbound_queue[0].name
+      }
+      env {
+        name  = "QUEUE_BATCH_SIZE"
+        value = var.queue_job_settings.queue_batch_size
       }
     }
   }
