@@ -124,7 +124,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
     value = data.azurerm_application_insights.app_insight.connection_string
   }
   secret {
-    name = "storage-account-key"
+    name  = "storage-account-key"
     value = module.synthetic_monitoring_storage_account.primary_access_key
   }
 
@@ -144,7 +144,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
       image  = "${var.docker_settings.registry_url}/${var.docker_settings.image_name}:${var.docker_settings.image_tag}"
 
       env {
-        name  = "APP_INSIGHT_CONNECTION_STRING"
+        name        = "APP_INSIGHT_CONNECTION_STRING"
         secret_name = "application-insights-connection-string"
       }
       env {
@@ -152,7 +152,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
         value = module.synthetic_monitoring_storage_account.name
       }
       env {
-        name  = "STORAGE_ACCOUNT_KEY"
+        name        = "STORAGE_ACCOUNT_KEY"
         secret_name = "storage-account-key"
       }
       env {
@@ -207,7 +207,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
     value = data.azurerm_application_insights.app_insight.connection_string
   }
   secret {
-    name = "storage-account-key"
+    name  = "storage-account-key"
     value = module.synthetic_monitoring_storage_account.primary_access_key
   }
 
@@ -245,15 +245,15 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
       image  = "${var.docker_settings.registry_url}/${var.docker_settings.image_name}:${var.docker_settings.image_tag}"
 
       env {
-        name  = "APP_INSIGHT_CONNECTION_STRING"
-        secret_name  = "application-insights-connection-string"
+        name        = "APP_INSIGHT_CONNECTION_STRING"
+        secret_name = "application-insights-connection-string"
       }
       env {
         name  = "STORAGE_ACCOUNT_NAME"
         value = module.synthetic_monitoring_storage_account.name
       }
       env {
-        name  = "STORAGE_ACCOUNT_KEY"
+        name        = "STORAGE_ACCOUNT_KEY"
         secret_name = "storage-account-key"
       }
       env {
@@ -281,8 +281,8 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
         value = "queue"
       }
       env {
-        name  = "STORAGE_ACCOUNT_CONNECTION_STRING"
-        secret_name  = "storage-account-connection-string"
+        name        = "STORAGE_ACCOUNT_CONNECTION_STRING"
+        secret_name = "storage-account-connection-string"
       }
       env {
         name  = "INBOUND_QUEUE_NAME"
