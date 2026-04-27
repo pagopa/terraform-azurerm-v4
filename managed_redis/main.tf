@@ -49,16 +49,13 @@ resource "azurerm_private_endpoint" "this" {
   private_service_connection {
     name                           = "${var.name}-psc"
     private_connection_resource_id = azurerm_managed_redis.this.id
-    subresource_names              = ["default"]
+    subresource_names              = ["redisEnterprise"]
     is_manual_connection           = false
   }
 
-  dynamic "private_dns_zone_group" {
-    for_each = length(var.private_dns_zone_ids) > 0 ? [1] : []
-    content {
-      name                 = "default"
-      private_dns_zone_ids = var.private_dns_zone_ids
-    }
+  private_dns_zone_group {
+    name                 = "${var.name}-private-dns-zone-group"
+    private_dns_zone_ids = var.private_dns_zone_ids
   }
 
   tags = var.tags
