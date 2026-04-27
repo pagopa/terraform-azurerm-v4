@@ -1,28 +1,3 @@
-terraform {
-  required_version = ">= 1.9.0"
-
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 4"
-    }
-  }
-}
-
-provider "azurerm" {
-  features {}
-}
-
-variable "location" {
-  type    = string
-  default = "eastus"
-}
-
-variable "environment" {
-  type    = string
-  default = "prod"
-}
-
 resource "azurerm_resource_group" "example" {
   name     = "rg-managed-redis-premium-${var.environment}"
   location = var.location
@@ -106,14 +81,14 @@ module "managed_redis_premium" {
   private_dns_zone_ids       = [azurerm_private_dns_zone.redis.id]
 
   # Alerting configuration
-  alert_action_group_ids     = [azurerm_monitor_action_group.example.id]
-  enable_cpu_alerts          = true
-  cpu_usage_percentage_threshold = 75
-  enable_memory_alerts       = true
+  alert_action_group_ids            = [azurerm_monitor_action_group.example.id]
+  enable_cpu_alerts                 = true
+  cpu_usage_percentage_threshold    = 75
+  enable_memory_alerts              = true
   memory_usage_percentage_threshold = 80
-  enable_eviction_alerts     = true
-  enable_connection_alerts   = true
-  connection_count_threshold = 10000
+  enable_eviction_alerts            = true
+  enable_connection_alerts          = true
+  connection_count_threshold        = 10000
 
   tags = merge(
     azurerm_resource_group.example.tags,
@@ -126,16 +101,6 @@ module "managed_redis_premium" {
   depends_on = [
     azurerm_private_dns_zone_virtual_network_link.redis
   ]
-}
-
-output "redis_id" {
-  value       = module.managed_redis_premium.id
-  description = "The resource ID of the managed Redis instance"
-}
-
-output "redis_hostname" {
-  value       = module.managed_redis_premium.hostname
-  description = "The hostname for connecting to managed Redis"
 }
 
 output "private_endpoint_id" {

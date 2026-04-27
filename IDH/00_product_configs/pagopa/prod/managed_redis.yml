@@ -1,0 +1,90 @@
+balanced_0_5gb:
+  sku_name: "Balanced_B1"
+  high_availability_enabled: true
+  public_network_access: "Disabled"
+  access_keys_authentication_enabled: true
+  client_protocol: "Encrypted"
+  clustering_policy: "EnterpriseCluster"
+  eviction_policy: "AllKeysLRU"
+  persistence_configuration:
+    rdb_enabled: false
+    aof_enabled: true
+  modules: []
+  private_endpoint_enabled: true
+  enable_cpu_alerts: true
+  cpu_usage_percentage_threshold: 75
+  enable_memory_alerts: true
+  memory_usage_percentage_threshold: 80
+  enable_eviction_alerts: true
+  enable_connection_alerts: true
+  connection_count_threshold: 5000
+
+balanced_1gb:
+  sku_name: "Balanced_B1"
+  high_availability_enabled: true
+  public_network_access: "Disabled"
+  access_keys_authentication_enabled: true
+  client_protocol: "Encrypted"
+  clustering_policy: "EnterpriseCluster"
+  eviction_policy: "AllKeysLRU"
+  persistence_configuration:
+    rdb_enabled: false
+    aof_enabled: true
+  modules: []
+  private_endpoint_enabled: true
+  enable_cpu_alerts: true
+  cpu_usage_percentage_threshold: 75
+  enable_memory_alerts: true
+  memory_usage_percentage_threshold: 80
+  enable_eviction_alerts: true
+  enable_connection_alerts: true
+  connection_count_threshold: 5000
+
+balanced_3gb:
+  sku_name: "Balanced_B3"
+  high_availability_enabled: true
+  public_network_access: "Disabled"
+  access_keys_authentication_enabled: true
+  client_protocol: "Encrypted"
+  clustering_policy: "EnterpriseCluster"
+  eviction_policy: "AllKeysLRU"
+  persistence_configuration:
+    rdb_enabled: true
+    aof_enabled: true
+  modules:
+    - name: "RediSearch"
+    - name: "RedisJSON"
+  private_endpoint_enabled: true
+  enable_cpu_alerts: true
+  cpu_usage_percentage_threshold: 75
+  enable_memory_alerts: true
+  memory_usage_percentage_threshold: 80
+  enable_eviction_alerts: true
+  enable_connection_alerts: true
+  connection_count_threshold: 10000
+
+balanced_6gb:
+  sku_name: "Balanced_B5"
+  high_availability_enabled: true
+  public_network_access: "Disabled"
+  access_keys_authentication_enabled: true
+  client_protocol: "Encrypted"
+  clustering_policy: "EnterpriseCluster"
+  eviction_policy: "AllKeysLRU"
+  persistence_configuration:
+    rdb_enabled: true
+    aof_enabled: true
+  modules:
+    - name: "RediSearch"
+    - name: "RedisJSON"
+    - name: "RedisBloom"
+    - name: "RedisTimeSeries"
+  private_endpoint_enabled: true
+  enable_cpu_alerts: true
+  cpu_usage_percentage_threshold: 85
+  enable_memory_alerts: true
+  memory_usage_percentage_threshold: 85
+  enable_eviction_alerts: true
+  enable_connection_alerts: true
+  connection_count_threshold: 50000
+

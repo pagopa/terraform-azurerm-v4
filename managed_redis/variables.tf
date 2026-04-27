@@ -23,21 +23,19 @@ variable "resource_group_name" {
 
 variable "sku_name" {
   type        = string
-  description = "The SKU name for the managed Redis instance (Enterprise_E5, Enterprise_E10, Enterprise_E20, Enterprise_E50, Enterprise_E100, EnterpriseFlash_F300, EnterpriseFlash_F700, EnterpriseFlash_F1500)."
+  description = "The SKU name for the managed Redis instance. Valid values: Balanced_B{0|1|3|5|10|20|50|100|150|250|350|500|700|1000}, ComputeOptimized_X{3|5|10|20|50|100|150|250|350|500|700}, FlashOptimized_A{250|500|700|1000|1500|2000|4500}, MemoryOptimized_M{10|20|50|100|150|250|350|500|1000|1500|2000}."
   nullable    = false
 
   validation {
     condition = contains([
-      "Enterprise_E5",
-      "Enterprise_E10",
-      "Enterprise_E20",
-      "Enterprise_E50",
-      "Enterprise_E100",
-      "EnterpriseFlash_F300",
-      "EnterpriseFlash_F700",
-      "EnterpriseFlash_F1500"
+      "Balanced_B0",
+      "Balanced_B1",
+      "Balanced_B3",
+      "Balanced_B5",
+      "ComputeOptimized_X3",
+      "ComputeOptimized_X5",
     ], var.sku_name)
-    error_message = "SKU name must be a valid Enterprise or EnterpriseFlash tier."
+    error_message = "SKU name must be a valid balanced and compute-optimized."
   }
 }
 
@@ -66,12 +64,12 @@ variable "access_keys_authentication_enabled" {
 
 variable "client_protocol" {
   type        = string
-  description = "Client protocol version (RESP2 or RESP3)."
-  default     = "RESP3"
+  description = "Client protocol version (Encrypted or Plaintext)."
+  default     = "Encrypted"
 
   validation {
-    condition     = contains(["RESP2", "RESP3"], var.client_protocol)
-    error_message = "Client protocol must be RESP2 or RESP3."
+    condition     = contains(["Encrypted", "Plaintext"], var.client_protocol)
+    error_message = "Client protocol must be 'Encrypted' or 'Plaintext'."
   }
 }
 
@@ -88,21 +86,21 @@ variable "clustering_policy" {
 
 variable "eviction_policy" {
   type        = string
-  description = "Eviction policy (allkeys-lfu, allkeys-lru, allkeys-random, volatile-lfu, volatile-lru, volatile-random, volatile-ttl, noeviction)."
-  default     = "allkeys-lru"
+  description = "Eviction policy (AllKeysLFU, AllKeysLRU, AllKeysRandom, VolatileLFU, VolatileLRU, VolatileRandom, VolatileTTL, NoEviction)."
+  default     = "AllKeysLRU"
 
   validation {
     condition = contains([
-      "allkeys-lfu",
-      "allkeys-lru",
-      "allkeys-random",
-      "volatile-lfu",
-      "volatile-lru",
-      "volatile-random",
-      "volatile-ttl",
-      "noeviction"
+      "AllKeysLFU",
+      "AllKeysLRU",
+      "AllKeysRandom",
+      "VolatileLFU",
+      "VolatileLRU",
+      "VolatileRandom",
+      "VolatileTTL",
+      "NoEviction"
     ], var.eviction_policy)
-    error_message = "Eviction policy must be a valid Redis eviction policy."
+    error_message = "Eviction policy must be a valid Redis eviction policy: AllKeysLFU, AllKeysLRU, AllKeysRandom, VolatileLFU, VolatileLRU, VolatileRandom, VolatileTTL, or NoEviction."
   }
 }
 
@@ -124,12 +122,6 @@ variable "persistence_configuration" {
     aof_enabled = false
     rdb_enabled = false
   }
-}
-
-variable "subnet_id" {
-  type        = string
-  description = "The subnet ID for the managed Redis instance."
-  default     = null
 }
 
 variable "private_endpoint_enabled" {

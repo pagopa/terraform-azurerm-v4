@@ -1,0 +1,21 @@
+balanced_0_5gb:
+  sku_name: "Balanced_B1"
+  high_availability_enabled: false
+  public_network_access: "Disabled"
+  access_keys_authentication_enabled: true
+  client_protocol: "Encrypted"
+  clustering_policy: "EnterpriseCluster"
+  eviction_policy: "AllKeysLRU"
+  persistence_configuration:
+    rdb_enabled: false
+    aof_enabled: false
+  modules: []
+  private_endpoint_enabled: true
+  enable_cpu_alerts: false
+  cpu_usage_percentage_threshold: 80
+  enable_memory_alerts: false
+  memory_usage_percentage_threshold: 80
+  enable_eviction_alerts: false
+  enable_connection_alerts: false
+  connection_count_threshold: 5000
+

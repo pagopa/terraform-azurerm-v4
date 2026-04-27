@@ -30,14 +30,13 @@ module "managed_redis" {
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 
-  sku_name                  = "Enterprise_E5"
+  sku_name                  = "MemoryOptimized_M10"
   high_availability_enabled = false
   public_network_access     = "Disabled"
-  minimum_tls_version       = "1.2"
 }
 ```
 
-### EnterpriseFlash with Modules and Private Endpoint
+### Flash-Optimized with Modules and Private Endpoint
 
 ```hcl
 module "managed_redis_advanced" {
@@ -47,11 +46,10 @@ module "managed_redis_advanced" {
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 
-  # EnterpriseFlash tier
-  sku_name                  = "EnterpriseFlash_F300"
+  # Flash-optimized tier
+  sku_name                  = "FlashOptimized_A1000"
   high_availability_enabled = true
   public_network_access     = "Disabled"
-  minimum_tls_version       = "1.3"
 
   # Database configuration
   client_protocol   = "RESP3"
@@ -99,7 +97,7 @@ module "managed_redis_encrypted" {
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 
-  sku_name                  = "Enterprise_E20"
+  sku_name                  = "MemoryOptimized_M100"
   high_availability_enabled = true
 
   customer_managed_key_config = {
@@ -120,7 +118,7 @@ module "managed_redis_encrypted" {
 - `name` - The name of the managed Redis instance (1-63 characters)
 - `location` - The Azure region for deployment
 - `resource_group_name` - The resource group name for the instance
-- `sku_name` - The SKU tier (Enterprise_E5, Enterprise_E10, Enterprise_E20, Enterprise_E50, Enterprise_E100, EnterpriseFlash_F300, EnterpriseFlash_F700, EnterpriseFlash_F1500)
+- `sku_name` - The SKU tier. Valid values: Balanced_B*, ComputeOptimized_X*, FlashOptimized_A*, MemoryOptimized_M* (see Azure docs for specific sizes)
 
 ### High Availability & Network
 
@@ -198,16 +196,12 @@ module "managed_redis_encrypted" {
 
 ### SKU Selection Guide
 
-| Tier | Memory | Use Case | HA | Persistence |
+| Tier | Memory | Use Case | HA | Notes |
 |------|--------|----------|----|----|
-| Enterprise_E5 | 5GB | Development | Optional | Optional |
-| Enterprise_E10 | 10GB | Small Production | Optional | Optional |
-| Enterprise_E20 | 20GB | Medium Production | Optional | Optional |
-| Enterprise_E50 | 50GB | Large Production | Optional | Optional |
-| Enterprise_E100 | 100GB | Extra Large Production | Optional | Optional |
-| EnterpriseFlash_F300 | 300GB | Flash (NVMe) Workloads | Optional | Optional |
-| EnterpriseFlash_F700 | 700GB | High-Performance Flash | Optional | Optional |
-| EnterpriseFlash_F1500 | 1500GB | Ultra High-Performance | Optional | Optional |
+| Balanced_B3-B1000 | 3GB-1000GB | General-purpose, cost-optimized | Optional | Balanced compute and memory |
+| ComputeOptimized_X3-X700 | 3GB-70GB | High throughput, compute-intensive | Optional | CPU-optimized performance |
+| FlashOptimized_A250-A4500 | 250GB-4500GB | Ultra-high throughput, NVMe-backed | Optional | Maximum performance |
+| MemoryOptimized_M10-M2000 | 10GB-2000GB | Large datasets, memory-intensive | Optional | Memory-optimized for big data |
 
 ### Security Best Practices
 
@@ -243,4 +237,70 @@ Test configurations are provided in `tests/`:
 - `tests/premium_with_alerts.tf` - EnterpriseFlash with modules and alerts
 
 <!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
+
+## Modules
+
+No modules.
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [azurerm_managed_redis.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/managed_redis) | resource |
+| [azurerm_monitor_metric_alert.connection_count](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [azurerm_monitor_metric_alert.cpu_usage](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [azurerm_monitor_metric_alert.eviction_events](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [azurerm_monitor_metric_alert.memory_usage](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [azurerm_private_endpoint.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_access_keys_authentication_enabled"></a> [access\_keys\_authentication\_enabled](#input\_access\_keys\_authentication\_enabled) | Enable access keys authentication for the default database. | `bool` | `true` | no |
+| <a name="input_alert_action_group_ids"></a> [alert\_action\_group\_ids](#input\_alert\_action\_group\_ids) | List of Azure Monitor action group IDs for alerts. | `list(string)` | `[]` | no |
+| <a name="input_client_protocol"></a> [client\_protocol](#input\_client\_protocol) | Client protocol version (Encrypted or Plaintext). | `string` | `"Encrypted"` | no |
+| <a name="input_clustering_policy"></a> [clustering\_policy](#input\_clustering\_policy) | Clustering policy (EnterpriseCluster or OSSCluster). | `string` | `"EnterpriseCluster"` | no |
+| <a name="input_connection_count_threshold"></a> [connection\_count\_threshold](#input\_connection\_count\_threshold) | Threshold for connection count alert. | `number` | `5000` | no |
+| <a name="input_cpu_usage_percentage_threshold"></a> [cpu\_usage\_percentage\_threshold](#input\_cpu\_usage\_percentage\_threshold) | Threshold percentage for CPU usage alert. | `number` | `80` | no |
+| <a name="input_customer_managed_key_config"></a> [customer\_managed\_key\_config](#input\_customer\_managed\_key\_config) | Customer managed key configuration for encryption. | <pre>object({<br/>    key_vault_key_id          = string<br/>    user_assigned_identity_id = string<br/>  })</pre> | `null` | no |
+| <a name="input_enable_connection_alerts"></a> [enable\_connection\_alerts](#input\_enable\_connection\_alerts) | Enable alerts for high connection count. | `bool` | `false` | no |
+| <a name="input_enable_cpu_alerts"></a> [enable\_cpu\_alerts](#input\_enable\_cpu\_alerts) | Enable alerts for high CPU usage. | `bool` | `false` | no |
+| <a name="input_enable_eviction_alerts"></a> [enable\_eviction\_alerts](#input\_enable\_eviction\_alerts) | Enable alerts for eviction events. | `bool` | `false` | no |
+| <a name="input_enable_memory_alerts"></a> [enable\_memory\_alerts](#input\_enable\_memory\_alerts) | Enable alerts for high memory usage. | `bool` | `false` | no |
+| <a name="input_eviction_policy"></a> [eviction\_policy](#input\_eviction\_policy) | Eviction policy (AllKeysLFU, AllKeysLRU, AllKeysRandom, VolatileLFU, VolatileLRU, VolatileRandom, VolatileTTL, NoEviction). | `string` | `"AllKeysLRU"` | no |
+| <a name="input_high_availability_enabled"></a> [high\_availability\_enabled](#input\_high\_availability\_enabled) | Enable high availability for the managed Redis instance. | `bool` | `true` | no |
+| <a name="input_location"></a> [location](#input\_location) | The Azure location where the managed Redis instance will be created. | `string` | n/a | yes |
+| <a name="input_memory_usage_percentage_threshold"></a> [memory\_usage\_percentage\_threshold](#input\_memory\_usage\_percentage\_threshold) | Threshold percentage for memory usage alert. | `number` | `80` | no |
+| <a name="input_modules"></a> [modules](#input\_modules) | List of modules to load (RediSearch, RedisJSON, RedisBloom, RedisTimeSeries, RedisAI, RedisGears). | <pre>list(object({<br/>    name = string<br/>  }))</pre> | `[]` | no |
+| <a name="input_name"></a> [name](#input\_name) | The name of the managed Redis instance. | `string` | n/a | yes |
+| <a name="input_persistence_configuration"></a> [persistence\_configuration](#input\_persistence\_configuration) | Persistence configuration for RDB and AOF. | <pre>object({<br/>    aof_enabled = bool<br/>    rdb_enabled = bool<br/>  })</pre> | <pre>{<br/>  "aof_enabled": false,<br/>  "rdb_enabled": false<br/>}</pre> | no |
+| <a name="input_private_dns_zone_ids"></a> [private\_dns\_zone\_ids](#input\_private\_dns\_zone\_ids) | The list of private DNS zone IDs for the private endpoint. | `list(string)` | `[]` | no |
+| <a name="input_private_endpoint_enabled"></a> [private\_endpoint\_enabled](#input\_private\_endpoint\_enabled) | Enable private endpoint for the managed Redis instance. | `bool` | `false` | no |
+| <a name="input_private_endpoint_subnet_id"></a> [private\_endpoint\_subnet\_id](#input\_private\_endpoint\_subnet\_id) | The subnet ID for the private endpoint (required if private\_endpoint\_enabled is true). | `string` | `null` | no |
+| <a name="input_public_network_access"></a> [public\_network\_access](#input\_public\_network\_access) | Public network access setting (Enabled or Disabled). | `string` | `"Disabled"` | no |
+| <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group where the managed Redis instance will be created. | `string` | n/a | yes |
+| <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name) | The SKU name for the managed Redis instance. Valid values: Balanced\_B{0\|1\|3\|5\|10\|20\|50\|100\|150\|250\|350\|500\|700\|1000}, ComputeOptimized\_X{3\|5\|10\|20\|50\|100\|150\|250\|350\|500\|700}, FlashOptimized\_A{250\|500\|700\|1000\|1500\|2000\|4500}, MemoryOptimized\_M{10\|20\|50\|100\|150\|250\|350\|500\|1000\|1500\|2000}. | `string` | n/a | yes |
+| <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to the managed Redis instance and related resources. | `map(string)` | `{}` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_high_availability_enabled"></a> [high\_availability\_enabled](#output\_high\_availability\_enabled) | Whether high availability is enabled. |
+| <a name="output_hostname"></a> [hostname](#output\_hostname) | The hostname of the managed Redis instance. |
+| <a name="output_id"></a> [id](#output\_id) | The ID of the managed Redis instance. |
+| <a name="output_location"></a> [location](#output\_location) | The Azure location of the managed Redis instance. |
+| <a name="output_name"></a> [name](#output\_name) | The name of the managed Redis instance. |
+| <a name="output_private_endpoint_id"></a> [private\_endpoint\_id](#output\_private\_endpoint\_id) | The ID of the private endpoint (if enabled). |
+| <a name="output_private_endpoint_network_interface_ids"></a> [private\_endpoint\_network\_interface\_ids](#output\_private\_endpoint\_network\_interface\_ids) | The IP addresses assigned to the private endpoint. |
+| <a name="output_public_network_access"></a> [public\_network\_access](#output\_public\_network\_access) | The public network access setting. |
+| <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | The resource group name of the managed Redis instance. |
+| <a name="output_sku_name"></a> [sku\_name](#output\_sku\_name) | The SKU name of the managed Redis instance. |
 <!-- END_TF_DOCS -->
