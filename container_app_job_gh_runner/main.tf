@@ -46,6 +46,16 @@ resource "azurerm_container_app_job" "container_app_job" {
       memory = local.container.resources.memory
       name   = local.container.name
 
+      volume_mounts {
+        name = "socket"
+        path = "/var/run/docker.sock"
+        sub_path = "/var/run/docker.sock"
+      }
+
+      volume {
+        name = "socket"
+      }
+
       dynamic "env" {
         for_each = local.container.env
         content {
