@@ -56,16 +56,6 @@ variable "modules_override" {
   default     = null
 }
 
-variable "client_protocol_override" {
-  type        = string
-  description = "(Optional) Override the client protocol from tier configuration. Valid values: Encrypted, Plaintext"
-  default     = null
-  validation {
-    condition     = var.client_protocol_override == null || contains(["Encrypted", "Plaintext"], var.client_protocol_override)
-    error_message = "If provided, client protocol must be 'Encrypted' or 'Plaintext'."
-  }
-}
-
 variable "eviction_policy_override" {
   type        = string
   description = "(Optional) Override the eviction policy from tier configuration. Valid values: AllKeysLFU, AllKeysLRU, AllKeysRandom, VolatileLFU, VolatileLRU, VolatileRandom, VolatileTTL, NoEviction"
@@ -182,3 +172,35 @@ variable "embedded_nsg_configuration" {
     source_address_prefixes_name = "All"
   }
 }
+
+# -----------------------------------------------
+# Geo-Replication Replica Configuration
+# -----------------------------------------------
+variable "geo_replication" {
+  type = object({
+    enabled      = bool
+    subnet_id    = optional(string, null)
+    location     = optional(string, null)
+    vnet_rg_name = optional(string, null)
+    vnet_name    = optional(string, null)
+  })
+  default = {
+    enabled      = false
+    subnet_id    = null
+    location     = null
+    vnet_rg_name = null
+    vnet_name    = null
+  }
+  description = "(Optional) Map of geo replication settings"
+
+  validation {
+    condition     = !module.idh_loader.idh_resource_configuration.geo_replication_allowed ? var.geo_replication.enabled == false : true
+    error_message = "Geo replication is not allowed in '${var.env}' environment for '${var.idh_resource_tier}'"
+  }
+
+  validation {
+    error_message = "If geo_replication is enabled, 'name' and 'location' must be provided"
+    condition     = var.geo_replication.enabled ? (var.geo_replication.name != null && var.geo_replication.location != null) : true
+  }
+}
+

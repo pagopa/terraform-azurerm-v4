@@ -182,33 +182,37 @@ Some modules may not be available for all SKUs:
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 | <a name="module_managed_redis"></a> [managed\_redis](#module\_managed\_redis) | ../../managed_redis | n/a |
+| <a name="module_managed_redis_replica"></a> [managed\_redis\_replica](#module\_managed\_redis\_replica) | ../../managed_redis | n/a |
+| <a name="module_private_endpoint_replica_snet"></a> [private\_endpoint\_replica\_snet](#module\_private\_endpoint\_replica\_snet) | ../subnet | n/a |
 | <a name="module_private_endpoint_snet"></a> [private\_endpoint\_snet](#module\_private\_endpoint\_snet) | ../subnet | n/a |
 
 ## Resources
 
-No resources.
+| Name | Type |
+| ---- | ---- |
+| [azurerm_managed_redis_geo_replication.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/managed_redis_geo_replication) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_alert_action_group_ids"></a> [alert\_action\_group\_ids](#input\_alert\_action\_group\_ids) | (Optional) List of Azure Monitor action group IDs for alerts. | `list(string)` | `[]` | no |
-| <a name="input_client_protocol_override"></a> [client\_protocol\_override](#input\_client\_protocol\_override) | (Optional) Override the client protocol from tier configuration. Valid values: Encrypted, Plaintext | `string` | `null` | no |
 | <a name="input_customer_managed_key_config"></a> [customer\_managed\_key\_config](#input\_customer\_managed\_key\_config) | (Optional) Customer managed key configuration for encryption at rest. | <pre>object({<br/>    key_vault_key_id          = string<br/>    user_assigned_identity_id = string<br/>  })</pre> | `null` | no |
 | <a name="input_embedded_nsg_configuration"></a> [embedded\_nsg\_configuration](#input\_embedded\_nsg\_configuration) | (Optional) List of allowed CIDR and name for NSG rules. | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string<br/>  })</pre> | <pre>{<br/>  "source_address_prefixes": [<br/>    "*"<br/>  ],<br/>  "source_address_prefixes_name": "All"<br/>}</pre> | no |
 | <a name="input_embedded_subnet"></a> [embedded\_subnet](#input\_embedded\_subnet) | (Optional) Configuration for creating an embedded Subnet for the managed Redis private endpoint. When enabled, 'private\_endpoint\_subnet\_id' must be null. | <pre>object({<br/>    enabled              = bool<br/>    vnet_name            = optional(string, null)<br/>    vnet_rg_name         = optional(string, null)<br/>    private_dns_zone_ids = optional(list(string), [])<br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "private_dns_zone_ids": [],<br/>  "vnet_name": null,<br/>  "vnet_rg_name": null<br/>}</pre> | no |
 | <a name="input_env"></a> [env](#input\_env) | (Required) Environment for which the resource will be created | `string` | n/a | yes |
 | <a name="input_eviction_policy_override"></a> [eviction\_policy\_override](#input\_eviction\_policy\_override) | (Optional) Override the eviction policy from tier configuration. Valid values: AllKeysLFU, AllKeysLRU, AllKeysRandom, VolatileLFU, VolatileLRU, VolatileRandom, VolatileTTL, NoEviction | `string` | `null` | no |
+| <a name="input_geo_replication"></a> [geo\_replication](#input\_geo\_replication) | (Optional) Map of geo replication settings | <pre>object({<br/>    enabled      = bool<br/>    subnet_id    = optional(string, null)<br/>    location     = optional(string, null)<br/>    vnet_rg_name = optional(string, null)<br/>    vnet_name    = optional(string, null)<br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "location": null,<br/>  "subnet_id": null,<br/>  "vnet_name": null,<br/>  "vnet_rg_name": null<br/>}</pre> | no |
 | <a name="input_idh_resource_tier"></a> [idh\_resource\_tier](#input\_idh\_resource\_tier) | (Required) The name of IDH resource tier to be created. See LIBRARY.md for available tiers. | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | (Required) The Azure location where the managed Redis instance will be created. | `string` | n/a | yes |
 | <a name="input_modules_override"></a> [modules\_override](#input\_modules\_override) | (Optional) Override the modules list from tier configuration. Useful to add/modify modules like RediSearch, RedisJSON, etc. | <pre>list(object({<br/>    name = string<br/>  }))</pre> | `null` | no |
@@ -224,17 +228,16 @@ No resources.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_high_availability_enabled"></a> [high\_availability\_enabled](#output\_high\_availability\_enabled) | Whether high availability is enabled. |
 | <a name="output_hostname"></a> [hostname](#output\_hostname) | The hostname of the managed Redis instance. |
 | <a name="output_id"></a> [id](#output\_id) | The resource ID of the managed Redis instance. |
 | <a name="output_location"></a> [location](#output\_location) | The Azure location of the managed Redis instance. |
 | <a name="output_name"></a> [name](#output\_name) | The name of the managed Redis instance. |
+| <a name="output_port"></a> [port](#output\_port) | n/a |
+| <a name="output_primary_access_key"></a> [primary\_access\_key](#output\_primary\_access\_key) | n/a |
 | <a name="output_private_endpoint_id"></a> [private\_endpoint\_id](#output\_private\_endpoint\_id) | The ID of the private endpoint (if enabled). |
-| <a name="output_private_endpoint_network_interface_ids"></a> [private\_endpoint\_network\_interface\_ids](#output\_private\_endpoint\_network\_interface\_ids) | The IP addresses assigned to the private endpoint. |
-| <a name="output_private_endpoint_subnet_id"></a> [private\_endpoint\_subnet\_id](#output\_private\_endpoint\_subnet\_id) | The subnet ID used for the private endpoint. |
-| <a name="output_public_network_access"></a> [public\_network\_access](#output\_public\_network\_access) | The public network access setting. |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | The resource group name of the managed Redis instance. |
-| <a name="output_sku_name"></a> [sku\_name](#output\_sku\_name) | The SKU name of the managed Redis instance. |
+| <a name="output_secondary_access_key"></a> [secondary\_access\_key](#output\_secondary\_access\_key) | n/a |
 <!-- END_TF_DOCS -->
 

@@ -1,5 +1,5 @@
 resource "azurerm_managed_redis" "this" {
-  name                = var.name
+  name                = "${var.name}-redis"
   resource_group_name = var.resource_group_name
   location            = var.location
 
@@ -14,8 +14,9 @@ resource "azurerm_managed_redis" "this" {
     clustering_policy                             = var.clustering_policy
     eviction_policy                               = var.eviction_policy
     access_keys_authentication_enabled            = var.access_keys_authentication_enabled
-    persistence_redis_database_backup_frequency   = var.persistence_configuration.rdb_enabled ? "1h" : null
-    persistence_append_only_file_backup_frequency = var.persistence_configuration.aof_enabled ? "1s" : null
+    persistence_redis_database_backup_frequency   = try(var.persistence_configuration.rdb_enabled, null)
+    persistence_append_only_file_backup_frequency = try(var.persistence_configuration.aof_enabled, null)
+    geo_replication_group_name                    = var.geo_replication_group_name
 
     dynamic "module" {
       for_each = var.modules
@@ -41,13 +42,13 @@ resource "azurerm_managed_redis" "this" {
 resource "azurerm_private_endpoint" "this" {
   count = var.private_endpoint_enabled ? 1 : 0
 
-  name                = "${var.name}-pep"
+  name                = "${var.name}-redis-pep"
   location            = var.location
   resource_group_name = var.resource_group_name
   subnet_id           = var.private_endpoint_subnet_id
 
   private_service_connection {
-    name                           = "${var.name}-psc"
+    name                           = "${var.name}-private-service-connection"
     private_connection_resource_id = azurerm_managed_redis.this.id
     subresource_names              = ["redisEnterprise"]
     is_manual_connection           = false
@@ -62,120 +63,73 @@ resource "azurerm_private_endpoint" "this" {
 }
 
 #
-# Alerts
+# Monitoring & Alerts Configuration
 #
 
-resource "azurerm_monitor_metric_alert" "cpu_usage" {
-  count = var.enable_cpu_alerts && length(var.alert_action_group_ids) > 0 ? 1 : 0
-
-  name                = "${azurerm_managed_redis.this.name} - High CPU Usage"
-  resource_group_name = var.resource_group_name
-  scopes              = [azurerm_managed_redis.this.id]
-  description         = "Alert when CPU usage exceeds ${var.cpu_usage_percentage_threshold}%"
-  severity            = 2
-  window_size         = "PT5M"
-  frequency           = "PT1M"
-  auto_mitigate       = false
-
-  criteria {
-    metric_namespace       = "Microsoft.Cache/managedredis"
-    metric_name            = "cpu"
-    aggregation            = "Average"
-    operator               = "GreaterThan"
-    threshold              = var.cpu_usage_percentage_threshold
-    skip_metric_validation = false
-  }
-
-  dynamic "action" {
-    for_each = var.alert_action_group_ids
-    content {
-      action_group_id = action.value
+locals {
+  # Map defining all possible alerts and linking them to input variables
+  all_alerts = {
+    cpu = {
+      enabled      = var.cpu_alert_enabled
+      display_name = "High CPU Usage"
+      metric_name  = "cpu"
+      aggregation  = "Average"
+      operator     = "GreaterThan"
+      threshold    = var.cpu_threshold
+      severity     = 2
+    }
+    memory = {
+      enabled      = var.memory_alert_enabled
+      display_name = "High Memory Usage"
+      metric_name  = "memoryusagepercent"
+      aggregation  = "Average"
+      operator     = "GreaterThan"
+      threshold    = var.memory_threshold
+      severity     = 2
+    }
+    eviction = {
+      enabled      = var.eviction_alert_enabled
+      display_name = "Eviction Events"
+      metric_name  = "evictedkeys"
+      aggregation  = "Total"
+      operator     = "GreaterThan"
+      threshold    = var.eviction_threshold
+      severity     = 2
+    }
+    connection = {
+      enabled      = var.connection_alert_enabled
+      display_name = "High Connection Count"
+      metric_name  = "connectedclients"
+      aggregation  = "Maximum"
+      operator     = "GreaterThan"
+      threshold    = var.connection_threshold
+      severity     = 3
     }
   }
 
-  tags = var.tags
+  # Filter the map to include only alerts where 'enabled' is true
+  active_alerts = { for k, v in local.all_alerts : k => v if v.enabled }
 }
 
-resource "azurerm_monitor_metric_alert" "memory_usage" {
-  count = var.enable_memory_alerts && length(var.alert_action_group_ids) > 0 ? 1 : 0
+resource "azurerm_monitor_metric_alert" "alert" {
+  # Loop only through active alerts if at least one action group is defined
+  for_each = length(var.alert_action_group_ids) > 0 ? local.active_alerts : {}
 
-  name                = "${azurerm_managed_redis.this.name} - High Memory Usage"
+  name                = "${azurerm_managed_redis.this.name} - ${each.value.display_name}"
   resource_group_name = var.resource_group_name
   scopes              = [azurerm_managed_redis.this.id]
-  description         = "Alert when memory usage exceeds ${var.memory_usage_percentage_threshold}%"
-  severity            = 2
+  description         = "Automatic alert for ${lower(each.value.display_name)}"
+  severity            = each.value.severity
   window_size         = "PT5M"
   frequency           = "PT1M"
-  auto_mitigate       = false
+  auto_mitigate       = true
 
   criteria {
     metric_namespace       = "Microsoft.Cache/managedredis"
-    metric_name            = "memoryusagepercent"
-    aggregation            = "Average"
-    operator               = "GreaterThan"
-    threshold              = var.memory_usage_percentage_threshold
-    skip_metric_validation = false
-  }
-
-  dynamic "action" {
-    for_each = var.alert_action_group_ids
-    content {
-      action_group_id = action.value
-    }
-  }
-
-  tags = var.tags
-}
-
-resource "azurerm_monitor_metric_alert" "eviction_events" {
-  count = var.enable_eviction_alerts && length(var.alert_action_group_ids) > 0 ? 1 : 0
-
-  name                = "${azurerm_managed_redis.this.name} - Eviction Events Detected"
-  resource_group_name = var.resource_group_name
-  scopes              = [azurerm_managed_redis.this.id]
-  description         = "Alert when eviction events occur"
-  severity            = 2
-  window_size         = "PT5M"
-  frequency           = "PT1M"
-  auto_mitigate       = false
-
-  criteria {
-    metric_namespace       = "Microsoft.Cache/managedredis"
-    metric_name            = "evictedkeys"
-    aggregation            = "Total"
-    operator               = "GreaterThan"
-    threshold              = 0
-    skip_metric_validation = false
-  }
-
-  dynamic "action" {
-    for_each = var.alert_action_group_ids
-    content {
-      action_group_id = action.value
-    }
-  }
-
-  tags = var.tags
-}
-
-resource "azurerm_monitor_metric_alert" "connection_count" {
-  count = var.enable_connection_alerts && length(var.alert_action_group_ids) > 0 ? 1 : 0
-
-  name                = "${azurerm_managed_redis.this.name} - High Connection Count"
-  resource_group_name = var.resource_group_name
-  scopes              = [azurerm_managed_redis.this.id]
-  description         = "Alert when connection count exceeds ${var.connection_count_threshold}"
-  severity            = 3
-  window_size         = "PT5M"
-  frequency           = "PT1M"
-  auto_mitigate       = false
-
-  criteria {
-    metric_namespace       = "Microsoft.Cache/managedredis"
-    metric_name            = "connectedclients"
-    aggregation            = "Maximum"
-    operator               = "GreaterThan"
-    threshold              = var.connection_count_threshold
+    metric_name            = each.value.metric_name
+    aggregation            = each.value.aggregation
+    operator               = each.value.operator
+    threshold              = each.value.threshold
     skip_metric_validation = false
   }
 

@@ -47,3 +47,18 @@ output "private_endpoint_network_interface_ids" {
   value       = try(azurerm_private_endpoint.this[0].custom_dns_configs[*].ip_address, [])
   description = "The IP addresses assigned to the private endpoint."
 }
+
+output "primary_access_key" {
+  value     = azurerm_managed_redis.this.default_database[0].primary_access_key
+  sensitive = true
+}
+
+output "secondary_access_key" {
+  value     = azurerm_managed_redis.this.default_database[0].secondary_access_key
+  sensitive = true
+}
+
+output "port" {
+  value = azurerm_managed_redis.this.default_database[0].port
+}
+

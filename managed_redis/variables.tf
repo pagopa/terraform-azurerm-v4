@@ -1,3 +1,5 @@
+# --- General Configuration ---
+
 variable "location" {
   type        = string
   description = "The Azure location where the managed Redis instance will be created."
@@ -23,7 +25,7 @@ variable "resource_group_name" {
 
 variable "sku_name" {
   type        = string
-  description = "The SKU name for the managed Redis instance. Valid values: Balanced_B{0|1|3|5|10|20|50|100|150|250|350|500|700|1000}, ComputeOptimized_X{3|5|10|20|50|100|150|250|350|500|700}, FlashOptimized_A{250|500|700|1000|1500|2000|4500}, MemoryOptimized_M{10|20|50|100|150|250|350|500|1000|1500|2000}."
+  description = "The SKU name for the managed Redis instance. Valid values: Balanced_B{0|1|3|5}, ComputeOptimized_X{3|5}."
   nullable    = false
 
   validation {
@@ -35,9 +37,17 @@ variable "sku_name" {
       "ComputeOptimized_X3",
       "ComputeOptimized_X5",
     ], var.sku_name)
-    error_message = "SKU name must be a valid balanced and compute-optimized."
+    error_message = "SKU name must be a valid balanced or compute-optimized tier."
   }
 }
+
+variable "tags" {
+  type        = map(string)
+  description = "Tags to apply to the managed Redis instance and related resources."
+  default     = {}
+}
+
+# --- Instance Settings ---
 
 variable "high_availability_enabled" {
   type        = bool
@@ -91,16 +101,9 @@ variable "eviction_policy" {
 
   validation {
     condition = contains([
-      "AllKeysLFU",
-      "AllKeysLRU",
-      "AllKeysRandom",
-      "VolatileLFU",
-      "VolatileLRU",
-      "VolatileRandom",
-      "VolatileTTL",
-      "NoEviction"
+      "AllKeysLFU", "AllKeysLRU", "AllKeysRandom", "VolatileLFU", "VolatileLRU", "VolatileRandom", "VolatileTTL", "NoEviction"
     ], var.eviction_policy)
-    error_message = "Eviction policy must be a valid Redis eviction policy: AllKeysLFU, AllKeysLRU, AllKeysRandom, VolatileLFU, VolatileLRU, VolatileRandom, VolatileTTL, or NoEviction."
+    error_message = "Invalid Redis eviction policy."
   }
 }
 
@@ -114,15 +117,29 @@ variable "modules" {
 
 variable "persistence_configuration" {
   type = object({
-    aof_enabled = bool
-    rdb_enabled = bool
+    aof_enabled = optional(string)
+    rdb_enabled = optional(string)
   })
-  description = "Persistence configuration for RDB and AOF."
-  default = {
-    aof_enabled = false
-    rdb_enabled = false
-  }
+  description = "Persistence configuration frequencies for RDB and AOF."
+  default     = {}
 }
+
+variable "geo_replication_group_name" {
+  type        = string
+  description = "The name of the geo-replication group for the managed Redis instance."
+  default     = null
+}
+
+variable "customer_managed_key_config" {
+  type = object({
+    key_vault_key_id          = string
+    user_assigned_identity_id = string
+  })
+  description = "Customer managed key configuration for encryption."
+  default     = null
+}
+
+# --- Network / Private Endpoint ---
 
 variable "private_endpoint_enabled" {
   type        = bool
@@ -142,75 +159,69 @@ variable "private_dns_zone_ids" {
   default     = []
 }
 
-variable "customer_managed_key_config" {
-  type = object({
-    key_vault_key_id          = string
-    user_assigned_identity_id = string
-  })
-  description = "Customer managed key configuration for encryption."
-  default     = null
-}
+# --- Monitoring & Alerts Configuration ---
 
 variable "alert_action_group_ids" {
   type        = list(string)
-  description = "List of Azure Monitor action group IDs for alerts."
+  description = "List of action group IDs where alerts will be sent."
   default     = []
-}
-
-variable "enable_cpu_alerts" {
-  type        = bool
-  description = "Enable alerts for high CPU usage."
-  default     = false
-}
-
-variable "cpu_usage_percentage_threshold" {
-  type        = number
-  description = "Threshold percentage for CPU usage alert."
-  default     = 80
 
   validation {
-    condition     = var.cpu_usage_percentage_threshold > 0 && var.cpu_usage_percentage_threshold <= 100
-    error_message = "CPU usage percentage threshold must be between 1 and 100."
+    condition = (
+    var.cpu_alert_enabled || var.memory_alert_enabled || var.eviction_alert_enabled || var.connection_alert_enabled) ? length(var.alert_action_group_ids) > 0 : true
+
+    error_message = "At least one alert (CPU, Memory, Eviction, or Connection) is enabled, so you must provide at least one Action Group ID in 'alert_action_group_ids'."
   }
 }
 
-variable "enable_memory_alerts" {
+# CPU Alerts
+variable "cpu_alert_enabled" {
   type        = bool
-  description = "Enable alerts for high memory usage."
+  description = "Enable CPU usage alerts."
   default     = false
 }
 
-variable "memory_usage_percentage_threshold" {
+variable "cpu_threshold" {
   type        = number
-  description = "Threshold percentage for memory usage alert."
+  description = "The threshold percentage for CPU usage alerts (0-100)."
   default     = 80
-
-  validation {
-    condition     = var.memory_usage_percentage_threshold > 0 && var.memory_usage_percentage_threshold <= 100
-    error_message = "Memory usage percentage threshold must be between 1 and 100."
-  }
 }
 
-variable "enable_eviction_alerts" {
+# Memory Alerts
+variable "memory_alert_enabled" {
   type        = bool
-  description = "Enable alerts for eviction events."
+  description = "Enable memory usage alerts."
   default     = false
 }
 
-variable "enable_connection_alerts" {
-  type        = bool
-  description = "Enable alerts for high connection count."
-  default     = false
-}
-
-variable "connection_count_threshold" {
+variable "memory_threshold" {
   type        = number
-  description = "Threshold for connection count alert."
-  default     = 5000
+  description = "The threshold percentage for memory usage alerts (0-100)."
+  default     = 80
 }
 
-variable "tags" {
-  type        = map(string)
-  description = "Tags to apply to the managed Redis instance and related resources."
-  default     = {}
+# Eviction Alerts
+variable "eviction_alert_enabled" {
+  type        = bool
+  description = "Enable alerts for key eviction events."
+  default     = false
+}
+
+variable "eviction_threshold" {
+  type        = number
+  description = "The threshold for eviction events (usually 0 to catch any event)."
+  default     = 0
+}
+
+# Connection Alerts
+variable "connection_alert_enabled" {
+  type        = bool
+  description = "Enable connection count alerts."
+  default     = false
+}
+
+variable "connection_threshold" {
+  type        = number
+  description = "The threshold for connected clients count."
+  default     = 1000
 }
