@@ -72,7 +72,7 @@ locals {
     cpu = {
       enabled      = var.cpu_alert_enabled
       display_name = "High CPU Usage"
-      metric_name  = "cpu"
+      metric_name  = "percentProcessorTime"
       aggregation  = "Average"
       operator     = "GreaterThan"
       threshold    = var.cpu_threshold
@@ -81,7 +81,7 @@ locals {
     memory = {
       enabled      = var.memory_alert_enabled
       display_name = "High Memory Usage"
-      metric_name  = "memoryusagepercent"
+      metric_name  = "usedmemorypercentage"
       aggregation  = "Average"
       operator     = "GreaterThan"
       threshold    = var.memory_threshold
@@ -125,7 +125,7 @@ resource "azurerm_monitor_metric_alert" "alert" {
   auto_mitigate       = true
 
   criteria {
-    metric_namespace       = "Microsoft.Cache/managedredis"
+    metric_namespace       = "Microsoft.Cache/redisEnterprise"
     metric_name            = each.value.metric_name
     aggregation            = each.value.aggregation
     operator               = each.value.operator
