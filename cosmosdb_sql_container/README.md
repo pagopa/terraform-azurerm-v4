@@ -67,7 +67,7 @@ module "core_cosmosdb_containers" {
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
@@ -78,13 +78,13 @@ No modules.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_cosmosdb_sql_container.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_container) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_account_name"></a> [account\_name](#input\_account\_name) | The name of the Cosmos DB Account to create the container within. | `string` | n/a | yes |
 | <a name="input_autoscale_settings"></a> [autoscale\_settings](#input\_autoscale\_settings) | Autoscale settings for collection | <pre>object({<br/>    max_throughput = number<br/>  })</pre> | `null` | no |
 | <a name="input_database_name"></a> [database\_name](#input\_database\_name) | The name of the Cosmos DB SQL Database to create the container within. | `string` | n/a | yes |
@@ -99,7 +99,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_id"></a> [id](#output\_id) | n/a |
 | <a name="output_name"></a> [name](#output\_name) | n/a |
 <!-- END_TF_DOCS -->

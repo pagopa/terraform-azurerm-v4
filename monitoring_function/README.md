@@ -372,7 +372,7 @@ module "monitoring_function" {
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.0 |
 | <a name="requirement_grafana"></a> [grafana](#requirement\_grafana) | ~> 3 |
@@ -381,13 +381,13 @@ module "monitoring_function" {
 ## Modules
 
 | Name | Source | Version |
-| ---- | ------ | ------- |
+|------|--------|---------|
 | <a name="module_synthetic_monitoring_storage_account"></a> [synthetic\_monitoring\_storage\_account](#module\_synthetic\_monitoring\_storage\_account) | ../storage_account | n/a |
 
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_container_app_job.monitoring_terraform_app_job](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app_job) | resource |
 | [azurerm_container_app_job.monitoring_terraform_app_job_on_demand](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app_job) | resource |
 | [azurerm_monitor_metric_alert.alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
@@ -404,7 +404,7 @@ module "monitoring_function" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_alert_set_auto_mitigate"></a> [alert\_set\_auto\_mitigate](#input\_alert\_set\_auto\_mitigate) | (Optional) Should the alerts in this Metric Alert be auto resolved? Defaults to true. | `bool` | `true` | no |
 | <a name="input_application_insight_name"></a> [application\_insight\_name](#input\_application\_insight\_name) | (Required) name of the application insight instance where to publish metrics | `string` | n/a | yes |
 | <a name="input_application_insight_rg_name"></a> [application\_insight\_rg\_name](#input\_application\_insight\_rg\_name) | (Required) name of the application insight instance resource group where to publish metrics | `string` | n/a | yes |
@@ -428,6 +428,6 @@ module "monitoring_function" {
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_output_monitoring_configuration"></a> [output\_monitoring\_configuration](#output\_output\_monitoring\_configuration) | n/a |
 <!-- END_TF_DOCS -->

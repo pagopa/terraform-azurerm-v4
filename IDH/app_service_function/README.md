@@ -78,14 +78,14 @@ module "my_function" {
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
 ## Modules
 
 | Name | Source | Version |
-| ---- | ------ | ------- |
+|------|--------|---------|
 | <a name="module_egress_snet"></a> [egress\_snet](#module\_egress\_snet) | ../subnet | n/a |
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 | <a name="module_internal_storage_private_endpoint_snet"></a> [internal\_storage\_private\_endpoint\_snet](#module\_internal\_storage\_private\_endpoint\_snet) | ../subnet | n/a |
@@ -96,7 +96,7 @@ module "my_function" {
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_app_service_plan.function_service_plan](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service_plan) | resource |
 | [azurerm_monitor_autoscale_setting.autoscale_settings](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_autoscale_setting) | resource |
 | [azurerm_private_endpoint.main_slot_private_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
@@ -105,7 +105,7 @@ module "my_function" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_action"></a> [action](#input\_action) | The ID of the Action Group and optional map of custom string properties to include with the post webhook operation. | <pre>set(object(<br/>    {<br/>      action_group_id    = string<br/>      webhook_properties = map(string)<br/>    }<br/>  ))</pre> | `[]` | no |
 | <a name="input_allowed_ips"></a> [allowed\_ips](#input\_allowed\_ips) | (Optional) List of ips allowed to call the appserver endpoint. | `list(string)` | `[]` | no |
 | <a name="input_allowed_service_tags"></a> [allowed\_service\_tags](#input\_allowed\_service\_tags) | (Optional) List of service tags allowed to call the appserver endpoint. | `list(string)` | `[]` | no |
@@ -160,7 +160,7 @@ module "my_function" {
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_default_hostname"></a> [default\_hostname](#output\_default\_hostname) | n/a |
 | <a name="output_default_key"></a> [default\_key](#output\_default\_key) | n/a |
 | <a name="output_id"></a> [id](#output\_id) | n/a |

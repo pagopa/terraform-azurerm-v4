@@ -13,7 +13,7 @@ Notes
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.12 |
 | <a name="requirement_local"></a> [local](#requirement\_local) | ~> 2 |
@@ -23,14 +23,14 @@ Notes
 ## Modules
 
 | Name | Source | Version |
-| ---- | ------ | ------- |
+|------|--------|---------|
 | <a name="module_argocd_workload_identity_configuration"></a> [argocd\_workload\_identity\_configuration](#module\_argocd\_workload\_identity\_configuration) | ../kubernetes_workload_identity_configuration | n/a |
 | <a name="module_argocd_workload_identity_init"></a> [argocd\_workload\_identity\_init](#module\_argocd\_workload\_identity\_init) | ../kubernetes_workload_identity_init | n/a |
 
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_key_vault_secret.argocd_admin_password](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) | resource |
 | [azurerm_key_vault_secret.argocd_admin_username](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) | resource |
 | [azurerm_private_dns_a_record.argocd_ingress](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_a_record) | resource |
@@ -42,7 +42,7 @@ Notes
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_admin_password"></a> [admin\_password](#input\_admin\_password) | Admin password (plain). If null, a random one is generated. | `string` | `null` | no |
 | <a name="input_aks_name"></a> [aks\_name](#input\_aks\_name) | AKS cluster name | `string` | n/a | yes |
 | <a name="input_aks_resource_group_name"></a> [aks\_resource\_group\_name](#input\_aks\_resource\_group\_name) | AKS resource group name | `string` | n/a | yes |
@@ -82,7 +82,7 @@ Notes
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_workload_identity_client_id"></a> [workload\_identity\_client\_id](#output\_workload\_identity\_client\_id) | Client ID created by workload identity configuration |
 | <a name="output_workload_identity_service_account_name"></a> [workload\_identity\_service\_account\_name](#output\_workload\_identity\_service\_account\_name) | Service Account name created by workload identity configuration |
 <!-- END_TF_DOCS -->

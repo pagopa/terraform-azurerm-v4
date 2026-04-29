@@ -42,7 +42,7 @@ module "mongdb_collection_name" {
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
@@ -53,14 +53,14 @@ No modules.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_cosmosdb_mongo_collection.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_mongo_collection) | resource |
 | [azurerm_management_lock.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_lock) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_analytical_storage_ttl"></a> [analytical\_storage\_ttl](#input\_analytical\_storage\_ttl) | The default time to live of Analytical Storage for this Mongo Collection. If present and the value is set to -1, it is equal to infinity, and items don’t expire by default. If present and the value is set to some number n – items will expire n seconds after their last modified time. | `number` | `null` | no |
 | <a name="input_cosmosdb_mongo_account_name"></a> [cosmosdb\_mongo\_account\_name](#input\_cosmosdb\_mongo\_account\_name) | The name of the Cosmos DB Mongo Account in which the Cosmos DB Mongo Database exists. Changing this forces a new resource to be created. | `string` | n/a | yes |
 | <a name="input_cosmosdb_mongo_database_name"></a> [cosmosdb\_mongo\_database\_name](#input\_cosmosdb\_mongo\_database\_name) | The name of the Cosmos DB Mongo Database in which the Cosmos DB Mongo Collection is created. Changing this forces a new resource to be created. | `string` | n/a | yes |
@@ -80,7 +80,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_id"></a> [id](#output\_id) | The id of the collection |
 | <a name="output_lock_id"></a> [lock\_id](#output\_lock\_id) | n/a |
 <!-- END_TF_DOCS -->
