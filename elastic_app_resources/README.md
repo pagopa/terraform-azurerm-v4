@@ -13,7 +13,7 @@ TODO
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_elasticstack"></a> [elasticstack](#requirement\_elasticstack) | ~> 0.11 |
 
 ## Modules
@@ -23,7 +23,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [elasticstack_elasticsearch_component_template.custom_index_component](https://registry.terraform.io/providers/elastic/elasticstack/latest/docs/resources/elasticsearch_component_template) | resource |
 | [elasticstack_elasticsearch_component_template.package_index_component](https://registry.terraform.io/providers/elastic/elasticstack/latest/docs/resources/elasticsearch_component_template) | resource |
 | [elasticstack_elasticsearch_data_stream.data_stream](https://registry.terraform.io/providers/elastic/elasticstack/latest/docs/resources/elasticsearch_data_stream) | resource |
@@ -38,7 +38,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_alert_channels"></a> [alert\_channels](#input\_alert\_channels) | Configuration for alert channels to be used in the application alerts. Each channel can be enabled or disabled, and if enabled, must have the necessary recipients or connectors defined. | <pre>object({<br/>    email = optional(object({<br/>      enabled    = bool<br/>      recipients = map(list(string))<br/>      }), {<br/>      enabled    = false<br/>      recipients = {}<br/>    })<br/>    slack = optional(object({<br/>      enabled    = bool<br/>      connectors = map(string)<br/>      }), {<br/>      enabled    = false<br/>      connectors = {}<br/>    })<br/>    opsgenie = optional(object({<br/>      enabled    = bool<br/>      connectors = map(string)<br/>      }), {<br/>      enabled    = false<br/>      connectors = {}<br/>    })<br/>    cloudo = optional(object({<br/>      enabled    = bool<br/>      connectors = map(string)<br/>      }), {<br/>      enabled    = false<br/>      connectors = {}<br/>    })<br/>  })</pre> | <pre>{<br/>  "cloudo": {<br/>    "connectors": {},<br/>    "enabled": false<br/>  },<br/>  "email": {<br/>    "enabled": false,<br/>    "recipients": {}<br/>  },<br/>  "opsgenie": {<br/>    "connectors": {},<br/>    "enabled": false<br/>  },<br/>  "slack": {<br/>    "connectors": {},<br/>    "enabled": false<br/>  }<br/>}</pre> | no |
 | <a name="input_alert_folder"></a> [alert\_folder](#input\_alert\_folder) | Path to the alert containing folder for this application | `string` | n/a | yes |
 | <a name="input_application_name"></a> [application\_name](#input\_application\_name) | Name of this application | `string` | n/a | yes |

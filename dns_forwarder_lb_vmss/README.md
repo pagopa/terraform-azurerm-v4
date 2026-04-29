@@ -33,7 +33,7 @@ module "dns_forwarder" {
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.2 |
@@ -42,7 +42,7 @@ module "dns_forwarder" {
 ## Modules
 
 | Name | Source | Version |
-| ---- | ------ | ------- |
+|------|--------|---------|
 | <a name="module_load_balancer"></a> [load\_balancer](#module\_load\_balancer) | ../load_balancer | n/a |
 | <a name="module_subnet_load_balancer"></a> [subnet\_load\_balancer](#module\_subnet\_load\_balancer) | ../subnet | n/a |
 | <a name="module_subnet_vmss"></a> [subnet\_vmss](#module\_subnet\_vmss) | ../subnet | n/a |
@@ -51,7 +51,7 @@ module "dns_forwarder" {
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_key_vault_secret.dns_forwarder_vmss_administrator_password](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) | resource |
 | [azurerm_key_vault_secret.dns_forwarder_vmss_administrator_username](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) | resource |
 | [azurerm_network_security_group.vmss](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group) | resource |
@@ -61,7 +61,7 @@ module "dns_forwarder" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_address_prefixes_lb"></a> [address\_prefixes\_lb](#input\_address\_prefixes\_lb) | (Optional) The address prefixes to use for load balancer subnet. | `string` | `"10.1.200.0/29"` | no |
 | <a name="input_address_prefixes_vmss"></a> [address\_prefixes\_vmss](#input\_address\_prefixes\_vmss) | (Optional) The address prefixes to use for the virtual machine scale set subnet. | `string` | `"10.1.200.8/29"` | no |
 | <a name="input_create_subnet_lb"></a> [create\_subnet\_lb](#input\_create\_subnet\_lb) | n/a | `bool` | `false` | no |
@@ -86,7 +86,7 @@ module "dns_forwarder" {
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_lb_id"></a> [lb\_id](#output\_lb\_id) | n/a |
 | <a name="output_subnet_lb_id"></a> [subnet\_lb\_id](#output\_subnet\_lb\_id) | n/a |
 | <a name="output_subnet_vmss_id"></a> [subnet\_vmss\_id](#output\_subnet\_vmss\_id) | n/a |
