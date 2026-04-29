@@ -52,10 +52,6 @@ resource "azurerm_container_app_job" "container_app_job" {
         sub_path = "/var/run/docker.sock"
       }
 
-      volume {
-        name = "socket"
-      }
-
       dynamic "env" {
         for_each = local.container.env
         content {
@@ -69,6 +65,10 @@ resource "azurerm_container_app_job" "container_app_job" {
         secret_name = "personal-access-token"
       }
     }
+
+     volume {
+        name = "socket"
+      }
   }
 
   tags = var.tags
