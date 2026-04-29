@@ -34,7 +34,7 @@ module "grafana_managed" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
@@ -45,13 +45,13 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_dashboard_grafana.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dashboard_grafana) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_api_key_enabled"></a> [api\_key\_enabled](#input\_api\_key\_enabled) | Whether to enable the api key setting of the Grafana instance | `bool` | `false` | no |
 | <a name="input_deterministic_outbound_ip_enabled"></a> [deterministic\_outbound\_ip\_enabled](#input\_deterministic\_outbound\_ip\_enabled) | Whether to enable the Grafana instance to use deterministic outbound IPs | `bool` | `false` | no |
 | <a name="input_grafana_major_version"></a> [grafana\_major\_version](#input\_grafana\_major\_version) | Which major version of Grafana to deploy. Possible values are 9, 10. Changing this forces a new resource to be created. | `string` | `"10"` | no |
@@ -67,7 +67,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_endpoint"></a> [endpoint](#output\_endpoint) | https endpoint |
 | <a name="output_hostname"></a> [hostname](#output\_hostname) | n/a |
 | <a name="output_id"></a> [id](#output\_id) | n/a |

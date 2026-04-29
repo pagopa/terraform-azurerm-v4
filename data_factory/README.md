@@ -3,7 +3,7 @@
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
@@ -14,7 +14,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_data_factory.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory) | resource |
 | [azurerm_data_factory_managed_private_endpoint.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory_managed_private_endpoint) | resource |
 | [azurerm_private_dns_a_record.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_a_record) | resource |
@@ -23,7 +23,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_custom_domain_enabled"></a> [custom\_domain\_enabled](#input\_custom\_domain\_enabled) | If not null enables custom domain for the private endpoint | `string` | `null` | no |
 | <a name="input_github_conf"></a> [github\_conf](#input\_github\_conf) | Configuration of the github repo associated to the data factory | <pre>object({<br/>    account_name    = string<br/>    branch_name     = string<br/>    git_url         = string<br/>    repository_name = string<br/>    root_folder     = string<br/>  })</pre> | `null` | no |
 | <a name="input_location"></a> [location](#input\_location) | Azure Location in which the resources are located | `string` | n/a | yes |
@@ -36,7 +36,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_id"></a> [id](#output\_id) | The id of the Data Factory. |
 | <a name="output_principal_id"></a> [principal\_id](#output\_principal\_id) | n/a |
 <!-- END_TF_DOCS -->

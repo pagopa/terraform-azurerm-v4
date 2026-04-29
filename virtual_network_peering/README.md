@@ -76,7 +76,7 @@ module "vnet_peering_with_gateway" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
@@ -87,14 +87,14 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_virtual_network_peering.source](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_peering) | resource |
 | [azurerm_virtual_network_peering.target](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_peering) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_source_allow_forwarded_traffic"></a> [source\_allow\_forwarded\_traffic](#input\_source\_allow\_forwarded\_traffic) | Controls if forwarded traffic from VMs in the remote virtual network is allowed. | `bool` | `false` | no |
 | <a name="input_source_allow_gateway_transit"></a> [source\_allow\_gateway\_transit](#input\_source\_allow\_gateway\_transit) | Controls gatewayLinks can be used in the remote virtual network’s link to the local virtual network. | `bool` | `false` | no |
 | <a name="input_source_allow_virtual_network_access"></a> [source\_allow\_virtual\_network\_access](#input\_source\_allow\_virtual\_network\_access) | Controls if the VMs in the remote virtual network can access VMs in the local virtual network. | `bool` | `true` | no |
@@ -115,7 +115,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_source_id"></a> [source\_id](#output\_source\_id) | n/a |
 | <a name="output_source_name"></a> [source\_name](#output\_source\_name) | n/a |
 | <a name="output_target_id"></a> [target\_id](#output\_target\_id) | n/a |

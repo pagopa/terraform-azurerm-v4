@@ -61,7 +61,7 @@ This granularity is useful in such scenario where is needed a writing-role on th
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
@@ -72,7 +72,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_federated_identity_credential.identity_credentials](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/federated_identity_credential) | resource |
 | [azurerm_role_assignment.identity_rg_role_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.identity_subscription_role_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
@@ -84,7 +84,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_app_name"></a> [app\_name](#input\_app\_name) | Application name | `string` | `""` | no |
 | <a name="input_cd_rbac_roles"></a> [cd\_rbac\_roles](#input\_cd\_rbac\_roles) | Set of CD identity roles for the current subscription and the specified resource groups | <pre>object({<br/>    subscription_roles = set(string)<br/>    resource_groups    = map(list(string))<br/>  })</pre> | <pre>{<br/>  "resource_groups": {},<br/>  "subscription_roles": [<br/>    "Contributor"<br/>  ]<br/>}</pre> | no |
 | <a name="input_ci_rbac_roles"></a> [ci\_rbac\_roles](#input\_ci\_rbac\_roles) | Set of CI identity roles for the current subscription and the specified resource groups | <pre>object({<br/>    subscription_roles = set(string)<br/>    resource_groups    = map(list(string))<br/>  })</pre> | <pre>{<br/>  "resource_groups": {},<br/>  "subscription_roles": [<br/>    "Reader"<br/>  ]<br/>}</pre> | no |
@@ -100,7 +100,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_identity_app_name"></a> [identity\_app\_name](#output\_identity\_app\_name) | User Managed Identity name |
 | <a name="output_identity_client_id"></a> [identity\_client\_id](#output\_identity\_client\_id) | User Managed Identity client id |
 | <a name="output_identity_principal_id"></a> [identity\_principal\_id](#output\_identity\_principal\_id) | User Managed Identity principal id |

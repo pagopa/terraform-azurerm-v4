@@ -35,7 +35,7 @@ The final backup name will be: `backup_name`-`namespace_name`-`datetime`
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.2 |
 
@@ -46,14 +46,14 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_monitor_scheduled_query_rules_alert.backup_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert) | resource |
 | [null_resource.schedule_backup](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_action_group_ids"></a> [action\_group\_ids](#input\_action\_group\_ids) | (Optional) list of action group ids to trigger when backup alarm fires | `list(string)` | `[]` | no |
 | <a name="input_aks_cluster_name"></a> [aks\_cluster\_name](#input\_aks\_cluster\_name) | (Required) Name of the aks cluster on which Velero will be installed | `string` | n/a | yes |
 | <a name="input_alert_enabled"></a> [alert\_enabled](#input\_alert\_enabled) | (Optional) If true, creates a scheduled query alert for each backup execution | `bool` | `true` | no |

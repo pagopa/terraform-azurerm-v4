@@ -29,7 +29,7 @@ module "postgres_flexible_snet" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.2 |
@@ -37,7 +37,7 @@ module "postgres_flexible_snet" {
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_custom_nsg"></a> [custom\_nsg](#module\_custom\_nsg) | ../../network_security_group | n/a |
 | <a name="module_embedded_nsg"></a> [embedded\_nsg](#module\_embedded\_nsg) | ../../network_security_group | n/a |
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
@@ -46,7 +46,7 @@ module "postgres_flexible_snet" {
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_resource_group.nsg_rg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
 | [terraform_data.subnet_cidr](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [terraform_data.subnet_first_ip](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
@@ -58,7 +58,7 @@ module "postgres_flexible_snet" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_create_self_inbound_nsg_rule"></a> [create\_self\_inbound\_nsg\_rule](#input\_create\_self\_inbound\_nsg\_rule) | (Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope | `bool` | `true` | no |
 | <a name="input_custom_nsg_configuration"></a> [custom\_nsg\_configuration](#input\_custom\_nsg\_configuration) | (Optional) Custom NSG configuration, additional to eventually present embedded nsg | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string # short name for source_address_prefixes<br/>    target_ports                 = optional(list(string), null)<br/>    protocol                     = optional(string, null)<br/>    target_service               = optional(string, null)<br/>  })</pre> | `null` | no |
 | <a name="input_embedded_nsg_configuration"></a> [embedded\_nsg\_configuration](#input\_embedded\_nsg\_configuration) | (Optional) List of allowed cidr and name. Available only if the subnet tier supports embedded nsg Follows the format defined in https://github.com/pagopa/terraform-azurerm-v4/tree/main/network_security_group#rule-configuration | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string # short name for source_address_prefixes<br/><br/>  })</pre> | <pre>{<br/>  "source_address_prefixes": [<br/>    "*"<br/>  ],<br/>  "source_address_prefixes_name": "All"<br/>}</pre> | no |
@@ -76,7 +76,7 @@ module "postgres_flexible_snet" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_address_prefixes"></a> [address\_prefixes](#output\_address\_prefixes) | n/a |
 | <a name="output_first_ip_address"></a> [first\_ip\_address](#output\_first\_ip\_address) | First usable ip address in the subnet |
 | <a name="output_id"></a> [id](#output\_id) | n/a |

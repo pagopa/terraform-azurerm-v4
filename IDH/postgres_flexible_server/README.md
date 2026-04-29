@@ -122,7 +122,7 @@ The new `pgflex2` and `pgflex4` tiers are private, as the standard requires
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.2 |
@@ -130,7 +130,7 @@ The new `pgflex2` and `pgflex4` tiers are private, as the standard requires
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 | <a name="module_pgflex"></a> [pgflex](#module\_pgflex) | ../../postgres_flexible_server | n/a |
 | <a name="module_pgflex_primary_nsg"></a> [pgflex\_primary\_nsg](#module\_pgflex\_primary\_nsg) | ../../network_security_group | n/a |
@@ -142,7 +142,7 @@ The new `pgflex2` and `pgflex4` tiers are private, as the standard requires
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_postgresql_flexible_server_configuration.azure_extensions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server_configuration) | resource |
 | [azurerm_postgresql_flexible_server_configuration.max_connections](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server_configuration) | resource |
 | [azurerm_postgresql_flexible_server_configuration.max_worker_process](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server_configuration) | resource |
@@ -159,7 +159,7 @@ The new `pgflex2` and `pgflex4` tiers are private, as the standard requires
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_additional_azure_extensions"></a> [additional\_azure\_extensions](#input\_additional\_azure\_extensions) | (Optional) List of additional azure extensions to be installed on the server | `list(string)` | `[]` | no |
 | <a name="input_additional_preload_libraries"></a> [additional\_preload\_libraries](#input\_additional\_preload\_libraries) | (Optional) List of additional shared preload libraries to be installed on the server | `list(string)` | `[]` | no |
 | <a name="input_administrator_login"></a> [administrator\_login](#input\_administrator\_login) | Flexible PostgreSql server administrator\_login | `string` | n/a | yes |
@@ -202,7 +202,7 @@ The new `pgflex2` and `pgflex4` tiers are private, as the standard requires
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_administrator_login"></a> [administrator\_login](#output\_administrator\_login) | n/a |
 | <a name="output_administrator_password"></a> [administrator\_password](#output\_administrator\_password) | n/a |
 | <a name="output_connection_port"></a> [connection\_port](#output\_connection\_port) | n/a |
