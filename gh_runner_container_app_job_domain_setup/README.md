@@ -76,21 +76,21 @@ This module provides the appropriate permissions to the GH runner identity to de
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_container_app_job"></a> [container\_app\_job](#module\_container\_app\_job) | ../container_app_job_gh_runner | n/a |
 | <a name="module_identity_cd"></a> [identity\_cd](#module\_identity\_cd) | ../github_federated_identity | n/a |
 
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_key_vault_access_policy.gha_iac_managed_identities](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_access_policy) | resource |
 | [null_resource.github_runner_app_permissions_to_namespace_cd](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
@@ -102,7 +102,7 @@ This module provides the appropriate permissions to the GH runner identity to de
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_container"></a> [container](#input\_container) | Job Container configuration | <pre>object({<br/>    cpu    = number<br/>    memory = string<br/>    image  = string<br/>  })</pre> | <pre>{<br/>  "cpu": 0.5,<br/>  "image": "ghcr.io/pagopa/github-self-hosted-runner-azure:latest",<br/>  "memory": "1Gi"<br/>}</pre> | no |
 | <a name="input_custom_rg_permissions"></a> [custom\_rg\_permissions](#input\_custom\_rg\_permissions) | (Optional) List of resource group permission assigned to the job identity | <pre>list(object({<br/>    # name of the resource group on which the permissions are given<br/>    rg_name = string<br/>    # list of permission assigned on with rg_name scope<br/>    permissions = list(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | (Required) Domain name for the configured repositories | `string` | n/a | yes |

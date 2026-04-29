@@ -23,7 +23,7 @@ module "aks_prometheus_install" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.12 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.2 |
@@ -35,7 +35,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [helm_release.prometheus](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.prometheus_crds](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [null_resource.trigger_helm_release](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
@@ -43,7 +43,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_prometheus_affinity"></a> [prometheus\_affinity](#input\_prometheus\_affinity) | Global affinity rules for all Prometheus components | <pre>object({<br/>    nodeAffinity = object({<br/>      requiredDuringSchedulingIgnoredDuringExecution = object({<br/>        nodeSelectorTerms = list(object({<br/>          matchExpressions = list(object({<br/>            key      = string<br/>            operator = string<br/>            values   = list(string)<br/>          }))<br/>        }))<br/>      })<br/>    })<br/>  })</pre> | `null` | no |
 | <a name="input_prometheus_crds_enabled"></a> [prometheus\_crds\_enabled](#input\_prometheus\_crds\_enabled) | Setup CRDS for prometheus | `bool` | `true` | no |
 | <a name="input_prometheus_crds_release_version"></a> [prometheus\_crds\_release\_version](#input\_prometheus\_crds\_release\_version) | Prometheus CRDS helm release version. https://github.com/prometheus-community/helm-charts/pkgs/container/charts%2Fprometheus-operator-crds | `string` | `"17.0.2"` | no |

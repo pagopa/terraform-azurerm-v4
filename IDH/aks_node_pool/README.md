@@ -127,7 +127,7 @@ module "aks_node_pool" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3 |
@@ -135,7 +135,7 @@ module "aks_node_pool" {
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_aks_node_pool_bar"></a> [aks\_node\_pool\_bar](#module\_aks\_node\_pool\_bar) | ../../kubernetes_cluster_node_pool | n/a |
 | <a name="module_aks_node_pool_foo"></a> [aks\_node\_pool\_foo](#module\_aks\_node\_pool\_foo) | ../../kubernetes_cluster_node_pool | n/a |
 | <a name="module_aks_overlay_snet"></a> [aks\_overlay\_snet](#module\_aks\_overlay\_snet) | ../subnet | n/a |
@@ -144,13 +144,13 @@ module "aks_node_pool" {
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_subnet_nat_gateway_association.aks_overlay_snet_nat_association](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_nat_gateway_association) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_autoscale_enabled"></a> [autoscale\_enabled](#input\_autoscale\_enabled) | (Optional): Enable autoscaling for the node pool. Defaults to true. | `bool` | `true` | no |
 | <a name="input_create_self_inbound_nsg_rule"></a> [create\_self\_inbound\_nsg\_rule](#input\_create\_self\_inbound\_nsg\_rule) | (Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope | `bool` | `true` | no |
 | <a name="input_double_node_pool"></a> [double\_node\_pool](#input\_double\_node\_pool) | (Optional) Configuration for double foo/bar node pool setup. If 'enabled' is true, two node pools will be created with the provided configuration. 'node\_pool\_foo.active' and 'node\_pool\_bar.active' flags determine which node pool is active at deployment. Only the active node pool will have a non-zero minimum node count, while the other will be set to zero to prevent provisioning of nodes. | <pre>object({<br/>    enabled = optional(bool, false)<br/>    node_pool_foo = object({<br/>      active           = bool<br/>      version_override = optional(string, null) ## if provided, overrides the kubernetes version of the cluster for this node pool<br/>    })<br/>    node_pool_bar = object({<br/>      active           = bool<br/>      version_override = optional(string, null) ## if provided, overrides the kubernetes version of the cluster for this node pool<br/>    })<br/><br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "node_pool_bar": {<br/>    "active": false,<br/>    "version_override": null<br/>  },<br/>  "node_pool_foo": {<br/>    "active": true,<br/>    "version_override": null<br/>  }<br/>}</pre> | no |
@@ -176,7 +176,7 @@ module "aks_node_pool" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_id"></a> [id](#output\_id) | ID of the AKS node pool. Deprecated in favor of node\_pool\_ids output, which returns a list of node pool IDs to accommodate multiple node pools when double\_node\_pool is enabled. |
 | <a name="output_name"></a> [name](#output\_name) | Name of the AKS node pool. Deprecated in favor of node\_pool\_names output, which returns a list of node pool names to accommodate multiple node pools when double\_node\_pool is enabled. |
 | <a name="output_node_pool_ids"></a> [node\_pool\_ids](#output\_node\_pool\_ids) | List of AKS node pool IDs. If double\_node\_pool is enabled, both node pool IDs are returned, otherwise only the first node pool ID is returned. |
