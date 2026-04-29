@@ -35,6 +35,8 @@ override.tf.json
 __pycache__
 ignore_features.tf
 
+__pycache__
+
 .idea
 .metals
 .history

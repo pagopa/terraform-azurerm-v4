@@ -15,6 +15,10 @@ locals {
         protocol    = "udp"
       }
     ]
+    managedredis = [{
+      port_ranges = ["8443", "8500-8599", "10000-11999"]
+      protocol    = "tcp"
+    }]
     cosmos = [{
       port_ranges = ["443", "10255", "10256"]
       protocol    = "tcp"

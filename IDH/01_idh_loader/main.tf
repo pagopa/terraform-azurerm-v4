@@ -6,11 +6,8 @@ locals {
   tiers_configurations = merge(
     local.global_common_tiers_configuration,
     local.platform_common_tiers_configuration,
-    local.platform_env_tiers_configuration
+    local.platform_env_tiers_configuration,
   )
 
   envs = ["dev", "uat", "prod"]
 }
-
-
-

@@ -1,0 +1,2 @@
+Sku: {sku_name}, HA: {high_availability_enabled}, Public Access: {public_network_access}, Private Endpoint: {private_endpoint_enabled}, Persistence RDB: {persistence_configuration_rdb_enabled}, Persistence AOF: {persistence_configuration_aof_enabled}, Modules: {modules_is_set}, CPU Alerts: {enable_cpu_alerts}, Memory Alerts: {enable_memory_alerts}, Connection Alerts: {enable_connection_alerts}
+
