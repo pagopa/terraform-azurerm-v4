@@ -74,7 +74,7 @@ module "private_endpoint_snet" {
   idh_resource_tier = "slash28_privatelink_true"
   product_name      = var.product_name
 
-  name                 = "${var.name}-pe-snet"
+  name                 = "${var.name}-redis-pe-snet"
   resource_group_name  = var.embedded_subnet.vnet_rg_name
   virtual_network_name = var.embedded_subnet.vnet_name
 
@@ -150,7 +150,7 @@ module "private_endpoint_replica_snet" {
   idh_resource_tier = "slash28_privatelink_true"
   product_name      = var.product_name
 
-  name                 = "${var.name}-pe-replica-snet"
+  name                 = "${var.name}-pe-redis-replica-snet"
   resource_group_name  = var.embedded_subnet.vnet_rg_name
   virtual_network_name = var.embedded_subnet.vnet_name
 

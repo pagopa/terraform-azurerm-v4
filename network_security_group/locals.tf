@@ -16,7 +16,7 @@ locals {
       }
     ]
     managedredis = [{
-      port_ranges = ["8443", "8500 - 8599", "10000-11999"]
+      port_ranges = ["8443", "8500-8599", "10000-11999"]
       protocol    = "tcp"
     }]
     cosmos = [{
