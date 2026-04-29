@@ -182,14 +182,14 @@ Some modules may not be available for all SKUs:
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
 ## Modules
 
 | Name | Source | Version |
-| ---- | ------ | ------- |
+|------|--------|---------|
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
 | <a name="module_managed_redis"></a> [managed\_redis](#module\_managed\_redis) | ../../managed_redis | n/a |
 | <a name="module_managed_redis_replica"></a> [managed\_redis\_replica](#module\_managed\_redis\_replica) | ../../managed_redis | n/a |
@@ -199,13 +199,13 @@ Some modules may not be available for all SKUs:
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_managed_redis_geo_replication.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/managed_redis_geo_replication) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_alert_action_group_ids"></a> [alert\_action\_group\_ids](#input\_alert\_action\_group\_ids) | (Optional) List of Azure Monitor action group IDs for alerts. | `list(string)` | `[]` | no |
 | <a name="input_customer_managed_key_config"></a> [customer\_managed\_key\_config](#input\_customer\_managed\_key\_config) | (Optional) Customer managed key configuration for encryption at rest. | <pre>object({<br/>    key_vault_key_id          = string<br/>    user_assigned_identity_id = string<br/>  })</pre> | `null` | no |
 | <a name="input_embedded_nsg_configuration"></a> [embedded\_nsg\_configuration](#input\_embedded\_nsg\_configuration) | (Optional) List of allowed CIDR and name for NSG rules. | <pre>object({<br/>    source_address_prefixes      = list(string)<br/>    source_address_prefixes_name = string<br/>  })</pre> | <pre>{<br/>  "source_address_prefixes": [<br/>    "*"<br/>  ],<br/>  "source_address_prefixes_name": "All"<br/>}</pre> | no |
@@ -228,7 +228,7 @@ Some modules may not be available for all SKUs:
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_high_availability_enabled"></a> [high\_availability\_enabled](#output\_high\_availability\_enabled) | Whether high availability is enabled. |
 | <a name="output_hostname"></a> [hostname](#output\_hostname) | The hostname of the managed Redis instance. |
 | <a name="output_id"></a> [id](#output\_id) | The resource ID of the managed Redis instance. |

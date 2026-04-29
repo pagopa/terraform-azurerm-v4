@@ -320,20 +320,20 @@ module "cdn_idpay_bonuselettrodomestici" {
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
 ## Modules
 
 | Name | Source | Version |
-| ---- | ------ | ------- |
+|------|--------|---------|
 | <a name="module_cdn_storage_account"></a> [cdn\_storage\_account](#module\_cdn\_storage\_account) | ../storage_account | n/a |
 
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_cdn_frontdoor_custom_domain.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_custom_domain) | resource |
 | [azurerm_cdn_frontdoor_endpoint.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_endpoint) | resource |
 | [azurerm_cdn_frontdoor_origin.storage_web_host](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_origin) | resource |
@@ -359,7 +359,7 @@ module "cdn_idpay_bonuselettrodomestici" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_cdn_prefix_name"></a> [cdn\_prefix\_name](#input\_cdn\_prefix\_name) | Base prefix used to derive the Front Door profile, endpoint, and related resource names (for example myprefix-web). When storage\_account\_name is null the module appends -sa to this prefix and removes hyphens to build the Storage Account name. | `string` | n/a | yes |
 | <a name="input_custom_domains"></a> [custom\_domains](#input\_custom\_domains) | List of custom domain definitions to onboard to Front Door, including DNS zone details and optional TTL or record-management flags. | <pre>list(object({<br/>    domain_name             = string<br/>    dns_name                = string<br/>    dns_resource_group_name = string<br/>    ttl                     = optional(number, 3600)<br/>    enable_dns_records      = optional(bool, true)<br/>  }))</pre> | `[]` | no |
 | <a name="input_delivery_custom_rules"></a> [delivery\_custom\_rules](#input\_delivery\_custom\_rules) | Advanced custom rules supporting the full Front Door condition and action set for headers, caching, and mutually exclusive redirects or rewrites. | <pre>list(object({<br/>    name              = string<br/>    order             = number<br/>    behavior_on_match = optional(string)<br/><br/>    cookies_conditions            = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    device_conditions             = optional(list(object({ operator = string, match_values = string, negate_condition = bool })), [])<br/>    http_version_conditions       = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])<br/>    post_arg_conditions           = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    query_string_conditions       = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    remote_address_conditions     = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])<br/>    request_body_conditions       = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    request_header_conditions     = optional(list(object({ selector = string, operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    request_method_conditions     = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool })), [])<br/>    request_scheme_conditions     = optional(list(object({ operator = string, match_values = string, negate_condition = bool })), [])<br/>    request_uri_conditions        = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    url_file_extension_conditions = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    url_file_name_conditions      = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    url_path_conditions           = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/>    host_name_condition           = optional(list(object({ operator = string, match_values = list(string), negate_condition = bool, transforms = list(string) })), [])<br/><br/>    cache_expiration_actions       = optional(list(object({ behavior = string, duration = string })), [])<br/>    cache_key_query_string_actions = optional(list(object({ behavior = string, parameters = string })), [])<br/>    modify_request_header_actions  = optional(list(object({ action = string, name = string, value = string })), [])<br/>    modify_response_header_actions = optional(list(object({ action = string, name = string, value = string })), [])<br/>    url_redirect_actions           = optional(list(object({ redirect_type = string, protocol = string, hostname = string, path = string, fragment = string, query_string = string })), [])<br/>    url_rewrite_actions            = optional(list(object({ source_pattern = string, destination = string, preserve_unmatched_path = string })), [])<br/>  }))</pre> | `[]` | no |
@@ -391,7 +391,7 @@ module "cdn_idpay_bonuselettrodomestici" {
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_endpoint_id"></a> [endpoint\_id](#output\_endpoint\_id) | n/a |
 | <a name="output_endpoint_name"></a> [endpoint\_name](#output\_endpoint\_name) | n/a |
 | <a name="output_fqdn"></a> [fqdn](#output\_fqdn) | n/a |

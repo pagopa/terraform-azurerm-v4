@@ -33,7 +33,7 @@ See [Generic resorce migration](../docs/MIGRATION_GUIDE_GENERIC_RESOURCES.md)
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
@@ -44,7 +44,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_app_service_slot_virtual_network_swift_connection.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service_slot_virtual_network_swift_connection) | resource |
 | [azurerm_linux_function_app_slot.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_function_app_slot) | resource |
 | [azurerm_function_app_host_keys.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/function_app_host_keys) | data source |
@@ -52,7 +52,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_allowed_ips"></a> [allowed\_ips](#input\_allowed\_ips) | Ip from wich is allowed to call the function. An empty list means from everywhere. | `list(string)` | `[]` | no |
 | <a name="input_allowed_service_tags"></a> [allowed\_service\_tags](#input\_allowed\_service\_tags) | (Optional) List of service tags allowed to call the function app endpoint. | `list(string)` | `[]` | no |
 | <a name="input_allowed_subnets"></a> [allowed\_subnets](#input\_allowed\_subnets) | List of subnet ids which are allowed to call the function. An empty list means from each subnet. | `list(string)` | `[]` | no |
@@ -95,7 +95,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_default_hostname"></a> [default\_hostname](#output\_default\_hostname) | n/a |
 | <a name="output_default_key"></a> [default\_key](#output\_default\_key) | n/a |
 | <a name="output_id"></a> [id](#output\_id) | n/a |

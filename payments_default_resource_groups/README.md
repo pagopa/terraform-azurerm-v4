@@ -112,14 +112,14 @@ No modules.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_management_lock.resource_group_lock](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_lock) | resource |
 | [azurerm_resource_group.resource_groups](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_additional_resource_groups"></a> [additional\_resource\_groups](#input\_additional\_resource\_groups) | List of additional resource groups to create besides the default ones | `list(string)` | `[]` | no |
 | <a name="input_additional_tags"></a> [additional\_tags](#input\_additional\_tags) | Additional tags to be merged with the default tags | `map(string)` | `{}` | no |
 | <a name="input_enable_resource_locks"></a> [enable\_resource\_locks](#input\_enable\_resource\_locks) | Whether to enable CanNotDelete locks on the resource groups | `bool` | `false` | no |
@@ -130,7 +130,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_resource_group_names"></a> [resource\_group\_names](#output\_resource\_group\_names) | Map of resource group names |
 | <a name="output_resource_groups"></a> [resource\_groups](#output\_resource\_groups) | Map of all created resource groups with their properties |
 <!-- END_TF_DOCS -->

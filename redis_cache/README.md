@@ -18,7 +18,7 @@ See test folder for examples
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
@@ -29,14 +29,14 @@ No modules.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_private_endpoint.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
 | [azurerm_redis_cache.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/redis_cache) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_backup_configuration"></a> [backup\_configuration](#input\_backup\_configuration) | n/a | <pre>object({<br/>    frequency                 = number<br/>    max_snapshot_count        = number<br/>    storage_connection_string = string<br/>  })</pre> | `null` | no |
 | <a name="input_capacity"></a> [capacity](#input\_capacity) | The size of the Redis cache to deploy | `number` | `1` | no |
 | <a name="input_custom_zones"></a> [custom\_zones](#input\_custom\_zones) | (Optional/Premium Only) Specifies a list of Availability Zones in which this Redis Cache should be located. Changing this forces a new Redis Cache to be created. | `list(number)` | `[]` | no |
@@ -60,7 +60,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_hostname"></a> [hostname](#output\_hostname) | n/a |
 | <a name="output_id"></a> [id](#output\_id) | n/a |
 | <a name="output_location"></a> [location](#output\_location) | n/a |

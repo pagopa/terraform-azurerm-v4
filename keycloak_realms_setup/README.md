@@ -5,7 +5,7 @@
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.0 |
 | <a name="requirement_keycloak"></a> [keycloak](#requirement\_keycloak) | ~> 5.0 |
@@ -17,7 +17,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_key_vault_secret.client_id](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) | resource |
 | [azurerm_key_vault_secret.client_secret](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) | resource |
 | [keycloak_custom_identity_provider_mapper.domain_admin_realm_mapper](https://registry.terraform.io/providers/keycloak/keycloak/latest/docs/resources/custom_identity_provider_mapper) | resource |
@@ -36,7 +36,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_admin_entra_group_ids"></a> [admin\_entra\_group\_ids](#input\_admin\_entra\_group\_ids) | List of Entra ID group Object IDs for the Admin role | `list(string)` | `[]` | no |
 | <a name="input_domain"></a> [domain](#input\_domain) | n/a | `string` | n/a | yes |
 | <a name="input_key_vault_name"></a> [key\_vault\_name](#input\_key\_vault\_name) | Key vault name | `string` | n/a | yes |
@@ -48,7 +48,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_realm_ids"></a> [realm\_ids](#output\_realm\_ids) | Map of Keycloak realm IDs indexed by realm name |
 | <a name="output_realm_names"></a> [realm\_names](#output\_realm\_names) | Map of Keycloak realm names indexed by realm name |
 <!-- END_TF_DOCS -->

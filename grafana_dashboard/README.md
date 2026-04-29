@@ -32,7 +32,7 @@ example:
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 | <a name="requirement_grafana"></a> [grafana](#requirement\_grafana) | ~> 3 |
@@ -44,7 +44,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [grafana_dashboard.azure_monitor_grafana](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/dashboard) | resource |
 | [grafana_folder.domainsfolder](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/folder) | resource |
 | [grafana_folder.domainsfolderexist](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/folder) | resource |
@@ -53,7 +53,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_dashboard_directory_path"></a> [dashboard\_directory\_path](#input\_dashboard\_directory\_path) | path for dashboard template | `string` | `"dashboard"` | no |
 | <a name="input_grafana_api_key"></a> [grafana\_api\_key](#input\_grafana\_api\_key) | Grafana Managed Service Account key | `string` | n/a | yes |
 | <a name="input_grafana_url"></a> [grafana\_url](#input\_grafana\_url) | Grafana Managed url | `string` | n/a | yes |
@@ -63,7 +63,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_folder"></a> [folder](#output\_folder) | n/a |
 | <a name="output_subfolder"></a> [subfolder](#output\_subfolder) | n/a |
 <!-- END_TF_DOCS -->

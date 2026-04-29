@@ -222,7 +222,7 @@ This allows for automatic generation of nsg rules for target services that requi
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
@@ -233,7 +233,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_network_security_group.custom_nsg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group) | resource |
 | [azurerm_network_security_rule.custom_security_rule](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_watcher_flow_log.network_watcher_flow_log](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_watcher_flow_log) | resource |
@@ -244,7 +244,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_custom_security_group"></a> [custom\_security\_group](#input\_custom\_security\_group) | security groups configuration | <pre>map(object({<br/>    target_subnet_name      = optional(string, null)<br/>    target_subnet_vnet_name = optional(string, null)<br/>    target_subnet_id        = optional(string, null) # optional target subnet id. overrides the pair <target_subnet_name, target_subnet_vnet_name>. useful when subnet not yet created<br/>    target_subnet_cidr      = optional(string, null) # optional, instead of using the pair <target_subnet_name, target_subnet_vnet_name>. useful when subnet not yet created<br/>    watcher_enabled         = optional(bool, false)<br/>    inbound_rules = list(object({<br/>      name                         = string<br/>      priority                     = number<br/>      target_service               = optional(string, null)<br/>      access                       = optional(string, "Allow")<br/>      protocol                     = optional(string)<br/>      source_subnet_name           = optional(string)<br/>      source_subnet_vnet_name      = optional(string)<br/>      source_port_ranges           = optional(list(string), ["*"])<br/>      source_address_prefixes      = optional(list(string), [])<br/>      destination_address_prefixes = optional(list(string), [])<br/>      destination_port_ranges      = optional(list(string), ["*"])<br/>      description                  = optional(string)<br/>    }))<br/><br/>    outbound_rules = list(object({<br/>      name                         = string<br/>      priority                     = number<br/>      target_service               = optional(string, null)<br/>      access                       = optional(string, "Allow")<br/>      protocol                     = optional(string)<br/>      source_address_prefixes      = optional(list(string), [])<br/>      source_port_ranges           = optional(list(string), ["*"])<br/>      destination_subnet_name      = optional(string)<br/>      destination_subnet_vnet_name = optional(string)<br/>      destination_port_ranges      = optional(list(string), ["*"])<br/>      destination_address_prefixes = optional(list(string), [])<br/>      description                  = optional(string)<br/>    }))<br/>  }))</pre> | `null` | no |
 | <a name="input_flow_logs"></a> [flow\_logs](#input\_flow\_logs) | (Optional) Parameters required to configure the network watcher | <pre>object({<br/>    network_watcher_name                   = string<br/>    network_watcher_rg                     = string<br/>    storage_account_id                     = string<br/>    retention_days                         = optional(number, 2)<br/>    traffic_analytics_law_name             = string<br/>    traffic_analytics_law_rg               = string<br/>    traffic_analytics_law_interval_minutes = optional(number, 10)<br/>  })</pre> | `null` | no |
 | <a name="input_location"></a> [location](#input\_location) | Location of the resource group where the nsg will be saved | `string` | n/a | yes |
@@ -257,6 +257,6 @@ No modules.
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_nsg_custom_details"></a> [nsg\_custom\_details](#output\_nsg\_custom\_details) | Detailed map of created NSGs including names and resource groups |
 <!-- END_TF_DOCS -->

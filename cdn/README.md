@@ -95,7 +95,7 @@ During the apply there will be 1 changed and 1 destroy related to storage see [s
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.2 |
@@ -103,13 +103,13 @@ During the apply there will be 1 changed and 1 destroy related to storage see [s
 ## Modules
 
 | Name | Source | Version |
-| ---- | ------ | ------- |
+|------|--------|---------|
 | <a name="module_cdn_storage_account"></a> [cdn\_storage\_account](#module\_cdn\_storage\_account) | ../storage_account | n/a |
 
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_cdn_endpoint.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_endpoint) | resource |
 | [azurerm_cdn_profile.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_profile) | resource |
 | [azurerm_dns_a_record.apex_hostname](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dns_a_record) | resource |
@@ -124,7 +124,7 @@ During the apply there will be 1 changed and 1 destroy related to storage see [s
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_advanced_threat_protection_enabled"></a> [advanced\_threat\_protection\_enabled](#input\_advanced\_threat\_protection\_enabled) | n/a | `bool` | `false` | no |
 | <a name="input_azuread_service_principal_azure_cdn_frontdoor_id"></a> [azuread\_service\_principal\_azure\_cdn\_frontdoor\_id](#input\_azuread\_service\_principal\_azure\_cdn\_frontdoor\_id) | Azure CDN Front Door Principal ID - Microsoft.AzureFrontDoor-Cdn | `string` | `null` | no |
 | <a name="input_cdn_location"></a> [cdn\_location](#input\_cdn\_location) | If the location of the CDN needs to be different from that of the storage account, set this variable to the location where the CDN should be created. For example, cdn\_location = westeurope and location = northitaly | `string` | `null` | no |
@@ -165,7 +165,7 @@ During the apply there will be 1 changed and 1 destroy related to storage see [s
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_endpoint_id"></a> [endpoint\_id](#output\_endpoint\_id) | n/a |
 | <a name="output_fqdn"></a> [fqdn](#output\_fqdn) | n/a |
 | <a name="output_hostname"></a> [hostname](#output\_hostname) | n/a |

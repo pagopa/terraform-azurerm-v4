@@ -31,7 +31,7 @@ module "tf_audit_logic_app" {
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.0 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.2 |
@@ -43,7 +43,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_api_connection.storage_account_api_connection](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_connection) | resource |
 | [azurerm_logic_app_action_custom.elaborate_entity](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/logic_app_action_custom) | resource |
 | [azurerm_logic_app_action_custom.get_entities](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/logic_app_action_custom) | resource |
@@ -54,7 +54,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_location"></a> [location](#input\_location) | (Required) Resource location | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | (Required) Name for dedicated resource names | `string` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | (Required) Prefix for dedicated resource names | `string` | n/a | yes |

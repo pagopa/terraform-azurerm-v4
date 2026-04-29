@@ -3,7 +3,7 @@
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
@@ -14,14 +14,14 @@ No modules.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [azurerm_route_table.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/route_table) | resource |
 | [azurerm_subnet_route_table_association.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_route_table_association) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_bgp_route_propagation_enabled"></a> [bgp\_route\_propagation\_enabled](#input\_bgp\_route\_propagation\_enabled) | (Optional) Boolean flag which controls propagation of routes learned by BGP on that route table. Defaults to false. | `bool` | `false` | no |
 | <a name="input_location"></a> [location](#input\_location) | The location of the resource group. | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | The name of route table | `string` | n/a | yes |
@@ -33,7 +33,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_id"></a> [id](#output\_id) | n/a |
 | <a name="output_subnets"></a> [subnets](#output\_subnets) | n/a |
 <!-- END_TF_DOCS -->
