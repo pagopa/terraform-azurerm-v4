@@ -33,7 +33,7 @@ module "apim_product_devopslab" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 
@@ -44,7 +44,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_api_management_product.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_product) | resource |
 | [azurerm_api_management_product_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_product_group) | resource |
 | [azurerm_api_management_product_policy.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_product_policy) | resource |
@@ -52,7 +52,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_api_management_name"></a> [api\_management\_name](#input\_api\_management\_name) | The name of the API Management Service. | `string` | n/a | yes |
 | <a name="input_approval_required"></a> [approval\_required](#input\_approval\_required) | Do subscribers need to be approved prior to being able to use the Product? | `bool` | n/a | yes |
 | <a name="input_description"></a> [description](#input\_description) | A description of this Product, which may include HTML formatting tags. | `string` | n/a | yes |
@@ -68,7 +68,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_id"></a> [id](#output\_id) | n/a |
 | <a name="output_product_id"></a> [product\_id](#output\_product\_id) | n/a |
 <!-- END_TF_DOCS -->

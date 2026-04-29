@@ -28,7 +28,7 @@ module "aks_storage_class" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.27 |
 
@@ -39,7 +39,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [kubernetes_storage_class_v1.azurefile_csi_premium_zrs](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/storage_class_v1) | resource |
 | [kubernetes_storage_class_v1.azurefile_csi_zrs](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/storage_class_v1) | resource |
 | [kubernetes_storage_class_v1.azurefile_premium_zrs](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/storage_class_v1) | resource |
@@ -57,7 +57,7 @@ No inputs.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_azurefile_csi_premium_zrs"></a> [azurefile\_csi\_premium\_zrs](#output\_azurefile\_csi\_premium\_zrs) | Azurefile CSI premium disk with ZRS storage class name |
 | <a name="output_azurefile_csi_zrs"></a> [azurefile\_csi\_zrs](#output\_azurefile\_csi\_zrs) | Azurefile CSI with ZRS storage class name |
 | <a name="output_azurefile_premium_zrs"></a> [azurefile\_premium\_zrs](#output\_azurefile\_premium\_zrs) | Azurefile premium with ZRS storage class name |

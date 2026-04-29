@@ -50,7 +50,7 @@ module "dns_forwarder_image" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azuread"></a> [azuread](#requirement\_azuread) | ~> 3.1 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
@@ -64,7 +64,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_resource_group.build_rg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
 | [null_resource.build_packer_image](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [random_id.rg_randomizer](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
@@ -74,7 +74,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_base_image_offer"></a> [base\_image\_offer](#input\_base\_image\_offer) | (Optional) - https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine_scale_set#source_image_reference | `string` | `"0001-com-ubuntu-server-jammy"` | no |
 | <a name="input_base_image_publisher"></a> [base\_image\_publisher](#input\_base\_image\_publisher) | (Optional) - https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine_scale_set#source_image_reference | `string` | `"Canonical"` | no |
 | <a name="input_base_image_sku"></a> [base\_image\_sku](#input\_base\_image\_sku) | (Optional) - https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine_scale_set#source_image_reference | `string` | `"22_04-lts-gen2"` | no |
@@ -91,7 +91,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_custom_image_id"></a> [custom\_image\_id](#output\_custom\_image\_id) | Azure id of the custom image you just created |
 | <a name="output_custom_image_name"></a> [custom\_image\_name](#output\_custom\_image\_name) | Name of the created image |
 <!-- END_TF_DOCS -->
