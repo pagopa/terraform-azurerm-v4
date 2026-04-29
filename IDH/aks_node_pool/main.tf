@@ -30,7 +30,7 @@ module "aks_overlay_snet" {
 }
 
 resource "azurerm_subnet_nat_gateway_association" "aks_overlay_snet_nat_association" {
-  count = var.embedded_subnet.enabled ? 1 : 0
+  count = var.embedded_subnet.enabled && var.embedded_subnet.natgw_id != null ? 1 : 0
 
   subnet_id      = module.aks_overlay_snet[0].subnet_id
   nat_gateway_id = var.embedded_subnet.natgw_id
