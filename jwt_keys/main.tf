@@ -39,6 +39,8 @@ resource "azurerm_key_vault_secret" "jwt_private_key" {
   content_type = "text/plain"
 
   key_vault_id = var.key_vault_id
+
+  tags = var.tags
 }
 
 #tfsec:ignore:azure-keyvault-ensure-secret-expiry
@@ -48,6 +50,8 @@ resource "azurerm_key_vault_secret" "jwt_public_key" {
   content_type = "text/plain"
 
   key_vault_id = var.key_vault_id
+
+  tags = var.tags
 }
 
 #tfsec:ignore:azure-keyvault-ensure-secret-expiry
@@ -57,6 +61,8 @@ resource "azurerm_key_vault_secret" "jwt_cert" {
   content_type = "text/plain"
 
   key_vault_id = var.key_vault_id
+
+  tags = var.tags
 }
 
 #tfsec:ignore:azure-keyvault-ensure-secret-expiry
@@ -66,4 +72,6 @@ resource "azurerm_key_vault_secret" "jwt_kid" {
   content_type = "text/plain"
 
   key_vault_id = var.key_vault_id
+
+  tags = var.tags
 }

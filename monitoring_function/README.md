@@ -267,6 +267,97 @@ module "monitoring_function" {
 
   tags = var.tags
 }
+
+# with on-demand queue-based execution
+module "monitoring_function" {
+  source = "git::https://github.com/pagopa/terraform-azurerm-v4.git//monitoring_function?ref=<ref>"
+
+  location = "northeurope"
+  prefix   = "dvoplad"
+  resource_group_name = azurerm_resource_group.monitor_rg.name
+
+  application_insight_name              = azurerm_application_insights.application_insights.name
+  application_insight_rg_name           = azurerm_application_insights.application_insights.resource_group_name
+  application_insights_action_group_ids = [azurerm_monitor_action_group.slack.id]
+
+  # Enable on-demand execution via message queues
+  enable_synthetic_on_demand = true
+
+  job_settings = {
+    cron_scheduling              = "*/5 * * * *"
+    container_app_environment_id = azurerm_container_app_environment.monitoring_container_app_environment.id
+  }
+
+  # Configure queue-based job execution with parallel processing
+  queue_job_settings = {
+    inbound_queue_name          = "monitoring-inbound"
+    outbound_queue_name         = "monitoring-outbound"
+    parallelism                 = 1                # Run 1 instances in parallel
+    replica_completion_count    = 1                # Each message processed by 1 instance
+    polling_interval_in_seconds = 60               # Check queue every 60 seconds
+    queue_length_threshold      = 1                # Trigger when queue has 1+ messages
+    queue_batch_size            = 10               # Process 10 messages per run
+  }
+
+  storage_account_settings = {
+    private_endpoint_enabled   = false
+    table_private_dns_zone_id  = null
+    queue_private_dns_zone_id  = null
+  }
+
+  monitoring_configuration_encoded = jsonencode([{
+    "apiName" : "getSomething",
+    "appName": "myService",
+    "url": "https://myservice.internal.example.com/health",
+    "type": "private",
+    "checkCertificate": true,
+    "method": "GET",
+    "expectedCodes": ["200-299"]
+  }])
+
+  tags = var.tags
+}
+
+# with on-demand queue-based execution and replica completion
+module "monitoring_function" {
+  source = "git::https://github.com/pagopa/terraform-azurerm-v4.git//monitoring_function?ref=<ref>"
+
+  location = "northeurope"
+  prefix   = "dvoplad"
+  resource_group_name = azurerm_resource_group.monitor_rg.name
+
+  application_insight_name              = azurerm_application_insights.application_insights.name
+  application_insight_rg_name           = azurerm_application_insights.application_insights.resource_group_name
+  application_insights_action_group_ids = [azurerm_monitor_action_group.slack.id]
+
+  enable_synthetic_on_demand = true
+
+  job_settings = {
+    cron_scheduling              = "*/5 * * * *"
+    container_app_environment_id = azurerm_container_app_environment.monitoring_container_app_environment.id
+  }
+
+  # Each message will be processed by 3 instances, completing when all have finished
+  queue_job_settings = {
+    parallelism              = 3  # Run 3 instances in parallel
+    replica_completion_count = 3  # Each message requires all 3 instances to complete
+    queue_batch_size         = 5  # Process 5 messages per run
+  }
+
+  storage_account_settings = {
+    private_endpoint_enabled  = false
+    table_private_dns_zone_id = null
+  }
+
+  monitoring_configuration_encoded = jsonencode([{
+    "apiName" : "getSomething",
+    "appName": "myService",
+    "url": "https://myservice.internal.example.com/health",
+    "type": "private"
+  }])
+
+  tags = var.tags
+}
 ```
 
 ### How to: Migration from v3
@@ -298,8 +389,11 @@ module "monitoring_function" {
 | Name | Type |
 | ---- | ---- |
 | [azurerm_container_app_job.monitoring_terraform_app_job](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app_job) | resource |
+| [azurerm_container_app_job.monitoring_terraform_app_job_on_demand](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app_job) | resource |
 | [azurerm_monitor_metric_alert.alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_monitor_metric_alert.self_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [azurerm_storage_queue.inbound_queue](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_queue) | resource |
+| [azurerm_storage_queue.outbound_queue](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_queue) | resource |
 | [azurerm_storage_table.table_storage](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_table) | resource |
 | [azurerm_storage_table_entity.monitoring_configuration](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_table_entity) | resource |
 | [grafana_dashboard.sythetic_monitoring](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/dashboard) | resource |
@@ -316,15 +410,17 @@ module "monitoring_function" {
 | <a name="input_application_insight_rg_name"></a> [application\_insight\_rg\_name](#input\_application\_insight\_rg\_name) | (Required) name of the application insight instance resource group where to publish metrics | `string` | n/a | yes |
 | <a name="input_application_insights_action_group_ids"></a> [application\_insights\_action\_group\_ids](#input\_application\_insights\_action\_group\_ids) | (Required) Application insights action group ids | `list(string)` | n/a | yes |
 | <a name="input_docker_settings"></a> [docker\_settings](#input\_docker\_settings) | n/a | <pre>object({<br/>    registry_url = optional(string, "ghcr.io")                           #(Optional) Docker container registry url where to find the monitoring image<br/>    image_tag    = string                                                #(Optional) Docker image tag<br/>    image_name   = optional(string, "pagopa/azure-synthetic-monitoring") #(Optional) Docker image name<br/>  })</pre> | <pre>{<br/>  "image_name": "pagopa/azure-synthetic-monitoring",<br/>  "image_tag": "v1.10.0@sha256:1686c4a719dc1a3c270f98f527ebc34179764ddf53ee3089febcb26df7a2d71d",<br/>  "registry_url": "ghcr.io"<br/>}</pre> | no |
+| <a name="input_enable_synthetic_on_demand"></a> [enable\_synthetic\_on\_demand](#input\_enable\_synthetic\_on\_demand) | (Optional) If true, enables the on demand synthetic tests execution API | `bool` | `false` | no |
 | <a name="input_enabled_sythetic_dashboard"></a> [enabled\_sythetic\_dashboard](#input\_enabled\_sythetic\_dashboard) | (Optional) Enabled sythetic dashboard on grafana | `bool` | `false` | no |
 | <a name="input_job_settings"></a> [job\_settings](#input\_job\_settings) | n/a | <pre>object({<br/>    container_app_environment_id = string                          #(Required) If defined, the id of the container app environment tu be used to run the monitoring job. If provided, skips the creation of a dedicated subnet<br/>    cert_validity_range_days     = optional(number, 7)             #(Optional) Number of days before the expiration date of a certificate over which the check is considered success<br/>    execution_timeout_seconds    = optional(number, 300)           #(Optional) Job execution timeout, in seconds<br/>    cron_scheduling              = optional(string, "*/5 * * * *") #(Optional) Cron expression defining the execution scheduling of the monitoring function<br/>    cpu_requirement              = optional(number, 0.25)          #(Optional) Decimal; cpu requirement<br/>    memory_requirement           = optional(string, "0.5Gi")       #(Optional) Memory requirement<br/>    http_client_timeout          = optional(number, 30000)         #(Optional) Default http client response timeout, in milliseconds<br/>    default_duration_limit       = optional(number, 10000)         #(Optional) Duration limit applied if none is given in the monitoring configuration. in milliseconds<br/>    availability_prefix          = optional(string, "synthetic")   #(Optional) Prefix used for prefixing availability test names<br/>    workload_profile             = optional(string, "Consumption") #(Optional) Container App workload profile to be used for the monitoring job. If not provided, defaults to the "consumption". Set "None" to use a regular container app without workload profile<br/>  })</pre> | <pre>{<br/>  "availability_prefix": "synthetic",<br/>  "cert_validity_range_days": 7,<br/>  "container_app_environment_id": null,<br/>  "cpu_requirement": 0.25,<br/>  "cron_scheduling": "*/5 * * * *",<br/>  "default_duration_limit": 10000,<br/>  "execution_timeout_seconds": 300,<br/>  "http_client_timeout": 30000,<br/>  "memory_requirement": "0.5Gi",<br/>  "workload_profile": "Consumption"<br/>}</pre> | no |
 | <a name="input_location"></a> [location](#input\_location) | (Required) Resource location | `string` | n/a | yes |
 | <a name="input_location_display_name"></a> [location\_display\_name](#input\_location\_display\_name) | (Required) Region location display name, like 'Italy North' | `string` | n/a | yes |
 | <a name="input_monitoring_configuration_encoded"></a> [monitoring\_configuration\_encoded](#input\_monitoring\_configuration\_encoded) | (Required) Monitoring configuration provided in JSON string format (use jsonencode).<br/>Each item supports an optional `alertConfiguration` object with the following fields:<br/>  - enabled           (bool)   - whether the alert is enabled<br/>  - severity          (number) - alert severity (0–4)<br/>  - frequency         (string) - evaluation frequency in ISO 8601 (e.g. "PT1M")<br/>  - auto\_mitigate     (bool)   - whether to auto-resolve the alert<br/>  - operator          (string) - comparison operator: GreaterThan, LessThan, GreaterOrLessThan<br/>  - aggregation       (string) - metric aggregation (e.g. "Average")<br/>  - customActionGroupIds (list of strings) - additional action group IDs<br/><br/>The following two sets of fields are mutually exclusive:<br/><br/>Static threshold (criteria) — used when evaluation\_failure\_count and<br/>evaluation\_total\_count are NOT present:<br/>  - threshold         (number, default 100) - static metric threshold value<br/><br/>Dynamic threshold (dynamic\_criteria) — activated when BOTH of the following<br/>are explicitly present in alertConfiguration:<br/>  - evaluation\_failure\_count (number) - number of failing evaluation windows required<br/>                                        to trigger the alert; must be ≤ evaluation\_total\_count<br/>  - evaluation\_total\_count   (number) - size of the lookback window in evaluation periods<br/>  - alert\_sensitivity        (string, default "Medium") - Low, Medium, High | `string` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | (Required) Prefix for dedicated resource names | `string` | n/a | yes |
+| <a name="input_queue_job_settings"></a> [queue\_job\_settings](#input\_queue\_job\_settings) | (Optional) Settings for the queue-based job execution. If parallelism > 1, multiple instances of the monitoring job will run in parallel, consuming messages from the same queue. If replica\_completion\_count > 1, each message will be processed by that number of job instances, and considered completed only when all instances have processed it. Polling\_interval\_in\_seconds defines how often the job checks for new messages in the queue. Queue\_length\_threshold defines the minimum number of messages in the queue required to trigger the execution of the monitoring job (if parallelism is greater than 1). | <pre>object({<br/>    inbound_queue_name          = optional(string, "inbound-queue")  #(Optional) Name of the queue where monitoring jobs consume messages<br/>    outbound_queue_name         = optional(string, "outbound-queue") #(Optional) Name of the queue where monitoring job results are published<br/>    parallelism                 = optional(number, 1)                #(Optional) Number of parallel job instances to run concurrently<br/>    replica_completion_count    = optional(number, 1)                #(Optional) Number of instances required to process each message before completion<br/>    polling_interval_in_seconds = optional(number, 300)              #(Optional) Interval in seconds between queue polling checks for new messages<br/>    queue_length_threshold      = optional(number, 1)                #(Optional) Minimum queue length required to trigger job execution when parallelism > 1<br/>    queue_batch_size            = optional(number, 1)                #(Optional) Number of messages to process in each run<br/>  })</pre> | <pre>{<br/>  "inbound_queue_name": "inbound-queue",<br/>  "outbound_queue_name": "outbound-queue",<br/>  "parallelism": 1,<br/>  "polling_interval_in_seconds": 300,<br/>  "queue_batch_size": 1,<br/>  "queue_length_threshold": 1,<br/>  "replica_completion_count": 1<br/>}</pre> | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (Required) Name of the resource group in which the function and its related components are created | `string` | n/a | yes |
 | <a name="input_self_alert_configuration"></a> [self\_alert\_configuration](#input\_self\_alert\_configuration) | Configuration for the alert on the job itself | <pre>object({<br/>    enabled     = optional(bool, true)         # "(Optional) if true, enables the alert on the self monitoring availability metric"<br/>    frequency   = optional(string, "PT1M")     # (Optional) The evaluation frequency of this Metric Alert, represented in ISO 8601 duration format. Possible values are PT1M, PT5M, PT15M, PT30M and PT1H<br/>    severity    = optional(number, 0)          # (Optional) The severity of this Metric Alert. Possible values are 0, 1, 2, 3 and 4<br/>    threshold   = optional(number, 100)        # (Optional) The criteria threshold value that activates the alert<br/>    operator    = optional(string, "LessThan") # (Optional) The criteria operator. Possible values are Equals, GreaterThan, GreaterThanOrEqual, LessThan and LessThanOrEqual<br/>    aggregation = optional(string, "Average")  # (Required) The statistic that runs over the metric values. Possible values are Average, Count, Minimum, Maximum and Total.<br/>  })</pre> | <pre>{<br/>  "aggregation": "Average",<br/>  "enabled": true,<br/>  "frequency": "PT1M",<br/>  "operator": "LessThan",<br/>  "severity": 0,<br/>  "threshold": 100<br/>}</pre> | no |
-| <a name="input_storage_account_settings"></a> [storage\_account\_settings](#input\_storage\_account\_settings) | n/a | <pre>object({<br/>    tier                       = optional(string, "Standard")  #(Optional) Tier used for the backup storage account<br/>    replication_type           = optional(string, "ZRS")       #(Optional) Replication type used for the backup storage account<br/>    kind                       = optional(string, "StorageV2") #(Optional) Defines the Kind of account. Valid options are BlobStorage, BlockBlobStorage, FileStorage, Storage and StorageV2. Defaults to StorageV2<br/>    backup_retention_days      = optional(number, 0)           #(Optional) number of days for which the storage account is available for point in time recovery<br/>    backup_enabled             = optional(bool, false)         # (Optional) enables storage account point in time recovery<br/>    private_endpoint_enabled   = optional(bool, false)         #(Optional) enables the creation and usage of private endpoint<br/>    advanced_threat_protection = optional(bool, false)         #(Optional) enables or not the advanced threat protection<br/>    table_private_dns_zone_id  = string                        # (Optional) table storage private dns zone id<br/>  })</pre> | <pre>{<br/>  "backup_enabled": false,<br/>  "backup_retention_days": 0,<br/>  "kind": "StorageV2",<br/>  "private_endpoint_enabled": false,<br/>  "replication_type": "ZRS",<br/>  "table_private_dns_zone_id": null,<br/>  "tier": "Standard"<br/>}</pre> | no |
+| <a name="input_storage_account_settings"></a> [storage\_account\_settings](#input\_storage\_account\_settings) | n/a | <pre>object({<br/>    tier                       = optional(string, "Standard")  #(Optional) Tier used for the backup storage account<br/>    replication_type           = optional(string, "ZRS")       #(Optional) Replication type used for the backup storage account<br/>    kind                       = optional(string, "StorageV2") #(Optional) Defines the Kind of account. Valid options are BlobStorage, BlockBlobStorage, FileStorage, Storage and StorageV2. Defaults to StorageV2<br/>    backup_retention_days      = optional(number, 0)           #(Optional) number of days for which the storage account is available for point in time recovery<br/>    backup_enabled             = optional(bool, false)         # (Optional) enables storage account point in time recovery<br/>    private_endpoint_enabled   = optional(bool, false)         #(Optional) enables the creation and usage of private endpoint<br/>    advanced_threat_protection = optional(bool, false)         #(Optional) enables or not the advanced threat protection<br/>    table_private_dns_zone_id  = string                        # (Optional) table storage private dns zone id<br/>    queue_private_dns_zone_id  = optional(string, null)        # (Optional) queue storage private dns zone id<br/>  })</pre> | <pre>{<br/>  "backup_enabled": false,<br/>  "backup_retention_days": 0,<br/>  "kind": "StorageV2",<br/>  "private_endpoint_enabled": false,<br/>  "queue_private_dns_zone_id": null,<br/>  "replication_type": "ZRS",<br/>  "table_private_dns_zone_id": null,<br/>  "tier": "Standard"<br/>}</pre> | no |
 | <a name="input_storage_private_endpoint_subnet_id"></a> [storage\_private\_endpoint\_subnet\_id](#input\_storage\_private\_endpoint\_subnet\_id) | (Optional) Subnet id where to create the private endpoint for backups storage account | `string` | `null` | no |
 | <a name="input_subscription_id"></a> [subscription\_id](#input\_subscription\_id) | (Optional) Azure subscription id | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | n/a | yes |
