@@ -1,6 +1,6 @@
 balanced_0_5gb:
   sku_name: "Balanced_B0"
-  high_availability_enabled: false
+  high_availability_enabled: true
   public_network_access: "Disabled"
   access_keys_authentication_enabled: true
   client_protocol: "Encrypted"
@@ -23,7 +23,7 @@ balanced_0_5gb:
 
 balanced_1gb:
   sku_name: "Balanced_B1"
-  high_availability_enabled: false
+  high_availability_enabled: true
   public_network_access: "Disabled"
   access_keys_authentication_enabled: true
   client_protocol: "Encrypted"
@@ -46,7 +46,7 @@ balanced_1gb:
 
 balanced_3gb:
   sku_name: "Balanced_B3"
-  high_availability_enabled: false
+  high_availability_enabled: true
   public_network_access: "Disabled"
   access_keys_authentication_enabled: true
   client_protocol: "Encrypted"
@@ -69,7 +69,7 @@ balanced_3gb:
 
 balanced_6gb:
   sku_name: "Balanced_B5"
-  high_availability_enabled: false
+  high_availability_enabled: true
   public_network_access: "Disabled"
   access_keys_authentication_enabled: true
   client_protocol: "Encrypted"
