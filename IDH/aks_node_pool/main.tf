@@ -75,8 +75,8 @@ module "aks_node_pool_foo" {
   ###############################################################
   # Kubernetes runtime metadata
   ###############################################################
-  node_labels = var.node_labels
-  node_taints = var.node_taints
+  node_labels = merge(try(local.predefined_node_labels[module.idh_loader.idh_resource_configuration.predefined_node_type], {}), var.node_labels)
+  node_taints = concat(try(local.predefined_node_taints[module.idh_loader.idh_resource_configuration.predefined_node_type], []), var.node_taints)
 
   ###############################################################
   # Upgrade surge settings
@@ -128,8 +128,8 @@ module "aks_node_pool_bar" {
   ###############################################################
   # Kubernetes runtime metadata
   ###############################################################
-  node_labels = var.node_labels
-  node_taints = var.node_taints
+  node_labels = merge(try(local.predefined_node_labels[module.idh_loader.idh_resource_configuration.predefined_node_type], {}), var.node_labels)
+  node_taints = concat(try(local.predefined_node_taints[module.idh_loader.idh_resource_configuration.predefined_node_type], []), var.node_taints)
 
   ###############################################################
   # Upgrade surge settings
