@@ -85,12 +85,12 @@ variable "client_protocol" {
 
 variable "clustering_policy" {
   type        = string
-  description = "Clustering policy (EnterpriseCluster or OSSCluster)."
+  description = "Clustering policy (EnterpriseCluster, OSSCluster or NoCluster)."
   default     = "EnterpriseCluster"
 
   validation {
-    condition     = contains(["EnterpriseCluster", "OSSCluster"], var.clustering_policy)
-    error_message = "Clustering policy must be EnterpriseCluster or OSSCluster."
+    condition     = contains(["EnterpriseCluster", "OSSCluster", "NoCluster"], var.clustering_policy)
+    error_message = "Clustering policy must be EnterpriseCluster, OSSCluster, or NoCluster."
   }
 }
 
