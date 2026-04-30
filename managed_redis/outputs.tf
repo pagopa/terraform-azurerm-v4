@@ -64,7 +64,6 @@ output "primary_connection_url" {
   description = "The primary connection URL for the managed Redis instance."
 }
 
-
 output "secondary_connection_string" {
   value       = "rediss://:${azurerm_managed_redis.this.default_database[0].secondary_access_key}@${azurerm_managed_redis.this.hostname}:${azurerm_managed_redis.this.default_database[0].port}"
   sensitive   = true

@@ -236,6 +236,7 @@ Some modules may not be available for all SKUs:
 | <a name="output_name"></a> [name](#output\_name) | The name of the managed Redis instance. |
 | <a name="output_port"></a> [port](#output\_port) | n/a |
 | <a name="output_primary_access_key"></a> [primary\_access\_key](#output\_primary\_access\_key) | n/a |
+| <a name="output_primary_connection_url"></a> [primary\_connection\_url](#output\_primary\_connection\_url) | The primary connection URL for the managed Redis instance. |
 | <a name="output_private_endpoint_id"></a> [private\_endpoint\_id](#output\_private\_endpoint\_id) | The ID of the private endpoint (if enabled). |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | The resource group name of the managed Redis instance. |
 | <a name="output_secondary_access_key"></a> [secondary\_access\_key](#output\_secondary\_access\_key) | n/a |
