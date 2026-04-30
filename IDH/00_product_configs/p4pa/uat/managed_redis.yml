@@ -73,7 +73,7 @@ balanced_1gb_no_cluster:
   public_network_access: "Disabled"
   access_keys_authentication_enabled: true
   client_protocol: "Encrypted"
-  clustering_policy: "EnterpriseCluster"
+  clustering_policy: "NoCluster"
   eviction_policy: "AllKeysLRU"
   persistence_configuration:
     rdb_frequency:
