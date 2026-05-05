@@ -43,6 +43,18 @@ output "secondary_access_key" {
   sensitive = true
 }
 
+output "primary_connection_url" {
+  value       = module.managed_redis.primary_connection_url
+  sensitive   = true
+  description = "The primary connection URL for the managed Redis instance."
+}
+
+output "secondary_connection_url" {
+  value       = module.managed_redis.secondary_connection_string
+  sensitive   = true
+  description = "The secondary connection URL for the managed Redis instance."
+}
+
 output "port" {
   value = module.managed_redis.port
 }
