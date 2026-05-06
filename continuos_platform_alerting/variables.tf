@@ -32,7 +32,7 @@ variable "global_custom_action_group" {
   type = list(object({
     key = string
     action_groups = list(object({
-      action_group_name  = string
+      action_group_name   = string
       resource_group_name = string
     }))
   }))

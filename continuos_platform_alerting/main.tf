@@ -52,9 +52,9 @@ locals {
   resource_metric_map = flatten([
     for rp in local.resource_id_map : [
       for m in var.resource_metric_alerts : {
-        resource_name       = rp.resource_name
-        resource_rg         = rp.resource_rg
-        resource_id         = rp.resource_id
+        resource_name    = rp.resource_name
+        resource_rg      = rp.resource_rg
+        resource_id      = rp.resource_id
         metric_name      = m.metric_name
         metric_namespace = m.metric_namespace
         aggregation      = m.aggregation
@@ -84,7 +84,7 @@ locals {
   resource_action_group_map = flatten([
     for rp in local.resource_metric_map : [
       for ag in rp.action_group : {
-        resource_name                       = rp.resource_name
+        resource_name                    = rp.resource_name
         metric_name                      = rp.metric_name
         action_group_name                = ag.action_group_name
         action_group_name_resource_group = ag.resource_group_name
@@ -129,9 +129,9 @@ resource "azurerm_monitor_metric_alert" "this" {
   # Collega tutti gli action group risolti per questo alert.
   dynamic "action" {
     for_each = {
-    for k, v in data.azurerm_monitor_action_group.this :
-    k => v
-    if startswith(k, "${each.value.resource_name}-${each.value.metric_name}-")
+      for k, v in data.azurerm_monitor_action_group.this :
+      k => v
+      if startswith(k, "${each.value.resource_name}-${each.value.metric_name}-")
     }
     content {
       action_group_id    = action.value["id"]
