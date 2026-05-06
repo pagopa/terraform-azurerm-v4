@@ -411,10 +411,12 @@ No modules.
 | <a name="output_name"></a> [name](#output\_name) | The name of the managed Redis instance. |
 | <a name="output_port"></a> [port](#output\_port) | n/a |
 | <a name="output_primary_access_key"></a> [primary\_access\_key](#output\_primary\_access\_key) | n/a |
+| <a name="output_primary_connection_url"></a> [primary\_connection\_url](#output\_primary\_connection\_url) | The primary connection URL for the managed Redis instance. |
 | <a name="output_private_endpoint_id"></a> [private\_endpoint\_id](#output\_private\_endpoint\_id) | The ID of the private endpoint (if enabled). |
 | <a name="output_private_endpoint_network_interface_ids"></a> [private\_endpoint\_network\_interface\_ids](#output\_private\_endpoint\_network\_interface\_ids) | The IP addresses assigned to the private endpoint. |
 | <a name="output_public_network_access"></a> [public\_network\_access](#output\_public\_network\_access) | The public network access setting. |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | The resource group name of the managed Redis instance. |
 | <a name="output_secondary_access_key"></a> [secondary\_access\_key](#output\_secondary\_access\_key) | n/a |
+| <a name="output_secondary_connection_string"></a> [secondary\_connection\_string](#output\_secondary\_connection\_string) | The secondary connection URL for the managed Redis instance. |
 | <a name="output_sku_name"></a> [sku\_name](#output\_sku\_name) | The SKU name of the managed Redis instance. |
 <!-- END_TF_DOCS -->
