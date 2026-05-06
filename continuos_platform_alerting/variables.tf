@@ -9,7 +9,7 @@ variable "azure_resource_type" {
 }
 
 variable "resource_metric_alerts" {
-  type = list(object({
+  type = map(object({
     metric_name      = string
     metric_namespace = string
     aggregation      = string
