@@ -119,7 +119,7 @@ resource "azurerm_monitor_metric_alert" "this" {
   }
 
   enabled             = var.resource_alerts_enabled
-  name                = "${each.value.resource_name}-${upper(each.key)}"
+  name                = "CPA-${upper(each.key)}"
   resource_group_name = each.value.resource_rg
   scopes              = [each.value.resource_id]
   frequency           = each.value.frequency
