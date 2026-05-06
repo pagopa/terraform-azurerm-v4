@@ -46,7 +46,7 @@ pgflex4:
     day_of_week: 3
     start_hour: 2
     start_minute: 0
-  high_availability_enabled: false
+  high_availability_enabled: true
   server_parameters:
     pgbouncer_enabled: true
     max_worker_processes: 16
