@@ -129,7 +129,7 @@ resource "azurerm_monitor_metric_alert" "this" {
   # Collega tutti gli action group risolti per questo alert.
   dynamic "action" {
     for_each = {
-    for k, v in data.azurerm_monitor_action_group.all_action_groups :
+    for k, v in data.azurerm_monitor_action_group.this :
     k => v
     if startswith(k, "${each.value.resource_name}-${each.value.metric_name}-")
     }
