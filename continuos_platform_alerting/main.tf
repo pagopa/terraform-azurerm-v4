@@ -43,7 +43,7 @@ locals {
   # resource_metric_map
   # ============================================================
   # Cross join risorsa × metriche: ogni elemento rappresenta un
-  # singolo alert da creare (una metrica su una istanza Redis).
+  # singolo alert da creare (una metrica su una istanza ).
   #
   # Logica di risoluzione action group (dal più specifico al più generico):
   #   1. "{resource_name}-{metric_name}" → override per risorsa + metrica
@@ -51,7 +51,7 @@ locals {
   #   3. "default"                        → fallback globale
   resource_metric_map = flatten([
     for rp in local.resource_id_map : [
-      for m in var.redis_metric_alerts : {
+      for m in var.resource_metric_alerts : {
         resource_name       = rp.resource_name
         resource_rg         = rp.resource_rg
         resource_id         = rp.resource_id
