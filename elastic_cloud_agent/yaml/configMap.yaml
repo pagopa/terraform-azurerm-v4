@@ -940,11 +940,7 @@ data:
                 - logs-*-*
               privileges: *ref_0
             - names:
-            %{~ for ds_name, log_files in dedicated_log_instance_name ~}
-                %{~ for log_file in log_files ~}
-                - logs-${log_file}-${target_namespace}
-                %{~ endfor ~}
-            %{~ endfor ~}
+                - logs-*-${target_namespace}
               privileges: *ref_0
         ${apm_id}:
           indices:
