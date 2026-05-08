@@ -39,15 +39,15 @@ variable "realms_configuration" {
       host                  = string
       port                  = string
       from                  = string
-      from_display_name     = string
-      reply_to              = string
-      reply_to_display_name = string
-      ssl                   = bool
-      starttls              = bool
-      auth = object({
+      from_display_name     = optional(string)
+      reply_to              = optional(string)
+      reply_to_display_name = optional(string)
+      ssl                   = optional(bool)
+      starttls              = optional(bool)
+      auth = optional(object({
         username = string
         password = string
-      })
+      }))
     }))
 
     # --- Internationalization ---
