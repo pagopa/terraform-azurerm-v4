@@ -33,13 +33,13 @@ variable "namespace_annotations" {
 variable "chart_version" {
   description = "Version of the haproxytech/kubernetes-ingress Helm chart."
   type        = string
-  default     = "1.40.0"
+  default     = "1.49.0"
 }
 
 variable "controller_image_tag" {
   description = "HAProxy controller image tag (for example '2.11.0')."
   type        = string
-  default     = "2.11.0"
+  default     = "3.2.6"
 }
 
 # ---- Replicas & Autoscaling ----
