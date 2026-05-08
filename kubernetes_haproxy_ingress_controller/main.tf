@@ -308,7 +308,14 @@ resource "helm_release" "haproxy_ingress" {
   recreate_pods   = false
   force_update    = false
 
-  set = local.helm_set_values
+  dynamic "set" {
+    for_each = local.helm_set_values
+    iterator = helm_set
+    content {
+      name  = helm_set.value["name"]
+      value = helm_set.value["value"]
+    }
+  }
 
   values = concat(
     var.extra_values_files,
@@ -320,24 +327,3 @@ resource "helm_release" "haproxy_ingress" {
     kubernetes_resource_quota_v1.haproxy_ingress,
   ]
 }
-
-moved {
-  from = kubernetes_namespace.haproxy_ingress
-  to   = kubernetes_namespace_v1.haproxy_ingress
-}
-
-moved {
-  from = kubernetes_resource_quota.haproxy_ingress
-  to   = kubernetes_resource_quota_v1.haproxy_ingress
-}
-
-moved {
-  from = kubernetes_network_policy.haproxy_ingress_default_deny
-  to   = kubernetes_network_policy_v1.haproxy_ingress_default_deny
-}
-
-moved {
-  from = kubernetes_network_policy.haproxy_ingress_allow
-  to   = kubernetes_network_policy_v1.haproxy_ingress_allow
-}
-
