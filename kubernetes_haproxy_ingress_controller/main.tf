@@ -314,6 +314,7 @@ resource "helm_release" "haproxy_ingress" {
     content {
       name  = helm_set.value["name"]
       value = helm_set.value["value"]
+      type  = "string"
     }
   }
 
