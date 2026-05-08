@@ -54,166 +54,61 @@ resource "kubernetes_resource_quota_v1" "haproxy_ingress" {
 locals {
   helm_set_values = concat(
     [
-      {
-        name  = "controller.replicaCount"
-        value = tostring(var.replica_count)
-      },
-      {
-        name  = "controller.image.tag"
-        value = var.controller_image_tag
-      },
-      {
-        name  = "controller.resources.requests.cpu"
-        value = var.resources.requests_cpu
-      },
-      {
-        name  = "controller.resources.requests.memory"
-        value = var.resources.requests_memory
-      },
-      {
-        name  = "controller.resources.limits.cpu"
-        value = var.resources.limits_cpu
-      },
-      {
-        name  = "controller.resources.limits.memory"
-        value = var.resources.limits_memory
-      },
-      {
-        name  = "controller.service.type"
-        value = var.service_type
-      },
-      {
-        name  = "controller.autoscaling.enabled"
-        value = tostring(var.autoscaling.enabled)
-      },
-      {
-        name  = "controller.autoscaling.minReplicas"
-        value = tostring(var.autoscaling.min_replicas)
-      },
-      {
-        name  = "controller.autoscaling.maxReplicas"
-        value = tostring(var.autoscaling.max_replicas)
-      },
-      {
-        name  = "controller.autoscaling.targetCPUUtilizationPercentage"
-        value = tostring(var.autoscaling.target_cpu_utilization)
-      },
-      {
-        name  = "controller.autoscaling.targetMemoryUtilizationPercentage"
-        value = tostring(var.autoscaling.target_memory_utilization)
-      },
-      {
-        name  = "controller.podDisruptionBudget.enable"
-        value = tostring(var.pod_disruption_budget.enabled)
-      },
-      {
-        name  = "controller.podDisruptionBudget.minAvailable"
-        value = tostring(var.pod_disruption_budget.min_available)
-      },
-      {
-        name  = "controller.podAntiAffinity"
-        value = "true"
-      },
-      {
-        name  = "controller.podAntiAffinityTopologyKey"
-        value = var.anti_affinity_topology_key
-      },
-      {
-        name  = "controller.securityContext.runAsNonRoot"
-        value = "true"
-      },
-      {
-        name  = "controller.securityContext.runAsUser"
-        value = "1000"
-      },
-      {
-        name  = "controller.securityContext.allowPrivilegeEscalation"
-        value = "false"
-      },
-      {
-        name  = "controller.securityContext.readOnlyRootFilesystem"
-        value = "true"
-      },
-      {
-        name  = "controller.securityContext.capabilities.drop[0]"
-        value = "ALL"
-      },
-      {
-        name  = "controller.containerSecurityContext.runAsNonRoot"
-        value = "true"
-      },
-      {
-        name  = "controller.stats.enabled"
-        value = tostring(var.enable_stats)
-      },
-      {
-        name  = "controller.metrics.enabled"
-        value = tostring(var.enable_metrics)
-      },
-      {
-        name  = "controller.metrics.port"
-        value = tostring(var.metrics_port)
-      },
-      {
-        name  = "controller.serviceMonitor.enabled"
-        value = tostring(var.enable_service_monitor)
-      },
-      {
-        name  = "controller.logging.level"
-        value = var.log_level
-      },
-      {
-        name  = "controller.ingressClass"
-        value = var.ingress_class_name
-      },
-      {
-        name  = "controller.ingressClassResource.name"
-        value = var.ingress_class_name
-      },
-      {
-        name  = "controller.ingressClassResource.enabled"
-        value = "true"
-      },
-      {
-        name  = "controller.ingressClassResource.default"
-        value = tostring(var.set_as_default_ingress_class)
-      }
+      { name = "controller.replicaCount", value = tostring(var.replica_count), type = "auto" },
+      { name = "controller.autoscaling.minReplicas", value = tostring(var.autoscaling.min_replicas), type = "auto" },
+      { name = "controller.autoscaling.maxReplicas", value = tostring(var.autoscaling.max_replicas), type = "auto" },
+      { name = "controller.autoscaling.targetCPUUtilizationPercentage", value = tostring(var.autoscaling.target_cpu_utilization), type = "auto" },
+      { name = "controller.autoscaling.targetMemoryUtilizationPercentage", value = tostring(var.autoscaling.target_memory_utilization), type = "auto" },
+      { name = "controller.podDisruptionBudget.minAvailable", value = tostring(var.pod_disruption_budget.min_available), type = "auto" },
+      { name = "controller.securityContext.runAsUser", value = "1000", type = "auto" },
+      { name = "controller.metrics.port", value = tostring(var.metrics_port), type = "auto" },
+      { name = "controller.image.tag", value = var.controller_image_tag, type = "string" },
+      { name = "controller.resources.requests.cpu", value = var.resources.requests_cpu, type = "string" },
+      { name = "controller.resources.requests.memory", value = var.resources.requests_memory, type = "string" },
+      { name = "controller.resources.limits.cpu", value = var.resources.limits_cpu, type = "string" },
+      { name = "controller.resources.limits.memory", value = var.resources.limits_memory, type = "string" },
+      { name = "controller.service.type", value = var.service_type, type = "string" },
+      { name = "controller.autoscaling.enabled", value = tostring(var.autoscaling.enabled), type = "string" },
+      { name = "controller.podDisruptionBudget.enable", value = tostring(var.pod_disruption_budget.enabled), type = "string" },
+      { name = "controller.podAntiAffinity", value = "true", type = "string" },
+      { name = "controller.podAntiAffinityTopologyKey", value = var.anti_affinity_topology_key, type = "string" },
+      { name = "controller.securityContext.runAsNonRoot", value = "true", type = "string" },
+      { name = "controller.securityContext.allowPrivilegeEscalation", value = "false", type = "string" },
+      { name = "controller.securityContext.readOnlyRootFilesystem", value = "true", type = "string" },
+      { name = "controller.securityContext.capabilities.drop[0]", value = "ALL", type = "string" },
+      { name = "controller.containerSecurityContext.runAsNonRoot", value = "true", type = "string" },
+      { name = "controller.stats.enabled", value = tostring(var.enable_stats), type = "string" },
+      { name = "controller.metrics.enabled", value = tostring(var.enable_metrics), type = "string" },
+      { name = "controller.serviceMonitor.enabled", value = tostring(var.enable_service_monitor), type = "string" },
+      { name = "controller.logging.level", value = var.log_level, type = "string" },
+      { name = "controller.ingressClass", value = var.ingress_class_name, type = "string" },
+      { name = "controller.ingressClassResource.name", value = var.ingress_class_name, type = "string" },
+      { name = "controller.ingressClassResource.enabled", value = "true", type = "string" },
+      { name = "controller.ingressClassResource.default", value = tostring(var.set_as_default_ingress_class), type = "string" },
     ],
     [for key, value in var.service_annotations : {
       name  = "controller.service.annotations.${key}"
       value = value
+      type  = "string"
     }],
     var.load_balancer_ip != null ? [{
       name  = "controller.service.loadBalancerIP"
       value = var.load_balancer_ip
+      type  = "string"
     }] : [],
     var.default_ssl_certificate != null ? [
-      {
-        name  = "controller.defaultTLSSecret.enabled"
-        value = "true"
-      },
-      {
-        name  = "controller.defaultTLSSecret.secret"
-        value = var.default_ssl_certificate
-      }
+      { name = "controller.defaultTLSSecret.enabled", value = "true", type = "string" },
+      { name = "controller.defaultTLSSecret.secret", value = var.default_ssl_certificate, type = "string" },
     ] : [],
     var.enable_topology_spread ? [
-      {
-        name  = "controller.topologySpreadConstraints[0].maxSkew"
-        value = "1"
-      },
-      {
-        name  = "controller.topologySpreadConstraints[0].topologyKey"
-        value = "topology.kubernetes.io/zone"
-      },
-      {
-        name  = "controller.topologySpreadConstraints[0].whenUnsatisfiable"
-        value = "DoNotSchedule"
-      }
+      { name = "controller.topologySpreadConstraints[0].maxSkew", value = "1", type = "auto" },
+      { name = "controller.topologySpreadConstraints[0].topologyKey", value = "topology.kubernetes.io/zone", type = "string" },
+      { name = "controller.topologySpreadConstraints[0].whenUnsatisfiable", value = "DoNotSchedule", type = "string" },
     ] : [],
     [for key, value in var.extra_set_values : {
       name  = key
       value = value
+      type  = "string"
     }]
   )
 }
@@ -314,7 +209,7 @@ resource "helm_release" "haproxy_ingress" {
     content {
       name  = helm_set.value["name"]
       value = helm_set.value["value"]
-      type  = "string"
+      type  = helm_set.value["type"]
     }
   }
 
