@@ -97,8 +97,7 @@ locals {
       type  = "string"
     }] : [],
     var.default_ssl_certificate != null ? [
-      { name = "controller.defaultTLSSecret.enabled", value = "true", type = "string" },
-      { name = "controller.defaultTLSSecret.secret", value = var.default_ssl_certificate, type = "string" },
+      { name = "controller.defaultSSLCertificate", value = var.default_ssl_certificate, type = "string" },
     ] : [],
     var.enable_topology_spread ? [
       { name = "controller.topologySpreadConstraints[0].maxSkew", value = "1", type = "auto" },

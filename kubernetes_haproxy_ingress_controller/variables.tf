@@ -180,7 +180,11 @@ variable "default_ssl_certificate" {
   description = "Default TLS secret (namespace/secret-name format). Requires cert-manager or a pre-existing secret."
   type        = string
   default     = null
-  # Example: "haproxy-ingress/wildcard-tls"
+
+  validation {
+    condition     = var.default_ssl_certificate == null || can(regex("^[a-zA-Z0-9_./-]+/[a-zA-Z0-9_./-]+$", var.default_ssl_certificate))
+    error_message = "default_ssl_certificate must be in 'namespace/secret-name' format (e.g., 'haproxy-ingress/wildcard-tls') or null."
+  }
 }
 
 # ---- Monitoring ----
