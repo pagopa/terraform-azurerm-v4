@@ -145,6 +145,14 @@ resource "kubernetes_network_policy_v1" "haproxy_ingress_default_deny" {
         port     = "443"
         protocol = "TCP"
       }
+      ports {
+        port     = "80"
+        protocol = "TCP"
+      }
+      ports {
+        port     = "8080"
+        protocol = "TCP"
+      }
     }
   }
 }
