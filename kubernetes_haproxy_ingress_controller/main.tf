@@ -87,7 +87,7 @@ locals {
       { name = "controller.ingressClassResource.default", value = tostring(var.set_as_default_ingress_class), type = "string" },
     ],
     [for key, value in var.service_annotations : {
-      name  = "controller.service.annotations.${key}"
+      name  = "controller.service.annotations.${replace(key, ".", "\\.")}"
       value = value
       type  = "string"
     }],
