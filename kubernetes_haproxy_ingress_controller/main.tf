@@ -117,46 +117,6 @@ locals {
   )
 }
 
-resource "kubernetes_network_policy_v1" "haproxy_ingress_default_deny" {
-  count = var.enable_network_policy ? 1 : 0
-
-  metadata {
-    name      = "${var.release_name}-default-deny"
-    namespace = kubernetes_namespace_v1.haproxy_ingress.metadata[0].name
-  }
-
-  spec {
-    pod_selector {}
-    policy_types = ["Egress"]
-
-    egress {
-      ports {
-        port     = "53"
-        protocol = "UDP"
-      }
-      ports {
-        port     = "53"
-        protocol = "TCP"
-      }
-    }
-
-    egress {
-      ports {
-        port     = "443"
-        protocol = "TCP"
-      }
-      ports {
-        port     = "80"
-        protocol = "TCP"
-      }
-      ports {
-        port     = "8080"
-        protocol = "TCP"
-      }
-    }
-  }
-}
-
 resource "kubernetes_network_policy_v1" "haproxy_ingress_allow" {
   count = var.enable_network_policy ? 1 : 0
 
