@@ -4,11 +4,15 @@ locals {
     "manage-users",
     "manage-clients",
     "manage-events",
+    "manage-identity-providers",
+    "view-identity-providers",
     "view-realm",
     "view-users",
     "query-groups",
     "query-users",
-    "query-clients"
+    "query-realms",
+    "query-clients",
+    "create-client"
   ]
 
   domain_admin_composite_roles = [
