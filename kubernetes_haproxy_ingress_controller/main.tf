@@ -127,7 +127,7 @@ resource "kubernetes_network_policy_v1" "haproxy_ingress_default_deny" {
 
   spec {
     pod_selector {}
-    policy_types = ["Ingress", "Egress"]
+    policy_types = ["Egress"]
 
     egress {
       ports {
