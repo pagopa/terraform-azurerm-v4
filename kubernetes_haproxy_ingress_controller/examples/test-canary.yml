@@ -1,0 +1,126 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: haproxy-itn
+---
+# --- BLUE deployment---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-app-blue
+  namespace: haproxy-itn
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-test
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: web-test
+        version: blue
+    spec:
+      containers:
+        - name: echo
+          image: hashicorp/http-echo
+          args: ["-text=APP"]
+          ports:
+            - containerPort: 5678
+---
+# --- GREEN deployment ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-app-green
+  namespace: haproxy-itn
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-test
+      version: green
+  template:
+    metadata:
+      labels:
+        app: web-test
+        version: green
+    spec:
+      containers:
+        - name: echo
+          image: hashicorp/http-echo
+          args: ["-text=CANARY"]
+          ports:
+            - containerPort: 5678
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-test-blue-svc
+  namespace: haproxy-itn
+spec:
+  ports:
+    - port: 80
+      targetPort: 5678
+  selector:
+    app: web-test
+    version: blue
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-test-green-svc
+  namespace: haproxy-itn
+spec:
+  ports:
+    - port: 80
+      targetPort: 5678
+  selector:
+    app: web-test
+    version: green
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-app-blue-default
+  namespace: haproxy-itn
+  annotations:
+    kubernetes.io/ingress.class: "haproxy"
+    haproxy.org/load-balance: "roundrobin"
+    haproxy.org/backend-config-snippet: |
+      acl is_canary req.hdr(X-Canary) -i true
+      http-request redirect code 302 location /canary if is_canary
+spec:
+  ingressClassName: haproxy
+  rules:
+    - host: haproxy.itn.internal.devopslab.pagopa.it
+      http:
+        paths:
+          - path: /app
+            pathType: Prefix
+            backend:
+              service:
+                name: web-test-blue-svc
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-app-green-canary
+  namespace: haproxy-itn
+  annotations:
+    kubernetes.io/ingress.class: "haproxy"
+spec:
+  ingressClassName: haproxy
+  rules:
+    - host: haproxy.itn.internal.devopslab.pagopa.it
+      http:
+        paths:
+          - path: /canary
+            pathType: Prefix
+            backend:
+              service:
+                name: web-test-green-svc
+                port:
+                  number: 80
