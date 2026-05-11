@@ -175,6 +175,14 @@ resource "kubernetes_network_policy_v1" "haproxy_ingress_allow" {
         port     = "443"
         protocol = "TCP"
       }
+      ports {
+        port     = "8080"
+        protocol = "TCP"
+      }
+      ports {
+        port     = "8443"
+        protocol = "TCP"
+      }
     }
 
     # Prometheus scraping
