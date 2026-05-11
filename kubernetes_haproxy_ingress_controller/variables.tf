@@ -10,6 +10,12 @@ variable "release_name" {
   default     = "haproxy-ingress"
 }
 
+variable "create_namespace" {
+  description = "Whether to create the Kubernetes namespace for HAProxy Ingress Controller."
+  type        = bool
+  default     = true
+}
+
 variable "namespace" {
   description = "Kubernetes namespace where HAProxy Ingress Controller will be installed."
   type        = string

@@ -4,7 +4,7 @@
 
 output "namespace" {
   description = "Namespace where HAProxy Ingress Controller is installed."
-  value       = kubernetes_namespace_v1.haproxy_ingress.metadata[0].name
+  value       = kubernetes_namespace_v1.haproxy_ingress.0.metadata[0].name
 }
 
 output "release_name" {

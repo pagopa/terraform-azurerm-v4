@@ -3,6 +3,8 @@
 ###############################################################################
 
 resource "kubernetes_namespace_v1" "haproxy_ingress" {
+  count = var.create_namespace ? 1 : 0
+
   metadata {
     name = var.namespace
 
@@ -33,7 +35,7 @@ resource "kubernetes_resource_quota_v1" "haproxy_ingress" {
 
   metadata {
     name      = "${var.release_name}-quota"
-    namespace = kubernetes_namespace_v1.haproxy_ingress.metadata[0].name
+    namespace = kubernetes_namespace_v1.haproxy_ingress.0.metadata[0].name
   }
 
   spec {
@@ -122,7 +124,7 @@ resource "kubernetes_network_policy_v1" "haproxy_ingress_allow" {
 
   metadata {
     name      = "${var.release_name}-allow-ingress"
-    namespace = kubernetes_namespace_v1.haproxy_ingress.metadata[0].name
+    namespace = kubernetes_namespace_v1.haproxy_ingress.0.metadata[0].name
   }
 
   spec {
@@ -174,7 +176,7 @@ resource "helm_release" "haproxy_ingress" {
   repository    = "https://haproxytech.github.io/helm-charts"
   chart         = "kubernetes-ingress"
   version       = var.chart_version
-  namespace     = kubernetes_namespace_v1.haproxy_ingress.metadata[0].name
+  namespace     = kubernetes_namespace_v1.haproxy_ingress.0.metadata[0].name
   atomic        = var.atomic
   wait          = true
   wait_for_jobs = true
@@ -198,7 +200,7 @@ resource "helm_release" "haproxy_ingress" {
   )
 
   depends_on = [
-    kubernetes_namespace_v1.haproxy_ingress,
+    kubernetes_namespace_v1.haproxy_ingress[0],
     kubernetes_resource_quota_v1.haproxy_ingress,
   ]
 }
