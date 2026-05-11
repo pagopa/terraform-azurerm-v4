@@ -110,7 +110,7 @@ variable "resources" {
 variable "enable_resource_quota" {
   description = "Enable Resource Quota on the namespace."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "namespace_quota" {

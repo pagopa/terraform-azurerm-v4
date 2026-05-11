@@ -189,18 +189,17 @@ resource "kubernetes_network_policy_v1" "haproxy_ingress_allow" {
 ###############################################################################
 
 resource "helm_release" "haproxy_ingress" {
-  name            = var.release_name
-  repository      = "https://haproxytech.github.io/helm-charts"
-  chart           = "kubernetes-ingress"
-  version         = var.chart_version
-  namespace       = kubernetes_namespace_v1.haproxy_ingress.metadata[0].name
-  cleanup_on_fail = true
-  atomic          = var.atomic
-  wait            = true
-  wait_for_jobs   = true
-  timeout         = var.timeout_seconds
-  recreate_pods   = false
-  force_update    = false
+  name          = var.release_name
+  repository    = "https://haproxytech.github.io/helm-charts"
+  chart         = "kubernetes-ingress"
+  version       = var.chart_version
+  namespace     = kubernetes_namespace_v1.haproxy_ingress.metadata[0].name
+  atomic        = var.atomic
+  wait          = true
+  wait_for_jobs = true
+  timeout       = var.timeout_seconds
+  recreate_pods = false
+  force_update  = false
 
   dynamic "set" {
     for_each = local.helm_set_values
