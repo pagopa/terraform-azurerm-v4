@@ -27,6 +27,19 @@
 | cstar | uat |  Standard_D8ads_v5_passive | - | VM Size: Standard_D8ads_v5, Disk: Ephemeral 128GB, Nodes: ---, Predefined type: - |
 | cstar | uat |  Standard_D8ds_v5_active | - | VM Size: Standard_D8ds_v5, Disk: Ephemeral 128GB, Nodes: ---, Predefined type: - |
 | cstar | uat |  Standard_D8ds_v5_passive | - | VM Size: Standard_D8ds_v5, Disk: Ephemeral 128GB, Nodes: ---, Predefined type: - |
+## p4pa
+| Product  | Environment | Tier | Deprecated | Description |
+|:-------------:|:----------------:|:---------:|:---------:|:----------------|
+| p4pa | dev |  Standard_B2ms | - | VM Size: Standard_B2ms, Disk: Managed 128GB, Nodes: ---, Predefined type: - |
+| p4pa | dev |  Standard_B4ms | - | VM Size: Standard_B4ms, Disk: Managed 128GB, Nodes: ---, Predefined type: - |
+| p4pa | dev |  Standard_B8ms | - | VM Size: Standard_B8ms, Disk: Managed 128GB, Nodes: ---, Predefined type: - |
+|---|---|---|---|
+| p4pa | prod |  Standard_D4ads | - | VM Size: Standard_D4ads_v5, Disk: Managed 128GB, Nodes: ---, Predefined type: - |
+| p4pa | prod |  Standard_D8ads | - | VM Size: Standard_D8ads_v5, Disk: Managed 300GB, Nodes: ---, Predefined type: - |
+|---|---|---|---|
+| p4pa | uat |  Standard_D2ads | - | VM Size: Standard_D2ads_v5, Disk: Managed 128GB, Nodes: ---, Predefined type: - |
+| p4pa | uat |  Standard_D4ads | - | VM Size: Standard_D4ads_v5, Disk: Managed 128GB, Nodes: ---, Predefined type: - |
+| p4pa | uat |  Standard_D8ads | - | VM Size: Standard_D8ds_v5, Disk: Managed 300GB, Nodes: ---, Predefined type: - |
 ## pagopa
 | Product  | Environment | Tier | Deprecated | Description |
 |:-------------:|:----------------:|:---------:|:---------:|:----------------|
