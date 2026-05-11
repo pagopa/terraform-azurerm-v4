@@ -86,8 +86,13 @@ locals {
       { name = "controller.ingressClassResource.enabled", value = "true", type = "string" },
       { name = "controller.ingressClassResource.default", value = tostring(var.set_as_default_ingress_class), type = "string" },
     ],
-    [for key, value in var.service_annotations : {
-      name  = "controller.service.annotations.${replace(key, ".", "\\.")}"
+    [for key, value in merge(
+      {
+        "service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path" = "/healthz"
+      },
+      var.service_annotations
+      ) : {
+      name  = "controller.service.annotations.${replace(replace(key, ".", "\\."), "/", "\\/")}"
       value = value
       type  = "string"
     }],

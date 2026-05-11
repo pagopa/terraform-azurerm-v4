@@ -218,7 +218,7 @@ variable "enable_service_monitor" {
 variable "enable_network_policy" {
   description = "Enable Network Policies in the namespace."
   type        = bool
-  default     = true
+  default     = false
 }
 
 # ---- Affinity & Topology ----
