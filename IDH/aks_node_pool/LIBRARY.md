@@ -39,7 +39,7 @@
 |---|---|---|---|
 | p4pa | uat |  Standard_D2ads | - | VM Size: Standard_D2ads_v5, Disk: Managed 128GB, Nodes: ---, Predefined type: - |
 | p4pa | uat |  Standard_D4ads | - | VM Size: Standard_D4ads_v5, Disk: Managed 128GB, Nodes: ---, Predefined type: - |
-| p4pa | uat |  Standard_D8ads | - | VM Size: Standard_D8ds_v5, Disk: Managed 300GB, Nodes: ---, Predefined type: - |
+| p4pa | uat |  Standard_D8ads | - | VM Size: Standard_D8ads_v5, Disk: Managed 300GB, Nodes: ---, Predefined type: - |
 ## pagopa
 | Product  | Environment | Tier | Deprecated | Description |
 |:-------------:|:----------------:|:---------:|:---------:|:----------------|
