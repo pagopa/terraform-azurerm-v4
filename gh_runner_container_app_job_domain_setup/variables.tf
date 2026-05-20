@@ -72,7 +72,7 @@ variable "job" {
     scale_min_executions = optional(number, 0)
   })
 
-  description = "Container App job configuration"
+  description = "Container App job scaling configuration"
 }
 
 variable "job_meta" {
@@ -128,6 +128,7 @@ variable "key_vault" {
     rg          = string # Resource group of the KeyVault which stores PAT as secret
     secret_name = string # Data of the KeyVault which stores PAT as secret
   })
+  description = "(Required) KeyVault configuration containing the GitHub PAT (Personal Access Token) used for runner authentication"
 }
 
 
@@ -151,7 +152,7 @@ variable "gh_repositories" {
 
   validation {
     condition     = length(var.gh_repositories) > 0
-    error_message = "You need to configure at leas one repository"
+    error_message = "You need to configure at least one repository"
   }
 
   validation {
@@ -180,7 +181,7 @@ variable "kubernetes_deploy" {
     rg = optional(string, "")
   })
 
-  description = "(Optional) Enables and specifies the kubernetes deply permissions"
+  description = "(Optional) Enables and specifies the kubernetes deploy permissions"
 
   default = {
     enabled      = false
@@ -237,7 +238,8 @@ variable "domain_name" {
 
 variable "domain_security_rg_name" {
   type        = string
-  description = "(Optional) Security rg name for the domain"
+  description = "(Optional) Security resource group name for the domain"
+  default     = null
 }
 
 variable "identity_role" {
