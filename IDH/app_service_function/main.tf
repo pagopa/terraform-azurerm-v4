@@ -172,7 +172,7 @@ module "main_slot" {
     public_network_access_enabled     = module.idh_loader.idh_resource_configuration.internal_storage_account.public_network_access_enabled
   }
   ip_restriction_default_action = module.idh_loader.idh_resource_configuration.ip_restriction_default_action
-  minimum_tls_version           = module.idh_loader.idh_resource_configuration.minimum_tls_version
+  minimum_tls_version           = var.minimum_tls_version != null ? var.minimum_tls_version : module.idh_loader.idh_resource_configuration.minimum_tls_version
   system_identity_enabled       = module.idh_loader.idh_resource_configuration.system_identity_enabled
   user_identity_ids             = var.user_identity_ids
   use_32_bit_worker_process     = module.idh_loader.idh_resource_configuration.use_32_bit_worker_process
@@ -239,7 +239,7 @@ module "staging_slot" {
   use_dotnet_isolated_runtime = var.use_dotnet_isolated_runtime
 
   ip_restriction_default_action = module.idh_loader.idh_resource_configuration.ip_restriction_default_action
-  minimum_tls_version           = module.idh_loader.idh_resource_configuration.minimum_tls_version
+  minimum_tls_version           = var.minimum_tls_version != null ? var.minimum_tls_version : module.idh_loader.idh_resource_configuration.minimum_tls_version
   system_identity_enabled       = module.idh_loader.idh_resource_configuration.system_identity_enabled
   user_identity_ids             = var.user_identity_ids
   use_32_bit_worker_process     = module.idh_loader.idh_resource_configuration.use_32_bit_worker_process
