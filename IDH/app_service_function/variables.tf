@@ -202,6 +202,12 @@ variable "action" {
   default = []
 }
 
+variable "minimum_tls_version" {
+  type        = string
+  description = "(Optional) The minimum TLS version required for SSL. Possible values are '1.0', '1.1', and '1.2'. Defaults to '1.2'."
+  default     = null
+}
+
 variable "app_service_logs" {
   type = object({
     disk_quota_mb         = number
