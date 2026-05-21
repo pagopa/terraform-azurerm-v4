@@ -334,8 +334,7 @@ def sign_cert(
         tags=tags,
     )
     log.info(
-        "  PFX salvato come secret KV '%s' (base64, %d chars).",
-        pfx_secret_name,
+        "  PFX salvato come secret KV (nome omesso) (base64, %d chars).",
         len(pfx_b64),
     )
 
