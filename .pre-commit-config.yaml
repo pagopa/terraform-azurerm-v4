@@ -5,7 +5,7 @@ repos:
       - id: generate-idh-docs
         name: Generate IDH Docs
         entry: .scripts/generate-idh-docs.sh
-        language: python
+        language: script
         types: [python]
       - id: check-variables-tf
         name: Check Terraform variables.tf conventions
