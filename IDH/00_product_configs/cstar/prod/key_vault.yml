@@ -1,11 +1,11 @@
 standard_public:
-  enable_rbac_authorization: false
+  rbac_authorization_enabled: false
   public_network_access_enabled: true
   soft_delete_retention_days: 90
   sku_name: standard
   lock_enabled: false
 premium_private:
-  enable_rbac_authorization: false
+  rbac_authorization_enabled: false
   public_network_access_enabled: false
   soft_delete_retention_days: 90
   sku_name: premium

@@ -28,7 +28,7 @@ module "key_vault" {
   private_endpoint_subnet_id           = var.private_endpoint_subnet_id
   private_dns_zones_ids                = var.private_dns_zones_ids
 
-  enable_rbac_authorization     = module.idh_loader.idh_resource_configuration.enable_rbac_authorization
+  rbac_authorization_enabled    = module.idh_loader.idh_resource_configuration.rbac_authorization_enabled
   lock_enable                   = module.idh_loader.idh_resource_configuration.lock_enabled
   public_network_access_enabled = module.idh_loader.idh_resource_configuration.public_network_access_enabled
   soft_delete_retention_days    = module.idh_loader.idh_resource_configuration.soft_delete_retention_days
