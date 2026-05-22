@@ -2,6 +2,7 @@ locals {
   private_root_ca_name = "private-root-ca"
   validity_months      = 120
   key_vault_name       = "${var.key_vault_prefix}-ca-kv"
+  tags_json            = jsonencode(var.tags != null ? var.tags : {})
 }
 
 # -----------------------------------------------
@@ -39,7 +40,6 @@ resource "terraform_data" "create_private_ca" {
     cert_name       = local.private_root_ca_name
     root_subject    = var.root_subject
     validity_months = local.validity_months
-    tags_json       = jsonencode(var.tags != null ? var.tags : {})
   }
 
   provisioner "local-exec" {
@@ -75,8 +75,8 @@ resource "terraform_data" "create_private_ca" {
                 "path_len_constraint": 0
               }
             }
-          },
-          "tags": ${self.triggers_replace.tags_json}
+           },
+          "tags": ${local.tags_json}
         }'
 
       # Wait for certificate to be ready (async operation)

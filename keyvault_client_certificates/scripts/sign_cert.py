@@ -76,7 +76,7 @@ def _asn1_length(n: int) -> bytes:
     elif n < 0x10000:
         return bytes([0x82, (n >> 8) & 0xFF, n & 0xFF])
     else:
-        raise ValueError(f"Lunghezza ASN.1 troppo grande: {n}")
+        raise ValueError(f"ASN.1 length too large: {n}")
 
 
 def _encode_sequence(content: bytes) -> bytes:
@@ -216,7 +216,7 @@ def wait_for_pending_cert(cert_client: CertificateClient, cert_name: str, timeou
         try:
             op = cert_client.get_certificate_operation(cert_name)
             if op.csr:
-                return op.csr  # bytes DER della CSR
+                return bytes(op.csr)  # bytes DER of CSR
         except Exception:
             pass
         log.info("  Waiting for CSR to be available...")
@@ -225,6 +225,7 @@ def wait_for_pending_cert(cert_client: CertificateClient, cert_name: str, timeou
 
 
 def sign_cert(
+    ca_vault_url: str,
     vault_url: str,
     cert_name: str,
     subject: str,
@@ -235,8 +236,11 @@ def sign_cert(
 ) -> None:
     credential = DefaultAzureCredential()
 
+    # Two separate clients: one for CA vault (source), one for cert vault (destination)
+    ca_cert_client  = CertificateClient(vault_url=ca_vault_url, credential=credential)
+    ca_key_client   = KeyClient(vault_url=ca_vault_url, credential=credential)
+
     cert_client    = CertificateClient(vault_url=vault_url, credential=credential)
-    key_client     = KeyClient(vault_url=vault_url, credential=credential)
     secret_client  = SecretClient(vault_url=vault_url, credential=credential)
 
     # ------------------------------------------------------------------
@@ -270,12 +274,12 @@ def sign_cert(
     log.info("  CSR obtained: subject=%s", csr.subject.rfc4514_string())
 
     # ------------------------------------------------------------------
-    # Step 2 — Download the public cert of root CA from KV
+    # Step 2 — Download the public cert of root CA from source KV
     # ------------------------------------------------------------------
     log.info("[2/5] Downloading root CA public certificate '%s'...", ca_cert_name)
 
-    ca_cert_bundle = cert_client.get_certificate(ca_cert_name)
-    ca_cert_der = ca_cert_bundle.cer  # bytes DER of public certificate
+    ca_cert_bundle = ca_cert_client.get_certificate(ca_cert_name)
+    ca_cert_der = bytes(ca_cert_bundle.cer)  # bytes DER of public certificate
     ca_cert = x509.load_der_x509_certificate(ca_cert_der, default_backend())
     log.info("  Root CA: subject=%s", ca_cert.subject.rfc4514_string())
 
@@ -289,11 +293,11 @@ def sign_cert(
     log.info("  TBS: %d bytes | SHA-256 digest: %s", len(tbs_der), digest.hex()[:16] + "...")
 
     # ------------------------------------------------------------------
-    # Step 4 — Sign via KV key sign (CA key remains in HSM)
+    # Step 4 — Sign via source KV key sign (CA key remains in HSM)
     # ------------------------------------------------------------------
     log.info("[4/5] Signing digest via KV key sign (CA key remains in vault)...")
 
-    ca_key = key_client.get_key(ca_cert_name)  # same name as cert
+    ca_key = ca_key_client.get_key(ca_cert_name)  # same name as cert, from source vault
     crypto_client = CryptographyClient(ca_key, credential=credential)
 
     sign_result = crypto_client.sign(SignatureAlgorithm.rs256, digest)
@@ -349,18 +353,20 @@ def parse_args():
     p = argparse.ArgumentParser(
         description="Sign a client certificate via Azure Key Vault HSM."
     )
-    p.add_argument("--vault-name",   required=True, help="Name of the Key Vault (without .vault.azure.net)")
-    p.add_argument("--cert-name",    required=True, help="Name of the client certificate to create in KV")
-    p.add_argument("--subject",      required=True, help="Subject DN, e.g. 'CN=service-a,O=Acme,C=IT'")
-    p.add_argument("--validity",     required=True, type=int, help="Validity in months")
-    p.add_argument("--ca-cert-name", required=True, help="Name of the root CA certificate in KV")
-    p.add_argument("--san-dns",      default="",    help="SAN DNS names separated by comma")
-    p.add_argument("--tags", required=True, help="JSON string of tags to apply (e.g. '{\"env\":\"prod\"}')")
+    p.add_argument("--ca-vault-name",   required=True, help="Name of the Key Vault containing Root CA (without .vault.azure.net)")
+    p.add_argument("--vault-name",      required=True, help="Name of the Key Vault for client certificate (without .vault.azure.net)")
+    p.add_argument("--cert-name",       required=True, help="Name of the client certificate to create in KV")
+    p.add_argument("--subject",         required=True, help="Subject DN, e.g. 'CN=service-a,O=Acme,C=IT'")
+    p.add_argument("--validity",        required=True, type=int, help="Validity in months")
+    p.add_argument("--ca-cert-name",    required=True, help="Name of the root CA certificate in source KV")
+    p.add_argument("--san-dns",         default="",    help="SAN DNS names separated by comma")
+    p.add_argument("--tags", required=True, help="JSON string of tags to apply (e.g. '{\"env\":\"prod\")')")
     return p.parse_args()
 
 
 def main():
     args = parse_args()
+    ca_vault_url = f"https://{args.ca_vault_name}.vault.azure.net"
     vault_url = f"https://{args.vault_name}.vault.azure.net"
     san_dns = [s.strip() for s in args.san_dns.split(",") if s.strip()]
 
@@ -373,17 +379,19 @@ def main():
         log.error("Error parsing tags JSON: %s", e)
         sys.exit(1)
 
-    log.info("Vault : %s", vault_url)
-    log.info("Cert  : %s", args.cert_name)
-    log.info("Subject: %s", args.subject)
-    log.info("Validity: %d months", args.validity)
-    log.info("CA cert: %s", args.ca_cert_name)
-    log.info("SAN DNS: %s", san_dns or "(none)")
+    log.info("CA Vault  : %s", ca_vault_url)
+    log.info("Cert Vault: %s", vault_url)
+    log.info("Cert      : %s", args.cert_name)
+    log.info("Subject   : %s", args.subject)
+    log.info("Validity  : %d months", args.validity)
+    log.info("CA cert   : %s", args.ca_cert_name)
+    log.info("SAN DNS   : %s", san_dns or "(none)")
     if tags:
-        log.info("Tags   : %s", tags)
+        log.info("Tags      : %s", tags)
 
     try:
         sign_cert(
+            ca_vault_url=ca_vault_url,
             vault_url=vault_url,
             cert_name=args.cert_name,
             subject=args.subject,

@@ -5,16 +5,48 @@ data "azuread_group" "this" {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = "${var.prefix}-cert-auth2-rg"
+  name     = "${var.prefix}-cert-auth3-rg"
   location = var.location
 
   tags = var.tags
 }
 
+module "kv_client" {
+  source = "../../key_vault"
+
+  location            = azurerm_resource_group.rg.location
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+  name                = "${var.prefix}-d-cert-kv"
+  resource_group_name = azurerm_resource_group.rg.name
+  tags                = azurerm_resource_group.rg.tags
+}
+
+resource "azurerm_key_vault_access_policy" "access_policy" {
+  key_vault_id = module.kv_client.id
+
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = data.azuread_group.this.object_id
+
+  certificate_permissions = [
+    "Get",
+    "List",
+    "Create",
+    "Delete",
+    "Import",
+    "Update",
+    "ManageContacts",
+    "GetIssuers",
+    "ListIssuers",
+    "SetIssuers",
+    "DeleteIssuers",
+    "ManageIssuers"
+  ]
+}
+
 module "private_ca" {
   source = "../../keyvault_private_ca"
 
-  key_vault_prefix    = var.prefix
+  key_vault_prefix    = "${var.prefix}-d"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
@@ -29,21 +61,27 @@ module "private_ca" {
 module "client_certificate" {
   source = "../"
 
-  key_vault_name = module.private_ca.key_vault_name
-  key_vault_id   = module.private_ca.key_vault_id
+  key_vault_name    = module.private_ca.key_vault_name
+  root_key_vault_id = module.private_ca.key_vault_id
 
   certificates = {
-    "test-mtls" = {
+    "test-mtls-forwarder" = {
+      key_vault_name     = module.kv_client.name
       subject            = "CN=devopla,OU=DevOps,O=DevOpsLabs,C=IT"
       validity_in_months = 3
     }
-    "test-mtls-v2" = {
+    "test-mtls-forwarder-2" = {
+      key_vault_name     = module.kv_client.name
       subject            = "CN=devopla-v2,OU=DevOps,O=DevOpsLabs,C=IT"
       validity_in_months = 2
+      san_dns_names      = ["*.forwarder.dev.platform.pagopa.it"]
     }
   }
 
   tags = azurerm_resource_group.rg.tags
 
-  depends_on = [module.private_ca]
+  depends_on = [
+    module.private_ca,
+    azurerm_key_vault_access_policy.access_policy
+  ]
 }
