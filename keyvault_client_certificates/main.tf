@@ -40,13 +40,16 @@ resource "terraform_data" "client_cert_sign" {
 
       "$VENV_DIR/bin/python" ${path.module}/scripts/sign_cert.py \
         --ca-vault-name    "${var.root_key_vault_name}" \
-        --vault-name       "${var.key_vault_name}" \
+        --vault-name       "${each.value.key_vault_name}" \
         --cert-name        "${each.key}" \
         --subject          "${each.value.subject}" \
         --validity         "${each.value.validity_in_months}" \
         --ca-cert-name     "${data.azurerm_key_vault_certificate.root_ca.name}" \
         --san-dns          "${join(",", each.value.san_dns_names)}" \
         --tags             '${jsonencode(var.tags != null ? var.tags : {})}'
+
+      # Cleanup: remove virtualenv after execution
+      rm -rf "$VENV_DIR"
     BASH
   }
 }

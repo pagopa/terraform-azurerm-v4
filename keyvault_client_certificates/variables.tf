@@ -1,7 +1,3 @@
-variable "key_vault_name" {
-  type        = string
-  description = "Name of the Key Vault (destination, where client certificates are stored)"
-}
 
 variable "root_key_vault_id" {
   type        = string
