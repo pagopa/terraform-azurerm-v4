@@ -23,19 +23,19 @@ resource "terraform_data" "client_cert_sign" {
     command     = <<-BASH
       set -euo pipefail
 
-      VENV_DIR="${path.module}/.venv-${each.key}"
+      VENV_DIR="${path.module}/.venv-shared"
 
       if [ ! -f "$VENV_DIR/bin/activate" ]; then
-        echo "==> Creazione virtualenv in $VENV_DIR..."
+        echo "==> Creating virtualenv in $VENV_DIR..."
         python3 -m venv "$VENV_DIR"
         "$VENV_DIR/bin/pip" install --quiet --upgrade pip
         "$VENV_DIR/bin/pip" install --quiet \
-          cryptography \
-          azure-identity \
-          azure-keyvault-certificates \
-          azure-keyvault-keys \
-          azure-keyvault-secrets
-        echo "    Virtualenv pronto."
+          cryptography==41.0.7 \
+          azure-identity==1.14.0 \
+          azure-keyvault-certificates==4.7.0 \
+          azure-keyvault-keys==4.7.0 \
+          azure-keyvault-secrets==4.7.0
+        echo "    Virtualenv ready."
       fi
 
       "$VENV_DIR/bin/python" ${path.module}/scripts/sign_cert.py \

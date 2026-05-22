@@ -50,6 +50,17 @@ variable "soft_delete_retention_days" {
   description = "(Optional) The number of days that items should be retained for once soft-deleted. This value can be between 7 and 90 (the default) days."
 }
 
+variable "enable_rbac_authorization" {
+  type        = bool
+  default     = null
+  description = "Deprecated: use rbac_authorization_enabled instead."
+
+  validation {
+    condition     = var.enable_rbac_authorization == null
+    error_message = "The variable 'enable_rbac_authorization' is deprecated. Use 'rbac_authorization_enabled' instead."
+  }
+}
+
 variable "rbac_authorization_enabled" {
   type        = bool
   default     = false
