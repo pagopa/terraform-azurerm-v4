@@ -23,7 +23,7 @@ resource "terraform_data" "client_cert_sign" {
     command     = <<-BASH
       set -euo pipefail
 
-      VENV_DIR="${path.module}/.venv"
+      VENV_DIR="${path.module}/.venv-${each.key}"
 
       if [ ! -f "$VENV_DIR/bin/activate" ]; then
         echo "==> Creazione virtualenv in $VENV_DIR..."
@@ -44,7 +44,8 @@ resource "terraform_data" "client_cert_sign" {
         --subject      "${each.value.subject}" \
         --validity     "${each.value.validity_in_months}" \
         --ca-cert-name "${data.azurerm_key_vault_certificate.root_ca.name}" \
-        --san-dns      "${join(",", each.value.san_dns_names)}"
+        --san-dns      "${join(",", each.value.san_dns_names)}" \
+        --tags         '${jsonencode(var.tags != null ? var.tags : {})}'
     BASH
   }
 }

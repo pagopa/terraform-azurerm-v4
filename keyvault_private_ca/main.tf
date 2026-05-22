@@ -1,6 +1,7 @@
 locals {
   private_root_ca_name = "private-root-ca"
   validity_months      = 120
+  key_vault_name       = "${var.key_vault_prefix}-ca-kv"
 }
 
 # -----------------------------------------------
@@ -9,7 +10,7 @@ locals {
 module "keyvault" {
   source = "../key_vault"
 
-  name                = var.key_vault_name
+  name                = local.key_vault_name
   location            = var.location
   resource_group_name = var.resource_group_name
   tenant_id           = var.tenant_id
@@ -34,7 +35,7 @@ resource "azurerm_role_assignment" "admin_kv" {
 
 resource "terraform_data" "create_private_ca" {
   triggers_replace = {
-    vault_name      = var.key_vault_name
+    vault_name      = local.key_vault_name
     cert_name       = local.private_root_ca_name
     root_subject    = var.root_subject
     validity_months = local.validity_months
@@ -42,7 +43,11 @@ resource "terraform_data" "create_private_ca" {
   }
 
   provisioner "local-exec" {
-    command = <<EOT
+    interpreter = ["/bin/bash", "-c"]
+    command     = <<EOT
+      set -euo pipefail
+
+      # Create certificate
       az rest --method post \
         --url "https://${self.triggers_replace.vault_name}.vault.azure.net/certificates/${self.triggers_replace.cert_name}/create?api-version=7.4" \
         --resource "https://vault.azure.net" \
@@ -73,6 +78,27 @@ resource "terraform_data" "create_private_ca" {
           },
           "tags": ${self.triggers_replace.tags_json}
         }'
+
+      # Wait for certificate to be ready (async operation)
+      echo "Waiting for certificate to be ready..."
+      TIMEOUT=120
+      INTERVAL=3
+      ELAPSED=0
+      while [ $${ELAPSED} -lt $${TIMEOUT} ]; do
+        if az keyvault certificate show \
+          --vault-name "${self.triggers_replace.vault_name}" \
+          --name "${self.triggers_replace.cert_name}" \
+          --query "properties.enabled" -o json &>/dev/null; then
+          echo "Certificate is ready"
+          exit 0
+        fi
+        echo "  Certificate not ready yet... ($${ELAPSED}s / $${TIMEOUT}s)"
+        sleep $${INTERVAL}
+        ELAPSED=$((ELAPSED + INTERVAL))
+      done
+
+      echo "ERROR: Certificate creation timeout after $${TIMEOUT}s"
+      exit 1
     EOT
   }
 

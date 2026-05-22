@@ -14,7 +14,7 @@ resource "azurerm_resource_group" "rg" {
 module "private_ca" {
   source = "../../keyvault_private_ca"
 
-  key_vault_name      = "${var.prefix}-cert-auth2-kv"
+  key_vault_prefix    = var.prefix
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
@@ -33,9 +33,13 @@ module "client_certificate" {
   key_vault_id   = module.private_ca.key_vault_id
 
   certificates = {
-    test-mtls = {
+    "test-mtls" = {
       subject            = "CN=devopla,OU=DevOps,O=DevOpsLabs,C=IT"
       validity_in_months = 3
+    }
+    "test-mtls-v2" = {
+      subject            = "CN=devopla-v2,OU=DevOps,O=DevOpsLabs,C=IT"
+      validity_in_months = 2
     }
   }
 

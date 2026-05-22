@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-sign_cert.py — Firma un certificato client tramite Azure Key Vault HSM.
+sign_cert.py — Sign a client certificate via Azure Key Vault HSM.
 
-Flusso:
-  1. Crea un certificato "pending" in KV (issuer=Unknown) → ottiene la CSR
-  2. Costruisce il TBS certificate con tutti i campi X.509
-  3. Firma il digest SHA-256 del TBS tramite KV key sign (chiave CA non esce mai dal vault)
-  4. Assembla il certificato DER finale (TBS + AlgoID + firma)
-  5. Fa il merge in KV → abbina cert firmato alla chiave privata interna
-  6. Esporta il PFX (cert + chiave privata) e lo salva come secret in KV
+Flow:
+  1. Create a "pending" certificate in KV (issuer=Unknown) → get the CSR
+  2. Build the TBS certificate with all X.509 fields
+  3. Sign the SHA-256 digest of TBS via KV key sign (CA key never leaves vault)
+  4. Assemble the final DER certificate (TBS + AlgoID + signature)
+  5. Merge in KV → bind signed cert to internal private key
+  6. Export the PFX (cert + private key) and save it as secret in KV
 
-Dipendenze:
+Dependencies:
   pip install cryptography azure-identity azure-keyvault-certificates \
               azure-keyvault-keys azure-keyvault-secrets
 
-Uso:
+Usage:
   python3 sign_cert.py \
     --vault-name   "my-keyvault" \
     --cert-name    "client-service-a" \
@@ -65,7 +65,7 @@ logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(l
 logging.getLogger("azure.identity").setLevel(logging.WARNING)
 
 # ---------------------------------------------------------------------------
-# ASN.1 DER helpers minimali (nessuna dipendenza da asn1crypto)
+# Minimal ASN.1 DER helpers (no dependency on asn1crypto)
 # ---------------------------------------------------------------------------
 
 def _asn1_length(n: int) -> bytes:
@@ -84,13 +84,13 @@ def _encode_sequence(content: bytes) -> bytes:
 
 
 def _encode_bitstring(data: bytes) -> bytes:
-    """BIT STRING con zero padding bits (prefisso 0x00)."""
+    """BIT STRING with zero padding bits (0x00 prefix)."""
     content = b"\x00" + data
     return b"\x03" + _asn1_length(len(content)) + content
 
 
 def _parse_asn1_length(data: bytes, offset: int):
-    """Restituisce (length, new_offset)."""
+    """Returns (length, new_offset)."""
     first = data[offset]
     if first < 0x80:
         return first, offset + 1
@@ -101,13 +101,13 @@ def _parse_asn1_length(data: bytes, offset: int):
 
 def extract_tbs_der(cert_der: bytes) -> bytes:
     """
-    Estrae il TBSCertificate grezzo (DER) da un certificato DER completo.
-    Struttura: SEQUENCE { TBSCertificate, AlgorithmIdentifier, BIT STRING }
+    Extracts the raw TBSCertificate (DER) from a complete DER certificate.
+    Structure: SEQUENCE { TBSCertificate, AlgorithmIdentifier, BIT STRING }
     """
-    assert cert_der[0] == 0x30, "Il certificato non inizia con SEQUENCE"
+    assert cert_der[0] == 0x30, "Certificate does not start with SEQUENCE"
     _, inner_start = _parse_asn1_length(cert_der, 1)
 
-    assert cert_der[inner_start] == 0x30, "TBSCertificate non è una SEQUENCE"
+    assert cert_der[inner_start] == 0x30, "TBSCertificate is not a SEQUENCE"
     tbs_len, tbs_content_start = _parse_asn1_length(cert_der, inner_start + 1)
     return cert_der[inner_start : tbs_content_start + tbs_len]
 
@@ -122,7 +122,7 @@ SHA256_RSA_ALGO_ID = bytes([
 
 
 def assemble_certificate_der(tbs_der: bytes, signature: bytes) -> bytes:
-    """Assembla il certificato DER finale: SEQUENCE { TBS, AlgoID, BIT STRING }."""
+    """Assemble the final certificate DER: SEQUENCE { TBS, AlgoID, BIT STRING }."""
     return _encode_sequence(
         tbs_der + SHA256_RSA_ALGO_ID + _encode_bitstring(signature)
     )
@@ -135,7 +135,7 @@ def der_to_pem(der: bytes, label: str = "CERTIFICATE") -> str:
 
 
 # ---------------------------------------------------------------------------
-# Logica principale
+# Main logic
 # ---------------------------------------------------------------------------
 
 def build_tbs_der(
@@ -145,9 +145,9 @@ def build_tbs_der(
     san_dns_names: list[str],
 ) -> bytes:
     """
-    Costruisce il TBSCertificate e lo restituisce in DER.
-    Usa una chiave RSA temporanea locale solo per ottenere la struttura DER:
-    la chiave privata della CA NON viene mai usata qui.
+    Build the TBSCertificate and return it in DER format.
+    Uses a temporary local RSA key only to get the DER structure:
+    the CA's private key is NEVER used here.
     """
     now = datetime.datetime.utcnow().replace(microsecond=0)
     expiry = now + datetime.timedelta(days=validity_months * 30)
@@ -201,7 +201,7 @@ def build_tbs_der(
             critical=False,
         )
 
-    # Firma dummy con chiave temporanea locale per ottenere il DER strutturato
+    # Dummy signature with local temporary key to get the structured DER
     tmp_key = rsa.generate_private_key(65537, 2048, default_backend())
     dummy_cert = builder.sign(tmp_key, hashes.SHA256(), default_backend())
     cert_der = dummy_cert.public_bytes(serialization.Encoding.DER)
@@ -210,7 +210,7 @@ def build_tbs_der(
 
 
 def wait_for_pending_cert(cert_client: CertificateClient, cert_name: str, timeout: int = 120):
-    """Attende che il certificato pending sia disponibile e restituisce la CSR."""
+    """Wait for the pending certificate to be available and return the CSR."""
     deadline = time.time() + timeout
     while time.time() < deadline:
         try:
@@ -219,9 +219,9 @@ def wait_for_pending_cert(cert_client: CertificateClient, cert_name: str, timeou
                 return op.csr  # bytes DER della CSR
         except Exception:
             pass
-        log.info("  In attesa che la CSR sia disponibile...")
+        log.info("  Waiting for CSR to be available...")
         time.sleep(3)
-    raise TimeoutError(f"CSR non disponibile entro {timeout}s per '{cert_name}'")
+    raise TimeoutError(f"CSR not available within {timeout}s for '{cert_name}'")
 
 
 def sign_cert(
@@ -240,15 +240,15 @@ def sign_cert(
     secret_client  = SecretClient(vault_url=vault_url, credential=credential)
 
     # ------------------------------------------------------------------
-    # Step 1 — Crea certificato pending in KV (issuer=Unknown)
-    #          KV genera chiave RSA interna e produce la CSR
+    # Step 1 — Create pending certificate in KV (issuer=Unknown)
+    #          KV generates internal RSA key and produces the CSR
     # ------------------------------------------------------------------
-    log.info("[1/5] Creazione certificato pending '%s' in Key Vault...", cert_name)
+    log.info("[1/5] Creating pending certificate '%s' in Key Vault...", cert_name)
 
     policy = CertificatePolicy(
         issuer_name=WellKnownIssuerNames.unknown,
         subject=subject,
-        exportable=True,                       # chiave client estraibile per il PFX
+        exportable=True,                       # client key extractable for PFX
         key_type=KeyType.rsa,
         key_size=2048,
         reuse_key=False,
@@ -262,70 +262,70 @@ def sign_cert(
     )
 
     cert_client.begin_create_certificate(cert_name, policy, tags=tags)
-    log.info("  Certificato pending creato, recupero CSR...")
+    log.info("  Pending certificate created, retrieving CSR...")
 
     csr_der = wait_for_pending_cert(cert_client, cert_name)
     csr_pem = der_to_pem(csr_der, "CERTIFICATE REQUEST").encode()
     csr = x509.load_pem_x509_csr(csr_pem, default_backend())
-    log.info("  CSR ottenuta: subject=%s", csr.subject.rfc4514_string())
+    log.info("  CSR obtained: subject=%s", csr.subject.rfc4514_string())
 
     # ------------------------------------------------------------------
-    # Step 2 — Scarica il cert pubblico della root CA da KV
+    # Step 2 — Download the public cert of root CA from KV
     # ------------------------------------------------------------------
-    log.info("[2/5] Download certificato pubblico root CA '%s'...", ca_cert_name)
+    log.info("[2/5] Downloading root CA public certificate '%s'...", ca_cert_name)
 
     ca_cert_bundle = cert_client.get_certificate(ca_cert_name)
-    ca_cert_der = ca_cert_bundle.cer  # bytes DER del certificato pubblico
+    ca_cert_der = ca_cert_bundle.cer  # bytes DER of public certificate
     ca_cert = x509.load_der_x509_certificate(ca_cert_der, default_backend())
     log.info("  Root CA: subject=%s", ca_cert.subject.rfc4514_string())
 
     # ------------------------------------------------------------------
-    # Step 3 — Costruisce TBS e calcola digest SHA-256
+    # Step 3 — Build TBS and compute SHA-256 digest
     # ------------------------------------------------------------------
-    log.info("[3/5] Costruzione TBS certificate e calcolo digest SHA-256...")
+    log.info("[3/5] Building TBS certificate and computing SHA-256 digest...")
 
     tbs_der = build_tbs_der(csr, ca_cert, validity_months, san_dns_names)
     digest = hashlib.sha256(tbs_der).digest()
-    log.info("  TBS: %d bytes | digest SHA-256: %s", len(tbs_der), digest.hex()[:16] + "...")
+    log.info("  TBS: %d bytes | SHA-256 digest: %s", len(tbs_der), digest.hex()[:16] + "...")
 
     # ------------------------------------------------------------------
-    # Step 4 — Firma tramite KV key sign (chiave CA resta nell'HSM)
+    # Step 4 — Sign via KV key sign (CA key remains in HSM)
     # ------------------------------------------------------------------
-    log.info("[4/5] Firma del digest tramite KV key sign (CA key rimane nel vault)...")
+    log.info("[4/5] Signing digest via KV key sign (CA key remains in vault)...")
 
-    ca_key = key_client.get_key(ca_cert_name)  # stesso nome del cert
+    ca_key = key_client.get_key(ca_cert_name)  # same name as cert
     crypto_client = CryptographyClient(ca_key, credential=credential)
 
     sign_result = crypto_client.sign(SignatureAlgorithm.rs256, digest)
     signature = sign_result.signature
-    log.info("  Firma ottenuta: %d bytes", len(signature))
+    log.info("  Signature obtained: %d bytes", len(signature))
 
     # ------------------------------------------------------------------
-    # Step 5 — Assembla DER, merge in KV, esporta PFX
+    # Step 5 — Assemble DER, merge in KV, export PFX
     # ------------------------------------------------------------------
-    log.info("[5/5] Assemblaggio certificato finale e merge in Key Vault...")
+    log.info("[5/5] Assembling final certificate and merging in Key Vault...")
 
     cert_der = assemble_certificate_der(tbs_der, signature)
     cert_pem = der_to_pem(cert_der).encode()
 
-    # Verifica base: la libreria cryptography deve riuscire a parsarlo
+    # Basic check: the cryptography library must be able to parse it
     signed_cert = x509.load_der_x509_certificate(cert_der, default_backend())
     log.info(
-        "  Certificato assemblato: serial=%s | valido fino a %s",
+        "  Certificate assembled: serial=%s | valid until %s",
         hex(signed_cert.serial_number),
         signed_cert.not_valid_after,
     )
 
-    # Merge in KV: abbina il certificato firmato alla chiave privata interna
+    # Merge in KV: bind the signed certificate to the internal private key
     cert_client.merge_certificate(cert_name, [cert_der])
-    log.info("  Merge completato — certificato abbinato alla chiave privata in KV.")
+    log.info("  Merge completed — certificate bound to private key in KV.")
 
-    # Esporta il PFX leggendo il secret KV (contiene cert + chiave privata)
-    # Il secret ha lo stesso nome del certificato
+    # Export the PFX by reading the KV secret (contains cert + private key)
+    # The secret has the same name as the certificate
     secret = secret_client.get_secret(cert_name)
     pfx_b64 = secret.value  # base64-encoded PKCS#12
 
-    # Salva il PFX come nuovo secret dedicato: "<cert-name>-pfx"
+    # Save the PFX as a new dedicated secret: "<cert-name>-pfx"
     pfx_secret_name = f"{cert_name}-pfx"
     secret_client.set_secret(
         pfx_secret_name,
@@ -334,11 +334,11 @@ def sign_cert(
         tags=tags,
     )
     log.info(
-        "  PFX salvato come secret KV (nome omesso) (base64, %d chars).",
+        "  PFX saved as KV secret (name omitted) (base64, %d chars).",
         len(pfx_b64),
     )
 
-    log.info("==> Completato: certificato '%s' firmato e disponibile in Key Vault.", cert_name)
+    log.info("==> Completed: certificate '%s' signed and available in Key Vault.", cert_name)
 
 
 # ---------------------------------------------------------------------------
@@ -347,15 +347,15 @@ def sign_cert(
 
 def parse_args():
     p = argparse.ArgumentParser(
-        description="Firma un certificato client tramite Azure Key Vault HSM."
+        description="Sign a client certificate via Azure Key Vault HSM."
     )
-    p.add_argument("--vault-name",   required=True, help="Nome del Key Vault (senza .vault.azure.net)")
-    p.add_argument("--cert-name",    required=True, help="Nome del certificato client da creare in KV")
-    p.add_argument("--subject",      required=True, help="Subject DN, es. 'CN=service-a,O=Acme,C=IT'")
-    p.add_argument("--validity",     required=True, type=int, help="Validità in mesi")
-    p.add_argument("--ca-cert-name", required=True, help="Nome del certificato root CA in KV")
-    p.add_argument("--san-dns",      default="",    help="SAN DNS names separati da virgola")
-    p.add_argument("--tags", default="{}", help="JSON string dei tag da applicare")  # <--- Aggiungi questo
+    p.add_argument("--vault-name",   required=True, help="Name of the Key Vault (without .vault.azure.net)")
+    p.add_argument("--cert-name",    required=True, help="Name of the client certificate to create in KV")
+    p.add_argument("--subject",      required=True, help="Subject DN, e.g. 'CN=service-a,O=Acme,C=IT'")
+    p.add_argument("--validity",     required=True, type=int, help="Validity in months")
+    p.add_argument("--ca-cert-name", required=True, help="Name of the root CA certificate in KV")
+    p.add_argument("--san-dns",      default="",    help="SAN DNS names separated by comma")
+    p.add_argument("--tags", required=True, help="JSON string of tags to apply (e.g. '{\"env\":\"prod\"}')")
     return p.parse_args()
 
 
@@ -364,12 +364,23 @@ def main():
     vault_url = f"https://{args.vault_name}.vault.azure.net"
     san_dns = [s.strip() for s in args.san_dns.split(",") if s.strip()]
 
+    # Parse tags from JSON string to dict
+    try:
+        tags = json.loads(args.tags) if args.tags else {}
+        if not isinstance(tags, dict):
+            raise ValueError("tags must be a JSON object (dictionary)")
+    except json.JSONDecodeError as e:
+        log.error("Error parsing tags JSON: %s", e)
+        sys.exit(1)
+
     log.info("Vault : %s", vault_url)
     log.info("Cert  : %s", args.cert_name)
     log.info("Subject: %s", args.subject)
-    log.info("Validity: %d mesi", args.validity)
+    log.info("Validity: %d months", args.validity)
     log.info("CA cert: %s", args.ca_cert_name)
-    log.info("SAN DNS: %s", san_dns or "(nessuno)")
+    log.info("SAN DNS: %s", san_dns or "(none)")
+    if tags:
+        log.info("Tags   : %s", tags)
 
     try:
         sign_cert(
@@ -379,9 +390,10 @@ def main():
             validity_months=args.validity,
             ca_cert_name=args.ca_cert_name,
             san_dns_names=san_dns,
+            tags=tags,
         )
     except Exception as exc:
-        log.error("ERRORE: %s", exc, exc_info=True)
+        log.error("ERROR: %s", exc, exc_info=True)
         sys.exit(1)
 
 

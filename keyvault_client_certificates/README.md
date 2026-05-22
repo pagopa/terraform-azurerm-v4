@@ -1,81 +1,43 @@
-# keyvault_private_ca
+# keyvault_client_certificates
 
-Terraform module for managing a private CA on Azure Key Vault with automatic issuance and renewal of mTLS client certificates.
+Terraform module for issuing and managing mTLS client certificates signed by an internal private CA stored in Azure Key Vault.
 
 ## How it works
 
-1. Creates an Azure Key Vault (Premium SKU, HSM-backed)
-2. Issues a self-signed Root CA (4096-bit RSA, 10 years, non-exportable)
-3. Issues client certificates signed by the CA with configurable auto-renewal
-
-## External organization onboarding (one-time)
-
-```bash
-# Export the Root CA public certificate
-az keyvault certificate download \
-  --vault-name <kv-name> \
-  --name private-root-ca \
-  --file pagopa-root-ca.pem \
-  --encoding PEM
-
-# Deliver pagopa-root-ca.pem to the external organization to be imported into their trust store
-```
+1. Loads an existing Root CA from Azure Key Vault
+2. Issues client certificates signed by the internal CA with configurable validity
 
 ## Usage
 
 ```hcl
-module "keyvault_private_ca" {
-  source = "../../modules/keyvault_private_ca"
+module "keyvault_client_certificates" {
+  source = "../../modules/keyvault_client_certificates"
 
-  resource_group_name = azurerm_resource_group.payments.name
-  location            = var.location
-  key_vault_name      = "${local.project}-kv-ca-${var.env_short}"
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-
-  certificate_officer_principal_ids = [
-    data.azurerm_user_assigned_identity.payments_workload_identity.principal_id,
-  ]
+  key_vault_name = azurerm_key_vault.example.name
+  key_vault_id   = azurerm_key_vault.example.id
 
   certificates = {
     "pagopa-ente-alfa-client" = {
       subject            = "CN=pagopa-ente-alfa-client,O=PagoPA S.p.A.,C=IT"
       validity_in_months = 3
-      days_before_expiry = 30
       san_dns_names      = []
     }
   }
-
-  tags = local.tags
+  tags = var.tags
 }
 ```
 
 ## Inputs / Variables
 
 ```hcl
-variable "resource_group_name" {
-  type        = string
-  description = "Name of the resource group"
-}
-
-variable "location" {
-  type        = string
-  description = "Azure region"
-}
-
 variable "key_vault_name" {
   type        = string
   description = "Name of the Key Vault"
 }
 
-variable "tenant_id" {
+variable "key_vault_id" {
   type        = string
-  description = "Azure AD Tenant ID"
-}
-
-variable "certificate_officer_principal_ids" {
-  type        = list(string)
-  description = "List of principal IDs (managed identity, service principal) with the Key Vault Certificates Officer role"
-  default     = []
+  description = "ID of the Key Vault"
 }
 
 variable "certificates" {
@@ -83,28 +45,47 @@ variable "certificates" {
   type = map(object({
     subject            = string
     validity_in_months = number
-    days_before_expiry = number
     san_dns_names      = optional(list(string), [])
   }))
   default = {}
 }
 
-variable "root_subject" {
-    type        = string
-    description = "Subject of the Root CA (e.g., 'CN=PagoPA Private Root CA,O=PagoPA S.p.A.,C=IT')"
-}
-
 variable "tags" {
-  type    = map(string)
-  default = {}
+  type        = map(string)
+  description = "Tags for the resources"
 }
 ```
 
-## Estimated costs
+<!-- markdownlint-disable -->
+<!-- BEGIN_TF_DOCS -->
+## Requirements
 
-| Item | Cost |
-|---|---|
-| Automatic certificate renewal | $3/renewal |
-| Other operations (get, list, update) | $0.03/10,000 ops |
-| 10 certs (3-month validity) | ~$120/year |
-| 10 certs (6-month validity) | ~$60/year |
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.0 |
+
+## Modules
+
+No modules.
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [terraform_data.client_cert_sign](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [azurerm_key_vault_certificate.root_ca](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_certificate) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued | <pre>map(object({<br/>    subject            = string<br/>    validity_in_months = number<br/>    san_dns_names      = optional(list(string), [])<br/>  }))</pre> | `{}` | no |
+| <a name="input_key_vault_id"></a> [key\_vault\_id](#input\_key\_vault\_id) | ID of the Key Vault | `string` | n/a | yes |
+| <a name="input_key_vault_name"></a> [key\_vault\_name](#input\_key\_vault\_name) | Name of the Key Vault | `string` | n/a | yes |
+| <a name="input_tags"></a> [tags](#input\_tags) | Tags for the resources | `map(string)` | n/a | yes |
+
+## Outputs
+
+No outputs.
+<!-- END_TF_DOCS -->

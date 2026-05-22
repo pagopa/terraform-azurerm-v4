@@ -1,11 +1,11 @@
 variable "prefix" {
-  description = "Resorce prefix"
+  description = "Resource prefix"
   type        = string
   default     = "dvopla"
 }
 
 variable "location" {
-  description = "Resorce location"
+  description = "Resource location"
   type        = string
   default     = "italynorth"
 }
