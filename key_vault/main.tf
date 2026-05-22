@@ -1,4 +1,3 @@
-
 resource "azurerm_key_vault" "this" {
   name                = var.name
   location            = var.location

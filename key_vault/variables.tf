@@ -52,19 +52,20 @@ variable "soft_delete_retention_days" {
 
 variable "enable_rbac_authorization" {
   type        = bool
+  nullable    = true
   default     = null
   description = "Deprecated: use rbac_authorization_enabled instead."
 
   validation {
     condition     = var.enable_rbac_authorization == null
-    error_message = "The variable 'enable_rbac_authorization' is deprecated. Use 'rbac_authorization_enabled' instead."
+    error_message = "The variable 'enable_rbac_authorization' is deprecated and must not be set. Use 'rbac_authorization_enabled' instead. These variables are mutually exclusive."
   }
 }
 
 variable "rbac_authorization_enabled" {
   type        = bool
   default     = false
-  description = "Boolean flag to specify whether Azure Key Vault uses Role Based Access Control (RBAC) for authorization of data actions."
+  description = "Boolean flag to specify whether Azure Key Vault uses Role Based Access Control (RBAC) for authorization of data actions. Cannot be used with the deprecated 'enable_rbac_authorization'."
 }
 
 variable "public_network_access_enabled" {

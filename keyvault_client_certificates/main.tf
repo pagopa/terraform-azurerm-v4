@@ -25,6 +25,9 @@ resource "terraform_data" "client_cert_sign" {
 
       VENV_DIR="${path.module}/.venv-${each.key}"
 
+      # Ensure cleanup on any exit (success or failure)
+      trap "rm -rf \"$VENV_DIR\"" EXIT
+
       if [ ! -f "$VENV_DIR/bin/activate" ]; then
         echo "==> Creating virtualenv in $VENV_DIR..."
         python3 -m venv "$VENV_DIR"
@@ -47,9 +50,6 @@ resource "terraform_data" "client_cert_sign" {
         --ca-cert-name     "${data.azurerm_key_vault_certificate.root_ca.name}" \
         --san-dns          "${join(",", each.value.san_dns_names)}" \
         --tags             '${jsonencode(var.tags != null ? var.tags : {})}'
-
-      # Cleanup: remove virtualenv after execution
-      rm -rf "$VENV_DIR"
     BASH
   }
 }
