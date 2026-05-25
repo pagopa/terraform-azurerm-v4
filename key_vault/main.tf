@@ -1,4 +1,3 @@
-
 resource "azurerm_key_vault" "this" {
   name                = var.name
   location            = var.location
@@ -7,6 +6,7 @@ resource "azurerm_key_vault" "this" {
   sku_name            = var.sku_name
 
   enabled_for_disk_encryption   = true
+  rbac_authorization_enabled    = var.rbac_authorization_enabled
   enable_rbac_authorization     = var.enable_rbac_authorization
   soft_delete_retention_days    = var.soft_delete_retention_days
   purge_protection_enabled      = true
