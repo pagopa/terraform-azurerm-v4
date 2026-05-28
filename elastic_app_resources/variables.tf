@@ -132,7 +132,7 @@ variable "alert_channels" {
       enabled    = false
       connectors = {}
     })
-    opsgenie = optional(object({
+    jsm = optional(object({
       enabled    = bool
       connectors = map(string)
       }), {
@@ -158,7 +158,7 @@ variable "alert_channels" {
       enabled    = false
       connectors = {}
     }
-    opsgenie = {
+    jsm = {
       enabled    = false
       connectors = {}
     }
@@ -177,8 +177,8 @@ variable "alert_channels" {
     error_message = "Slack connectors must be defined if slack alert channel is enabled."
   }
   validation {
-    condition     = var.alert_channels.opsgenie.enabled == false || length(var.alert_channels.opsgenie.connectors) > 0
-    error_message = "Opsgenie connectors must be defined if opsgenie alert channel is enabled."
+    condition     = var.alert_channels.jsm.enabled == false || length(var.alert_channels.jsm.connectors) > 0
+    error_message = "JSM connectors must be defined if jsm alert channel is enabled."
   }
   validation {
     condition     = var.alert_channels.cloudo.enabled == false || length(var.alert_channels.cloudo.connectors) > 0
