@@ -142,8 +142,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     # check connector name not empty
     #
     precondition {
-      condition     = var.alert_channels.opsgenie.enabled && can(each.value.notification_channels.opsgenie) ? try(each.value.notification_channels.opsgenie.connector_name, "") != "" : true
-      error_message = "'opsgenie.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
+      condition     = var.alert_channels.jsm.enabled && can(each.value.notification_channels.jsm) ? try(each.value.notification_channels.jsm.connector_name, "") != "" : true
+      error_message = "'jsm.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
@@ -179,9 +179,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = var.alert_channels.opsgenie.enabled && can(each.value.notification_channels.opsgenie) && can(each.value.notification_channels.opsgenie.connector_name) ? contains(keys(var.alert_channels.opsgenie.connectors), lookup(each.value.notification_channels, "opsgenie", { connector_name : "" }).connector_name) : true
+      condition     = var.alert_channels.jsm.enabled && can(each.value.notification_channels.jsm) && can(each.value.notification_channels.jsm.connector_name) ? contains(keys(var.alert_channels.jsm.connectors), lookup(each.value.notification_channels, "jsm", { connector_name : "" }).connector_name) : true
       error_message = <<-EOT
-      opsgenie connector name '${try(each.value.notification_channels.opsgenie.connector_name, "opsgenie.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
+      jsm connector name '${try(each.value.notification_channels.jsm.connector_name, "jsm.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
       EOT
     }
 
@@ -502,7 +502,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   # manually disabled overrides the default enabled value
   # if at least one channel is enabled, the alert is enabled
-  enabled     = lookup(each.value, "enabled", true) && (var.alert_channels.email.enabled || var.alert_channels.opsgenie.enabled || var.alert_channels.slack.enabled)
+  enabled     = lookup(each.value, "enabled", true) && (var.alert_channels.email.enabled || var.alert_channels.jsm.enabled || var.alert_channels.slack.enabled)
   space_id    = var.space_id
   alert_delay = lookup(each.value, "trigger_after_consecutive_runs", null)
 
@@ -544,11 +544,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
   }
 
-  #opsgenie create
+  #jsm create
   dynamic "actions" {
-    for_each = var.alert_channels.opsgenie.enabled && try(each.value.notification_channels.opsgenie.connector_name, "") != "" ? [1] : []
+    for_each = var.alert_channels.jsm.enabled && try(each.value.notification_channels.jsm.connector_name, "") != "" ? [1] : []
     content {
-      id    = var.alert_channels.opsgenie.connectors[each.value.notification_channels.opsgenie.connector_name]
+      id    = var.alert_channels.jsm.connectors[each.value.notification_channels.jsm.connector_name]
       group = can(each.value.custom_threshold) ? "custom_threshold.fired" : "query matched"
       params = jsonencode({
         subAction = "createAlert"
@@ -558,7 +558,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
             "{{rule.tags}}"
           ],
           message     = "Elastic alert ${var.target_env} ${each.value.name}"
-          priority    = each.value.notification_channels.opsgenie.priority
+          priority    = each.value.notification_channels.jsm.priority
           description = can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : local.alert_messages.log_query)
         }
       })
@@ -569,12 +569,12 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
   }
 
-  #opsgenie close alert
+  #jsm close alert
   dynamic "actions" {
-    for_each = var.alert_channels.opsgenie.enabled && try(each.value.notification_channels.opsgenie.connector_name, "") != "" ? [1] : []
+    for_each = var.alert_channels.jsm.enabled && try(each.value.notification_channels.jsm.connector_name, "") != "" ? [1] : []
     content {
       group = "recovered"
-      id    = var.alert_channels.opsgenie.connectors[each.value.notification_channels.opsgenie.connector_name]
+      id    = var.alert_channels.jsm.connectors[each.value.notification_channels.jsm.connector_name]
       params = jsonencode({
         subAction = "closeAlert"
         subActionParams = {
