@@ -14,7 +14,7 @@ TODO
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_elasticstack"></a> [elasticstack](#requirement\_elasticstack) | ~> 0.11 |
+| <a name="requirement_elasticstack"></a> [elasticstack](#requirement\_elasticstack) | ~> 0.16 |
 
 ## Modules
 
