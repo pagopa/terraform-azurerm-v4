@@ -108,7 +108,8 @@ resource "azurerm_storage_account" "this" {
   lifecycle {
     ignore_changes = [
       customer_managed_key,
-      immutability_policy.0.state
+      immutability_policy.0.state,
+      network_rules.0.private_link_access, # added by Microsoft Defender for Storage
     ]
   }
 
