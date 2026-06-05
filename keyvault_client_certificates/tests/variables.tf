@@ -10,6 +10,18 @@ variable "location" {
   default     = "italynorth"
 }
 
+variable "renewal_days_before_expiry" {
+  description = "Days before cert-stable expiry to reissue the current certificate (X)"
+  type        = number
+  default     = 30
+}
+
+variable "stable_promotion_days_before_expiry" {
+  description = "Days before cert-stable expiry to promote current to stable (Y)"
+  type        = number
+  default     = 7
+}
+
 variable "tags" {
   type        = map(string)
   description = "Azurerm test tags"

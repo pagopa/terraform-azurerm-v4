@@ -9,6 +9,18 @@ variable "root_key_vault_name" {
   description = "Name of the Key Vault containing the Root CA (source)"
 }
 
+variable "renewal_days_before_expiry" {
+  type        = number
+  description = "Days before cert-stable expiry to reissue the current certificate. Must be greater than stable_promotion_days_before_expiry."
+  default     = 30
+}
+
+variable "stable_promotion_days_before_expiry" {
+  type        = number
+  description = "Days before cert-stable expiry to promote the current certificate to stable. Must be less than renewal_days_before_expiry."
+  default     = 7
+}
+
 variable "certificates" {
   description = "Map of client certificates to be issued"
   type = map(object({

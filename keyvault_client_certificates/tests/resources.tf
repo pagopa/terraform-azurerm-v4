@@ -68,11 +68,15 @@ module "private_ca" {
 module "client_certificate" {
   source = "../"
 
-  # Source: Root CA vault
   root_key_vault_id   = module.private_ca.key_vault_id
   root_key_vault_name = module.private_ca.key_vault_name
 
-  # Certificates: each specifies its own destination vault
+  # X days before cert-stable expiry: reissue the current certificate
+  renewal_days_before_expiry = var.renewal_days_before_expiry
+
+  # Y days before cert-stable expiry: promote current to stable
+  stable_promotion_days_before_expiry = var.stable_promotion_days_before_expiry
+
   certificates = {
     "test-mtls-forwarder" = {
       key_vault_name     = module.kv_client.name
