@@ -78,7 +78,8 @@ module "client_certificate" {
   stable_promotion_days_before_expiry = var.stable_promotion_days_before_expiry
 
   # For testing only: overrides rotation_days with rotation_minutes
-  rotation_minutes_override = var.rotation_minutes_override
+  rotation_minutes_override        = var.rotation_minutes_override
+  stable_rotation_minutes_override = var.stable_rotation_minutes_override
 
   certificates = {
     "test-mtls-forwarder" = {

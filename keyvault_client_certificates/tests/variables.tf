@@ -23,7 +23,13 @@ variable "stable_promotion_days_before_expiry" {
 }
 
 variable "rotation_minutes_override" {
-  description = "If set, replaces rotation_days with rotation_minutes (for testing only)"
+  description = "If set, replaces rotation_days with rotation_minutes on cert_rotation (for testing only)"
+  type        = number
+  default     = null
+}
+
+variable "stable_rotation_minutes_override" {
+  description = "If set, replaces rotation_days with rotation_minutes on cert_stable (for testing only)"
   type        = number
   default     = null
 }

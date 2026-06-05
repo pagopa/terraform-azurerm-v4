@@ -35,7 +35,13 @@ variable "certificates" {
 variable "rotation_minutes_override" {
   type        = number
   default     = null
-  description = "If set, replaces rotation_days with rotation_minutes on both time_rotating resources. For testing only — do not use in production."
+  description = "If set, replaces rotation_days with rotation_minutes on time_rotating.cert_rotation. For testing only — do not use in production."
+}
+
+variable "stable_rotation_minutes_override" {
+  type        = number
+  default     = null
+  description = "If set, replaces rotation_days with rotation_minutes on time_rotating.cert_stable. For testing only — do not use in production."
 }
 
 variable "tags" {
