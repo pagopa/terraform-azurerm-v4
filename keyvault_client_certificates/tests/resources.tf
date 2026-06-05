@@ -77,6 +77,9 @@ module "client_certificate" {
   # Y days before cert-stable expiry: promote current to stable
   stable_promotion_days_before_expiry = var.stable_promotion_days_before_expiry
 
+  # For testing only: overrides rotation_days with rotation_minutes
+  rotation_minutes_override = var.rotation_minutes_override
+
   certificates = {
     "test-mtls-forwarder" = {
       key_vault_name     = module.kv_client.name

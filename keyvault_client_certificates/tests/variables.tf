@@ -22,6 +22,12 @@ variable "stable_promotion_days_before_expiry" {
   default     = 7
 }
 
+variable "rotation_minutes_override" {
+  description = "If set, replaces rotation_days with rotation_minutes (for testing only)"
+  type        = number
+  default     = null
+}
+
 variable "tags" {
   type        = map(string)
   description = "Azurerm test tags"
