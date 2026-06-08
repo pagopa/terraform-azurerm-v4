@@ -94,6 +94,7 @@ resource "terraform_data" "client_cert_stable" {
         python3 -m venv "$VENV_DIR"
         "$VENV_DIR/bin/pip" install --quiet --upgrade pip
         "$VENV_DIR/bin/pip" install --quiet \
+          cryptography==41.0.7 \
           azure-identity==1.14.0 \
           azure-keyvault-secrets==4.7.0
         echo "    Virtualenv ready."
