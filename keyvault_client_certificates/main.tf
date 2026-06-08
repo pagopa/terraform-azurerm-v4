@@ -31,6 +31,8 @@ resource "terraform_data" "client_cert_sign" {
     validity_in_months = each.value.validity_in_months
     san_dns_names      = join(",", each.value.san_dns_names)
     rotation_id        = time_rotating.cert_rotation[each.key].id
+    key_vault_name     = each.value.key_vault_name
+    cert_name          = each.key
   }
 
   provisioner "local-exec" {
@@ -65,6 +67,20 @@ resource "terraform_data" "client_cert_sign" {
         --tags             '${jsonencode(var.tags != null ? var.tags : {})}'
     BASH
   }
+
+  provisioner "local-exec" {
+    when        = destroy
+    interpreter = ["/bin/bash", "-c"]
+    command     = <<-BASH
+      set -euo pipefail
+      az keyvault certificate delete \
+        --vault-name "${self.triggers_replace.key_vault_name}" \
+        --name       "${self.triggers_replace.cert_name}" || true
+      az keyvault secret delete \
+        --vault-name "${self.triggers_replace.key_vault_name}" \
+        --name       "${self.triggers_replace.cert_name}-pfx" || true
+    BASH
+  }
 }
 
 # Phase 2: promote cert-foo to cert-foo-stable
@@ -76,7 +92,9 @@ resource "terraform_data" "client_cert_stable" {
   depends_on = [terraform_data.client_cert_sign]
 
   triggers_replace = {
-    stable_id = time_rotating.cert_stable[each.key].id
+    stable_id      = time_rotating.cert_stable[each.key].id
+    key_vault_name = each.value.key_vault_name
+    cert_name      = each.key
   }
 
   provisioner "local-exec" {
@@ -102,6 +120,23 @@ resource "terraform_data" "client_cert_stable" {
         --vault-name  "${each.value.key_vault_name}" \
         --cert-name   "${each.key}" \
         --tags        '${jsonencode(var.tags != null ? var.tags : {})}'
+    BASH
+  }
+
+  provisioner "local-exec" {
+    when        = destroy
+    interpreter = ["/bin/bash", "-c"]
+    command     = <<-BASH
+      set -euo pipefail
+      az keyvault secret delete \
+        --vault-name "${self.triggers_replace.key_vault_name}" \
+        --name       "${self.triggers_replace.cert_name}-stable-pfx" || true
+      az keyvault secret delete \
+        --vault-name "${self.triggers_replace.key_vault_name}" \
+        --name       "${self.triggers_replace.cert_name}-stable-key" || true
+      az keyvault secret delete \
+        --vault-name "${self.triggers_replace.key_vault_name}" \
+        --name       "${self.triggers_replace.cert_name}-stable-cert" || true
     BASH
   }
 }
