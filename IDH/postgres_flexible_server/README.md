@@ -194,6 +194,7 @@ The new `pgflex2` and `pgflex4` tiers are private, as the standard requires
 | <a name="input_private_dns_zone_rg_name"></a> [private\_dns\_zone\_rg\_name](#input\_private\_dns\_zone\_rg\_name) | (Optional) if 'private\_dns\_registration' is true, defines the private dns zone resource group name of the dns zone in which the server fqdn should be registered | `string` | `null` | no |
 | <a name="input_product_name"></a> [product\_name](#input\_product\_name) | (Required) product\_name used to identify the platform for which the resource will be created | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (Required) The name of the Resource Group where the PostgreSQL Flexible Server should exist. | `string` | n/a | yes |
+| <a name="input_resource_group_nsg_name"></a> [resource\_group\_nsg\_name](#input\_resource\_group\_nsg\_name) | (Optional) The name of the nsg Resource Group | `string` | `""` | no |
 | <a name="input_storage_mb"></a> [storage\_mb](#input\_storage\_mb) | (Optional) The size of the storage in MB. Changing this forces a new PostgreSQL Flexible Server to be created. | `number` | `null` | no |
 | <a name="input_storage_tier"></a> [storage\_tier](#input\_storage\_tier) | (Optional) The storage tier of the PostgreSQL Flexible Server. Possible values are P4, P6, P10, P15,P20, P30,P40, P50,P60, P70 or P80. Default value is dependant on the storage\_mb value. | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | n/a | yes |

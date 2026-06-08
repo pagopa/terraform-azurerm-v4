@@ -366,3 +366,9 @@ variable "create_self_inbound_nsg_rule" {
   description = "(Optional) Flag the automatic creation of self-inbound security rules. Set to true to allow internal traffic within the same security scope"
   default     = true
 }
+
+variable "resource_group_nsg_name" {
+  type        = string
+  description = "(Optional) The name of the nsg Resource Group"
+  default     = ""
+}
