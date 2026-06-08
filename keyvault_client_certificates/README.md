@@ -4,11 +4,38 @@ Terraform module for issuing and managing mTLS client certificates signed by an 
 
 ## How it works
 
-1. Reads the Root CA certificate from a source Key Vault
-2. Uses the Root CA private key (HSM-backed) from the source vault to sign client certificates
-3. Stores each client certificate in its own destination Key Vault (specified per certificate)
+1. Reads the Root CA certificate from a dedicated CA Key Vault
+2. Generates a new key pair and CSR directly inside the destination Key Vault
+3. Signs the certificate via the CA Key Vault Cryptography API — the CA private key never leaves the vault
+4. Stores the signed certificate in the destination Key Vault following the **current/stable pattern**
 
-The key insight is that the Root CA remains in its own secure vault, while client certificates can be distributed to different destination vaults as needed.
+### Current / stable pattern
+
+Each certificate is represented by four secrets in the destination Key Vault:
+
+| Secret | Description |
+|---|---|
+| `<name>-pfx` | Current certificate — updated on every renewal (PKCS#12) |
+| `<name>-stable-pfx` | Stable certificate — what clients actually mount (PKCS#12) |
+| `<name>-stable-key` | Private key of the stable certificate (PEM) |
+| `<name>-stable-cert` | Public certificate of the stable certificate (PEM) |
+
+Clients read only the `-stable-*` secrets. The current certificate (`-pfx`) can be renewed without impacting running services; clients pick up the new certificate only when the stable is explicitly promoted.
+
+### Automatic rotation
+
+Two `time_rotating` resources per certificate drive the lifecycle without any manual intervention or git changes:
+
+| Resource | Fires after | Action |
+|---|---|---|
+| `time_rotating.cert_rotation` | `validity_months * 30 - renewal_days_before_expiry` days | Renews `-pfx` |
+| `time_rotating.cert_stable` | `validity_months * 30 - stable_promotion_days_before_expiry` days | Promotes `-pfx` → `-stable-*` |
+
+Because rotation always fires before promotion, the two events never overlap.
+
+### Cleanup on certificate removal
+
+Removing a certificate from the `certificates` map and applying will soft-delete all four secrets from the destination Key Vault. The destroy provisioners use `input` (not `triggers_replace`) so they only run on actual removal — never on rotation.
 
 ## Usage
 
@@ -16,56 +43,28 @@ The key insight is that the Root CA remains in its own secure vault, while clien
 module "keyvault_client_certificates" {
   source = "../../modules/keyvault_client_certificates"
 
-  # Source vault: where Root CA is stored
-  root_key_vault_name = "my-ca-kv"
-  root_key_vault_id   = azurerm_key_vault.ca.id
+  root_key_vault_name = module.private_ca.key_vault_name
+  root_key_vault_id   = module.private_ca.key_vault_id
 
-  # Each certificate can go to a different destination vault
   certificates = {
-    "client-service-a" = {
-      key_vault_name     = "vault-for-service-a"  # Destination vault
-      subject            = "CN=service-a,O=PagoPA S.p.A.,C=IT"
-      validity_in_months = 3
-      san_dns_names      = ["service-a.internal"]
+    "my-service" = {
+      key_vault_name                      = module.kv_app.name
+      subject                             = "CN=my-service,O=PagoPA S.p.A.,C=IT"
+      validity_in_months                  = 3
+      renewal_days_before_expiry          = 30
+      stable_promotion_days_before_expiry = 7
     }
-    "client-service-b" = {
-      key_vault_name     = "vault-for-service-b"  # Different destination vault
-      subject            = "CN=service-b,O=PagoPA S.p.A.,C=IT"
-      validity_in_months = 6
+    "pagopa-forwarder" = {
+      key_vault_name                      = module.kv_forwarder.name
+      subject                             = "CN=pagopa-forwarder,O=PagoPA S.p.A.,C=IT"
+      validity_in_months                  = 12
+      renewal_days_before_expiry          = 50
+      stable_promotion_days_before_expiry = 20
+      san_dns_names                       = ["forwarder.internal.pagopa.it"]
     }
   }
 
   tags = var.tags
-}
-```
-
-## Inputs / Variables
-
-```hcl
-variable "root_key_vault_name" {
-  type        = string
-  description = "Name of the Key Vault containing the Root CA (source)"
-}
-
-variable "root_key_vault_id" {
-  type        = string
-  description = "ID of the Key Vault containing the Root CA (source)"
-}
-
-variable "certificates" {
-  description = "Map of client certificates to be issued"
-  type = map(object({
-    key_vault_name     = string  # Destination Key Vault for this certificate
-    subject            = string
-    validity_in_months = number
-    san_dns_names      = optional(list(string), [])
-  }))
-  default = {}
-}
-
-variable "tags" {
-  type        = map(string)
-  description = "Tags for the resources"
 }
 ```
 
@@ -99,7 +98,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued | <pre>map(object({<br/>    key_vault_name                      = string<br/>    subject                             = string<br/>    validity_in_months                  = number<br/>    san_dns_names                       = optional(list(string), [])<br/>    renewal_days_before_expiry          = optional(number, 60)<br/>    stable_promotion_days_before_expiry = optional(number, 20)<br/>  }))</pre> | `{}` | no |
+| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued | <pre>map(object({<br/>    key_vault_name                      = string<br/>    subject                             = string<br/>    validity_in_months                  = number<br/>    san_dns_names                       = optional(list(string), [])<br/>    renewal_days_before_expiry          = optional(number, 30)<br/>    stable_promotion_days_before_expiry = optional(number, 7)<br/>  }))</pre> | `{}` | no |
 | <a name="input_root_key_vault_id"></a> [root\_key\_vault\_id](#input\_root\_key\_vault\_id) | ID of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
 | <a name="input_root_key_vault_name"></a> [root\_key\_vault\_name](#input\_root\_key\_vault\_name) | Name of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for the resources | `map(string)` | n/a | yes |
