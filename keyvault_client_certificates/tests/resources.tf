@@ -83,15 +83,19 @@ module "client_certificate" {
 
   certificates = {
     "test-mtls-forwarder" = {
-      key_vault_name     = module.kv_client.name
-      subject            = "CN=devopla-v2,OU=DevOps,O=DevOpsLabs,C=IT"
-      validity_in_months = 3
+      key_vault_name                      = module.kv_client.name
+      subject                             = "CN=devopla-v2,OU=DevOps,O=DevOpsLabs,C=IT"
+      validity_in_months                  = 3
+      renewal_days_before_expiry          = 30
+      stable_promotion_days_before_expiry = 7
     }
     "test-mtls-forwarder-2" = {
-      key_vault_name     = module.kv_client.name
-      subject            = "CN=devopla-v3,OU=DevOps,O=DevOpsLabs,C=IT"
-      validity_in_months = 2
-      san_dns_names      = ["*.forwarder.dev.platform.pagopa.it"]
+      key_vault_name                      = module.kv_client.name
+      subject                             = "CN=devopla-v3,OU=DevOps,O=DevOpsLabs,C=IT"
+      validity_in_months                  = 2
+      san_dns_names                       = ["*.forwarder.dev.platform.pagopa.it"]
+      renewal_days_before_expiry          = 20
+      stable_promotion_days_before_expiry = 5
     }
   }
 

@@ -10,14 +10,14 @@ data "azurerm_key_vault_certificate" "root_ca" {
 # Fires at (validity_months * 30 - renewal_days_before_expiry) days → reissues cert-foo
 resource "time_rotating" "cert_rotation" {
   for_each         = var.certificates
-  rotation_days    = var.rotation_minutes_override == null ? (each.value.validity_in_months * 30 - var.renewal_days_before_expiry) : null
+  rotation_days    = var.rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry) : null
   rotation_minutes = var.rotation_minutes_override
 }
 
 # Fires at (validity_months * 30 - stable_promotion_days_before_expiry) days → promotes cert-foo to cert-foo-stable
 resource "time_rotating" "cert_stable" {
   for_each         = var.certificates
-  rotation_days    = var.stable_rotation_minutes_override == null ? (each.value.validity_in_months * 30 - var.stable_promotion_days_before_expiry) : null
+  rotation_days    = var.stable_rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.stable_promotion_days_before_expiry) : null
   rotation_minutes = var.stable_rotation_minutes_override
 }
 
