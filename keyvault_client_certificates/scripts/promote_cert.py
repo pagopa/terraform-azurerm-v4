@@ -69,9 +69,9 @@ def promote(vault_url: str, cert_name: str, tags: dict) -> None:
     # Step 2 — Write the three stable secrets
     # ------------------------------------------------------------------
     secrets = [
-        (f"{cert_name}-stable-pfx",  pfx_b64,   "application/x-pkcs12"),
-        (f"{cert_name}-stable-key",  key_pem,   "application/x-pem-file"),
-        (f"{cert_name}-stable-cert", cert_pem,  "application/x-pem-file"),
+        (f"{cert_name}-stable-pfx",  pfx_b64,  "application/x-pkcs12"),
+        (f"{cert_name}-stable-key",  key_pem,  None),
+        (f"{cert_name}-stable-cert", cert_pem, None),
     ]
 
     for i, (name, value, content_type) in enumerate(secrets, start=2):
