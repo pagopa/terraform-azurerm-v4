@@ -70,8 +70,8 @@ def promote(vault_url: str, cert_name: str, tags: dict) -> None:
     # ------------------------------------------------------------------
     secrets = [
         (f"{cert_name}-stable-pfx",  pfx_b64,  "application/x-pkcs12"),
-        (f"{cert_name}-stable-key",  key_pem,  None),
-        (f"{cert_name}-stable-cert", cert_pem, None),
+        (f"{cert_name}-stable-key",  key_pem,  "text/plain"),
+        (f"{cert_name}-stable-cert", cert_pem, "text/plain"),
     ]
 
     for i, (name, value, content_type) in enumerate(secrets, start=2):

@@ -10,18 +10,6 @@ variable "location" {
   default     = "italynorth"
 }
 
-variable "rotation_minutes_override" {
-  description = "If set, replaces rotation_days with rotation_minutes on cert_rotation (for testing only)"
-  type        = number
-  default     = 10
-}
-
-variable "stable_rotation_minutes_override" {
-  description = "If set, replaces rotation_days with rotation_minutes on cert_stable (for testing only)"
-  type        = number
-  default     = 15
-}
-
 variable "tags" {
   type        = map(string)
   description = "Azurerm test tags"

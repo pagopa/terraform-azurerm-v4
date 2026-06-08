@@ -7,19 +7,29 @@ data "azurerm_key_vault_certificate" "root_ca" {
   key_vault_id = var.root_key_vault_id
 }
 
-# Fires at (validity_months * 30 - renewal_days_before_expiry) days → reissues cert-foo
+# Fires at (validity_months * 30 - renewal_days_before_expiry) days → reissues
 resource "time_rotating" "cert_rotation" {
-  for_each      = var.certificates
+  for_each = var.certificates
+
   rotation_days = each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry
+
+  # For testing only: overrides rotation_days with rotation_minutes
+  # rotation_days    = var.rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry) : null
+  # rotation_minutes = var.rotation_minutes_override
 }
 
-# Fires at (validity_months * 30 - stable_promotion_days_before_expiry) days → promotes cert-foo to cert-foo-stable
+# Fires at (validity_months * 30 - stable_promotion_days_before_expiry) days → promotes certificate to stable certificate
 resource "time_rotating" "cert_stable" {
-  for_each      = var.certificates
+  for_each = var.certificates
+
   rotation_days = each.value.validity_in_months * 30 - each.value.stable_promotion_days_before_expiry
+
+  # For testing only: overrides rotation_days with rotation_minutes
+  # rotation_days    = var.stable_rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.stable_promotion_days_before_expiry) : null
+  # rotation_minutes = var.stable_rotation_minutes_override
 }
 
-# Phase 1: emit / renew the current certificate (cert-foo)
+# Phase 1: emit / renew the current certificate
 resource "terraform_data" "client_cert_sign" {
   for_each = var.certificates
 
@@ -39,6 +49,8 @@ resource "terraform_data" "client_cert_sign" {
       set -euo pipefail
 
       VENV_DIR="${path.module}/.venv-${each.key}"
+
+      # Ensure cleanup on any exit (success or failure)
       trap "rm -rf \"$VENV_DIR\"" EXIT
 
       if [ ! -f "$VENV_DIR/bin/activate" ]; then
@@ -67,9 +79,9 @@ resource "terraform_data" "client_cert_sign" {
   }
 }
 
-# Phase 2: promote cert-foo to cert-foo-stable
+# Phase 2: promote cert to cert-stable
 # Runs on first creation and when time_rotating.cert_stable fires (Y days before expiry).
-# depends_on ensures cert-foo exists before promotion.
+# depends_on ensures certificate exists before promotion.
 resource "terraform_data" "client_cert_stable" {
   for_each = var.certificates
 
@@ -85,6 +97,8 @@ resource "terraform_data" "client_cert_stable" {
       set -euo pipefail
 
       VENV_DIR="${path.module}/.venv-stable-${each.key}"
+
+      # Ensure cleanup on any exit (success or failure)
       trap "rm -rf \"$VENV_DIR\"" EXIT
 
       if [ ! -f "$VENV_DIR/bin/activate" ]; then
