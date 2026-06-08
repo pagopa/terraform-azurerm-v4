@@ -16,9 +16,8 @@ variable "certificates" {
     subject                             = string
     validity_in_months                  = number
     san_dns_names                       = optional(list(string), [])
-    renewal_days_before_expiry          = optional(number, 30)
-    stable_promotion_days_before_expiry = optional(number, 7)
-
+    renewal_days_before_expiry          = optional(number, 60)
+    stable_promotion_days_before_expiry = optional(number, 20)
   }))
   default = {}
 }
