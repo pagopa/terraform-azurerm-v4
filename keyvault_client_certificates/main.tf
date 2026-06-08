@@ -31,8 +31,6 @@ resource "terraform_data" "client_cert_sign" {
     validity_in_months = each.value.validity_in_months
     san_dns_names      = join(",", each.value.san_dns_names)
     rotation_id        = time_rotating.cert_rotation[each.key].id
-    key_vault_name     = each.value.key_vault_name
-    cert_name          = each.key
   }
 
   provisioner "local-exec" {
@@ -67,20 +65,6 @@ resource "terraform_data" "client_cert_sign" {
         --tags             '${jsonencode(var.tags != null ? var.tags : {})}'
     BASH
   }
-
-  provisioner "local-exec" {
-    when        = destroy
-    interpreter = ["/bin/bash", "-c"]
-    command     = <<-BASH
-      set -euo pipefail
-      az keyvault certificate delete \
-        --vault-name "${self.triggers_replace.key_vault_name}" \
-        --name       "${self.triggers_replace.cert_name}" || true
-      az keyvault secret delete \
-        --vault-name "${self.triggers_replace.key_vault_name}" \
-        --name       "${self.triggers_replace.cert_name}-pfx" || true
-    BASH
-  }
 }
 
 # Phase 2: promote cert-foo to cert-foo-stable
@@ -92,9 +76,7 @@ resource "terraform_data" "client_cert_stable" {
   depends_on = [terraform_data.client_cert_sign]
 
   triggers_replace = {
-    stable_id      = time_rotating.cert_stable[each.key].id
-    key_vault_name = each.value.key_vault_name
-    cert_name      = each.key
+    stable_id = time_rotating.cert_stable[each.key].id
   }
 
   provisioner "local-exec" {
@@ -122,6 +104,40 @@ resource "terraform_data" "client_cert_stable" {
         --tags        '${jsonencode(var.tags != null ? var.tags : {})}'
     BASH
   }
+}
+
+# Cleanup: runs destroy provisioner only when a certificate is removed from var.certificates.
+# Uses input (not triggers_replace) so it is never replaced on rotation — only truly destroyed.
+resource "terraform_data" "client_cert_sign_cleanup" {
+  for_each = var.certificates
+
+  input = {
+    key_vault_name = each.value.key_vault_name
+    cert_name      = each.key
+  }
+
+  provisioner "local-exec" {
+    when        = destroy
+    interpreter = ["/bin/bash", "-c"]
+    command     = <<-BASH
+      set -euo pipefail
+      az keyvault certificate delete \
+        --vault-name "${self.input.key_vault_name}" \
+        --name       "${self.input.cert_name}" || true
+      az keyvault secret delete \
+        --vault-name "${self.input.key_vault_name}" \
+        --name       "${self.input.cert_name}-pfx" || true
+    BASH
+  }
+}
+
+resource "terraform_data" "client_cert_stable_cleanup" {
+  for_each = var.certificates
+
+  input = {
+    key_vault_name = each.value.key_vault_name
+    cert_name      = each.key
+  }
 
   provisioner "local-exec" {
     when        = destroy
@@ -129,14 +145,14 @@ resource "terraform_data" "client_cert_stable" {
     command     = <<-BASH
       set -euo pipefail
       az keyvault secret delete \
-        --vault-name "${self.triggers_replace.key_vault_name}" \
-        --name       "${self.triggers_replace.cert_name}-stable-pfx" || true
+        --vault-name "${self.input.key_vault_name}" \
+        --name       "${self.input.cert_name}-stable-pfx" || true
       az keyvault secret delete \
-        --vault-name "${self.triggers_replace.key_vault_name}" \
-        --name       "${self.triggers_replace.cert_name}-stable-key" || true
+        --vault-name "${self.input.key_vault_name}" \
+        --name       "${self.input.cert_name}-stable-key" || true
       az keyvault secret delete \
-        --vault-name "${self.triggers_replace.key_vault_name}" \
-        --name       "${self.triggers_replace.cert_name}-stable-cert" || true
+        --vault-name "${self.input.key_vault_name}" \
+        --name       "${self.input.cert_name}-stable-cert" || true
     BASH
   }
 }
