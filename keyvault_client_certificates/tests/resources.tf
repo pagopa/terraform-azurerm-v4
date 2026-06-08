@@ -72,8 +72,8 @@ module "client_certificate" {
   root_key_vault_name = module.private_ca.key_vault_name
 
   # For testing only: overrides rotation_days with rotation_minutes
-  rotation_minutes_override        = var.rotation_minutes_override
-  stable_rotation_minutes_override = var.stable_rotation_minutes_override
+  # rotation_minutes_override        = var.rotation_minutes_override
+  # stable_rotation_minutes_override = var.stable_rotation_minutes_override
 
   certificates = {
     "the-first-certificate2" = {

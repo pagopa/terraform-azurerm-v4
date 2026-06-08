@@ -102,8 +102,6 @@ No modules.
 | <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued | <pre>map(object({<br/>    key_vault_name                      = string<br/>    subject                             = string<br/>    validity_in_months                  = number<br/>    san_dns_names                       = optional(list(string), [])<br/>    renewal_days_before_expiry          = optional(number, 30)<br/>    stable_promotion_days_before_expiry = optional(number, 7)<br/><br/>  }))</pre> | `{}` | no |
 | <a name="input_root_key_vault_id"></a> [root\_key\_vault\_id](#input\_root\_key\_vault\_id) | ID of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
 | <a name="input_root_key_vault_name"></a> [root\_key\_vault\_name](#input\_root\_key\_vault\_name) | Name of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
-| <a name="input_rotation_minutes_override"></a> [rotation\_minutes\_override](#input\_rotation\_minutes\_override) | If set, replaces rotation\_days with rotation\_minutes on time\_rotating.cert\_rotation. For testing only — do not use in production. | `number` | `null` | no |
-| <a name="input_stable_rotation_minutes_override"></a> [stable\_rotation\_minutes\_override](#input\_stable\_rotation\_minutes\_override) | If set, replaces rotation\_days with rotation\_minutes on time\_rotating.cert\_stable. For testing only — do not use in production. | `number` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for the resources | `map(string)` | n/a | yes |
 
 ## Outputs
