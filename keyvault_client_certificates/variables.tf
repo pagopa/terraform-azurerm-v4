@@ -18,20 +18,9 @@ variable "certificates" {
     san_dns_names                       = optional(list(string), [])
     renewal_days_before_expiry          = optional(number, 30)
     stable_promotion_days_before_expiry = optional(number, 7)
+
   }))
   default = {}
-}
-
-variable "rotation_minutes_override" {
-  type        = number
-  default     = null
-  description = "If set, replaces rotation_days with rotation_minutes on time_rotating.cert_rotation. For testing only — do not use in production."
-}
-
-variable "stable_rotation_minutes_override" {
-  type        = number
-  default     = null
-  description = "If set, replaces rotation_days with rotation_minutes on time_rotating.cert_stable. For testing only — do not use in production."
 }
 
 variable "tags" {

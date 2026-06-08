@@ -9,7 +9,7 @@ other=$@
 subscription="MOCK_VALUE"
 
 case $action in
-    "init" | "apply" | "plan" | "destroy" | "state")
+    "init" | "apply" | "plan" | "destroy" | "state" )
         # shellcheck source=/dev/null
         if [ -e "./backend.ini" ]; then
           source ./backend.ini

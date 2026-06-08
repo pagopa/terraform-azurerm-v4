@@ -1,7 +1,7 @@
 variable "prefix" {
   description = "Resource prefix"
   type        = string
-  default     = "dvopla"
+  default     = "dvopla-2"
 }
 
 variable "location" {
@@ -10,28 +10,16 @@ variable "location" {
   default     = "italynorth"
 }
 
-variable "renewal_days_before_expiry" {
-  description = "Days before cert-stable expiry to reissue the current certificate (X)"
-  type        = number
-  default     = 30
-}
-
-variable "stable_promotion_days_before_expiry" {
-  description = "Days before cert-stable expiry to promote current to stable (Y)"
-  type        = number
-  default     = 7
-}
-
 variable "rotation_minutes_override" {
   description = "If set, replaces rotation_days with rotation_minutes on cert_rotation (for testing only)"
   type        = number
-  default     = null
+  default     = 10
 }
 
 variable "stable_rotation_minutes_override" {
   description = "If set, replaces rotation_days with rotation_minutes on cert_stable (for testing only)"
   type        = number
-  default     = null
+  default     = 15
 }
 
 variable "tags" {

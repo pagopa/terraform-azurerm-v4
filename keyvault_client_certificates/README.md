@@ -77,6 +77,7 @@ variable "tags" {
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.0 |
+| <a name="requirement_time"></a> [time](#requirement\_time) | ~> 0.12 |
 
 ## Modules
 
@@ -87,13 +88,16 @@ No modules.
 | Name | Type |
 |------|------|
 | [terraform_data.client_cert_sign](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [terraform_data.client_cert_stable](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [time_rotating.cert_rotation](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/rotating) | resource |
+| [time_rotating.cert_stable](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/rotating) | resource |
 | [azurerm_key_vault_certificate.root_ca](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_certificate) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued | <pre>map(object({<br/>    key_vault_name     = string<br/>    subject            = string<br/>    validity_in_months = number<br/>    san_dns_names      = optional(list(string), [])<br/>  }))</pre> | `{}` | no |
+| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued | <pre>map(object({<br/>    key_vault_name                      = string<br/>    subject                             = string<br/>    validity_in_months                  = number<br/>    san_dns_names                       = optional(list(string), [])<br/>    renewal_days_before_expiry          = optional(number, 30)<br/>    stable_promotion_days_before_expiry = optional(number, 7)<br/><br/>  }))</pre> | `{}` | no |
 | <a name="input_root_key_vault_id"></a> [root\_key\_vault\_id](#input\_root\_key\_vault\_id) | ID of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
 | <a name="input_root_key_vault_name"></a> [root\_key\_vault\_name](#input\_root\_key\_vault\_name) | Name of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for the resources | `map(string)` | n/a | yes |

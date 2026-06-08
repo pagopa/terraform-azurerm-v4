@@ -71,29 +71,23 @@ module "client_certificate" {
   root_key_vault_id   = module.private_ca.key_vault_id
   root_key_vault_name = module.private_ca.key_vault_name
 
-  # X days before cert-stable expiry: reissue the current certificate
-  renewal_days_before_expiry = var.renewal_days_before_expiry
-
-  # Y days before cert-stable expiry: promote current to stable
-  stable_promotion_days_before_expiry = var.stable_promotion_days_before_expiry
-
   # For testing only: overrides rotation_days with rotation_minutes
   rotation_minutes_override        = var.rotation_minutes_override
   stable_rotation_minutes_override = var.stable_rotation_minutes_override
 
   certificates = {
-    "test-mtls-forwarder" = {
+    "the-first-certificate" = {
       key_vault_name                      = module.kv_client.name
-      subject                             = "CN=devopla-v2,OU=DevOps,O=DevOpsLabs,C=IT"
+      subject                             = "CN=the-first-certificate,OU=DevOps,O=DevOpsLabs,C=IT"
       validity_in_months                  = 3
       renewal_days_before_expiry          = 30
       stable_promotion_days_before_expiry = 7
     }
-    "test-mtls-forwarder-2" = {
+    "the-second-certificate" = {
       key_vault_name                      = module.kv_client.name
-      subject                             = "CN=devopla-v3,OU=DevOps,O=DevOpsLabs,C=IT"
+      subject                             = "CN=the-second-certificate,OU=DevOps,O=DevOpsLabs,C=IT"
       validity_in_months                  = 2
-      san_dns_names                       = ["*.forwarder.dev.platform.pagopa.it"]
+      san_dns_names                       = ["example.com"]
       renewal_days_before_expiry          = 20
       stable_promotion_days_before_expiry = 5
     }
