@@ -76,14 +76,14 @@ module "client_certificate" {
   stable_rotation_minutes_override = var.stable_rotation_minutes_override
 
   certificates = {
-    "the-first-certificate" = {
+    "the-first-certificate2" = {
       key_vault_name                      = module.kv_client.name
       subject                             = "CN=the-first-certificate,OU=DevOps,O=DevOpsLabs,C=IT"
       validity_in_months                  = 3
       renewal_days_before_expiry          = 30
       stable_promotion_days_before_expiry = 7
     }
-    "the-second-certificate" = {
+    "the-second-certificate2" = {
       key_vault_name                      = module.kv_client.name
       subject                             = "CN=the-second-certificate,OU=DevOps,O=DevOpsLabs,C=IT"
       validity_in_months                  = 2
