@@ -98,23 +98,7 @@ variable "storage_account_error_404_document" {
   description = "Name of the document returned for 404 responses (for example error.html)."
 }
 
-variable "storage_private_endpoint_enabled" {
-  type        = bool
-  description = "Enable private endpoint"
-  default     = false
-}
 
-variable "storage_private_dns_zone_web_ids" {
-  type        = list(string)
-  description = "Used only for private endpoints"
-  default     = []
-}
-
-variable "storage_account_subnet_id" {
-  type        = string
-  description = "Used only for private endpoints"
-  default     = null
-}
 ############################################################
 # Diagnostics
 ############################################################
