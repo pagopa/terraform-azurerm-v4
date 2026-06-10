@@ -49,6 +49,8 @@ module "cdn_storage_account" {
   advanced_threat_protection      = var.storage_account_advanced_threat_protection_enabled
   index_document                  = var.storage_account_index_document
   error_404_document              = var.storage_account_error_404_document
+  private_endpoint_enabled        = var.storage_private_endpoint_enabled
+  private_dns_zone_web_ids        = var.storage_private_dns_zone_web_ids
   tags                            = var.tags
 }
 
