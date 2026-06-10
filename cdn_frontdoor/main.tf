@@ -51,6 +51,7 @@ module "cdn_storage_account" {
   error_404_document              = var.storage_account_error_404_document
   private_endpoint_enabled        = var.storage_private_endpoint_enabled
   private_dns_zone_web_ids        = var.storage_private_dns_zone_web_ids
+  subnet_id                       = var.storage_account_subnet_id
   tags                            = var.tags
 }
 

@@ -110,6 +110,11 @@ variable "storage_private_dns_zone_web_ids" {
   default     = []
 }
 
+variable "storage_account_subnet_id" {
+  type        = string
+  description = "Used only for private endpoints"
+  default     = null
+}
 ############################################################
 # Diagnostics
 ############################################################
