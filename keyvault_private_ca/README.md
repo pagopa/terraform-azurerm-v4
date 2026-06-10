@@ -1,24 +1,64 @@
 # keyvault_private_ca
 
-Terraform module for creating a private Root CA on Azure Key Vault (Premium SKU, HSM-backed).
+Terraform module that provisions a private Root CA entirely inside Azure Key Vault (Premium SKU, HSM-backed).
 
-## How it works
+## Architecture
 
-1. Creates an Azure Key Vault (Premium SKU, HSM-backed)
-2. Issues a self-signed Root CA (4096-bit RSA, 10 years, non-exportable)
+The module creates a dedicated Key Vault (`<prefix>-ca-kv`) used exclusively to hold the Root CA. Separation from other Key Vaults is intentional: it limits blast radius and allows tighter RBAC policies on the CA material.
 
-## External organization onboarding (one-time)
+The Root CA certificate is self-signed, 4096-bit RSA, valid for 10 years. The private key is generated directly inside the HSM (`exportable: false`) and **never leaves the vault** — signing operations are always performed via the Key Vault Cryptography API.
+
+## Resources created
+
+| Resource | Description |
+|---|---|
+| `<prefix>-ca-kv` | Dedicated Key Vault (Premium SKU, soft delete 90 days) |
+| `private-root-ca` | Root CA certificate inside the vault |
+| `azurerm_role_assignment` | Key Vault Administrator role for each principal in `keyvault_administrator_principal_ids` |
+
+## Relationship with keyvault_client_certificates
+
+This module is a prerequisite for `keyvault_client_certificates`. Its outputs (`key_vault_id`, `key_vault_name`) are passed as inputs to the client certificates module to locate the CA.
+
+```hcl
+module "private_ca" {
+  source = "../keyvault_private_ca"
+  # ...
+}
+
+module "client_certificates" {
+  source = "../keyvault_client_certificates"
+
+  root_key_vault_id   = module.private_ca.key_vault_id
+  root_key_vault_name = module.private_ca.key_vault_name
+  # ...
+}
+```
+
+## Recreating the CA
+
+`terraform_data.create_private_ca` uses `triggers_replace` on `root_subject` and `validity_months`. Changing either will destroy and recreate the CA, generating a new key pair with a new certificate.
+
+Already-issued client certificates remain **cryptographically valid** — their signature was produced by the old CA private key and can still be verified against the old CA public certificate held in the server's trust store. mTLS continues to work for existing certificates until they expire.
+
+What changes after recreation:
+- New client certificates can only be issued by the new CA
+- External systems must add the new CA public certificate to their trust store before trusting new client certificates
+- The old CA public certificate can be removed from trust stores only after all client certificates signed by it have been rotated and replaced
+
+## External organization onboarding
+
+To enable an external system to verify client certificates issued by this CA, distribute the Root CA public certificate:
 
 ```bash
-# Export the Root CA public certificate
 az keyvault certificate download \
-  --vault-name <kv-name> \
+  --vault-name <prefix>-ca-kv \
   --name private-root-ca \
   --file pagopa-root-ca.pem \
   --encoding PEM
-
-# Deliver pagopa-root-ca.pem to the external organization to be imported into their trust store
 ```
+
+The receiving system imports `pagopa-root-ca.pem` into its trust store. No private key material is involved.
 
 ## Usage
 
@@ -28,7 +68,7 @@ module "keyvault_private_ca" {
 
   resource_group_name = azurerm_resource_group.payments.name
   location            = var.location
-  key_vault_prefix      = local.project
+  key_vault_prefix    = local.project
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
   keyvault_administrator_principal_ids = [
@@ -38,45 +78,6 @@ module "keyvault_private_ca" {
   root_subject = "CN=PagoPA Private Root CA,O=PagoPA S.p.A.,C=IT"
 
   tags = local.tags
-}
-```
-
-## Inputs / Variables
-
-```hcl
-variable "resource_group_name" {
-  type        = string
-  description = "Name of the resource group"
-}
-
-variable "location" {
-  type        = string
-  description = "Azure region"
-}
-
-variable "key_vault_prefix" {
-  type        = string
-  description = "Prefix of the Key Vault"
-}
-
-variable "tenant_id" {
-  type        = string
-  description = "Azure AD Tenant ID"
-}
-
-variable "keyvault_administrator_principal_ids" {
-  type        = list(string)
-  description = "List of principal IDs (managed identity, service principal) with the Key Vault Administrator role"
-}
-
-variable "root_subject" {
-  type        = string
-  description = "Subject of the Root CA (e.g., 'CN=PagoPA Private Root CA,O=PagoPA S.p.A.,C=IT')"
-}
-
-variable "tags" {
-  type        = map(string)
-  description = "Tags for the resources"
 }
 ```
 

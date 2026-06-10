@@ -324,6 +324,14 @@ def sign_cert(
     cert_client.merge_certificate(cert_name, [cert_der])
     log.info("  Merge completed — certificate bound to private key in KV.")
 
+    # Tag the certificate with its serial number for future CRL management
+    serial_hex = hex(signed_cert.serial_number)
+    cert_client.update_certificate_properties(
+        cert_name,
+        tags={**(tags or {}), "serial_number_hex": serial_hex},
+    )
+    log.info("  Tagged with serial_number_hex=%s", serial_hex)
+
     # Export the PFX by reading the KV secret (contains cert + private key)
     # The secret has the same name as the certificate
     secret = secret_client.get_secret(cert_name)

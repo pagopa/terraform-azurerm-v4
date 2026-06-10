@@ -1,7 +1,7 @@
 variable "prefix" {
   description = "Resource prefix"
   type        = string
-  default     = "dvopla"
+  default     = "dvopla-2"
 }
 
 variable "location" {

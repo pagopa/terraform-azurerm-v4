@@ -68,22 +68,28 @@ module "private_ca" {
 module "client_certificate" {
   source = "../"
 
-  # Source: Root CA vault
   root_key_vault_id   = module.private_ca.key_vault_id
   root_key_vault_name = module.private_ca.key_vault_name
 
-  # Certificates: each specifies its own destination vault
+  # For testing only: overrides rotation_days with rotation_minutes
+  # rotation_minutes_override        = var.rotation_minutes_override
+  # stable_rotation_minutes_override = var.stable_rotation_minutes_override
+
   certificates = {
-    "test-mtls-forwarder" = {
-      key_vault_name     = module.kv_client.name
-      subject            = "CN=devopla-v2,OU=DevOps,O=DevOpsLabs,C=IT"
-      validity_in_months = 3
+    "the-first-certificate2" = {
+      key_vault_name                      = module.kv_client.name
+      subject                             = "CN=the-first-certificate,OU=DevOps,O=DevOpsLabs,C=IT"
+      validity_in_months                  = 3
+      renewal_days_before_expiry          = 30
+      stable_promotion_days_before_expiry = 7
     }
-    "test-mtls-forwarder-2" = {
-      key_vault_name     = module.kv_client.name
-      subject            = "CN=devopla-v3,OU=DevOps,O=DevOpsLabs,C=IT"
-      validity_in_months = 2
-      san_dns_names      = ["*.forwarder.dev.platform.pagopa.it"]
+    "the-second-certificate2" = {
+      key_vault_name                      = module.kv_client.name
+      subject                             = "CN=the-second-certificate,OU=DevOps,O=DevOpsLabs,C=IT"
+      validity_in_months                  = 2
+      san_dns_names                       = ["example.com"]
+      renewal_days_before_expiry          = 20
+      stable_promotion_days_before_expiry = 5
     }
   }
 
