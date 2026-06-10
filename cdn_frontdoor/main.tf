@@ -50,13 +50,13 @@ module "cdn_storage_account" {
   index_document                  = var.storage_account_index_document
   error_404_document              = var.storage_account_error_404_document
   
-  network_rules {
+  network_rules =  {
     default_action             = "Deny"
     bypass                     = ["AzureServices"]
     ip_rules                   = []
     virtual_network_subnet_ids = []
   }
-  
+
   tags                            = var.tags
 
   
