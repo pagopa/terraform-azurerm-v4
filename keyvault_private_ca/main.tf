@@ -34,6 +34,17 @@ resource "azurerm_role_assignment" "admin_kv" {
   principal_id         = each.value
 }
 
+# -----------------------------------------------
+# RBAC: Key Vault Reader
+# -----------------------------------------------
+resource "azurerm_role_assignment" "reader_kv" {
+  for_each = toset(var.keyvault_reader_principals_ids)
+
+  scope                = module.keyvault.id
+  role_definition_name = "Key Vault Reader"
+  principal_id         = each.value
+}
+
 resource "terraform_data" "create_private_ca" {
   triggers_replace = {
     vault_name      = local.key_vault_name

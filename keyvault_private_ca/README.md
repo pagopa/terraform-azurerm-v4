@@ -101,6 +101,7 @@ module "keyvault_private_ca" {
 | Name | Type |
 |------|------|
 | [azurerm_role_assignment.admin_kv](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.reader_kv](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [terraform_data.create_private_ca](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 
 ## Inputs
@@ -109,6 +110,7 @@ module "keyvault_private_ca" {
 |------|-------------|------|---------|:--------:|
 | <a name="input_key_vault_prefix"></a> [key\_vault\_prefix](#input\_key\_vault\_prefix) | Name of the prefix Key Vault | `string` | n/a | yes |
 | <a name="input_keyvault_administrator_principal_ids"></a> [keyvault\_administrator\_principal\_ids](#input\_keyvault\_administrator\_principal\_ids) | List of principal IDs (managed identity, service principal) with the Key Vault Administrator role | `list(string)` | n/a | yes |
+| <a name="input_keyvault_reader_principals_ids"></a> [keyvault\_reader\_principals\_ids](#input\_keyvault\_reader\_principals\_ids) | List of principal IDs (managed identity, service principal) with the Key Vault Reader role | `list(string)` | `[]` | no |
 | <a name="input_location"></a> [location](#input\_location) | Azure region | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Name of the resource group | `string` | n/a | yes |
 | <a name="input_root_subject"></a> [root\_subject](#input\_root\_subject) | Subject of the Root CA (e.g., 'CN=PagoPA Private Root CA,O=PagoPA S.p.A.,C=IT') | `string` | n/a | yes |

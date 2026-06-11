@@ -23,6 +23,12 @@ variable "keyvault_administrator_principal_ids" {
   description = "List of principal IDs (managed identity, service principal) with the Key Vault Administrator role"
 }
 
+variable "keyvault_reader_principals_ids" {
+  type        = list(string)
+  description = "List of principal IDs (managed identity, service principal) with the Key Vault Reader role"
+  default     = []
+}
+
 variable "root_subject" {
   type        = string
   description = "Subject of the Root CA (e.g., 'CN=PagoPA Private Root CA,O=PagoPA S.p.A.,C=IT')"
