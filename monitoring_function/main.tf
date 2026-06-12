@@ -175,6 +175,10 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
         name  = "CERT_VALIDITY_RANGE_DAYS"
         value = tostring(var.job_settings.cert_validity_range_days)
       }
+      env {
+        name  = "LOG_LEVEL"
+        value = var.job_settings.log_level
+      }
     }
   }
 
@@ -295,6 +299,10 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job_on_demand" {
       env {
         name  = "QUEUE_BATCH_SIZE"
         value = var.queue_job_settings.queue_batch_size
+      }
+      env {
+        name  = "LOG_LEVEL"
+        value = var.job_settings.log_level
       }
     }
   }
