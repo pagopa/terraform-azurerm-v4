@@ -59,6 +59,7 @@ variable "job_settings" {
     default_duration_limit       = optional(number, 10000)         #(Optional) Duration limit applied if none is given in the monitoring configuration. in milliseconds
     availability_prefix          = optional(string, "synthetic")   #(Optional) Prefix used for prefixing availability test names
     workload_profile             = optional(string, "Consumption") #(Optional) Container App workload profile to be used for the monitoring job. If not provided, defaults to the "consumption". Set "None" to use a regular container app without workload profile
+    log_level                    = optional(string, "INFO")        #(Optional) Logging level, allowed values: DEBUG, INFO, ERROR
   })
   default = {
     container_app_environment_id = null
@@ -71,10 +72,16 @@ variable "job_settings" {
     default_duration_limit       = 10000
     availability_prefix          = "synthetic"
     workload_profile             = "Consumption"
+    log_level                    = "INFO"
   }
   validation {
     condition     = length(var.job_settings.availability_prefix) > 0
     error_message = "Availability_prefix must not be empty"
+  }
+
+  validation {
+    condition     = contains(["DEBUG", "INFO", "ERROR"], var.job_settings.log_level)
+    error_message = "log_level must be one of DEBUG, INFO, ERROR"
   }
 }
 
