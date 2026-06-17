@@ -305,6 +305,41 @@ variable "rulesets" {
     ])
     error_message = "A rule cannot have both redirect and rewrite actions"
   }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        alltrue([
+          for action in rule.actions :
+          action.type != "cache" || action.query_string_behavior != null
+        ])
+      ])
+    ])
+    error_message = "Actions of type 'cache' must have 'query_string_behavior' set (e.g. 'IgnoreQueryString', 'UseQueryString', 'IncludeSpecifiedQueryStrings', 'IgnoreSpecifiedQueryStrings')"
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        alltrue(concat(
+          [
+            try(rule.condition.type, null) != "url_path" ||
+            alltrue([for v in try(rule.condition.match_values, []) : trimprefix(v, "/") != ""])
+          ],
+          [
+            for c in try(rule.conditions, []) :
+            c.type != "url_path" ||
+            alltrue([for v in try(c.match_values, []) : trimprefix(v, "/") != ""])
+          ]
+        ))
+      ])
+    ])
+    error_message = "url_path condition match_values cannot be '/' (becomes empty string after trimming). Use 'request_uri' with operator 'Equal' and match_values = [\"/\"] to match the root path, or 'url_path' with operator 'Any' (no match_values needed)."
+  }
 }
 
 ############################################################
@@ -314,7 +349,7 @@ variable "custom_domains" {
   type = map(object({
     dns_zone_name                = string
     dns_zone_resource_group_name = string
-    certificate_type             = optional(string, "Managed")
+    certificate_type             = optional(string, "ManagedCertificate")
     keyvault_id                  = optional(string)
     keyvault_certificate_name    = optional(string)
     enable_dns_records           = optional(bool, true)
