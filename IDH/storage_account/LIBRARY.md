@@ -4,6 +4,7 @@
 | Product  | Environment | Tier | Deprecated | Description |
 |:-------------:|:----------------:|:---------:|:---------:|:----------------|
 | cstar | dev |  basic | - | Kind: StorageV2, tier: Standard, min replication: LRS, access tier: Hot, public: False, PiT restore: False, PiT Retention: 0, sftp: False |
+| cstar | dev |  basic_audit_cool | - | Kind: StorageV2, tier: Standard, min replication: LRS, access tier: Cool, public: False, PiT restore: False, PiT Retention: 0, sftp: False |
 | cstar | dev |  basic_public | - | Kind: StorageV2, tier: Standard, min replication: LRS, access tier: Hot, public: True, PiT restore: False, PiT Retention: 0, sftp: False |
 |---|---|---|---|
 | cstar | prod |  backup30 | - | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: False, PiT restore: True, PiT Retention: 30, sftp: False |
@@ -11,10 +12,12 @@
 | cstar | prod |  backup7_public | - | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: True, PiT restore: True, PiT Retention: 7, sftp: False |
 | cstar | prod |  basic | - | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: False, PiT restore: True, PiT Retention: 7, sftp: False |
 | cstar | prod |  basic_audit | - | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: False, PiT restore: False, PiT Retention: 0, sftp: False |
+| cstar | prod |  basic_audit_cool | - | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Cool, public: False, PiT restore: False, PiT Retention: 0, sftp: False |
 | cstar | prod |  basic_public | - | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: True, PiT restore: True, PiT Retention: 7, sftp: False |
 | cstar | prod |  basic_public_no_softdel | - | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: True, PiT restore: False, PiT Retention: 0, sftp: False |
 |---|---|---|---|
 | cstar | uat |  basic | - | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: False, PiT restore: False, PiT Retention: 0, sftp: False |
+| cstar | uat |  basic_audit_cool | - | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Cool, public: False, PiT restore: False, PiT Retention: 0, sftp: False |
 | cstar | uat |  basic_public | - | Kind: StorageV2, tier: Standard, min replication: ZRS, access tier: Hot, public: True, PiT restore: False, PiT Retention: 0, sftp: False |
 ## dvopla
 | Product  | Environment | Tier | Deprecated | Description |
