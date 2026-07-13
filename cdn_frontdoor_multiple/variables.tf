@@ -121,6 +121,21 @@ variable "origin_groups" {
     ])
     error_message = "Each origin_group must have at least one member (unless it is the target origin_group of an enabled static-website storage account)"
   }
+
+  validation {
+    condition = alltrue([
+      for origin_key in keys(var.origins) :
+      length([
+        for og in values(var.origin_groups) : true
+        if contains(og.members, origin_key)
+      ]) == 1
+    ])
+    error_message = "Each origin defined in 'origins' must be referenced by the 'members' list of exactly one origin_group (not zero, not more than one - the module cannot determine which origin_group an unreferenced or multiply-referenced origin belongs to). Offending origin(s): ${join(", ", [
+      for origin_key in keys(var.origins) :
+      origin_key
+      if length([for og in values(var.origin_groups) : true if contains(og.members, origin_key)]) != 1
+    ])}"
+  }
 }
 
 ############################################################
@@ -186,6 +201,22 @@ variable "routes" {
       contains(["IgnoreQueryString", "UseQueryString", "IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"], route.cache_behavior)
     ])
     error_message = "Route cache_behavior must be: IgnoreQueryString, UseQueryString, IncludeSpecifiedQueryStrings, or IgnoreSpecifiedQueryStrings"
+  }
+
+  validation {
+    condition = alltrue([
+      for domain_key, domain in var.custom_domains :
+      !domain.enable_dns_records ||
+      length([
+        for route in values(var.routes) : true
+        if contains(route.custom_domains, domain_key)
+      ]) > 0
+    ])
+    error_message = "Custom domains with 'enable_dns_records = true' must be attached to at least one route via 'route.custom_domains', otherwise the module cannot determine which endpoint to point the DNS record at. Either attach the domain to a route or set 'enable_dns_records = false'. Offending domain(s): ${join(", ", [
+      for domain_key, domain in var.custom_domains :
+      domain_key
+      if domain.enable_dns_records && length([for route in values(var.routes) : true if contains(route.custom_domains, domain_key)]) == 0
+    ])}"
   }
 }
 
@@ -314,6 +345,22 @@ variable "rulesets" {
 
   validation {
     condition = alltrue([
+      for ruleset_key, ruleset in var.rulesets :
+      alltrue([
+        for rule_key, rule in ruleset.rules :
+        alltrue([
+          for action in rule.actions :
+          action.type != "cache" ||
+          !contains(["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"], coalesce(action.query_string_behavior, "none")) ||
+          (action.query_string_params == null ? false : length(trimspace(action.query_string_params)) > 0)
+        ])
+      ])
+    ])
+    error_message = "Actions of type 'cache' with query_string_behavior 'IncludeSpecifiedQueryStrings' or 'IgnoreSpecifiedQueryStrings' must set a non-empty 'query_string_params' (comma-separated list of query string parameter names), otherwise Azure Front Door receives an empty parameter list."
+  }
+
+  validation {
+    condition = alltrue([
       for ruleset in values(var.rulesets) :
       alltrue([
         for rule in values(ruleset.rules) :
@@ -434,6 +481,22 @@ variable "custom_domains" {
       domain_key != domain.dns_zone_name || domain.certificate_type == "CustomerCertificate"
     ])
     error_message = "Apex domains (where the domain name equals the dns_zone_name) cannot use 'ManagedCertificate': they must use 'CustomerCertificate' (Azure Front Door does not support managed certificates for apex/root domains)."
+  }
+
+  validation {
+    condition = (
+      length([for d in values(var.custom_domains) : d if d.certificate_type == "CustomerCertificate"]) == 0
+      || var.tenant_id != null
+    )
+    error_message = "var.tenant_id is required when at least one custom_domains entry uses certificate_type = 'CustomerCertificate' (it is needed to grant the Front Door managed identity access to the Key Vault)."
+  }
+
+  validation {
+    condition = length(distinct([
+      for d in values(var.custom_domains) : d.keyvault_id
+      if d.certificate_type == "CustomerCertificate"
+    ])) <= 1
+    error_message = "All custom_domains entries using certificate_type = 'CustomerCertificate' must reference the same keyvault_id: this module grants Key Vault access and creates the CDN Front Door secret using a single, shared Key Vault access policy. Found multiple distinct keyvault_id values: ${join(", ", distinct([for d in values(var.custom_domains) : coalesce(d.keyvault_id, "null") if d.certificate_type == "CustomerCertificate"]))}"
   }
 }
 

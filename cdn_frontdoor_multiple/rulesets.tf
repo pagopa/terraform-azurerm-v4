@@ -335,10 +335,14 @@ resource "azurerm_cdn_frontdoor_rule" "rules" {
 
           query_string_caching_behavior = try(route_configuration_override_action.value.query_string_behavior, null)
 
-          query_string_parameters = contains(
-            ["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"],
-            coalesce(try(route_configuration_override_action.value.query_string_behavior, null), "none")
-          ) ? split(",", try(route_configuration_override_action.value.query_string_params, "")) : null
+          query_string_parameters = (
+            contains(
+              ["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"],
+              coalesce(try(route_configuration_override_action.value.query_string_behavior, null), "none")
+            )
+            && try(route_configuration_override_action.value.query_string_params, null) != null
+            && length(trimspace(route_configuration_override_action.value.query_string_params)) > 0
+          ) ? split(",", trimspace(route_configuration_override_action.value.query_string_params)) : null
         }
       }
 
