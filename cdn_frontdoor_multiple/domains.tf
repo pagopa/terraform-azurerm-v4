@@ -128,7 +128,7 @@ resource "azurerm_dns_a_record" "apex" {
       if contains(route.custom_domains, each.key)
     ][0]
   ].id
-}
+  tags = var.tags
 
 ############################################################
 # DNS Records - CNAME (for subdomain)
