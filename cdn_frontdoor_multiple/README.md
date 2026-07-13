@@ -1,3 +1,146 @@
+# CDN Front Door (Multiple)
+
+This module provisions an Azure Front Door (Standard SKU) profile supporting **multiple endpoints, origin groups, routes, rulesets and custom domains** in a single instance. It is designed for scenarios where several sites/APIs (e.g. a static web frontend and a backend API) need to share one Front Door profile.
+
+Compared to [`cdn_frontdoor`](../cdn_frontdoor), which manages a single endpoint/domain, this module lets you declare an arbitrary number of:
+
+- **Endpoints** — entry points for incoming traffic
+- **Origins** and **origin groups** — backend pools with health probes and load balancing
+- **Routes** — wiring endpoints to origin groups, with caching, protocol and forwarding settings
+- **Rulesets/Rules** — request/response processing (redirects, rewrites, header manipulation, cache overrides)
+- **Custom domains** — with automatic DNS record and certificate management
+
+## Features
+
+- Multiple endpoints, origin groups, routes and rulesets defined as maps, so you can model complex topologies (e.g. `web` + `api`) in one module call.
+- Optional built-in **Storage Account with static website hosting**, automatically wired as an origin of the chosen origin group (`storage_account.origin_group`) — no need to feed its outputs back into `origins`.
+- **Custom domain automation**: DNS validation TXT records, apex `A` records / subdomain `CNAME` records, and Managed or Customer (Key Vault) certificates.
+- Rich rule engine covering `redirect`, `rewrite`, `cache`, `request_header` and `response_header` actions, with single or multiple match conditions per rule (URL path, query string, headers, cookies, device type, etc.).
+- Diagnostic settings sent to a Log Analytics workspace for the whole profile.
+- Input validation to catch common misconfigurations at `plan` time (dangling references between routes/origin_groups/origins/rulesets/domains, invalid operators, apex domains with `ManagedCertificate`, etc.).
+
+## Notes
+
+- Apex domains (domain name == DNS zone name) require `certificate_type = "CustomerCertificate"`; Azure Front Door does not support managed certificates on the zone apex.
+- `CustomerCertificate` domains require `keyvault_id`, `keyvault_certificate_name` and `tenant_id` (used to grant the Front Door managed identity access to the Key Vault).
+- When `storage_account.enabled = true` and `storage_account.origin_group` is set, do **not** declare that storage origin manually in `origins` — the module injects it automatically into the target origin group's members.
+- Origin groups can have `members = []` only if they are the target of the auto-injected storage origin.
+
+## Usage Example
+
+```hcl
+module "cdn" {
+  source = "github.com/pagopa/terraform-azurerm-v4//cdn_frontdoor_multiple"
+
+  resource_group_name        = azurerm_resource_group.this.name
+  location                   = "italynorth"
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+
+  profile = {
+    name = "example-cdn"
+  }
+
+  # Optional: static website storage account, auto-wired as origin of "web-pool"
+  storage_account = {
+    enabled                   = true
+    account_name              = "examplecdnsa"
+    account_replication_type  = "ZRS"
+    index_document             = "index.html"
+    error_404_document         = "error.html"
+    origin_group               = "web-pool"
+  }
+
+  endpoints = {
+    "web" = { name = "example-cdn-web" }
+    "api" = { name = "example-cdn-api" }
+  }
+
+  # The storage origin is injected automatically into "web-pool", so it must
+  # NOT be declared here.
+  origins = {
+    "api-backend" = {
+      host_name  = "backend.example.com"
+      https_port = 443
+      priority   = 1
+      weight     = 1000
+    }
+  }
+
+  origin_groups = {
+    "web-pool" = {
+      description = "Static website pool"
+      members     = []
+      health_probe = {
+        path     = "/"
+        protocol = "Https"
+      }
+    }
+    "api-pool" = {
+      description = "API backend pool"
+      members     = ["api-backend"]
+      health_probe = {
+        path     = "/health"
+        protocol = "Https"
+      }
+    }
+  }
+
+  routes = {
+    "web-default" = {
+      endpoint       = "web"
+      origin_group   = "web-pool"
+      patterns       = ["/*"]
+      cache_behavior = "IgnoreQueryString"
+      custom_domains = ["www.example.com"]
+      rulesets       = ["WebSecurity"]
+    }
+    "api-route" = {
+      endpoint       = "api"
+      origin_group   = "api-pool"
+      patterns       = ["/api/*"]
+      cache_behavior = "UseQueryString"
+      custom_domains = ["api.example.com"]
+    }
+  }
+
+  rulesets = {
+    "WebSecurity" = {
+      description = "Security headers for the web endpoint"
+      rules = {
+        "SecurityHeaders" = {
+          order      = 10
+          conditions = []
+          actions = [{
+            type          = "response_header"
+            header_action = "Append"
+            header_name   = "Strict-Transport-Security"
+            value         = "max-age=31536000; includeSubDomains"
+          }]
+        }
+      }
+    }
+  }
+
+  custom_domains = {
+    "www.example.com" = {
+      dns_zone_name                = "example.com"
+      dns_zone_resource_group_name = "example-dns-rg"
+      certificate_type             = "ManagedCertificate"
+    }
+    "api.example.com" = {
+      dns_zone_name                = "example.com"
+      dns_zone_resource_group_name = "example-dns-rg"
+      certificate_type             = "ManagedCertificate"
+    }
+  }
+
+  tags = {
+    Environment = "prod"
+  }
+}
+```
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
