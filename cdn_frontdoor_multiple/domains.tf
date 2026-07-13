@@ -69,6 +69,10 @@ resource "azurerm_cdn_frontdoor_custom_domain" "domains" {
     certificate_type        = each.value.certificate_type
     cdn_frontdoor_secret_id = contains(keys(azurerm_cdn_frontdoor_secret.certificates), each.key) ? azurerm_cdn_frontdoor_secret.certificates[each.key].id : null
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 ############################################################

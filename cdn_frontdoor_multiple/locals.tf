@@ -28,7 +28,6 @@ locals {
     local.storage_origin_enabled ? {
       (local.storage_origin_key) = {
         host_name          = local.storage_origin_host
-        type               = "storage"
         http_port          = 80
         https_port         = 443
         origin_host_header = local.storage_origin_host
@@ -93,36 +92,10 @@ locals {
     ]
   }
 
-  # Group origins by type for conditional creation
-  origins_by_type = {
-    storage = {
-      for key, origin in var.origins :
-      key => origin if origin.type == "storage"
-    }
-    app_service = {
-      for key, origin in var.origins :
-      key => origin if origin.type == "app_service"
-    }
-    function = {
-      for key, origin in var.origins :
-      key => origin if origin.type == "function"
-    }
-    custom = {
-      for key, origin in var.origins :
-      key => origin if origin.type == "custom"
-    }
-  }
-
   # Custom domains that need certificates from Key Vault
   domains_with_customer_certificates = {
     for key, domain in var.custom_domains :
     key => domain if domain.certificate_type == "CustomerCertificate"
-  }
-
-  # Custom domains that use managed certificates
-  domains_with_managed_certificates = {
-    for key, domain in var.custom_domains :
-    key => domain if domain.certificate_type == "Managed"
   }
 
   # Domains that need DNS records (non-apex or specified)

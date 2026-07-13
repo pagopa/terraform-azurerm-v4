@@ -59,7 +59,6 @@ variable "endpoints" {
 variable "origins" {
   type = map(object({
     host_name          = string
-    type               = string
     http_port          = optional(number, 80)
     https_port         = optional(number, 443)
     origin_host_header = optional(string)
@@ -70,13 +69,6 @@ variable "origins" {
 
   description = "Backend origins (servers/services)"
 
-  validation {
-    condition = alltrue([
-      for origin in values(var.origins) :
-      contains(["storage", "app_service", "function", "custom"], origin.type)
-    ])
-    error_message = "Origin type must be one of: storage, app_service, function, custom"
-  }
 
   validation {
     condition = alltrue([
@@ -313,11 +305,11 @@ variable "rulesets" {
         for rule in values(ruleset.rules) :
         alltrue([
           for action in rule.actions :
-          action.type != "cache" || action.query_string_behavior != null
+          action.type != "cache" || action.behavior == "Disabled" || action.query_string_behavior != null
         ])
       ])
     ])
-    error_message = "Actions of type 'cache' must have 'query_string_behavior' set (e.g. 'IgnoreQueryString', 'UseQueryString', 'IncludeSpecifiedQueryStrings', 'IgnoreSpecifiedQueryStrings')"
+    error_message = "Actions of type 'cache' must have 'query_string_behavior' set (e.g. 'IgnoreQueryString', 'UseQueryString', 'IncludeSpecifiedQueryStrings', 'IgnoreSpecifiedQueryStrings') unless caching is disabled ('behavior = \"Disabled\"')"
   }
 
   validation {
@@ -339,6 +331,66 @@ variable "rulesets" {
       ])
     ])
     error_message = "url_path condition match_values cannot be '/' (becomes empty string after trimming). Use 'request_uri' with operator 'Equal' and match_values = [\"/\"] to match the root path, or 'url_path' with operator 'Any' (no match_values needed)."
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        alltrue(concat(
+          [
+            try(rule.condition.operator, null) != "Any" ||
+            length(try(rule.condition.match_values, [])) == 0
+          ],
+          [
+            for c in try(rule.conditions, []) :
+            c.operator != "Any" ||
+            length(try(c.match_values, [])) == 0
+          ]
+        ))
+      ])
+    ])
+    error_message = "When a condition 'operator' is 'Any', 'match_values' must not be set (leave it empty). This applies to all condition types (e.g. url_file_extension, url_path, query_string)."
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        alltrue(concat(
+          [
+            try(rule.condition, null) == null ||
+            contains(["Any", "BeginsWith", "Contains", "EndsWith", "Equal", "GreaterThan", "GreaterThanOrEqual", "LessThan", "LessThanOrEqual", "RegEx"], try(rule.condition.operator, ""))
+          ],
+          [
+            for c in try(rule.conditions, []) :
+            contains(["Any", "BeginsWith", "Contains", "EndsWith", "Equal", "GreaterThan", "GreaterThanOrEqual", "LessThan", "LessThanOrEqual", "RegEx"], c.operator)
+          ]
+        ))
+      ])
+    ])
+    error_message = "Condition 'operator' must be one of: Any, BeginsWith, Contains, EndsWith, Equal, GreaterThan, GreaterThanOrEqual, LessThan, LessThanOrEqual, RegEx (note: it is 'Equal', not 'Equals')."
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        alltrue(concat(
+          [
+            length(try(rule.condition.match_values, [])) <= 10
+          ],
+          [
+            for c in try(rule.conditions, []) :
+            length(try(c.match_values, [])) <= 10
+          ]
+        ))
+      ])
+    ])
+    error_message = "A condition cannot have more than 10 match_values (Azure Front Door limit)."
   }
 }
 
@@ -374,6 +426,14 @@ variable "custom_domains" {
       (domain.keyvault_id != null && domain.keyvault_certificate_name != null)
     ])
     error_message = "CustomerCertificate type requires keyvault_id and keyvault_certificate_name"
+  }
+
+  validation {
+    condition = alltrue([
+      for domain_key, domain in var.custom_domains :
+      domain_key != domain.dns_zone_name || domain.certificate_type == "CustomerCertificate"
+    ])
+    error_message = "Apex domains (where the domain name equals the dns_zone_name) cannot use 'ManagedCertificate': they must use 'CustomerCertificate' (Azure Front Door does not support managed certificates for apex/root domains)."
   }
 }
 

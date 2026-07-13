@@ -77,10 +77,8 @@ module "cdn" {
   # The static-website storage origin is injected automatically by the module
   # (see storage_account.origin_group), so it must NOT be declared here.
   origins = {
-
     "api-backend" = {
-      host_name  = "api.example.com"
-      type       = "custom"
+      host_name  = "example.com"
       https_port = 443
       http_port  = 80
       priority   = 1
@@ -113,7 +111,7 @@ module "cdn" {
       members     = ["api-backend"]
 
       health_probe = {
-        path                = "/health"
+        path                = "/"
         protocol            = "Https"
         request_type        = "GET"
         interval_in_seconds = 60
@@ -132,7 +130,6 @@ module "cdn" {
       https_redirect = true
       cache_behavior = "IgnoreQueryString"
       custom_domains = [
-        local.dns_zone,
         "www.${local.dns_zone}"
       ]
       rulesets = ["WebSecurity", "WebCaching"]
@@ -173,7 +170,7 @@ module "cdn" {
             type          = "redirect"
             redirect_type = "PermanentRedirect"
             protocol      = "Https"
-            hostname      = "https://${local.dns_zone}"
+            hostname      = local.dns_zone
           }]
         }
 
@@ -222,14 +219,15 @@ module "cdn" {
 
           condition = {
             type         = "url_file_extension"
-            operator     = "Any"
-            match_values = ["js", "css", "jpg", "jpeg", "png", "gif", "svg", "woff", "woff2", "ico", "ttf", "eot"]
+            operator     = "Equal"
+            match_values = ["js", "css", "jpg", "jpeg", "png", "gif", "svg", "woff", "woff2", "ico"]
           }
 
           actions = [{
-            type     = "cache"
-            behavior = "Override"
-            duration = "365.00:00:00"
+            type                  = "cache"
+            behavior              = "Override"
+            duration              = "365.00:00:00"
+            query_string_behavior = "UseQueryString"
           }]
         }
 
@@ -244,9 +242,10 @@ module "cdn" {
           }
 
           actions = [{
-            type     = "cache"
-            behavior = "Override"
-            duration = "1.00:00:00"
+            type                  = "cache"
+            behavior              = "Override"
+            duration              = "1.00:00:00"
+            query_string_behavior = "UseQueryString"
           }]
         }
 
@@ -255,7 +254,7 @@ module "cdn" {
           behavior_on_match = "Continue"
 
           condition = {
-            type         = "url_path"
+            type         = "request_uri"
             operator     = "Equal"
             match_values = ["/"]
           }
@@ -286,7 +285,7 @@ module "cdn" {
             type          = "redirect"
             redirect_type = "PermanentRedirect"
             protocol      = "Https"
-            hostname      = "https://api.${local.dns_zone}"
+            hostname      = "api2.${local.dns_zone}"
           }]
         }
 
@@ -327,14 +326,6 @@ module "cdn" {
 
   # Custom domains (your own domain names)
   custom_domains = {
-    (local.dns_zone) = {
-      dns_zone_name                = local.dns_zone
-      dns_zone_resource_group_name = local.dns_zone_rg
-      certificate_type             = "ManagedCertificate"
-      enable_dns_records           = true
-      ttl                          = 300
-    }
-
     "www.${local.dns_zone}" = {
       dns_zone_name                = local.dns_zone
       dns_zone_resource_group_name = local.dns_zone_rg
