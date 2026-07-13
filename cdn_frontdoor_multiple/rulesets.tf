@@ -340,9 +340,8 @@ resource "azurerm_cdn_frontdoor_rule" "rules" {
               ["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"],
               coalesce(try(route_configuration_override_action.value.query_string_behavior, null), "none")
             )
-            && try(route_configuration_override_action.value.query_string_params, null) != null
-            && length(trimspace(route_configuration_override_action.value.query_string_params)) > 0
-          ) ? split(",", trimspace(route_configuration_override_action.value.query_string_params)) : null
+            && length(trimspace(try(route_configuration_override_action.value.query_string_params, null) == null ? "" : route_configuration_override_action.value.query_string_params)) > 0
+          ) ? split(",", trimspace(try(route_configuration_override_action.value.query_string_params, null) == null ? "" : route_configuration_override_action.value.query_string_params)) : null
         }
       }
 
