@@ -153,4 +153,5 @@ resource "azurerm_dns_cname_record" "subdomain" {
       if contains(route.custom_domains, each.key)
     ][0]
   ].host_name
+  tags = var.tags
 }
