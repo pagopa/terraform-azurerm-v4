@@ -196,5 +196,19 @@ module "cdn" {
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_custom_domain_ids"></a> [custom\_domain\_ids](#output\_custom\_domain\_ids) | Map of custom domain (hostname) => CDN Front Door custom domain ID |
+| <a name="output_endpoint_hostnames"></a> [endpoint\_hostnames](#output\_endpoint\_hostnames) | Map of endpoint key => default CDN Front Door hostname (e.g. to create CNAME/ALIAS records) |
+| <a name="output_endpoint_ids"></a> [endpoint\_ids](#output\_endpoint\_ids) | Map of endpoint key => CDN Front Door endpoint ID |
+| <a name="output_origin_group_ids"></a> [origin\_group\_ids](#output\_origin\_group\_ids) | Map of origin\_group key => CDN Front Door origin group ID |
+| <a name="output_origin_ids"></a> [origin\_ids](#output\_origin\_ids) | Map of origin key => CDN Front Door origin ID (only origins declared in var.origins, excludes the auto-injected storage origin) |
+| <a name="output_profile_id"></a> [profile\_id](#output\_profile\_id) | ID of the CDN Front Door profile |
+| <a name="output_profile_identity_principal_id"></a> [profile\_identity\_principal\_id](#output\_profile\_identity\_principal\_id) | Principal ID of the profile's system-assigned managed identity (used for Key Vault access) |
+| <a name="output_profile_name"></a> [profile\_name](#output\_profile\_name) | Name of the CDN Front Door profile |
+| <a name="output_route_ids"></a> [route\_ids](#output\_route\_ids) | Map of route key => CDN Front Door route ID |
+| <a name="output_ruleset_ids"></a> [ruleset\_ids](#output\_ruleset\_ids) | Map of ruleset key => CDN Front Door rule set ID |
+| <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id) | ID of the static-website storage account, if enabled |
+| <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | Name of the static-website storage account, if enabled |
+| <a name="output_storage_account_primary_web_host"></a> [storage\_account\_primary\_web\_host](#output\_storage\_account\_primary\_web\_host) | Primary static website host of the storage account, if enabled (the host wired as CDN origin) |
 <!-- END_TF_DOCS -->
