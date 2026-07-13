@@ -90,7 +90,7 @@ resource "azurerm_dns_txt_record" "validation" {
   zone_name           = each.value.dns_zone_name
   resource_group_name = each.value.dns_zone_resource_group_name
   ttl                 = each.value.ttl
-
+  tags                = var.tags
   record {
     value = azurerm_cdn_frontdoor_custom_domain.domains[each.key].validation_token
   }
