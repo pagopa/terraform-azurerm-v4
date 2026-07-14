@@ -489,7 +489,7 @@ variable "custom_domains" {
       for domain in values(var.custom_domains) :
       contains(["ManagedCertificate", "CustomerCertificate"], domain.certificate_type)
     ])
-    error_message = "Certificate type must be Managed or CustomerCertificate"
+    error_message = "Certificate type must be ManagedCertificate or CustomerCertificate"
   }
 
   validation {
