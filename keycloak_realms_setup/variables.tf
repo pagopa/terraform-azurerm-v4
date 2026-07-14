@@ -24,6 +24,12 @@ variable "realms_configuration" {
     remember_me                    = optional(bool)
     verify_email                   = optional(bool)
     duplicate_emails_allowed       = optional(bool) # Allow multiple users to have the same email
+
+    # --- Password Policy ---
+    # See https://www.keycloak.org/docs/latest/server_admin/#password-policies
+    # Example: "length(8) and upperCase(1) and lowerCase(1) and digits(1) and specialChars(1)"
+    password_policy = optional(string)
+
     # --- Security & SSL ---
     ssl_required = optional(string) # 'none', 'external' or 'all'
 
