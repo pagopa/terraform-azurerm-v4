@@ -539,7 +539,6 @@ variable "storage_account" {
     access_tier                     = optional(string, "Hot")
     index_document                  = optional(string, "index.html")
     error_404_document              = optional(string, "error.html")
-    nested_items_public             = optional(bool, true)
     public_network_access           = optional(bool, true)
     allow_nested_items_to_be_public = optional(bool, true)
     threat_protection_enabled       = optional(bool, false)
