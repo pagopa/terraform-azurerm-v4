@@ -109,6 +109,9 @@ resource "keycloak_realm" "this" {
   duplicate_emails_allowed       = each.value.duplicate_emails_allowed
   ssl_required                   = each.value.ssl_required
 
+  # --- Password Policy ---
+  password_policy = each.value.password_policy
+
   # --- Timeouts & Lifespans ---
   access_token_lifespan        = each.value.access_token_lifespan
   sso_session_idle_timeout     = each.value.sso_session_idle_timeout
