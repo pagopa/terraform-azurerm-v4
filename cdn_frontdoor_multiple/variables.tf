@@ -1,0 +1,559 @@
+############################################################
+# Core Infrastructure
+############################################################
+variable "resource_group_name" {
+  type        = string
+  description = "Name of the resource group"
+}
+
+variable "location" {
+  type        = string
+  description = "Azure region"
+}
+
+variable "tags" {
+  type        = map(string)
+  description = "Tags to apply to all resources"
+  default     = {}
+}
+
+variable "log_analytics_workspace_id" {
+  type        = string
+  description = "Log Analytics workspace ID for diagnostics"
+}
+
+############################################################
+# CDN Profile
+############################################################
+variable "profile" {
+  type = object({
+    name = string
+  })
+  description = "CDN Front Door profile configuration"
+
+  # validation {
+  #   condition     = contains(["Standard_AzureFrontDoor", "Premium_AzureFrontDoor"], var.profile.sku)
+  #   error_message = "Profile SKU must be Standard_AzureFrontDoor or Premium_AzureFrontDoor"
+  # }
+}
+
+############################################################
+# Endpoints
+############################################################
+variable "endpoints" {
+  type = map(object({
+    name = optional(string)
+  }))
+
+  description = "CDN Front Door endpoints (entry points)"
+
+  validation {
+    condition     = length(var.endpoints) > 0
+    error_message = "At least one endpoint must be defined"
+  }
+}
+
+############################################################
+# Origins
+############################################################
+variable "origins" {
+  type = map(object({
+    host_name          = string
+    http_port          = optional(number, 80)
+    https_port         = optional(number, 443)
+    origin_host_header = optional(string)
+    priority           = optional(number, 1)
+    weight             = optional(number, 1000)
+    enabled            = optional(bool, true)
+  }))
+
+  description = "Backend origins (servers/services)"
+
+
+  validation {
+    condition = alltrue([
+      for origin in values(var.origins) :
+      origin.host_name != null && length(trim(origin.host_name, " ")) > 0
+    ])
+    error_message = "All origins must have a non-empty host_name"
+  }
+}
+
+############################################################
+# Origin Groups
+############################################################
+variable "origin_groups" {
+  type = map(object({
+    description = optional(string, "")
+    members     = list(string)
+
+    health_probe = optional(object({
+      path                = optional(string, "/")
+      protocol            = optional(string, "Https")
+      request_type        = optional(string, "GET")
+      interval_in_seconds = optional(number, 120)
+    }), {})
+
+    load_balancing = optional(object({
+      sample_size                        = optional(number, 4)
+      successful_samples_required        = optional(number, 2)
+      additional_latency_in_milliseconds = optional(number, 0)
+    }), {})
+  }))
+
+  description = "Origin groups (pools of backends with health checks and load balancing)"
+
+  validation {
+    condition = alltrue([
+      for og in values(var.origin_groups) :
+      alltrue([
+        for origin_ref in og.members :
+        contains(keys(var.origins), origin_ref)
+      ])
+    ])
+    error_message = "All origins referenced by origin_groups must exist in var.origins"
+  }
+
+  validation {
+    condition = alltrue([
+      for og_key, og in var.origin_groups :
+      length(og.members) > 0 || (try(var.storage_account.enabled, false) && try(var.storage_account.origin_group, null) == og_key)
+    ])
+    error_message = "Each origin_group must have at least one member (unless it is the target origin_group of an enabled static-website storage account)"
+  }
+
+  validation {
+    condition = alltrue([
+      for origin_key in keys(var.origins) :
+      length([
+        for og in values(var.origin_groups) : true
+        if contains(og.members, origin_key)
+      ]) == 1
+    ])
+    error_message = "Each origin defined in 'origins' must be referenced by the 'members' list of exactly one origin_group (not zero, not more than one - the module cannot determine which origin_group an unreferenced or multiply-referenced origin belongs to). Offending origin(s): ${join(", ", [
+      for origin_key in keys(var.origins) :
+      origin_key
+      if length([for og in values(var.origin_groups) : true if contains(og.members, origin_key)]) != 1
+    ])}"
+  }
+
+  validation {
+    condition = (
+      !try(var.storage_account.enabled, false) ||
+      try(var.storage_account.origin_group, null) == null ||
+      contains(keys(var.origin_groups), var.storage_account.origin_group)
+    )
+    error_message = "storage_account.origin_group ('${coalesce(try(var.storage_account.origin_group, null), "(not set)")}') must reference an existing key in 'origin_groups' when storage_account.enabled = true and origin_group is set, otherwise the static-website storage origin cannot be wired to any origin_group. Available origin_groups: ${join(", ", keys(var.origin_groups))}"
+  }
+}
+
+############################################################
+# Routes
+############################################################
+variable "routes" {
+  type = map(object({
+    endpoint               = string
+    origin_group           = string
+    patterns               = list(string)
+    protocols              = optional(list(string), ["Http", "Https"])
+    forwarding             = optional(string, "MatchRequest")
+    https_redirect         = optional(bool, true)
+    cache_behavior         = optional(string, "IgnoreQueryString")
+    custom_domains         = optional(list(string), [])
+    rulesets               = optional(list(string), [])
+    enabled                = optional(bool, true)
+    link_to_default_domain = optional(bool)
+  }))
+
+  description = "Routes (connect endpoints → origin_groups, apply rulesets, attach domains)"
+
+  validation {
+    condition = alltrue([
+      for route in values(var.routes) :
+      contains(keys(var.endpoints), route.endpoint)
+    ])
+    error_message = "All routes must reference endpoints that exist in var.endpoints"
+  }
+
+  validation {
+    condition = alltrue([
+      for route in values(var.routes) :
+      contains(keys(var.origin_groups), route.origin_group)
+    ])
+    error_message = "All routes must reference origin_groups that exist in var.origin_groups"
+  }
+
+  validation {
+    condition = alltrue([
+      for route in values(var.routes) :
+      alltrue([
+        for ruleset_name in try(route.rulesets, []) :
+        contains(keys(var.rulesets), ruleset_name)
+      ])
+    ])
+    error_message = "All rulesets referenced by routes must exist in var.rulesets"
+  }
+
+  validation {
+    condition = alltrue([
+      for route in values(var.routes) :
+      alltrue([
+        for domain_name in try(route.custom_domains, []) :
+        contains(keys(var.custom_domains), domain_name)
+      ])
+    ])
+    error_message = "All custom_domains referenced by routes must exist in var.custom_domains"
+  }
+
+  validation {
+    condition = alltrue([
+      for route in values(var.routes) :
+      contains(["IgnoreQueryString", "UseQueryString", "IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"], route.cache_behavior)
+    ])
+    error_message = "Route cache_behavior must be: IgnoreQueryString, UseQueryString, IncludeSpecifiedQueryStrings, or IgnoreSpecifiedQueryStrings"
+  }
+
+  validation {
+    condition = alltrue([
+      for domain_key, domain in var.custom_domains :
+      !domain.enable_dns_records ||
+      length([
+        for route in values(var.routes) : true
+        if contains(route.custom_domains, domain_key)
+      ]) > 0
+    ])
+    error_message = "Custom domains with 'enable_dns_records = true' must be attached to at least one route via 'route.custom_domains', otherwise the module cannot determine which endpoint to point the DNS record at. Either attach the domain to a route or set 'enable_dns_records = false'. Offending domain(s): ${join(", ", [
+      for domain_key, domain in var.custom_domains :
+      domain_key
+      if domain.enable_dns_records && length([for route in values(var.routes) : true if contains(route.custom_domains, domain_key)]) == 0
+    ])}"
+  }
+
+  validation {
+    condition = alltrue([
+      for domain_key, domain in var.custom_domains :
+      !domain.enable_dns_records ||
+      length(distinct([
+        for route in values(var.routes) : route.endpoint
+        if contains(route.custom_domains, domain_key)
+      ])) <= 1
+    ])
+    error_message = "Custom domains with 'enable_dns_records = true' must be attached to routes on a single endpoint only: the generated DNS record can only point to one CDN Front Door endpoint, so attaching the same domain to routes on different endpoints is ambiguous. Domain(s) attached to routes on more than one endpoint: ${join(", ", [
+      for domain_key, domain in var.custom_domains :
+      domain_key
+      if domain.enable_dns_records && length(distinct([for route in values(var.routes) : route.endpoint if contains(route.custom_domains, domain_key)])) > 1
+    ])}"
+  }
+}
+
+############################################################
+# Rulesets and Rules
+############################################################
+variable "rulesets" {
+  type = map(object({
+    description = optional(string, "")
+    rules = map(object({
+      order             = number
+      behavior_on_match = optional(string, "Continue")
+
+      condition = optional(object({
+        type         = string
+        operator     = string
+        match_values = optional(list(string), [])
+        negate       = optional(bool, false)
+        transforms   = optional(list(string), [])
+        selector     = optional(string)
+      }))
+
+      conditions = optional(list(object({
+        type         = string
+        operator     = string
+        match_values = optional(list(string), [])
+        negate       = optional(bool, false)
+        transforms   = optional(list(string), [])
+        selector     = optional(string)
+      })), [])
+
+      actions = list(object({
+        type     = string
+        protocol = optional(string)
+        hostname = optional(string)
+        path     = optional(string)
+        fragment = optional(string)
+
+        redirect_type           = optional(string)
+        query_string            = optional(string)
+        source_pattern          = optional(string)
+        destination             = optional(string)
+        preserve_unmatched_path = optional(bool, false)
+
+        behavior              = optional(string)
+        duration              = optional(string) # d.HH:MM:SS format (e.g. 365.23:59:59)
+        query_string_behavior = optional(string)
+        query_string_params   = optional(string)
+
+        header_action = optional(string)
+        header_name   = optional(string)
+        value         = optional(string)
+      }))
+    }))
+  }))
+
+  default     = {}
+  description = "Rulesets containing rules for request processing (headers, caching, redirects, rewrites)"
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        length(rule.actions) > 0
+      ])
+    ])
+    error_message = "Each rule must have at least one action defined"
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule_name, rule in ruleset.rules :
+        # Check no duplicate orders in same ruleset
+        length(ruleset.rules) == length(distinct([
+          for r in values(ruleset.rules) : r.order
+        ]))
+      ])
+    ])
+    error_message = "Rule orders must be unique within each ruleset"
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        alltrue([
+          for action in rule.actions :
+          contains(["redirect", "rewrite", "cache", "request_header", "response_header"], action.type)
+        ])
+      ])
+    ])
+    error_message = "Action type must be one of: redirect, rewrite, cache, request_header, response_header"
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        !(
+          length([for a in rule.actions : a if a.type == "redirect"]) > 0 &&
+          length([for a in rule.actions : a if a.type == "rewrite"]) > 0
+        )
+      ])
+    ])
+    error_message = "A rule cannot have both redirect and rewrite actions"
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        alltrue([
+          for action in rule.actions :
+          action.type != "cache" || action.behavior == "Disabled" || action.query_string_behavior != null
+        ])
+      ])
+    ])
+    error_message = "Actions of type 'cache' must have 'query_string_behavior' set (e.g. 'IgnoreQueryString', 'UseQueryString', 'IncludeSpecifiedQueryStrings', 'IgnoreSpecifiedQueryStrings') unless caching is disabled ('behavior = \"Disabled\"')"
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset_key, ruleset in var.rulesets :
+      alltrue([
+        for rule_key, rule in ruleset.rules :
+        alltrue([
+          for action in rule.actions :
+          action.type != "cache" ||
+          !contains(["IncludeSpecifiedQueryStrings", "IgnoreSpecifiedQueryStrings"], coalesce(action.query_string_behavior, "none")) ||
+          (action.query_string_params == null ? false : length(trimspace(action.query_string_params)) > 0)
+        ])
+      ])
+    ])
+    error_message = "Actions of type 'cache' with query_string_behavior 'IncludeSpecifiedQueryStrings' or 'IgnoreSpecifiedQueryStrings' must set a non-empty 'query_string_params' (comma-separated list of query string parameter names), otherwise Azure Front Door receives an empty parameter list."
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        alltrue(concat(
+          [
+            try(rule.condition.type, null) != "url_path" ||
+            alltrue([for v in try(rule.condition.match_values, []) : trimprefix(v, "/") != ""])
+          ],
+          [
+            for c in try(rule.conditions, []) :
+            c.type != "url_path" ||
+            alltrue([for v in try(c.match_values, []) : trimprefix(v, "/") != ""])
+          ]
+        ))
+      ])
+    ])
+    error_message = "url_path condition match_values cannot be '/' (becomes empty string after trimming). Use 'request_uri' with operator 'Equal' and match_values = [\"/\"] to match the root path, or 'url_path' with operator 'Any' (no match_values needed)."
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        alltrue(concat(
+          [
+            try(rule.condition.operator, null) != "Any" ||
+            length(try(rule.condition.match_values, [])) == 0
+          ],
+          [
+            for c in try(rule.conditions, []) :
+            c.operator != "Any" ||
+            length(try(c.match_values, [])) == 0
+          ]
+        ))
+      ])
+    ])
+    error_message = "When a condition 'operator' is 'Any', 'match_values' must not be set (leave it empty). This applies to all condition types (e.g. url_file_extension, url_path, query_string)."
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        alltrue(concat(
+          [
+            try(rule.condition, null) == null ||
+            contains(["Any", "BeginsWith", "Contains", "EndsWith", "Equal", "GreaterThan", "GreaterThanOrEqual", "LessThan", "LessThanOrEqual", "RegEx"], try(rule.condition.operator, ""))
+          ],
+          [
+            for c in try(rule.conditions, []) :
+            contains(["Any", "BeginsWith", "Contains", "EndsWith", "Equal", "GreaterThan", "GreaterThanOrEqual", "LessThan", "LessThanOrEqual", "RegEx"], c.operator)
+          ]
+        ))
+      ])
+    ])
+    error_message = "Condition 'operator' must be one of: Any, BeginsWith, Contains, EndsWith, Equal, GreaterThan, GreaterThanOrEqual, LessThan, LessThanOrEqual, RegEx (note: it is 'Equal', not 'Equals')."
+  }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        alltrue(concat(
+          [
+            length(try(rule.condition.match_values, [])) <= 10
+          ],
+          [
+            for c in try(rule.conditions, []) :
+            length(try(c.match_values, [])) <= 10
+          ]
+        ))
+      ])
+    ])
+    error_message = "A condition cannot have more than 10 match_values (Azure Front Door limit)."
+  }
+}
+
+############################################################
+# Custom Domains
+############################################################
+variable "custom_domains" {
+  type = map(object({
+    dns_zone_name                = string
+    dns_zone_resource_group_name = string
+    certificate_type             = optional(string, "ManagedCertificate")
+    keyvault_id                  = optional(string)
+    keyvault_certificate_name    = optional(string)
+    enable_dns_records           = optional(bool, true)
+    ttl                          = optional(number, 3600)
+  }))
+
+  default     = {}
+  description = "Custom domains with DNS and certificate management"
+
+  validation {
+    condition = alltrue([
+      for domain in values(var.custom_domains) :
+      contains(["ManagedCertificate", "CustomerCertificate"], domain.certificate_type)
+    ])
+    error_message = "Certificate type must be ManagedCertificate or CustomerCertificate"
+  }
+
+  validation {
+    condition = alltrue([
+      for domain in values(var.custom_domains) :
+      domain.certificate_type != "CustomerCertificate" ||
+      (domain.keyvault_id != null && domain.keyvault_certificate_name != null)
+    ])
+    error_message = "CustomerCertificate type requires keyvault_id and keyvault_certificate_name"
+  }
+
+  validation {
+    condition = alltrue([
+      for domain_key, domain in var.custom_domains :
+      domain_key != domain.dns_zone_name || domain.certificate_type == "CustomerCertificate"
+    ])
+    error_message = "Apex domains (where the domain name equals the dns_zone_name) cannot use 'ManagedCertificate': they must use 'CustomerCertificate' (Azure Front Door does not support managed certificates for apex/root domains)."
+  }
+
+  validation {
+    condition = (
+      length([for d in values(var.custom_domains) : d if d.certificate_type == "CustomerCertificate"]) == 0
+      || var.tenant_id != null
+    )
+    error_message = "var.tenant_id is required when at least one custom_domains entry uses certificate_type = 'CustomerCertificate' (it is needed to grant the Front Door managed identity access to the Key Vault)."
+  }
+
+  validation {
+    condition = length(distinct([
+      for d in values(var.custom_domains) : d.keyvault_id
+      if d.certificate_type == "CustomerCertificate"
+    ])) <= 1
+    error_message = "All custom_domains entries using certificate_type = 'CustomerCertificate' must reference the same keyvault_id: this module grants Key Vault access and creates the CDN Front Door secret using a single, shared Key Vault access policy. Found multiple distinct keyvault_id values: ${join(", ", distinct([for d in values(var.custom_domains) : coalesce(d.keyvault_id, "null") if d.certificate_type == "CustomerCertificate"]))}"
+  }
+}
+
+############################################################
+# Optional: Storage Account for Static Website
+############################################################
+variable "storage_account" {
+  type = object({
+    enabled                         = optional(bool, false)
+    account_name                    = optional(string)
+    account_kind                    = optional(string, "StorageV2")
+    account_tier                    = optional(string, "Standard")
+    account_replication_type        = optional(string, "ZRS")
+    access_tier                     = optional(string, "Hot")
+    index_document                  = optional(string, "index.html")
+    error_404_document              = optional(string, "error.html")
+    public_network_access           = optional(bool, true)
+    allow_nested_items_to_be_public = optional(bool, true)
+    threat_protection_enabled       = optional(bool, false)
+    origin_group                    = optional(string)
+  })
+
+  default     = {}
+  description = "Optional storage account configuration for static website hosting. Set 'origin_group' to the key of an origin_group to automatically wire the static website as a CDN Front Door origin."
+}
+
+############################################################
+# Optional: Key Vault for Certificates
+############################################################
+variable "tenant_id" {
+  type        = string
+  default     = null
+  description = "Tenant ID for Key Vault access (required if using CustomerCertificate domains)"
+}
