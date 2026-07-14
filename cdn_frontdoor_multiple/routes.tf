@@ -14,7 +14,8 @@ resource "azurerm_cdn_frontdoor_route" "routes" {
   https_redirect_enabled = each.value.https_redirect
   forwarding_protocol    = each.value.forwarding
   enabled                = each.value.enabled
-  link_to_default_domain = false
+
+  link_to_default_domain = coalesce(each.value.link_to_default_domain, length(each.value.custom_domains) == 0)
 
   # Attach rulesets referenced by this route
   cdn_frontdoor_rule_set_ids = local.route_rulesets[each.key]

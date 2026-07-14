@@ -136,6 +136,15 @@ variable "origin_groups" {
       if length([for og in values(var.origin_groups) : true if contains(og.members, origin_key)]) != 1
     ])}"
   }
+
+  validation {
+    condition = (
+      !try(var.storage_account.enabled, false) ||
+      try(var.storage_account.origin_group, null) == null ||
+      contains(keys(var.origin_groups), var.storage_account.origin_group)
+    )
+    error_message = "storage_account.origin_group ('${coalesce(try(var.storage_account.origin_group, null), "(not set)")}') must reference an existing key in 'origin_groups' when storage_account.enabled = true and origin_group is set, otherwise the static-website storage origin cannot be wired to any origin_group. Available origin_groups: ${join(", ", keys(var.origin_groups))}"
+  }
 }
 
 ############################################################
@@ -143,16 +152,17 @@ variable "origin_groups" {
 ############################################################
 variable "routes" {
   type = map(object({
-    endpoint       = string
-    origin_group   = string
-    patterns       = list(string)
-    protocols      = optional(list(string), ["Http", "Https"])
-    forwarding     = optional(string, "MatchRequest")
-    https_redirect = optional(bool, true)
-    cache_behavior = optional(string, "IgnoreQueryString")
-    custom_domains = optional(list(string), [])
-    rulesets       = optional(list(string), [])
-    enabled        = optional(bool, true)
+    endpoint               = string
+    origin_group           = string
+    patterns               = list(string)
+    protocols              = optional(list(string), ["Http", "Https"])
+    forwarding             = optional(string, "MatchRequest")
+    https_redirect         = optional(bool, true)
+    cache_behavior         = optional(string, "IgnoreQueryString")
+    custom_domains         = optional(list(string), [])
+    rulesets               = optional(list(string), [])
+    enabled                = optional(bool, true)
+    link_to_default_domain = optional(bool)
   }))
 
   description = "Routes (connect endpoints → origin_groups, apply rulesets, attach domains)"
@@ -216,6 +226,22 @@ variable "routes" {
       for domain_key, domain in var.custom_domains :
       domain_key
       if domain.enable_dns_records && length([for route in values(var.routes) : true if contains(route.custom_domains, domain_key)]) == 0
+    ])}"
+  }
+
+  validation {
+    condition = alltrue([
+      for domain_key, domain in var.custom_domains :
+      !domain.enable_dns_records ||
+      length(distinct([
+        for route in values(var.routes) : route.endpoint
+        if contains(route.custom_domains, domain_key)
+      ])) <= 1
+    ])
+    error_message = "Custom domains with 'enable_dns_records = true' must be attached to routes on a single endpoint only: the generated DNS record can only point to one CDN Front Door endpoint, so attaching the same domain to routes on different endpoints is ambiguous. Domain(s) attached to routes on more than one endpoint: ${join(", ", [
+      for domain_key, domain in var.custom_domains :
+      domain_key
+      if domain.enable_dns_records && length(distinct([for route in values(var.routes) : route.endpoint if contains(route.custom_domains, domain_key)])) > 1
     ])}"
   }
 }

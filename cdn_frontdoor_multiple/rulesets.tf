@@ -144,7 +144,7 @@ resource "azurerm_cdn_frontdoor_rule" "rules" {
         for_each = try(each.value.condition.type, null) == "device" ? [each.value.condition] : []
         content {
           operator         = is_device_condition.value.operator
-          match_values     = [is_device_condition.value.match_values[0]]
+          match_values     = try(is_device_condition.value.match_values, [])
           negate_condition = try(is_device_condition.value.negate, false)
         }
       }
@@ -273,7 +273,7 @@ resource "azurerm_cdn_frontdoor_rule" "rules" {
         for_each = [for c in try(each.value.conditions, []) : c if c.type == "device"]
         content {
           operator         = is_device_condition.value.operator
-          match_values     = [is_device_condition.value.match_values[0]]
+          match_values     = try(is_device_condition.value.match_values, [])
           negate_condition = try(is_device_condition.value.negate, false)
         }
       }
