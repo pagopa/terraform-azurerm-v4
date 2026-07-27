@@ -79,4 +79,5 @@ No modules.
 | <a name="output_admin_username"></a> [admin\_username](#output\_admin\_username) | n/a |
 | <a name="output_id"></a> [id](#output\_id) | n/a |
 | <a name="output_login_server"></a> [login\_server](#output\_login\_server) | n/a |
+| <a name="output_name"></a> [name](#output\_name) | n/a |
 <!-- END_TF_DOCS -->
