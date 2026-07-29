@@ -46,7 +46,7 @@ resource "azurerm_resource_group" "this" {
 module "container_registry_bck" {
   source = "../container_registry"
 
-  name                          = replace("${var.project}-bck-acr", "-", "")
+  name                          = replace("${var.project}-acr-bck", "-", "")
   sku                           = var.env_short != "d" ? "Premium" : "Basic"
   resource_group_name           = azurerm_resource_group.this.name
   admin_enabled                 = true # TODO: valutare se disabilitare l'admin user
