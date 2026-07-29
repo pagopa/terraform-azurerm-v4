@@ -537,7 +537,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       # esql query
       can(each.value.esql_query) ? {
         esqlQuery : {
-          esql : each.value.esql_query.query
+          esql : replace(each.value.esql_query.query, "${namespace}", var.elastic_namespace)
         }
         searchType : "esqlQuery"
         timeField : "@timestamp"
