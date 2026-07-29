@@ -46,14 +46,14 @@ resource "azurerm_resource_group" "this" {
 module "container_registry_bck" {
   source = "../container_registry"
 
-  name                           = replace("${var.project}-bck-acr", "-", "")
-  sku                            = var.env_short != "d" ? "Premium" : "Basic"
-  resource_group_name            = azurerm_resource_group.this.name
-  admin_enabled                  = true # TODO: valutare se disabilitare l'admin user
-  anonymous_pull_enabled         = false
-  zone_redundancy_enabled        = var.env_short != "d" ? true : false
-  public_network_access_enabled  = true
-  location                       = var.location_backup
+  name                          = replace("${var.project}-bck-acr", "-", "")
+  sku                           = var.env_short != "d" ? "Premium" : "Basic"
+  resource_group_name           = azurerm_resource_group.this.name
+  admin_enabled                 = true # TODO: valutare se disabilitare l'admin user
+  anonymous_pull_enabled        = false
+  zone_redundancy_enabled       = var.env_short != "d" ? true : false
+  public_network_access_enabled = true
+  location                      = var.location_backup
 
   private_endpoint_enabled = false
 
@@ -100,10 +100,10 @@ resource "azurerm_role_assignment" "reader_backup" {
 }
 
 resource "azurerm_container_app_job" "acr_backup_sync" {
-  name                          = "${var.product}-caj-acr-backup-sync"
-  resource_group_name           = azurerm_resource_group.this.name
-  location                      = var.location
-  container_app_environment_id  = var.container_app_environment_id
+  name                         = "${var.product}-caj-acr-backup-sync"
+  resource_group_name          = azurerm_resource_group.this.name
+  location                     = var.location
+  container_app_environment_id = var.container_app_environment_id
 
   replica_timeout_in_seconds = var.replica_timeout_in_seconds
   replica_retry_limit        = var.replica_retry_limit
@@ -120,8 +120,8 @@ resource "azurerm_container_app_job" "acr_backup_sync" {
 
   schedule_trigger_config {
     cron_expression          = var.cron_expression
-    parallelism               = 1
-    replica_completion_count  = 1
+    parallelism              = 1
+    replica_completion_count = 1
   }
 
   template {
