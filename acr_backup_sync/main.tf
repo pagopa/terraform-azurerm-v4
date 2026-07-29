@@ -38,7 +38,7 @@ resource "terraform_data" "build_sync_image" {
 
 resource "azurerm_resource_group" "this" {
   name     = format("%s-container-registry-bck-rg", var.product)
-  location = var.location
+  location = var.location_backup
 
   tags = var.tags
 }
@@ -53,7 +53,7 @@ module "container_registry_bck" {
   anonymous_pull_enabled         = false
   zone_redundancy_enabled        = var.env_short != "d" ? true : false
   public_network_access_enabled  = true
-  location                       = var.location
+  location                       = var.location_backup
 
   private_endpoint_enabled = false
 
@@ -70,7 +70,7 @@ module "container_registry_bck" {
 resource "azurerm_user_assigned_identity" "acr_sync" {
   name                = "${var.product}-acr-backup-sync"
   resource_group_name = azurerm_resource_group.this.name
-  location            = var.location
+  location            = var.location_backup
 
   tags = var.tags
 }

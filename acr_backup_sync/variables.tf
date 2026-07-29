@@ -13,6 +13,11 @@ variable "location" {
   type        = string
 }
 
+variable "location_backup" {
+  description = "Region Azure in cui creare le risorse di backup."
+  type        = string
+}
+
 variable "env_short" {
   description = "Sigla ambiente"
   type        = string
