@@ -32,7 +32,7 @@ resource "terraform_data" "build_sync_image" {
   }
 
   provisioner "local-exec" {
-    command = "az acr build --registry ${var.source_acr_name} --image ${var.image_name} --file ${var.build_dockerfile} --platform ${var.build_platform} ${var.build_context_path}"
+    command = "az acr build --registry ${var.source_acr_name} --image ${var.image_name} --file ${var.build_context_path}/${var.build_dockerfile}"
   }
 }
 
