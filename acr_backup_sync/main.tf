@@ -32,7 +32,7 @@ resource "terraform_data" "build_sync_image" {
   }
 
   provisioner "local-exec" {
-    command = "az acr build --registry ${var.source_acr_name} --image ${var.image_name} --file ${var.build_context_path}/${var.build_dockerfile} ${var.build_context_path}" 
+    command = "az acr build --registry ${var.source_acr_name} --image ${var.image_name} --file ${var.build_context_path}/${var.build_dockerfile} ${var.build_context_path}"
   }
 }
 
@@ -133,11 +133,11 @@ resource "azurerm_container_app_job" "acr_backup_sync" {
 
       env {
         name  = "SOURCE_ACR"
-        value = "${var.source_acr_name}"
+        value = var.source_acr_name
       }
       env {
         name  = "BACKUP_ACR"
-        value = "${module.container_registry_bck.name}"
+        value = module.container_registry_bck.name
       }
       env {
         name  = "APPSETTING_WEBSITE_SITE_NAME"

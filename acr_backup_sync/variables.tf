@@ -49,12 +49,6 @@ variable "build_dockerfile" {
   default     = "Dockerfile"
 }
 
-variable "build_platform" {
-  description = "Piattaforma target per `az acr build` (es. \"linux\", \"linux/amd64\", \"windows\")."
-  type        = string
-  default     = "linux"
-}
-
 variable "source_acr_id" {
   description = "Resource ID dell'ACR sorgente da cui sincronizzare le immagini (es. module.container_registry_ita.id)."
   type        = string
