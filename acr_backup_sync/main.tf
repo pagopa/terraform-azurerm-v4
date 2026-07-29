@@ -37,7 +37,7 @@ resource "terraform_data" "build_sync_image" {
 }
 
 resource "azurerm_resource_group" "this" {
-  name     = format("%s-container-registry-bck-rg", var.product)
+  name     = format("%s-container-registry-${var.source_acr_name}-bck-rg", var.product)
   location = var.location_backup
 
   tags = var.tags
