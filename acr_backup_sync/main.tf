@@ -133,11 +133,11 @@ resource "azurerm_container_app_job" "acr_backup_sync" {
 
       env {
         name  = "SOURCE_ACR"
-        value = var.source_acr_login_server
+        value = "${var.source_acr_name}"
       }
       env {
         name  = "BACKUP_ACR"
-        value = "${module.container_registry_bck.name}.azurecr.io"
+        value = "${module.container_registry_bck.name}"
       }
       env {
         name  = "APPSETTING_WEBSITE_SITE_NAME"
