@@ -420,19 +420,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = lookup(each.value, "esql_query", null) != null ? try(each.value.esql_query.threshold.comparator, "") != "" && length(try(each.value.esql_query.threshold.values, [])) > 0 : true
-      error_message = "esql_query.threshold must have comparator and values defined. used by alert '${each.key}' in '${var.application_name}' application"
+      condition     = lookup(each.value, "esql_query", null) != null ? contains(local.allowed_esql_group_by, try(each.value.esql_query.group_by, "")): true
+      error_message = "esql_query.group_by must be either ${join(",", local.allowed_esql_group_by)}. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
-    precondition {
-      condition     = lookup(each.value, "esql_query", null) != null ? contains([">", ">=", "<", "<=", "between", "notBetween"], try(each.value.esql_query.threshold.comparator, "")) : true
-      error_message = "esql_query.threshold.comparator must be one of '>', '>=', '<', '<=', 'between', 'notBetween'. used by alert '${each.key}' in '${var.application_name}' application"
-    }
 
-    precondition {
-      condition     = lookup(each.value, "esql_query", null) != null ? (contains(["between", "notBetween"], try(each.value.esql_query.threshold.comparator, "")) ? length(try(each.value.esql_query.threshold.values, [])) == 2 : length(try(each.value.esql_query.threshold.values, [])) == 1) : true
-      error_message = "esql_query.threshold.values must be a single value for comparators '>', '>=', '<', '<=', or an array of two values for comparators 'between' or 'notBetween'. used by alert '${each.key}' in '${var.application_name}' application"
-    }
 
     #
     # common alert validations
@@ -543,8 +535,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         timeField : "@timestamp"
         timeWindowSize : each.value.window.size
         timeWindowUnit : each.value.window.unit
-        threshold : each.value.esql_query.threshold.values
-        thresholdComparator : each.value.esql_query.threshold.comparator
+        groupBy: try(each.value.esql_query.group_by, "all")
+        threshold : [ 0 ]
+        thresholdComparator : ">"
         excludeHitsFromPreviousRun : lookup(each.value.esql_query, "exclude_hits_from_previous_run", false)
         groupBy : "all"
         termSize : 5
