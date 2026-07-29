@@ -539,7 +539,6 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         threshold : [ 0 ]
         thresholdComparator : ">"
         excludeHitsFromPreviousRun : lookup(each.value.esql_query, "exclude_hits_from_previous_run", false)
-        groupBy : "all"
         termSize : 5
         size : 100
       } : null
