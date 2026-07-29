@@ -52,13 +52,6 @@ module "acr_backup_sync" {
 }
 ```
 
-## Note / punti da rivedere (portati dal codice originale)
-
-1. **`admin_enabled = true`** sull'ACR di backup: era già segnato come `TODO` nel codice originale, mantenuto tale e quale.
-2. **Role `push_backup`**: assegna `Contributor` sull'ACR di backup invece di `AcrPush`, scelta intenzionale — il job usa `importImage`, azione (`Microsoft.ContainerRegistry/registries/importImage/action`) non inclusa in `AcrPush` ma presente in `Contributor`. Lo scope resta comunque ristretto alla sola risorsa `module.container_registry_bck.id`, quindi non introduce permessi eccedenti a livello di RG/subscription. In alternativa, se si vuole restringere ulteriormente, si può creare un custom role con la sola azione `importImage/action` + i permessi di lettura del registry.
-3. **`container_registry_module_source`**: di default punta a `./.terraform/modules/__v4__/container_registry`, lo stesso path relativo del codice originale. Essendo ora invocato da dentro un modulo, questo path relativo è risolto rispetto alla cartella del modulo `acr-backup-sync`, **non** rispetto al root del progetto chiamante: se il path non risulta valido dopo lo spostamento, valorizza `container_registry_module_source` con un source registry/git assoluto oppure copia il modulo `container_registry` dentro `acr-backup-sync`.
-4. **Nome immagine**: nel codice originale era hardcoded `acr-backup-sync:1.0`; ora è parametrizzato tramite `image_name` (default invariato).
-
 ## Input principali
 
 | Nome | Descrizione | Default |
