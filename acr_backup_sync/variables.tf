@@ -35,7 +35,7 @@ variable "build_sync_image" {
 variable "build_context_path" {
   description = "Path locale (relativo o assoluto) del build context (Dockerfile + sorgenti) dell'immagine del job di sync"
   type        = string
-  default     = null
+  default     = "build"
 }
 
 variable "build_dockerfile" {
