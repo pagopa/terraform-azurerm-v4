@@ -420,7 +420,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition     = can(each.value.esql_query)  ? contains(local.allowed_esql_group_by, try(each.value.esql_query.group_by, "")): true
+      condition     = can(each.value.esql_query) ? contains(local.allowed_esql_group_by, try(each.value.esql_query.group_by, "")) : true
       error_message = "esql_query.group_by must be either ${join(",", local.allowed_esql_group_by)}. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
@@ -535,8 +535,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         timeField : "@timestamp"
         timeWindowSize : each.value.window.size
         timeWindowUnit : each.value.window.unit
-        groupBy: each.value.esql_query.group_by
-        threshold : [ 0 ]
+        groupBy : each.value.esql_query.group_by
+        threshold : [0]
         thresholdComparator : ">"
         excludeHitsFromPreviousRun : lookup(each.value.esql_query, "exclude_hits_from_previous_run", false)
         termSize : 5
