@@ -713,3 +713,22 @@ variable "alerts_enabled" {
 }
 
 
+
+variable "ama_log_collection_settings" {
+  description = "Container Insights (ama-logs) log collection settings. The AMA ConfigMap is created only when include_namespaces is not empty."
+  type = object({
+    include_namespaces          = optional(list(string), [])
+    containerlog_schema_version = optional(string, "v2")
+    enable_multiline_logs       = optional(bool, true)
+    filter_using_annotations    = optional(bool, false)
+    collect_env_vars            = optional(bool, true)
+    enrich_container_logs       = optional(bool, false)
+    collect_all_kube_events     = optional(bool, false)
+  })
+  default = {}
+
+  validation {
+    condition     = contains(["v1", "v2"], var.ama_log_collection_settings.containerlog_schema_version)
+    error_message = "ama_log_collection_settings.containerlog_schema_version must be either \"v1\" or \"v2\"."
+  }
+}
