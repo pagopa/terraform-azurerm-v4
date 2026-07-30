@@ -717,7 +717,7 @@ variable "alerts_enabled" {
 variable "ama_log_collection_settings" {
   description = "Container Insights (ama-logs) log collection settings. stdout and stderr can use different namespace exclusions, and coredns system pod logs are collected by default."
   type = object({
-    enable_log_collection_cm    = optional(bool, true)
+    enable_log_collection_cm    = optional(bool, false)
     stdout_exclude_namespaces   = optional(list(string), ["gatekeeper-system"])
     stderr_exclude_namespaces   = optional(list(string), ["gatekeeper-system"])
     collect_system_pod_logs     = optional(list(string), ["kube-system:coredns"])
