@@ -171,7 +171,7 @@ resource "azurerm_monitor_diagnostic_setting" "aks" {
 #-------------------------------------------------------------------------------
 
 resource "kubernetes_config_map_v1" "ama_logs_settings" {
-  count = length(var.ama_log_collection_settings.include_namespaces) > 0 ? 1 : 0
+  count = var.ama_log_collection_settings.enable_log_collection_cm ? 1 : 0
 
   metadata {
     name      = "container-azm-ms-agentconfig"
@@ -185,7 +185,9 @@ resource "kubernetes_config_map_v1" "ama_logs_settings" {
     "log-data-collection-settings" = templatefile(
       "${path.module}/templates/log-data-collection-settings.tftpl",
       {
-        include_namespaces          = var.ama_log_collection_settings.include_namespaces
+        stdout_exclude_namespaces   = var.ama_log_collection_settings.stdout_exclude_namespaces
+        stderr_exclude_namespaces   = var.ama_log_collection_settings.stderr_exclude_namespaces
+        collect_system_pod_logs     = var.ama_log_collection_settings.collect_system_pod_logs
         enable_stdout_logs          = var.ama_log_collection_settings.enable_stdout_logs
         enable_stderr_logs          = var.ama_log_collection_settings.enable_stderr_logs
         containerlog_schema_version = var.ama_log_collection_settings.containerlog_schema_version

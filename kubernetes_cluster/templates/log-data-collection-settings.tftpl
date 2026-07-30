@@ -2,10 +2,13 @@
 [log_collection_settings]
    [log_collection_settings.stdout]
       enabled = ${enable_stdout_logs}
-      include_namespaces = [${join(", ", formatlist("%q", include_namespaces))}]
+      exclude_namespaces = [${join(", ", formatlist("%q", stdout_exclude_namespaces))}]
+      collect_system_pod_logs = [${join(", ", formatlist("%q", collect_system_pod_logs))}]
 
    [log_collection_settings.stderr]
       enabled = ${enable_stderr_logs}
+      exclude_namespaces = [${join(", ", formatlist("%q", stderr_exclude_namespaces))}]
+      collect_system_pod_logs = [${join(", ", formatlist("%q", collect_system_pod_logs))}]
 
    [log_collection_settings.env_var]
       enabled = ${collect_env_vars}
