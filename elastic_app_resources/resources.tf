@@ -231,8 +231,23 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
+      condition     = lookup(each.value, "log_query", null) != null ? lookup(each.value, "esql_query", null) == null : true
+      error_message = "log_query and esql_query are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
       condition     = lookup(each.value, "apm_metric", null) != null ? lookup(each.value, "custom_threshold", null) == null : true
       error_message = "custom_threshold and apm_metric are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = lookup(each.value, "apm_metric", null) != null ? lookup(each.value, "esql_query", null) == null : true
+      error_message = "apm_metric and esql_query are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = lookup(each.value, "custom_threshold", null) != null ? lookup(each.value, "esql_query", null) == null : true
+      error_message = "custom_threshold and esql_query are mutually exclusive. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     #
@@ -397,6 +412,21 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     #
+    # esql_query validations
+    #
+    precondition {
+      condition     = can(each.value.esql_query) ? try(each.value.esql_query.query, "") != "" : true
+      error_message = "esql_query must have query defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = can(each.value.esql_query) ? contains(local.allowed_esql_group_by, try(each.value.esql_query.group_by, "")) : true
+      error_message = "esql_query.group_by must be either ${join(",", local.allowed_esql_group_by)}. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+
+
+    #
     # common alert validations
     #
     precondition {
@@ -417,8 +447,8 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   }
 
   name         = "${local.application_id} ${each.value.name}"
-  consumer     = (lookup(each.value, "log_query", null) != null || lookup(each.value, "custom_threshold", null) != null) ? "logs" : "alerts"
-  rule_type_id = lookup(each.value, "log_query", null) != null ? ".es-query" : (lookup(each.value, "custom_threshold", null) != null ? "observability.rules.custom_threshold" : local.rule_type_id_map[lookup(each.value, "apm_metric", null).metric])
+  consumer     = (lookup(each.value, "log_query", null) != null || lookup(each.value, "custom_threshold", null) != null || lookup(each.value, "esql_query", null) != null) ? "logs" : "alerts"
+  rule_type_id = (lookup(each.value, "log_query", null) != null || lookup(each.value, "esql_query", null) != null) ? ".es-query" : (lookup(each.value, "custom_threshold", null) != null ? "observability.rules.custom_threshold" : local.rule_type_id_map[lookup(each.value, "apm_metric", null).metric])
   tags         = [var.application_name, var.target_env]
   params = jsonencode(
     merge(
@@ -495,6 +525,22 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         groupBy : lookup(each.value.custom_threshold, "group_by", ""),
         alertOnNoData : length(try(each.value.custom_threshold.group_by, [])) > 0 ? false : lookup(each.value.custom_threshold, "alert_on_no_data", false)
         alertOnGroupDisappear : length(try(each.value.custom_threshold.group_by, [])) > 0 ? lookup(each.value.custom_threshold, "alert_on_no_data", false) : false
+      } : null,
+      # esql query
+      can(each.value.esql_query) ? {
+        esqlQuery : {
+          esql : each.value.esql_query.query
+        }
+        searchType : "esqlQuery"
+        timeField : "@timestamp"
+        timeWindowSize : each.value.window.size
+        timeWindowUnit : each.value.window.unit
+        groupBy : each.value.esql_query.group_by
+        threshold : [0]
+        thresholdComparator : ">"
+        excludeHitsFromPreviousRun : lookup(each.value.esql_query, "exclude_hits_from_previous_run", false)
+        termSize : 5
+        size : 100
       } : null
     )
   )
@@ -513,7 +559,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       group = can(each.value.custom_threshold) ? "custom_threshold.fired" : "query matched"
       id    = "elastic-cloud-email"
       params = jsonencode({
-        message = can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : local.alert_messages.log_query)
+        message = can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : (can(each.value.esql_query) ? local.alert_messages.esql_query : local.alert_messages.log_query))
         to      = var.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
         cc      = []
         subject = "Elastic alert ${var.target_env} ${each.value.name}"
@@ -559,7 +605,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
           ],
           message     = "Elastic alert ${var.target_env} ${each.value.name}"
           priority    = each.value.notification_channels.jsm.priority
-          description = can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : local.alert_messages.log_query)
+          description = can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : (can(each.value.esql_query) ? local.alert_messages.esql_query : local.alert_messages.log_query))
         }
       })
       frequency {
@@ -595,7 +641,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       id    = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
       group = can(each.value.custom_threshold) ? "custom_threshold.fired" : "query matched"
       params = jsonencode({
-        "message" : can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : local.alert_messages.log_query)
+        "message" : can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : (can(each.value.esql_query) ? local.alert_messages.esql_query : local.alert_messages.log_query))
       })
       frequency {
         notify_when = "onActionGroupChange"
