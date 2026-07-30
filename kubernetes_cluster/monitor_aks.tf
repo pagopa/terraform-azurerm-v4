@@ -186,6 +186,8 @@ resource "kubernetes_config_map_v1" "ama_logs_settings" {
       "${path.module}/templates/log-data-collection-settings.tftpl",
       {
         include_namespaces          = var.ama_log_collection_settings.include_namespaces
+        enable_stdout_logs          = var.ama_log_collection_settings.enable_stdout_logs
+        enable_stderr_logs          = var.ama_log_collection_settings.enable_stderr_logs
         containerlog_schema_version = var.ama_log_collection_settings.containerlog_schema_version
         enable_multiline_logs       = var.ama_log_collection_settings.enable_multiline_logs
         filter_using_annotations    = var.ama_log_collection_settings.filter_using_annotations

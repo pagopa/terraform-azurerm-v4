@@ -1,11 +1,11 @@
 # Log data collection settings
 [log_collection_settings]
    [log_collection_settings.stdout]
-      enabled = true
+      enabled = ${enable_stdout_logs}
       include_namespaces = [${join(", ", formatlist("%q", include_namespaces))}]
 
    [log_collection_settings.stderr]
-      enabled = true
+      enabled = ${enable_stderr_logs}
       include_namespaces = [${join(", ", formatlist("%q", include_namespaces))}]
 
    [log_collection_settings.env_var]

@@ -718,6 +718,8 @@ variable "ama_log_collection_settings" {
   description = "Container Insights (ama-logs) log collection settings. The AMA ConfigMap is created only when include_namespaces is not empty."
   type = object({
     include_namespaces          = optional(list(string), [])
+    enable_stdout_logs          = optional(bool, true)
+    enable_stderr_logs          = optional(bool, true)
     containerlog_schema_version = optional(string, "v2")
     enable_multiline_logs       = optional(bool, true)
     filter_using_annotations    = optional(bool, false)
