@@ -715,7 +715,7 @@ variable "alerts_enabled" {
 
 
 variable "ama_log_collection_settings" {
-  description = "Container Insights (ama-logs) log collection settings. The AMA ConfigMap is created only when include_namespaces is not empty."
+  description = "Container Insights (ama-logs) log collection settings. stdout is filtered by include_namespaces, while stderr is collected for all namespaces. The AMA ConfigMap is created only when include_namespaces is not empty."
   type = object({
     include_namespaces          = optional(list(string), [])
     enable_stdout_logs          = optional(bool, true)

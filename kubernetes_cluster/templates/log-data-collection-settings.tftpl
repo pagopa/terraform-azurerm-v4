@@ -6,7 +6,6 @@
 
    [log_collection_settings.stderr]
       enabled = ${enable_stderr_logs}
-      include_namespaces = [${join(", ", formatlist("%q", include_namespaces))}]
 
    [log_collection_settings.env_var]
       enabled = ${collect_env_vars}
