@@ -724,7 +724,7 @@ variable "ama_log_collection_settings" {
     enable_stdout_logs          = optional(bool, true)
     enable_stderr_logs          = optional(bool, true)
     containerlog_schema_version = optional(string, "v2")
-    enable_multiline_logs       = optional(bool, true)
+    enable_multiline_logs       = optional(bool, false)
     filter_using_annotations    = optional(bool, false)
     collect_env_vars            = optional(bool, true)
     enrich_container_logs       = optional(bool, false)
