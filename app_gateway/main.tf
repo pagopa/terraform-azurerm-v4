@@ -57,7 +57,6 @@ resource "azurerm_application_gateway" "this" {
       host_name                           = backend.value.host
       cookie_based_affinity               = "Disabled"
       affinity_cookie_name                = "ApplicationGatewayAffinity" # to avoid unwanted changes in terraform plan
-      path                                = ""
       port                                = backend.value.port
       protocol                            = backend.value.protocol
       request_timeout                     = backend.value.request_timeout
