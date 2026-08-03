@@ -713,3 +713,27 @@ variable "alerts_enabled" {
 }
 
 
+
+variable "ama_log_collection_settings" {
+  description = "Container Insights (ama-logs) log collection settings. stdout and stderr can use different namespace exclusions, and coredns system pod logs are collected by default."
+  type = object({
+    enable_log_collection_cm    = optional(bool, false)
+    stdout_exclude_namespaces   = optional(list(string), ["kube-system", "gatekeeper-system"])
+    stderr_exclude_namespaces   = optional(list(string), ["kube-system", "gatekeeper-system"])
+    collect_system_pod_logs     = optional(list(string), [])
+    enable_stdout_logs          = optional(bool, true)
+    enable_stderr_logs          = optional(bool, true)
+    containerlog_schema_version = optional(string, "v2")
+    enable_multiline_logs       = optional(bool, true)
+    filter_using_annotations    = optional(bool, false)
+    collect_env_vars            = optional(bool, true)
+    enrich_container_logs       = optional(bool, false)
+    collect_all_kube_events     = optional(bool, false)
+  })
+  default = {}
+
+  validation {
+    condition     = contains(["v1", "v2"], var.ama_log_collection_settings.containerlog_schema_version)
+    error_message = "ama_log_collection_settings.containerlog_schema_version must be either \"v1\" or \"v2\"."
+  }
+}

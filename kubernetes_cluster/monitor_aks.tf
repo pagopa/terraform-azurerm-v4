@@ -164,3 +164,39 @@ resource "azurerm_monitor_diagnostic_setting" "aks" {
     azurerm_kubernetes_cluster.this
   ]
 }
+
+
+#-------------------------------------------------------------------------------
+# AMA - Azure Monitor Agent logs filter
+#-------------------------------------------------------------------------------
+
+resource "kubernetes_config_map_v1" "ama_logs_settings" {
+  count = var.ama_log_collection_settings.enable_log_collection_cm ? 1 : 0
+
+  metadata {
+    name      = "container-azm-ms-agentconfig"
+    namespace = "kube-system"
+  }
+
+  data = {
+    "schema-version" = "v1"
+    "config-version" = "ver1"
+
+    "log-data-collection-settings" = templatefile(
+      "${path.module}/templates/log-data-collection-settings.tftpl",
+      {
+        stdout_exclude_namespaces   = var.ama_log_collection_settings.stdout_exclude_namespaces
+        stderr_exclude_namespaces   = var.ama_log_collection_settings.stderr_exclude_namespaces
+        collect_system_pod_logs     = var.ama_log_collection_settings.collect_system_pod_logs
+        enable_stdout_logs          = var.ama_log_collection_settings.enable_stdout_logs
+        enable_stderr_logs          = var.ama_log_collection_settings.enable_stderr_logs
+        containerlog_schema_version = var.ama_log_collection_settings.containerlog_schema_version
+        enable_multiline_logs       = var.ama_log_collection_settings.enable_multiline_logs
+        filter_using_annotations    = var.ama_log_collection_settings.filter_using_annotations
+        collect_env_vars            = var.ama_log_collection_settings.collect_env_vars
+        enrich_container_logs       = var.ama_log_collection_settings.enrich_container_logs
+        collect_all_kube_events     = var.ama_log_collection_settings.collect_all_kube_events
+      }
+    )
+  }
+}
