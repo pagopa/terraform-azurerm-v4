@@ -68,7 +68,7 @@ variable "origins" {
   }))
 
   description = "Backend origins (servers/services)"
-
+  default     = {}
 
   validation {
     condition = alltrue([

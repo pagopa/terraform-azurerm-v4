@@ -4,7 +4,7 @@
 
 locals {
   # Profile naming
-  profile_name = var.profile.name
+  profile_name = "${var.profile.name}-cdn-profile"
 
   # Endpoint naming: use provided name or derive from key
   endpoints_normalized = {
