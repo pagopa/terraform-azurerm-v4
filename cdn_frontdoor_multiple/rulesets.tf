@@ -45,7 +45,7 @@ resource "azurerm_cdn_frontdoor_rule" "rules" {
         for_each = try(each.value.condition.type, null) == "url_path" ? [each.value.condition] : []
         content {
           operator         = url_path_condition.value.operator
-          match_values     = [for v in url_path_condition.value.match_values : trimprefix(v, "/")]
+          match_values     = [for v in url_path_condition.value.match_values : v]
           negate_condition = try(url_path_condition.value.negate, false)
           transforms       = try(url_path_condition.value.transforms, [])
         }
@@ -174,7 +174,7 @@ resource "azurerm_cdn_frontdoor_rule" "rules" {
         for_each = [for c in try(each.value.conditions, []) : c if c.type == "url_path"]
         content {
           operator         = url_path_condition.value.operator
-          match_values     = [for v in url_path_condition.value.match_values : trimprefix(v, "/")]
+          match_values     = [for v in url_path_condition.value.match_values : v]
           negate_condition = try(url_path_condition.value.negate, false)
           transforms       = try(url_path_condition.value.transforms, [])
         }

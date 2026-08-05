@@ -465,6 +465,27 @@ variable "rulesets" {
     ])
     error_message = "A condition cannot have more than 10 match_values (Azure Front Door limit)."
   }
+
+  validation {
+    condition = alltrue([
+      for ruleset in values(var.rulesets) :
+      alltrue([
+        for rule in values(ruleset.rules) :
+        alltrue(concat(
+          [
+            try(rule.condition.operator, null) != "RegEx" ||
+            length(try(rule.condition.match_values, [])) <= 1
+          ],
+          [
+            for c in try(rule.conditions, []) :
+            c.operator != "RegEx" ||
+            length(try(c.match_values, [])) <= 1
+          ]
+        ))
+      ])
+    ])
+    error_message = "When a condition operator is 'RegEx', 'match_values' must contain at most one regex pattern."
+  }
 }
 
 ############################################################
