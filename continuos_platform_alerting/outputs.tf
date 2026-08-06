@@ -1,14 +1,32 @@
-output "resource_alerts" {
-  description = "Map di tutti gli azurerm_monitor_metric_alert creati, indicizzati per '{resource_name}-{metric_name}'."
-  value       = azurerm_monitor_metric_alert.this
+output "amba_source_commit" {
+  description = "Commit SHA del repo AMBA da cui e' stato generato data/amba_alerts.json (tracciabilita' versione soglie)."
+  value       = local.amba_dataset.source_commit
 }
 
-output "action_groups" {
-  description = "Map di tutti gli action group risolti, indicizzati per '{resource_name}-{metric_name}-{action_group_name}'."
-  value       = data.azurerm_monitor_action_group.this
+output "target_namespaces" {
+  description = "Namespace effettivamente considerati dopo il filtro included_namespaces/excluded_namespaces."
+  value       = local.namespaces_with_defs
 }
 
-output "resource_metric_map" {
-  description = "Lista piatta di tutte le combinazioni risorsa × metrica elaborate dal modulo. Utile per debug."
-  value       = local.resource_metric_map
+output "discovered_resource_counts" {
+  description = "Numero di risorse scoperte per namespace, utile per validare la discovery prima di controllare il numero di alert generate."
+  value = {
+    for ns in local.namespaces_with_defs :
+    ns => length(data.azurerm_resources.discovered[ns].resources)
+  }
+}
+
+output "alert_count_by_namespace" {
+  description = "Numero di alert create per namespace (risorse scoperte x definizioni AMBA applicabili)."
+  value = {
+    for ns in local.namespaces_with_defs :
+    ns => length([
+      for k, v in local.resource_alert_pairs : k if v.namespace == ns
+    ])
+  }
+}
+
+output "total_alert_count" {
+  description = "Numero totale di azurerm_monitor_metric_alert create dal modulo."
+  value       = length(azurerm_monitor_metric_alert.this)
 }

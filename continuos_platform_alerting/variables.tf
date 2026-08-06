@@ -1,52 +1,77 @@
-variable "alerting_domains" {
-  type        = list(string)
-  description = "Lista dei domini per cui eseguire il discovery delle risorse  tramite tag."
-}
-
-variable "azure_resource_type" {
-  type        = string
-  description = "Tipo di risorsa Azure da cercare per il discovery."
-}
-
-variable "resource_metric_alerts" {
-  type = map(object({
-    metric_name      = string
-    metric_namespace = string
-    aggregation      = string
-    operator         = string
-    threshold        = number
-    frequency        = string
-    window_size      = string
-    severity         = number
-  }))
-  description = "Lista delle metriche per cui creare alert su ogni istanza."
-}
-
-variable "resource_alerts_enabled" {
-  type        = bool
-  description = "Abilita o disabilita globalmente tutti gli alert."
-  default     = true
-}
-
-variable "global_custom_action_group" {
-  type = list(object({
-    key = string
-    action_groups = list(object({
-      action_group_name   = string
-      resource_group_name = string
-    }))
-  }))
+variable "resource_group_name" {
   description = <<-EOT
-    Mapping tra chiavi e action group da associare agli alert.
-    La chiave può essere:
-      - "default"                        → fallback globale
-      - "{resource_name}"                   → override per una specifica istanza 
-      - "{resource_name}-{metric_name}"     → override per una specifica istanza e metrica
+    Se valorizzata, limita la discovery delle risorse a questo resource
+    group (le alert vengono comunque create nel resource group di
+    appartenenza di ciascuna risorsa scoperta). Se null (default), la
+    discovery avviene sull'intera subscription del provider azurerm
+    corrente.
   EOT
+  type    = string
+  default = null
+}
+
+variable "required_tags" {
+  description = "Filtro opzionale: limita la discovery alle risorse che espongono questi tag (chiave => valore)."
+  type        = map(string)
+  default     = {}
+}
+
+variable "included_namespaces" {
+  description = <<-EOT
+    Elenco dei resource provider namespace Azure (es.
+    "Microsoft.App/containerApps") da includere. Se vuoto (default),
+    vengono considerati tutti i namespace presenti nel dataset AMBA
+    sincronizzato (vedi scripts/sync_amba_alerts.py).
+  EOT
+  type    = list(string)
+  default = []
+}
+
+variable "excluded_namespaces" {
+  description = "Elenco dei namespace da escludere esplicitamente, applicato dopo included_namespaces."
+  type        = list(string)
+  default     = []
+}
+
+variable "enabled_only" {
+  description = <<-EOT
+    Se true (default), vengono create solo le alert marcate "enabled: true"
+    nel dataset AMBA (equivalente alla categoria "Must Have" della
+    documentazione ufficiale). Se false, vengono create anche le alert
+    "Nice to Have" (enabled: false nel dataset), aumentando
+    sensibilmente il numero di alert e il relativo costo.
+  EOT
+  type    = bool
+  default = true
+}
+
+variable "action_group_id" {
+  description = "Action group di default usato per tutte le alert quando non esiste un override specifico per namespace in action_group_overrides."
+  type        = string
+  default     = null
+}
+
+variable "action_group_overrides" {
+  description = "Override dell'action group per singolo namespace, chiave = resource provider namespace (es. \"Microsoft.App/containerApps\"), valore = ID action group."
+  type        = map(string)
+  default     = {}
+}
+
+variable "severity_overrides" {
+  description = "Override della severity per singolo alert, chiave = \"<namespace>|<nome alert AMBA>\" (es. \"Microsoft.App/containerApps|RestartCount\"), valore = severity 0-4."
+  type        = map(number)
+  default     = {}
+}
+
+variable "threshold_overrides" {
+  description = "Override della soglia per singolo alert (solo StaticThresholdCriterion), stessa chiave di severity_overrides."
+  type        = map(number)
+  default     = {}
 }
 
 variable "tags" {
+  description = "Tag applicati a tutte le risorse azurerm_monitor_metric_alert create dal modulo."
   type        = map(string)
-  description = "Tag da applicare a tutte le risorse create dal modulo."
   default     = {}
 }
+
