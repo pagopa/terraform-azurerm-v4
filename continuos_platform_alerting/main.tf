@@ -6,8 +6,6 @@ data "azurerm_resources" "discovered" {
   for_each = toset(local.namespaces_with_defs)
 
   type                = each.value
-  resource_group_name = var.resource_group_name
-  required_tags       = var.required_tags
 }
 
 locals {
