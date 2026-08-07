@@ -38,7 +38,7 @@ locals {
   # o via alert processing rule esterna).
   action_group_by_namespace = {
     for ns in local.namespaces_with_defs :
-    ns => try(var.action_group_overrides[ns], var.action_group_id)
+    ns => try(var.action_group_overrides[ns], var.action_group_ids)
   }
 }
 

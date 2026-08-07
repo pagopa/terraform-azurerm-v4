@@ -45,16 +45,29 @@ variable "enabled_only" {
   default = true
 }
 
-variable "action_group_id" {
-  description = "Action group di default usato per tutte le alert quando non esiste un override specifico per namespace in action_group_overrides."
-  type        = string
-  default     = null
+variable "action_group_ids" {
+  description = <<-EOT
+    Elenco di action group applicati di default a tutte le alert quando
+    non esiste un override specifico per namespace in
+    action_group_overrides. Ogni ID genera un blocco "action" separato
+    sull'alert: e' cosi' possibile notificare piu' canali (es. Nagios +
+    Teams + email oncall) sulla stessa alert.
+  EOT
+  type    = list(string)
+  default = []
 }
 
+
 variable "action_group_overrides" {
-  description = "Override dell'action group per singolo namespace, chiave = resource provider namespace (es. \"Microsoft.App/containerApps\"), valore = ID action group."
-  type        = map(string)
-  default     = {}
+  description = <<-EOT
+    Override dell'elenco di action group per singolo namespace, chiave =
+    resource provider namespace (es. "Microsoft.App/containerApps"),
+    valore = lista di ID action group. Quando presente per un namespace,
+    sostituisce interamente action_group_ids per quel namespace (non si
+    sommano).
+  EOT
+  type    = map(list(string))
+  default = {}
 }
 
 variable "severity_overrides" {
