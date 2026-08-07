@@ -742,7 +742,7 @@
           },
           {
             "name": "primary",
-            "operator": "include",
+            "operator": "Include",
             "values": [
               "true"
             ]
@@ -811,7 +811,7 @@
           },
           {
             "name": "primary",
-            "operator": "include",
+            "operator": "Include",
             "values": [
               "true"
             ]
@@ -10668,7 +10668,7 @@
           },
           {
             "name": "authentication",
-            "operator": "include",
+            "operator": "Include",
             "values": [
               "anonymous"
             ]
