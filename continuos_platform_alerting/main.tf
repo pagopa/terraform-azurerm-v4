@@ -59,11 +59,43 @@ locals {
     )
   ]
 
-  # Per ciascun namespace target, le definizioni di alert filtrate per
-  # enabled_only (Must Have vs Must+Nice to Have).
+  # Ricostruzione esplicita di ogni alert con uno schema di attributi
+  # fisso e identico per tutti gli elementi (indipendentemente dal
+  # criterionType). sync_amba_alerts.py gia' produce un JSON omogeneo,
+  # ma questa normalizzazione e' fatta anche qui, lato Terraform, come
+  # difesa in profondita': se in futuro il dataset dovesse tornare ad
+  # avere attribute set diversi tra gli elementi di una stessa lista
+  # (es. campi presenti solo su DynamicThresholdCriterion), jsondecode()
+  # produce oggetti non uniformi e setproduct()/merge() più a valle
+  # falliscono con un errore di type unification poco intuitivo.
+  normalized_namespaces = {
+    for ns in local.all_available_namespaces : ns => [
+      for a in local.amba_dataset.namespaces[ns] : {
+        name                      = a.name
+        description               = a.description
+        metricName                = a.metricName
+        criterionType             = a.criterionType
+        severity                  = a.severity
+        windowSize                = a.windowSize
+        evaluationFrequency       = a.evaluationFrequency
+        timeAggregation           = a.timeAggregation
+        operator                  = a.operator
+        threshold                 = try(a.threshold, null)
+        autoMitigate              = try(a.autoMitigate, true)
+        enabled                   = try(a.enabled, false)
+        dimensions                = try(a.dimensions, [])
+        alertSensitivity          = try(a.alertSensitivity, null)
+        numberOfEvaluationPeriods = try(a.numberOfEvaluationPeriods, null)
+        minFailingPeriodsToAlert  = try(a.minFailingPeriodsToAlert, null)
+      }
+    ]
+  }
+
+  # Per ciascun namespace target, le definizioni di alert normalizzate
+  # e filtrate per enabled_only (Must Have vs Must+Nice to Have).
   alert_defs_by_namespace = {
     for ns in local.target_namespaces : ns => [
-      for a in local.amba_dataset.namespaces[ns] : a
+      for a in local.normalized_namespaces[ns] : a
       if !var.enabled_only || a.enabled
     ]
   }
@@ -76,6 +108,7 @@ locals {
     if length(local.alert_defs_by_namespace[ns]) > 0
   ]
 }
+
 
 resource "azurerm_monitor_metric_alert" "this" {
   for_each = local.resource_alert_pairs
