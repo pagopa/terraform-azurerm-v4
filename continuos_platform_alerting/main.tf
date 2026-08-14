@@ -167,7 +167,10 @@ resource "azurerm_monitor_metric_alert" "this" {
   }
 
   dynamic "action" {
-    for_each = local.action_group_by_namespace[each.value.namespace]
+    for_each = concat(try(
+      var.action_group_metric_overrides[each.value.override_key],[]),
+      local.action_group_by_namespace[each.value.namespace]
+    )
     content {
       action_group_id = action.value
     }
