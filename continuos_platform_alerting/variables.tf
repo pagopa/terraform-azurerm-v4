@@ -88,14 +88,14 @@ variable "tags" {
   default     = {}
 }
 
-variable "action_group_metric_overrides" {
+variable "action_group_metric_add_by_metric" {
   description = <<-EOT
-    Override dell'elenco di action group per singolo alert, stessa
+    Aggiunge dell'elenco di action group per singolo alert, stessa
     chiave di severity_overrides/threshold_overrides:
     "<namespace>|<nome alert AMBA>" (es.
     "Microsoft.ContainerService/managedClusters|etcd_database_usage_percentage"),
-    valore = lista di ID action group. Ha la priorità più alta: se
-    presente per un alert, sostituisce sia action_group_overrides sia
+    valore = lista di ID action group. Se
+    presente per un alert, aggiunge sia action_group_overrides sia
     action_group_ids per quell'alert specifico.
   EOT
   type    = map(list(string))
