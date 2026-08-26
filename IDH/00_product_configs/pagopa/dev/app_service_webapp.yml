@@ -22,7 +22,7 @@ basic_public:
   public_network_access_enabled: true
   client_cert_enabled: false
   premium_plan_auto_scale_enabled: false
-  ip_restriction_default_action: "Deny"
+  ip_restriction_default_action: "Allow"
   slot_staging_enabled: false
   autoscale_enabled: false
   autoscale_default_capacity: 1
