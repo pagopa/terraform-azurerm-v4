@@ -284,3 +284,15 @@ variable "embedded_nsg_configuration" {
     source_address_prefixes_name = "All"
   }
 }
+
+variable "consistency_level_override" {
+  type        = string
+  description = "(Optional) Consistency level for the CosmosDB account. Allowed values are: 'Eventual', 'Session', 'BoundedStaleness', 'Strong', 'ConsistentPrefix'. Uses library default if not provided"
+  default     = null
+
+  validation {
+    // Ensure the consistency level is one of the allowed values if provided or null (default)
+    condition     = var.consistency_level_override == null || contains(["Eventual", "Session", "BoundedStaleness", "Strong", "ConsistentPrefix"], var.consistency_level_override)
+    error_message = "Consistency level must be one of: 'Eventual', 'Session', 'BoundedStaleness', 'Strong', 'ConsistentPrefix', or null (default value)."
+  }
+}

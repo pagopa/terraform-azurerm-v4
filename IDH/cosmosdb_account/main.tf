@@ -65,7 +65,7 @@ module "cosmosdb_account" {
 
   # 5. Consistency and Capabilities
   consistency_policy = {
-    consistency_level       = module.idh_loader.idh_resource_configuration.consistency_policy.consistency_level
+    consistency_level       = var.consistency_level_override != null ? var.consistency_level_override : module.idh_loader.idh_resource_configuration.consistency_policy.consistency_level
     max_interval_in_seconds = module.idh_loader.idh_resource_configuration.consistency_policy.max_interval_in_seconds
     max_staleness_prefix    = module.idh_loader.idh_resource_configuration.consistency_policy.max_staleness_prefix
   }
