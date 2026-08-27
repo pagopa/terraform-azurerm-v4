@@ -1,21 +1,3 @@
-variable "resource_group_name" {
-  description = <<-EOT
-    Se valorizzata, limita la discovery delle risorse a questo resource
-    group (le alert vengono comunque create nel resource group di
-    appartenenza di ciascuna risorsa scoperta). Se null (default), la
-    discovery avviene sull'intera subscription del provider azurerm
-    corrente.
-  EOT
-  type    = string
-  default = null
-}
-
-variable "required_tags" {
-  description = "Filtro opzionale: limita la discovery alle risorse che espongono questi tag (chiave => valore)."
-  type        = map(string)
-  default     = {}
-}
-
 variable "included_namespaces" {
   description = <<-EOT
     Elenco dei resource provider namespace Azure (es.
@@ -23,8 +5,8 @@ variable "included_namespaces" {
     vengono considerati tutti i namespace presenti nel dataset AMBA
     sincronizzato (vedi scripts/sync_amba_alerts.py).
   EOT
-  type    = list(string)
-  default = []
+  type        = list(string)
+  default     = []
 }
 
 variable "excluded_namespaces" {
@@ -41,8 +23,8 @@ variable "enabled_only" {
     "Nice to Have" (enabled: false nel dataset), aumentando
     sensibilmente il numero di alert e il relativo costo.
   EOT
-  type    = bool
-  default = true
+  type        = bool
+  default     = true
 }
 
 variable "action_group_ids" {
@@ -53,8 +35,8 @@ variable "action_group_ids" {
     sull'alert: e' cosi' possibile notificare piu' canali (es. Nagios +
     Teams + email oncall) sulla stessa alert.
   EOT
-  type    = list(string)
-  default = []
+  type        = list(string)
+  default     = []
 }
 
 
@@ -66,8 +48,8 @@ variable "action_group_overrides" {
     sostituisce interamente action_group_ids per quel namespace (non si
     sommano).
   EOT
-  type    = map(list(string))
-  default = {}
+  type        = map(list(string))
+  default     = {}
 }
 
 variable "severity_overrides" {
@@ -98,6 +80,6 @@ variable "action_group_metric_add_by_metric" {
     presente per un alert, aggiunge sia action_group_overrides sia
     action_group_ids per quell'alert specifico.
   EOT
-  type    = map(list(string))
-  default = {}
+  type        = map(list(string))
+  default     = {}
 }

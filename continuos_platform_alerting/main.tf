@@ -5,7 +5,7 @@
 data "azurerm_resources" "discovered" {
   for_each = toset(local.namespaces_with_defs)
 
-  type                = each.value
+  type = each.value
 }
 
 locals {
@@ -27,7 +27,7 @@ locals {
         # Il resource group dell'alert e' quello della risorsa monitorata
         # (indice 4 di un Azure resource ID: /subscriptions/{}/resourceGroups/{}/...).
         alert_resource_group = element(split("/", pair[0].id), 4)
-        override_key          = "${ns}|${pair[1].name}"
+        override_key         = "${ns}|${pair[1].name}"
       })
     }
   ]...)
@@ -168,7 +168,7 @@ resource "azurerm_monitor_metric_alert" "this" {
 
   dynamic "action" {
     for_each = concat(try(
-      var.action_group_metric_add_by_metric[each.value.override_key],[]),
+      var.action_group_metric_add_by_metric[each.value.override_key], []),
       local.action_group_by_namespace[each.value.namespace]
     )
     content {
