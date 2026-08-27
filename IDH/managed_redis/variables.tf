@@ -70,7 +70,7 @@ variable "eviction_policy_override" {
       "VolatileRandom",
       "VolatileTTL",
       "NoEviction"
-    ], var.eviction_policy_override)
+    ], coalesce(var.eviction_policy_override, "NoEviction"))
     error_message = "If provided, eviction policy must be one of: AllKeysLFU, AllKeysLRU, AllKeysRandom, VolatileLFU, VolatileLRU, VolatileRandom, VolatileTTL, NoEviction."
   }
 }
