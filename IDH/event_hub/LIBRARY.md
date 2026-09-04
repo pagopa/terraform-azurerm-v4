@@ -6,6 +6,7 @@
 | cstar | dev |  standard_private | - | Sku: Standard, capacity: 1, auto_inflate: False, public: False, private endpoint: True, alerts enabled: False |
 |---|---|---|---|
 | cstar | prod |  heavy_load_private | - | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
+| cstar | prod |  standard_C1_private | - | Sku: Standard, capacity: 1, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
 | cstar | prod |  standard_private | - | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
 |---|---|---|---|
 | cstar | uat |  standard_private | - | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: False |
