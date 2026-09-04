@@ -1,4 +1,4 @@
-standard_C1_private:
+standard_c1_private:
   capacity: 1
   auto_inflate_enabled: true
   sku: "Standard"
