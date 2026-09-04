@@ -9,6 +9,7 @@
 | cstar | prod |  standard_c1_private | - | Sku: Standard, capacity: 1, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
 | cstar | prod |  standard_private | - | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
 |---|---|---|---|
+| cstar | uat |  standard_c1_private | - | Sku: Standard, capacity: 1, auto_inflate: True, public: False, private endpoint: True, alerts enabled: False |
 | cstar | uat |  standard_private | - | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: False |
 ## dvopla
 | Product  | Environment | Tier | Deprecated | Description |
