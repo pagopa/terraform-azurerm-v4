@@ -31,6 +31,9 @@ locals {
     elastic_agent_version           = var.elastic_agent_version
     elastic_agent_metric_collection = var.enabled_metric_collection.elastic_agent
 
+    output_worker = var.output_worker
+    output_idle_connection_timeout = var.output_idle_connection_timeout
+
     tolerated_taints = var.tolerated_taints
     prometheus_url   = var.use_managed_prometheus ? "ama-metrics-ksm.kube-system.svc.cluster.local:8080" : "prometheus-kube-state-metrics.${var.unmanaged_prometheus_namespace}.svc.cluster.local:8080"
   }
