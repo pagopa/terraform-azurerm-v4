@@ -118,3 +118,10 @@ variable "enabled_metric_collection" {
   }
   description = "Controls the enabled metric collection for various components"
 }
+
+
+variable "elastic_agent_version" {
+  type = string
+  default = "8.17.1"
+  description = "Version of the elastic agent to be installed"
+}

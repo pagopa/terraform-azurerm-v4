@@ -28,7 +28,7 @@ locals {
     elastic_host = var.elasticsearch_host
 
     elasticsearch_api_key           = var.elasticsearch_api_key
-    elastic_agent_version           = "8.17.1"
+    elastic_agent_version           = var.elastic_agent_version
     elastic_agent_metric_collection = var.enabled_metric_collection.elastic_agent
 
     tolerated_taints = var.tolerated_taints
