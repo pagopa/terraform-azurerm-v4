@@ -15,8 +15,8 @@ data:
           - >-
             ${elastic_host}
         api_key: $${API_KEY}
-        worker: $${output_worker}
-        idle_connection_timeout: $${output_idle_connection_timeout}
+        worker: ${output_worker}
+        idle_connection_timeout: ${output_idle_connection_timeout}
     inputs:
       %{~ if system_metric_collection ~}
       - id: logfile-system-${system_id}
