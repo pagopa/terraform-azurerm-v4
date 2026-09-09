@@ -37,7 +37,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: elastic-cloud-agent
-          image: docker.elastic.co/beats/elastic-agent:${elastic_agent_version}
+          image: docker.elastic.co/elastic-agent/elastic-agent:${elastic_agent_version}
           args: ["-c", "/etc/elastic-agent/agent.yml", "-e"]
           env:
             # The API Key with access privilleges to connect to Elasticsearch. https://www.elastic.co/guide/en/fleet/current/grant-access-to-elasticsearch.html#create-api-key-standalone-agent
