@@ -1,6 +1,6 @@
 small:
   vmss:
-    scale_enabled: false
+    scale_enabled: true
     sku: Standard_D2ds_v6
     instances: 1
     zones: ["1"]

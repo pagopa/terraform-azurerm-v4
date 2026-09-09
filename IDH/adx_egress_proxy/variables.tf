@@ -27,7 +27,7 @@ variable "vmss_resource_group_name" {
 
 variable "name" {
   type        = string
-  description = "(Required): The name (prefix) for the created resources"
+  description = "(Required): The name (including prefix) for the created resources"
 }
 
 variable "vnet" {
@@ -44,7 +44,7 @@ variable "nat_gateway" {
     resource_group_name = string
   })
   description = "(Optional): The name and resource group of the NAT gateway to be associated with the VMSS subnet. If not defined, no NAT gateway will be associated with the subnet."
-  default = null
+  default     = null
 }
 
 
@@ -54,7 +54,7 @@ variable "vmss_credentials" {
     admin_password = string
   })
   description = "(Required): The administrator login and password for the VMSS instances."
-  sensitive = true
+  sensitive   = true
 }
 
 
@@ -68,13 +68,28 @@ variable "database_adf_proxy_mapping" {
 
   validation {
     # Validate that the list does not contain duplicate FQDNs
-    condition = length(var.database_adf_proxy_mapping) == length(distinct([for db in var.database_adf_proxy_mapping : db.fqdn]))
+    condition     = length(var.database_adf_proxy_mapping) == length(distinct([for db in var.database_adf_proxy_mapping : db.fqdn]))
     error_message = "Duplicate FQDNs found in database_adf_proxy_mapping. Each FQDN must be unique."
   }
 
   validation {
     # Validate that the list does not contain duplicate external ports
-    condition = length(var.database_adf_proxy_mapping) == length(distinct([for db in var.database_adf_proxy_mapping : db.external_port]))
+    condition     = length(var.database_adf_proxy_mapping) == length(distinct([for db in var.database_adf_proxy_mapping : db.external_port]))
     error_message = "Duplicate external ports found in database_adf_proxy_mapping. Each external port must be unique."
   }
+}
+
+
+variable "subscription_id" {
+  type        = string
+  description = "(Required): The subscription ID where the private link service will have visibility"
+}
+
+variable "output_kv" {
+  type = object({
+    name                = string
+    resource_group_name = string
+  })
+  description = "(Optional): The name and resource group of the Key Vault where the output database configuration will be stored. If not defined, no Key Vault will be used."
+  default     = null
 }

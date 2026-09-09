@@ -3,7 +3,7 @@ module "idh_loader" {
   product_name      = var.product_name
   env               = var.env
   idh_resource_tier = var.idh_resource_tier
-  idh_resource_type = "aks_node_pool"
+  idh_resource_type = "adx_egress_proxy"
 }
 
 
@@ -13,20 +13,16 @@ module "vmss_snet" {
   resource_group_name  = var.vnet.resource_group_name
   virtual_network_name = var.vnet.name
 
-  idh_resource_tier = "slash28_privatelink_true"
+  idh_resource_tier = module.idh_loader.idh_resource_configuration.snet_tier
   product_name      = var.product_name
   env               = var.env
-
-  service_endpoints = [
-    "Microsoft.AzureCosmosDB"
-  ]
 
   tags = var.tags
 
 }
 
 resource "azurerm_subnet_nat_gateway_association" "vmss_snet_nat" {
-  count = var.nat_gateway != null ? 1 : 0
+  count          = var.nat_gateway != null ? 1 : 0
   subnet_id      = module.vmss_snet.id
   nat_gateway_id = data.azurerm_nat_gateway.nat_gateway[0].id
 }
@@ -37,24 +33,22 @@ module "vmss_pls_snet" {
   resource_group_name  = var.vnet.resource_group_name
   virtual_network_name = var.vnet.name
 
-  idh_resource_tier = "slash28_privatelink_false"
+  idh_resource_tier = module.idh_loader.idh_resource_configuration.snet_tier
   product_name      = var.product_name
   env               = var.env
 
   tags = var.tags
 }
 
-
-
 #
 # create load balancer (NVA) with tcp/0 ports
 #
-module "load_balancer_observ_egress" {
+module "load_balancer_egress" {
   source = "./.terraform/modules/__v4__/load_balancer"
 
-  resource_group_name                    = local.vnet_core_resource_group_name
-  location                               = var.location
-  name                                   = "${var.name}-egress-lb"
+  resource_group_name                    = var.vnet.resource_group_name
+  location                               = data.azurerm_virtual_network.vnet.location
+  name                                   = "${var.name}-egress"
   frontend_name                          = "frontend_private_ip"
   type                                   = "private"
   frontend_subnet_id                     = module.vmss_snet.id
@@ -85,16 +79,16 @@ module "load_balancer_observ_egress" {
   depends_on = []
 }
 
-resource "azurerm_linux_virtual_machine_scale_set" "vmss-egress" {
+resource "azurerm_linux_virtual_machine_scale_set" "vmss_egress" {
   name                            = "${var.name}-vmss"
   resource_group_name             = var.vmss_resource_group_name
   location                        = data.azurerm_resource_group.vmss_rg.location
-  sku                             = var.vmss_size
-  instances                       = 1
+  sku                             = module.idh_loader.idh_resource_configuration.vmss.sku
+  instances                       = module.idh_loader.idh_resource_configuration.vmss.instances
   admin_username                  = var.vmss_credentials.admin_login
   admin_password                  = var.vmss_credentials.admin_password
   disable_password_authentication = false
-  zones                           = ["1"]
+  zones                           = module.idh_loader.idh_resource_configuration.vmss.zones
 
   source_image_reference {
     publisher = "Canonical"
@@ -119,7 +113,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss-egress" {
       name                                   = "egress-in"
       primary                                = true
       subnet_id                              = module.vmss_snet.id
-      load_balancer_backend_address_pool_ids = [module.load_balancer_observ_egress.azurerm_lb_backend_address_pool_id[0]]
+      load_balancer_backend_address_pool_ids = [module.load_balancer_egress.azurerm_lb_backend_address_pool_id[0]]
     }
   }
   network_interface {
@@ -139,11 +133,11 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss-egress" {
 
 
 resource "azurerm_monitor_autoscale_setting" "vmss_scale" {
-  count               = module.idh_loader.idh_resource_configuration.vmss_scale_enabled ? 1 : 0
+  count               = module.idh_loader.idh_resource_configuration.vmss.scale_enabled ? 1 : 0
   name                = "${var.name}-vmss-scale"
   resource_group_name = var.vmss_resource_group_name
   location            = data.azurerm_resource_group.vmss_rg.location
-  target_resource_id  = azurerm_linux_virtual_machine_scale_set.vmss-egress.id
+  target_resource_id  = azurerm_linux_virtual_machine_scale_set.vmss_egress.id
 
   profile {
     name = "${var.name}-vmss-scale-rule-cpu"
@@ -157,7 +151,7 @@ resource "azurerm_monitor_autoscale_setting" "vmss_scale" {
     rule {
       metric_trigger {
         metric_name        = "Percentage CPU"
-        metric_resource_id = azurerm_linux_virtual_machine_scale_set.vmss-egress.id
+        metric_resource_id = azurerm_linux_virtual_machine_scale_set.vmss_egress.id
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -177,7 +171,7 @@ resource "azurerm_monitor_autoscale_setting" "vmss_scale" {
     rule {
       metric_trigger {
         metric_name        = "Percentage CPU"
-        metric_resource_id = azurerm_linux_virtual_machine_scale_set.vmss-egress.id
+        metric_resource_id = azurerm_linux_virtual_machine_scale_set.vmss_egress.id
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -202,9 +196,9 @@ resource "azurerm_monitor_autoscale_setting" "vmss_scale" {
 # vmss extension script network-config.sh
 # N.B. vmss with private load balancer lost internet connection. script embedded in base64
 #
-resource "azurerm_virtual_machine_scale_set_extension" "vmss-extension" {
+resource "azurerm_virtual_machine_scale_set_extension" "vmss_extension" {
   name                         = "network-rule-forward"
-  virtual_machine_scale_set_id = azurerm_linux_virtual_machine_scale_set.vmss-egress.id
+  virtual_machine_scale_set_id = azurerm_linux_virtual_machine_scale_set.vmss_egress.id
   publisher                    = "Microsoft.Azure.Extensions"
   type                         = "CustomScript"
   type_handler_version         = "2.1"
@@ -214,12 +208,13 @@ resource "azurerm_virtual_machine_scale_set_extension" "vmss-extension" {
 }
 
 
-resource "azurerm_key_vault_secret" "database_map_secret" {
+resource "azurerm_key_vault_secret" "output_database_map" {
+  count        = var.output_kv != null ? 1 : 0
   name         = "${var.name}-database-map"
-  value        = join(",", local.postgres_fqdn_map[*].db_fqdn)
+  value        = local.database_map
   content_type = "text/plain"
 
-  key_vault_id = data.azurerm_key_vault.kv_domain.id
+  key_vault_id = data.azurerm_key_vault.output_kv[0].id
 }
 
 
@@ -229,9 +224,9 @@ resource "azurerm_private_link_service" "vmss_pls" {
   resource_group_name = var.vmss_resource_group_name
   location            = data.azurerm_resource_group.vmss_rg.location
 
-  auto_approval_subscription_ids              = [data.azurerm_client_config.current.subscription_id]
-  visibility_subscription_ids                 = [data.azurerm_client_config.current.subscription_id]
-  load_balancer_frontend_ip_configuration_ids = [module.load_balancer_observ_egress.azurerm_lb_frontend_ip_configuration[0].id]
+  auto_approval_subscription_ids              = [var.subscription_id]
+  visibility_subscription_ids                 = [var.subscription_id]
+  load_balancer_frontend_ip_configuration_ids = [module.load_balancer_egress.azurerm_lb_frontend_ip_configuration[0].id]
 
   nat_ip_configuration {
     name                       = "primary"
