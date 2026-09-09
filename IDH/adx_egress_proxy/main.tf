@@ -8,7 +8,7 @@ module "idh_loader" {
 
 
 module "vmss_snet" {
-  source               = "./.terraform/modules/__v4__/IDH/subnet"
+  source               = "../subnet"
   name                 = "${var.name}-vmss-snet"
   resource_group_name  = var.vnet.resource_group_name
   virtual_network_name = var.vnet.name
@@ -28,7 +28,7 @@ resource "azurerm_subnet_nat_gateway_association" "vmss_snet_nat" {
 }
 
 module "vmss_pls_snet" {
-  source               = "./.terraform/modules/__v4__/IDH/subnet"
+  source               = "../subnet"
   name                 = "${var.name}-pls-snet"
   resource_group_name  = var.vnet.resource_group_name
   virtual_network_name = var.vnet.name
@@ -44,7 +44,7 @@ module "vmss_pls_snet" {
 # create load balancer (NVA) with tcp/0 ports
 #
 module "load_balancer_egress" {
-  source = "./.terraform/modules/__v4__/load_balancer"
+  source = "../../load_balancer"
 
   resource_group_name                    = var.vnet.resource_group_name
   location                               = data.azurerm_virtual_network.vnet.location
