@@ -27,3 +27,9 @@ output "connection_port" {
   value     = var.pgbouncer_enabled ? "6432" : "5432"
   sensitive = false
 }
+
+
+output "private_fqdn" {
+  value = one(azurerm_private_dns_cname_record.cname_record[*].fqdn)
+  description = "The fully qualified domain name (FQDN) of the private DNS CNAME record."
+}
