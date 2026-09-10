@@ -13,7 +13,7 @@ module "vmss_snet" {
   resource_group_name  = var.vnet.resource_group_name
   virtual_network_name = var.vnet.name
 
-  idh_resource_tier = module.idh_loader.idh_resource_configuration.snet_tier
+  idh_resource_tier = module.idh_loader.idh_resource_configuration.snet_tier_vmss
   product_name      = var.product_name
   env               = var.env
 
@@ -33,7 +33,7 @@ module "vmss_pls_snet" {
   resource_group_name  = var.vnet.resource_group_name
   virtual_network_name = var.vnet.name
 
-  idh_resource_tier = module.idh_loader.idh_resource_configuration.snet_tier
+  idh_resource_tier = module.idh_loader.idh_resource_configuration.snet_tier_pls
   product_name      = var.product_name
   env               = var.env
 
