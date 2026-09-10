@@ -1,4 +1,4 @@
-# IDH adx_egress_proxy Resources
+# IDH adf_egress_proxy Resources
 
 ## cstar
 | Product  | Environment | Tier | Deprecated | Description |

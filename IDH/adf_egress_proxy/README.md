@@ -1,4 +1,4 @@
-# ADX egress proxy
+# ADF egress proxy
 
 This module creates a proxy that can be used by ADX clusters to reach private PostgreSQL databases in a private subnet. The proxy is deployed in a dedicated subnet and is associated with a NAT Gateway to allow outbound traffic to the internet.
 
@@ -12,7 +12,7 @@ This module creates a proxy that can be used by ADX clusters to reach private Po
 
 ```hcl
 module "adx_egress_proxy" {
-  source = "./.terraform/modules/__v4__/IDH/adx_egress_proxy"
+  source = "./.terraform/modules/__v4__/IDH/adf_egress_proxy"
 
   product_name      = var.product_name
   env               = var.env
@@ -37,9 +37,9 @@ module "adx_egress_proxy" {
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
-| <a name="module_load_balancer_egress"></a> [load\_balancer\_egress](#module\_load\_balancer\_egress) | ./.terraform/modules/__v4__/load_balancer | n/a |
-| <a name="module_vmss_pls_snet"></a> [vmss\_pls\_snet](#module\_vmss\_pls\_snet) | ./.terraform/modules/__v4__/IDH/subnet | n/a |
-| <a name="module_vmss_snet"></a> [vmss\_snet](#module\_vmss\_snet) | ./.terraform/modules/__v4__/IDH/subnet | n/a |
+| <a name="module_load_balancer_egress"></a> [load\_balancer\_egress](#module\_load\_balancer\_egress) | ../../load_balancer | n/a |
+| <a name="module_vmss_pls_snet"></a> [vmss\_pls\_snet](#module\_vmss\_pls\_snet) | ../subnet | n/a |
+| <a name="module_vmss_snet"></a> [vmss\_snet](#module\_vmss\_snet) | ../subnet | n/a |
 
 ## Resources
 
