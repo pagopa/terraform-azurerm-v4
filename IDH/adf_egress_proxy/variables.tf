@@ -79,12 +79,6 @@ variable "database_adf_proxy_mapping" {
   }
 }
 
-
-variable "subscription_id" {
-  type        = string
-  description = "(Required): The subscription ID where the private link service will have visibility"
-}
-
 variable "output_kv" {
   type = object({
     name                = string

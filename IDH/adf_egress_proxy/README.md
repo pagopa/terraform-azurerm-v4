@@ -51,6 +51,7 @@ module "adx_egress_proxy" {
 | [azurerm_private_link_service.vmss_pls](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_link_service) | resource |
 | [azurerm_subnet_nat_gateway_association.vmss_snet_nat](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_nat_gateway_association) | resource |
 | [azurerm_virtual_machine_scale_set_extension.vmss_extension](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_machine_scale_set_extension) | resource |
+| [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
 | [azurerm_key_vault.output_kv](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault) | data source |
 | [azurerm_nat_gateway.nat_gateway](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/nat_gateway) | data source |
 | [azurerm_resource_group.vmss_rg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group) | data source |
@@ -67,7 +68,6 @@ module "adx_egress_proxy" {
 | <a name="input_nat_gateway"></a> [nat\_gateway](#input\_nat\_gateway) | (Optional): The name and resource group of the NAT gateway to be associated with the VMSS subnet. If not defined, no NAT gateway will be associated with the subnet. | <pre>object({<br/>    name                = string<br/>    resource_group_name = string<br/>  })</pre> | `null` | no |
 | <a name="input_output_kv"></a> [output\_kv](#input\_output\_kv) | (Optional): The name and resource group of the Key Vault where the output database configuration will be stored. If not defined, no Key Vault will be used. | <pre>object({<br/>    name                = string<br/>    resource_group_name = string<br/>  })</pre> | `null` | no |
 | <a name="input_product_name"></a> [product\_name](#input\_product\_name) | (Required): Product name used to identify the platform for which the resource will be created. | `string` | n/a | yes |
-| <a name="input_subscription_id"></a> [subscription\_id](#input\_subscription\_id) | (Required): The subscription ID where the private link service will have visibility | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | (Optional): Map of tags to assign to the resource. | `map(any)` | n/a | yes |
 | <a name="input_vmss_credentials"></a> [vmss\_credentials](#input\_vmss\_credentials) | (Required): The administrator login and password for the VMSS instances. | <pre>object({<br/>    admin_login    = string<br/>    admin_password = string<br/>  })</pre> | n/a | yes |
 | <a name="input_vmss_resource_group_name"></a> [vmss\_resource\_group\_name](#input\_vmss\_resource\_group\_name) | (Required): The name of the resource group in which to create the VMSS resource. | `string` | n/a | yes |

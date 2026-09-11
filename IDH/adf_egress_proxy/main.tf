@@ -224,8 +224,8 @@ resource "azurerm_private_link_service" "vmss_pls" {
   resource_group_name = var.vmss_resource_group_name
   location            = data.azurerm_resource_group.vmss_rg.location
 
-  auto_approval_subscription_ids              = [var.subscription_id]
-  visibility_subscription_ids                 = [var.subscription_id]
+  auto_approval_subscription_ids              = [data.azurerm_client_config.current.subscription_id]
+  visibility_subscription_ids                 = [data.azurerm_client_config.current.subscription_id]
   load_balancer_frontend_ip_configuration_ids = [module.load_balancer_egress.azurerm_lb_frontend_ip_configuration[0].id]
 
   nat_ip_configuration {

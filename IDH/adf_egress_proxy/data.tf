@@ -19,3 +19,6 @@ data "azurerm_key_vault" "output_kv" {
   name                = var.output_kv.name
   resource_group_name = var.output_kv.resource_group_name
 }
+
+
+data "azurerm_client_config" "current" {}
