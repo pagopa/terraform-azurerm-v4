@@ -21,7 +21,7 @@ variable "data_factory_principal_id" {
 }
 
 variable "egress_proxy_pls_id" {
-  type = string
+  type        = string
   description = "(Required): The ID of the Private Link Service (PLS) for the egress proxy to which the managed private endpoint will connect."
 }
 
@@ -91,26 +91,26 @@ variable "adf_linked_services_blob" {
 
 
 # Configurazione degli endpoint privati gestiti per Azure Data Factory.
-  # Ogni entry definisce un endpoint privato verso un servizio specifico tramite Private Link Service.
-  # - target_resource_id: ID della risorsa di destinazione.
-  # - fqdns: lista di FQDN (Fully Qualified Domain Names) recuperati da Key Vault,
-  #          utilizzati per la risoluzione DNS dell'endpoint privato.
-  # - subresource_name: nome della sottorisorsa per cui è necessario approvare la connessione (opzionale, dipende dal servizio di destinazione).
-  # - type: tipo di risorsa di destinazione, utilizzato per mappare correttamente le API di Azure durante l'approvazione della connessione privata.
-  # es:
-  # GpdCosmosSql = {
-  #    target_resource_id = data.azurerm_cosmosdb_account.gpd_payments_cosmos_account.id
-  #    fqdns              = null
-  #    subresource_name   = "Sql"
-  #    type               = "cosmosdb"
-  #  }
-  variable "adf_managed_private_endpoint" {
-    type = map(object({
-      target_resource_id = string #ID della risorsa di destinazione.
-      fqdns              = list(string) #lista di FQDN (Fully Qualified Domain Names) recuperati da Key Vault, utilizzati per la risoluzione DNS dell'endpoint privato.
-      subresource_name   = string #nome della sottorisorsa per cui è necessario approvare la connessione (opzionale, dipende dal servizio di destinazione).
-      type               = string #tipo di risorsa di destinazione, utilizzato per mappare correttamente le API di Azure durante l'approvazione della connessione privata.
-    }))
-    description = "(Optional): A map of managed private endpoint configurations for Azure Data Factory. Each entry should contain the target resource ID, FQDNs, subresource name, and type."
-    default     = {}
-  }
+# Ogni entry definisce un endpoint privato verso un servizio specifico tramite Private Link Service.
+# - target_resource_id: ID della risorsa di destinazione.
+# - fqdns: lista di FQDN (Fully Qualified Domain Names) recuperati da Key Vault,
+#          utilizzati per la risoluzione DNS dell'endpoint privato.
+# - subresource_name: nome della sottorisorsa per cui è necessario approvare la connessione (opzionale, dipende dal servizio di destinazione).
+# - type: tipo di risorsa di destinazione, utilizzato per mappare correttamente le API di Azure durante l'approvazione della connessione privata.
+# es:
+# GpdCosmosSql = {
+#    target_resource_id = data.azurerm_cosmosdb_account.gpd_payments_cosmos_account.id
+#    fqdns              = null
+#    subresource_name   = "Sql"
+#    type               = "cosmosdb"
+#  }
+variable "adf_managed_private_endpoint" {
+  type = map(object({
+    target_resource_id = string       #ID della risorsa di destinazione.
+    fqdns              = list(string) #lista di FQDN (Fully Qualified Domain Names) recuperati da Key Vault, utilizzati per la risoluzione DNS dell'endpoint privato.
+    subresource_name   = string       #nome della sottorisorsa per cui è necessario approvare la connessione (opzionale, dipende dal servizio di destinazione).
+    type               = string       #tipo di risorsa di destinazione, utilizzato per mappare correttamente le API di Azure durante l'approvazione della connessione privata.
+  }))
+  description = "(Optional): A map of managed private endpoint configurations for Azure Data Factory. Each entry should contain the target resource ID, FQDNs, subresource name, and type."
+  default     = {}
+}
