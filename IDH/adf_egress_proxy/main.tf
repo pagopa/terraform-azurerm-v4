@@ -210,7 +210,7 @@ resource "azurerm_virtual_machine_scale_set_extension" "vmss_extension" {
 
 resource "azurerm_key_vault_secret" "output_database_map" {
   count        = var.output_kv != null ? 1 : 0
-  name         = "${var.name}-database-map"
+  name         = var.output_kv.secret_name
   value        = local.database_map
   content_type = "text/plain"
 

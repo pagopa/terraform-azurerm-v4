@@ -60,11 +60,11 @@ variable "vmss_credentials" {
 
 variable "database_adf_proxy_mapping" {
   type = list(object({
-    fqdn             = string
-    external_port    = number
-    destination_port = number
+    fqdn             = string # private fqdn of the database to which the ADF will connect through the egress proxy
+    external_port    = number # port exposed by the proxy for the ADF to connect to the database
+    destination_port = number # port on the database to which the ADF will connect through the egress proxy
   }))
-  description = "(Required): List of database ADF proxy mappings."
+  description = "(Required): List of database ADF proxy mappings. must contain the private FQDN of the database, the external port exposed by the proxy for ADF to connect to the database, and the destination port on the database to which ADF will connect through the egress proxy."
 
   validation {
     # Validate that the list does not contain duplicate FQDNs
@@ -81,8 +81,9 @@ variable "database_adf_proxy_mapping" {
 
 variable "output_kv" {
   type = object({
-    name                = string
-    resource_group_name = string
+    name                = string # name of the keyvault where to save the output database configuration
+    resource_group_name = string # resource group of the keyvault where to save the output database configuration
+    secret_name         = string # name of the secret where to save the output database configuration
   })
   description = "(Optional): The name and resource group of the Key Vault where the output database configuration will be stored. If not defined, no Key Vault will be used."
   default     = null

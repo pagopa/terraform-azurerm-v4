@@ -2,6 +2,8 @@
 
 This module creates a proxy that can be used by ADX clusters to reach private PostgreSQL databases in a private subnet. The proxy is deployed in a dedicated subnet and is associated with a NAT Gateway to allow outbound traffic to the internet.
 
+
+
 ## IDH resources available
 
 [Here's](./LIBRARY.md) the list of `idh_resource_tiers` available for this module.
@@ -11,14 +13,41 @@ This module creates a proxy that can be used by ADX clusters to reach private Po
 ### Basic usage – single node pool with external subnet
 
 ```hcl
-module "adx_egress_proxy" {
+module "adf_proxy" {
   source = "./.terraform/modules/__v4__/IDH/adf_egress_proxy"
+  # idh properties
+  env = var.env
+  idh_resource_tier = "small"
+  product_name = var.prefix
+  
+  name = "${var.prefix}-${var.env_short}-adf-proxy"
+  vmss_resource_group_name = azurerm_resource_group.rg_network.name
 
-  product_name      = var.product_name
-  env               = var.env
-  idh_resource_tier = "Standard_D4ds"
+  database_adf_proxy_mapping = [
+    {
+      fqdn             = "idpay-db.${var.env_short}.internal.postgresql.cstar.pagopa.it"
+      external_port    = 5432
+      destination_port = 5432
+    }
+  ]
 
+  vmss_credentials = {
+    admin_login = data.azurerm_key_vault_secret.network_vmss_login.value
+    admin_password = data.azurerm_key_vault_secret.network_vmss_password.value
+  }
 
+  vnet = {
+    name = module.vnet_core_hub.name
+    resource_group_name = module.vnet_core_hub.resource_group_name
+  }
+
+  output_kv = {
+    name                = local.kv_core_name
+    resource_group_name = local.kv_core_resource_group_name
+    secret_name         = "${var.prefix}-${var.env_short}-adf-proxy-database-map"
+  }
+  
+  tags = module.tag_config.tags
 }
 ```
 

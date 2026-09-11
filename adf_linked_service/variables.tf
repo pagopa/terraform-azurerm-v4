@@ -29,8 +29,8 @@ variable "egress_proxy_pls_id" {
 # Ogni entry definisce una connessione verso un database PostgreSQL specifico,
 # con le credenziali e i parametri di connessione recuperati da Azure Key Vault.
 # - key_vault_id: ID del Key Vault da cui recuperare la password di accesso al db.
-# - host: hostname raggiungibile privatamente del server PostgreSQL.
-# - port: porta del server PostgreSQL.
+# - host: hostname privato del server PostgreSQL, esposto sul proxy_adf.
+# - port: porta del server PostgreSQL esposta dal proxy_adf (può non coincidere con la porta nativa del server).
 # - database_name: nome del database PostgreSQL.
 # - username: username per l'autenticazione al database PostgreSQL.
 # - password_secret_name: nome del segreto contenente la password per l'autenticazione.
@@ -44,12 +44,12 @@ variable "egress_proxy_pls_id" {
 #      }
 variable "adf_linked_service_postgresql" {
   type = map(object({
-    key_vault_id         = string #ID del Key Vault da cui recuperare la password di accesso al db.
-    host                 = string # hostname raggiungibile privatamente del server PostgreSQL.
-    port                 = string # porta del server PostgreSQL.
+    key_vault_id         = string # ID del Key Vault da cui recuperare la password di accesso al db.
+    host                 = string # hostname privato del server PostgreSQL, esposto sul proxy_adf.
+    port                 = string # porta del server PostgreSQL esposta dal proxy_adf (può non coincidere con la porta nativa del server).
     database_name        = string # nome del database PostgreSQL.
     username             = string # username per l'autenticazione al database PostgreSQL.
-    password_secret_name = string #nome del segreto contenente la password per l'autenticazione.
+    password_secret_name = string # nome del segreto contenente la password per l'autenticazione.
   }))
   description = "(Optional): A map of linked service configurations for PostgreSQL databases. "
   default     = {}
