@@ -1,6 +1,11 @@
-# ADF egress proxy
+# ADF linked service
 
-This module creates a proxy that can be used by ADX clusters to reach private PostgreSQL databases in a private subnet. The proxy is deployed in a dedicated subnet and is associated with a NAT Gateway to allow outbound traffic to the internet.
+This module creates a linked service that can be used by ADX clusters to reach the following kind of resources:
+
+- private PostgreSQL databases in a private subnet (requires configuration of `adf_egress_proxy` module and `adf_egress_connection` module)
+- storage blob
+- CosmosDB
+- private endpoints
 
 
 ## How to use it
@@ -8,10 +13,24 @@ This module creates a proxy that can be used by ADX clusters to reach private Po
 ### Basic usage – single node pool with external subnet
 
 ```hcl
-module "adx_egress_proxy" {
-  source = "./.terraform/modules/__v4__/adf_egress_proxy"
+module "adf_linked_service" {
+  source = "./.terraform/modules/__v4__/adf_linked_service"
 
- 
+  data_factory_id = data.azurerm_data_factory.data_factory.id
+  data_factory_principal_id = data.azurerm_data_factory.data_factory.identity[0].principal_id
+  egress_proxy_pls_id = data.azurerm_private_link_service.adf_egress_proxy_pls.id
+  env_short = var.env_short
+  
+  adf_linked_service_postgresql = {
+    "idpay-db" = {
+      key_vault_id              = data.azurerm_key_vault.domain_kv.id
+      host          = trimsuffix(module.idpay_pgflex[0].private_fqdn, ".") # to remove trailing dot
+      port          = "5432"
+      database_name      = local.idpay_postgresql_database_name
+      username      = azurerm_key_vault_secret.idpay_postgres_admin_user[0].value
+      password_secret_name      = azurerm_key_vault_secret.idpay_postgres_admin_password[0].name
+    }
+  }
 
 }
 ```
@@ -47,16 +66,12 @@ No modules.
 | [azapi_resource.df_connection_privatelink_private_endpoint_connection](https://registry.terraform.io/providers/azure/azapi/latest/docs/data-sources/resource) | data source |
 | [azapi_resource.privatelink_private_endpoint_connection](https://registry.terraform.io/providers/azure/azapi/latest/docs/data-sources/resource) | data source |
 | [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
-| [azurerm_key_vault_secret.df_connection_postgres_database](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
-| [azurerm_key_vault_secret.df_connection_postgres_host](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
-| [azurerm_key_vault_secret.df_connection_postgres_port](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
-| [azurerm_key_vault_secret.df_connection_postgres_username](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_adf_linked_service_postgresql"></a> [adf\_linked\_service\_postgresql](#input\_adf\_linked\_service\_postgresql) | (Optional): A map of linked service configurations for PostgreSQL databases. | <pre>map(object({<br/>    key_vault_id         = string #ID del Key Vault da cui recuperare la password di accesso al db.<br/>    host                 = string # hostname raggiungibile privatamente del server PostgreSQL.<br/>    port                 = string # porta del server PostgreSQL.<br/>    database_name        = string # nome del database PostgreSQL.<br/>    username             = string # username per l'autenticazione al database PostgreSQL.<br/>    password_secret_name = string #nome del segreto contenente la password per l'autenticazione.<br/>  }))</pre> | `{}` | no |
+| <a name="input_adf_linked_service_postgresql"></a> [adf\_linked\_service\_postgresql](#input\_adf\_linked\_service\_postgresql) | (Optional): A map of linked service configurations for PostgreSQL databases. | <pre>map(object({<br/>    key_vault_id         = string # ID del Key Vault da cui recuperare la password di accesso al db.<br/>    host                 = string # hostname privato del server PostgreSQL, esposto sul proxy_adf.<br/>    port                 = string # porta del server PostgreSQL esposta dal proxy_adf (può non coincidere con la porta nativa del server).<br/>    database_name        = string # nome del database PostgreSQL.<br/>    username             = string # username per l'autenticazione al database PostgreSQL.<br/>    password_secret_name = string # nome del segreto contenente la password per l'autenticazione.<br/>  }))</pre> | `{}` | no |
 | <a name="input_adf_linked_services_blob"></a> [adf\_linked\_services\_blob](#input\_adf\_linked\_services\_blob) | (Optional): A map of linked service configurations for Azure Blob Storage accounts. Each entry should contain a connection string. | <pre>map(object({<br/>    connection_string = string #stringa di connessione all'account di archiviazione Azure Blob Storage.<br/>  }))</pre> | `{}` | no |
 | <a name="input_adf_linked_services_cosmosdb"></a> [adf\_linked\_services\_cosmosdb](#input\_adf\_linked\_services\_cosmosdb) | (Optional): A map of linked service configurations for Cosmos DB accounts. Each entry should contain a connection string and the corresponding database name. | <pre>map(object({<br/>    connection_string = string #connection string dell'account Cosmos DB.<br/>    account_name      = string #nome dell'account Cosmos DB.<br/>    database          = string #nome del database Cosmos DB a cui collegarsi.<br/>  }))</pre> | `{}` | no |
 | <a name="input_adf_managed_private_endpoint"></a> [adf\_managed\_private\_endpoint](#input\_adf\_managed\_private\_endpoint) | (Optional): A map of managed private endpoint configurations for Azure Data Factory. Each entry should contain the target resource ID, FQDNs, subresource name, and type. | <pre>map(object({<br/>    target_resource_id = string       #ID della risorsa di destinazione.<br/>    fqdns              = list(string) #lista di FQDN (Fully Qualified Domain Names) recuperati da Key Vault, utilizzati per la risoluzione DNS dell'endpoint privato.<br/>    subresource_name   = string       #nome della sottorisorsa per cui è necessario approvare la connessione (opzionale, dipende dal servizio di destinazione).<br/>    type               = string       #tipo di risorsa di destinazione, utilizzato per mappare correttamente le API di Azure durante l'approvazione della connessione privata.<br/>  }))</pre> | `{}` | no |

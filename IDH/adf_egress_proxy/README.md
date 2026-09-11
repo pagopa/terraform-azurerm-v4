@@ -2,6 +2,12 @@
 
 This module creates a proxy that can be used by ADX clusters to reach private PostgreSQL databases in a private subnet. The proxy is deployed in a dedicated subnet and is associated with a NAT Gateway to allow outbound traffic to the internet.
 
+This module creates:
+
+- a VMSS with a single instance, running a proxy service that forwards traffic to the specified PostgreSQL databases
+- a load balancer to distribute traffic and allow private link service access
+- a private link service to allow the VMSS to be accessed from other virtual networks
+- a keyvault secret (optional) to store the database hosts using format `db1-fqdn,db2-fqdn`. It can be useful to share the configuration with the module `adf_egress_connection`
 
 
 ## IDH resources available
@@ -21,7 +27,7 @@ module "adf_proxy" {
   product_name = var.prefix
   
   name = "${var.prefix}-${var.env_short}-adf-proxy"
-  vmss_resource_group_name = azurerm_resource_group.rg_network.name
+  resource_group_name = azurerm_resource_group.rg_network.name
 
   database_adf_proxy_mapping = [
     {
@@ -90,16 +96,16 @@ module "adf_proxy" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_database_adf_proxy_mapping"></a> [database\_adf\_proxy\_mapping](#input\_database\_adf\_proxy\_mapping) | (Required): List of database ADF proxy mappings. | <pre>list(object({<br/>    fqdn             = string<br/>    external_port    = number<br/>    destination_port = number<br/>  }))</pre> | n/a | yes |
+| <a name="input_database_adf_proxy_mapping"></a> [database\_adf\_proxy\_mapping](#input\_database\_adf\_proxy\_mapping) | (Required): List of database ADF proxy mappings. must contain the private FQDN of the database, the external port exposed by the proxy for ADF to connect to the database, and the destination port on the database to which ADF will connect through the egress proxy. | <pre>list(object({<br/>    fqdn             = string # private fqdn of the database to which the ADF will connect through the egress proxy<br/>    external_port    = number # port exposed by the proxy for the ADF to connect to the database<br/>    destination_port = number # port on the database to which the ADF will connect through the egress proxy<br/>  }))</pre> | n/a | yes |
 | <a name="input_env"></a> [env](#input\_env) | (Required): Environment for which the resource will be created. | `string` | n/a | yes |
 | <a name="input_idh_resource_tier"></a> [idh\_resource\_tier](#input\_idh\_resource\_tier) | (Required): The name of IDH resource tier to be created. | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | (Required): The name (including prefix) for the created resources | `string` | n/a | yes |
 | <a name="input_nat_gateway"></a> [nat\_gateway](#input\_nat\_gateway) | (Optional): The name and resource group of the NAT gateway to be associated with the VMSS subnet. If not defined, no NAT gateway will be associated with the subnet. | <pre>object({<br/>    name                = string<br/>    resource_group_name = string<br/>  })</pre> | `null` | no |
-| <a name="input_output_kv"></a> [output\_kv](#input\_output\_kv) | (Optional): The name and resource group of the Key Vault where the output database configuration will be stored. If not defined, no Key Vault will be used. | <pre>object({<br/>    name                = string<br/>    resource_group_name = string<br/>  })</pre> | `null` | no |
+| <a name="input_output_kv"></a> [output\_kv](#input\_output\_kv) | (Optional): The name and resource group of the Key Vault where the output database configuration will be stored. If not defined, no Key Vault will be used. | <pre>object({<br/>    name                = string # name of the keyvault where to save the output database configuration<br/>    resource_group_name = string # resource group of the keyvault where to save the output database configuration<br/>    secret_name         = string # name of the secret where to save the output database configuration<br/>  })</pre> | `null` | no |
 | <a name="input_product_name"></a> [product\_name](#input\_product\_name) | (Required): Product name used to identify the platform for which the resource will be created. | `string` | n/a | yes |
+| <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (Required): The name of the resource group in which to create the proxy resources. | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | (Optional): Map of tags to assign to the resource. | `map(any)` | n/a | yes |
 | <a name="input_vmss_credentials"></a> [vmss\_credentials](#input\_vmss\_credentials) | (Required): The administrator login and password for the VMSS instances. | <pre>object({<br/>    admin_login    = string<br/>    admin_password = string<br/>  })</pre> | n/a | yes |
-| <a name="input_vmss_resource_group_name"></a> [vmss\_resource\_group\_name](#input\_vmss\_resource\_group\_name) | (Required): The name of the resource group in which to create the VMSS resource. | `string` | n/a | yes |
 | <a name="input_vnet"></a> [vnet](#input\_vnet) | (Required): The name and resource group of the virtual network to which the VMSS subnet will be attached. | <pre>object({<br/>    name                = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
 
 ## Outputs

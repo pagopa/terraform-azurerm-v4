@@ -30,6 +30,6 @@ output "connection_port" {
 
 
 output "private_fqdn" {
-  value = one(azurerm_private_dns_cname_record.cname_record[*].fqdn)
+  value       = one(azurerm_private_dns_cname_record.cname_record[*].fqdn)
   description = "The fully qualified domain name (FQDN) of the private DNS CNAME record."
 }

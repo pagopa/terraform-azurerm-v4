@@ -364,5 +364,6 @@ No modules.
 | <a name="output_fqdn"></a> [fqdn](#output\_fqdn) | n/a |
 | <a name="output_id"></a> [id](#output\_id) | n/a |
 | <a name="output_name"></a> [name](#output\_name) | n/a |
+| <a name="output_private_fqdn"></a> [private\_fqdn](#output\_private\_fqdn) | The fully qualified domain name (FQDN) of the private DNS CNAME record. |
 | <a name="output_public_access_enabled"></a> [public\_access\_enabled](#output\_public\_access\_enabled) | n/a |
 <!-- END_TF_DOCS -->

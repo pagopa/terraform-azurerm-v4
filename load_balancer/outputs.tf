@@ -29,11 +29,11 @@ output "azurerm_lb_backend_address_pool_id" {
 }
 
 output "azurerm_lb_name" {
-  value = azurerm_lb.this.name
+  value       = azurerm_lb.this.name
   description = "the name for the azurerm_lb resource"
 }
 
 output "azurerm_lb_rg_name" {
-  value = azurerm_lb.this.resource_group_name
+  value       = azurerm_lb.this.resource_group_name
   description = "the resource group name for the azurerm_lb resource"
 }

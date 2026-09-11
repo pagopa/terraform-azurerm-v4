@@ -19,9 +19,9 @@ variable "tags" {
   description = "(Optional): Map of tags to assign to the resource."
 }
 
-variable "vmss_resource_group_name" {
+variable "resource_group_name" {
   type        = string
-  description = "(Required): The name of the resource group in which to create the VMSS resource."
+  description = "(Required): The name of the resource group in which to create the proxy resources."
 }
 
 

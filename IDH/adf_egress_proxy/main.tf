@@ -46,7 +46,7 @@ module "vmss_pls_snet" {
 module "load_balancer_egress" {
   source = "../../load_balancer"
 
-  resource_group_name                    = var.vnet.resource_group_name
+  resource_group_name                    = var.resource_group_name
   location                               = data.azurerm_virtual_network.vnet.location
   name                                   = "${var.name}-egress"
   frontend_name                          = "frontend_private_ip"
@@ -81,7 +81,7 @@ module "load_balancer_egress" {
 
 resource "azurerm_linux_virtual_machine_scale_set" "vmss_egress" {
   name                            = "${var.name}-vmss"
-  resource_group_name             = var.vmss_resource_group_name
+  resource_group_name             = var.resource_group_name
   location                        = data.azurerm_resource_group.vmss_rg.location
   sku                             = module.idh_loader.idh_resource_configuration.vmss.sku
   instances                       = module.idh_loader.idh_resource_configuration.vmss.instances
@@ -135,7 +135,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss_egress" {
 resource "azurerm_monitor_autoscale_setting" "vmss_scale" {
   count               = module.idh_loader.idh_resource_configuration.vmss.scale_enabled ? 1 : 0
   name                = "${var.name}-vmss-scale"
-  resource_group_name = var.vmss_resource_group_name
+  resource_group_name = var.resource_group_name
   location            = data.azurerm_resource_group.vmss_rg.location
   target_resource_id  = azurerm_linux_virtual_machine_scale_set.vmss_egress.id
 
@@ -221,7 +221,7 @@ resource "azurerm_key_vault_secret" "output_database_map" {
 
 resource "azurerm_private_link_service" "vmss_pls" {
   name                = "${var.name}-privatelink"
-  resource_group_name = var.vmss_resource_group_name
+  resource_group_name = var.resource_group_name
   location            = data.azurerm_resource_group.vmss_rg.location
 
   auto_approval_subscription_ids              = [data.azurerm_client_config.current.subscription_id]
