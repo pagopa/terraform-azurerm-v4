@@ -1,7 +1,7 @@
 locals {
   df_integration_runtime_name = "AutoResolveIntegrationRuntime"
 
-    az_api_type_mappings = {
+  az_api_type_mappings = {
     cosmosdb = {
       data_az_api_type    = "Microsoft.DocumentDB/databaseAccounts@2025-10-15"
       approve_az_api_type = "Microsoft.DocumentDB/databaseAccounts/privateEndpointConnections@2025-10-15"

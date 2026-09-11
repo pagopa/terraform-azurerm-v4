@@ -23,65 +23,47 @@ module "adx_egress_proxy" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
+| <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) | ~> 2.6 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3 |
 
 ## Modules
 
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_idh_loader"></a> [idh\_loader](#module\_idh\_loader) | ../01_idh_loader | n/a |
-| <a name="module_load_balancer_egress"></a> [load\_balancer\_egress](#module\_load\_balancer\_egress) | ../../load_balancer | n/a |
-| <a name="module_vmss_pls_snet"></a> [vmss\_pls\_snet](#module\_vmss\_pls\_snet) | ../subnet | n/a |
-| <a name="module_vmss_snet"></a> [vmss\_snet](#module\_vmss\_snet) | ../subnet | n/a |
+No modules.
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [azurerm_key_vault_secret.output_database_map](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) | resource |
-| [azurerm_linux_virtual_machine_scale_set.vmss_egress](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine_scale_set) | resource |
-| [azurerm_monitor_autoscale_setting.vmss_scale](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_autoscale_setting) | resource |
-| [azurerm_private_link_service.vmss_pls](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_link_service) | resource |
-| [azurerm_subnet_nat_gateway_association.vmss_snet_nat](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_nat_gateway_association) | resource |
-| [azurerm_virtual_machine_scale_set_extension.vmss_extension](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_machine_scale_set_extension) | resource |
-| [azurerm_key_vault.output_kv](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault) | data source |
-| [azurerm_nat_gateway.nat_gateway](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/nat_gateway) | data source |
-| [azurerm_resource_group.vmss_rg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group) | data source |
-| [azurerm_virtual_network.vnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/virtual_network) | data source |
+| [azapi_resource.df_connection_linked_service_postgres](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/resource) | resource |
+| [azapi_resource_action.approve_privatelink_private_endpoint_connection](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/resource_action) | resource |
+| [azapi_resource_action.df_connection_approve_private_endpoint_connection](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/resource_action) | resource |
+| [azurerm_data_factory_linked_custom_service.df_connection_linked_service_cosmosdb](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory_linked_custom_service) | resource |
+| [azurerm_data_factory_linked_service_azure_blob_storage.df_connection_linked_service_blob](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory_linked_service_azure_blob_storage) | resource |
+| [azurerm_data_factory_linked_service_key_vault.df_connection_linked_service_key_vault](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory_linked_service_key_vault) | resource |
+| [azurerm_data_factory_managed_private_endpoint.df_connection_managed_private_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory_managed_private_endpoint) | resource |
+| [azurerm_data_factory_managed_private_endpoint.private_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory_managed_private_endpoint) | resource |
+| [azurerm_key_vault_access_policy.df_connection_access_kv](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_access_policy) | resource |
+| [azapi_resource.df_connection_privatelink_private_endpoint_connection](https://registry.terraform.io/providers/azure/azapi/latest/docs/data-sources/resource) | data source |
+| [azapi_resource.privatelink_private_endpoint_connection](https://registry.terraform.io/providers/azure/azapi/latest/docs/data-sources/resource) | data source |
+| [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
+| [azurerm_key_vault_secret.df_connection_postgres_database](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.df_connection_postgres_host](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.df_connection_postgres_port](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
+| [azurerm_key_vault_secret.df_connection_postgres_username](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_database_adf_proxy_mapping"></a> [database\_adf\_proxy\_mapping](#input\_database\_adf\_proxy\_mapping) | (Required): List of database ADF proxy mappings. | <pre>list(object({<br/>    fqdn             = string<br/>    external_port    = number<br/>    destination_port = number<br/>  }))</pre> | n/a | yes |
-| <a name="input_env"></a> [env](#input\_env) | (Required): Environment for which the resource will be created. | `string` | n/a | yes |
-| <a name="input_idh_resource_tier"></a> [idh\_resource\_tier](#input\_idh\_resource\_tier) | (Required): The name of IDH resource tier to be created. | `string` | n/a | yes |
-| <a name="input_name"></a> [name](#input\_name) | (Required): The name (including prefix) for the created resources | `string` | n/a | yes |
-| <a name="input_nat_gateway"></a> [nat\_gateway](#input\_nat\_gateway) | (Optional): The name and resource group of the NAT gateway to be associated with the VMSS subnet. If not defined, no NAT gateway will be associated with the subnet. | <pre>object({<br/>    name                = string<br/>    resource_group_name = string<br/>  })</pre> | `null` | no |
-| <a name="input_output_kv"></a> [output\_kv](#input\_output\_kv) | (Optional): The name and resource group of the Key Vault where the output database configuration will be stored. If not defined, no Key Vault will be used. | <pre>object({<br/>    name                = string<br/>    resource_group_name = string<br/>  })</pre> | `null` | no |
-| <a name="input_product_name"></a> [product\_name](#input\_product\_name) | (Required): Product name used to identify the platform for which the resource will be created. | `string` | n/a | yes |
-| <a name="input_subscription_id"></a> [subscription\_id](#input\_subscription\_id) | (Required): The subscription ID where the private link service will have visibility | `string` | n/a | yes |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional): Map of tags to assign to the resource. | `map(any)` | n/a | yes |
-| <a name="input_vmss_credentials"></a> [vmss\_credentials](#input\_vmss\_credentials) | (Required): The administrator login and password for the VMSS instances. | <pre>object({<br/>    admin_login    = string<br/>    admin_password = string<br/>  })</pre> | n/a | yes |
-| <a name="input_vmss_resource_group_name"></a> [vmss\_resource\_group\_name](#input\_vmss\_resource\_group\_name) | (Required): The name of the resource group in which to create the VMSS resource. | `string` | n/a | yes |
-| <a name="input_vnet"></a> [vnet](#input\_vnet) | (Required): The name and resource group of the virtual network to which the VMSS subnet will be attached. | <pre>object({<br/>    name                = string<br/>    resource_group_name = string<br/>  })</pre> | n/a | yes |
+| <a name="input_adf_linked_service_postgresql"></a> [adf\_linked\_service\_postgresql](#input\_adf\_linked\_service\_postgresql) | (Optional): A map of linked service configurations for PostgreSQL databases. | <pre>map(object({<br/>    key_vault_id         = string #ID del Key Vault da cui recuperare la password di accesso al db.<br/>    host                 = string # hostname raggiungibile privatamente del server PostgreSQL.<br/>    port                 = string # porta del server PostgreSQL.<br/>    database_name        = string # nome del database PostgreSQL.<br/>    username             = string # username per l'autenticazione al database PostgreSQL.<br/>    password_secret_name = string #nome del segreto contenente la password per l'autenticazione.<br/>  }))</pre> | `{}` | no |
+| <a name="input_adf_linked_services_blob"></a> [adf\_linked\_services\_blob](#input\_adf\_linked\_services\_blob) | (Optional): A map of linked service configurations for Azure Blob Storage accounts. Each entry should contain a connection string. | <pre>map(object({<br/>    connection_string = string #stringa di connessione all'account di archiviazione Azure Blob Storage.<br/>  }))</pre> | `{}` | no |
+| <a name="input_adf_linked_services_cosmosdb"></a> [adf\_linked\_services\_cosmosdb](#input\_adf\_linked\_services\_cosmosdb) | (Optional): A map of linked service configurations for Cosmos DB accounts. Each entry should contain a connection string and the corresponding database name. | <pre>map(object({<br/>    connection_string = string #connection string dell'account Cosmos DB.<br/>    account_name      = string #nome dell'account Cosmos DB.<br/>    database          = string #nome del database Cosmos DB a cui collegarsi.<br/>  }))</pre> | `{}` | no |
+| <a name="input_data_factory_id"></a> [data\_factory\_id](#input\_data\_factory\_id) | (Required): The ID of the Azure Data Factory instance to which the managed private endpoint will be associated. | `string` | n/a | yes |
+| <a name="input_data_factory_principal_id"></a> [data\_factory\_principal\_id](#input\_data\_factory\_principal\_id) | (Required): The principal ID of the Azure Data Factory instance to which the managed private endpoint will be associated. | `string` | n/a | yes |
+| <a name="input_env_short"></a> [env\_short](#input\_env\_short) | (Required): Short environment name (e.g., 'd', 'u', 'p'). | `string` | n/a | yes |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_database_map"></a> [database\_map](#output\_database\_map) | Map of database names to their corresponding connection strings and keys. |
-| <a name="output_database_map_kv_secret_name"></a> [database\_map\_kv\_secret\_name](#output\_database\_map\_kv\_secret\_name) | n/a |
-| <a name="output_load_balancer_id"></a> [load\_balancer\_id](#output\_load\_balancer\_id) | n/a |
-| <a name="output_load_balancer_name"></a> [load\_balancer\_name](#output\_load\_balancer\_name) | n/a |
-| <a name="output_load_balancer_rg"></a> [load\_balancer\_rg](#output\_load\_balancer\_rg) | n/a |
-| <a name="output_vmss_id"></a> [vmss\_id](#output\_vmss\_id) | n/a |
-| <a name="output_vmss_name"></a> [vmss\_name](#output\_vmss\_name) | n/a |
-| <a name="output_vmss_pls_snet"></a> [vmss\_pls\_snet](#output\_vmss\_pls\_snet) | n/a |
-| <a name="output_vmss_rg"></a> [vmss\_rg](#output\_vmss\_rg) | n/a |
-| <a name="output_vmss_scale_id"></a> [vmss\_scale\_id](#output\_vmss\_scale\_id) | n/a |
-| <a name="output_vmss_scale_name"></a> [vmss\_scale\_name](#output\_vmss\_scale\_name) | n/a |
-| <a name="output_vmss_scale_rg"></a> [vmss\_scale\_rg](#output\_vmss\_scale\_rg) | n/a |
-| <a name="output_vmss_snet"></a> [vmss\_snet](#output\_vmss\_snet) | n/a |
+No outputs.
 <!-- END_TF_DOCS -->

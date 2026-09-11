@@ -32,7 +32,7 @@ resource "azapi_resource" "df_connection_linked_service_postgres" {
       }
       type = "AzurePostgreSql"
       typeProperties = {
-        connectionString = "Host=${data.azurerm_key_vault_secret.df_connection_postgres_host[each.key].value};Port=${data.azurerm_key_vault_secret.df_connection_postgres_port[each.key].value};Database=${data.azurerm_key_vault_secret.df_connection_postgres_database[each.key].value};UID=${data.azurerm_key_vault_secret.df_connection_postgres_username[each.key].value};EncryptionMethod=1;ValidateServerCertificate=1"
+        connectionString = "Host=${each.value.host};Port=${each.value.port};Database=${each.value.database_name};UID=${each.value.username};EncryptionMethod=1;ValidateServerCertificate=1"
         password = {
           type = "AzureKeyVaultSecret"
           store = {
