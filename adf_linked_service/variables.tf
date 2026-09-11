@@ -20,6 +20,11 @@ variable "data_factory_principal_id" {
   description = "(Required): The principal ID of the Azure Data Factory instance to which the managed private endpoint will be associated."
 }
 
+variable "egress_proxy_pls_id" {
+  type = string
+  description = "(Required): The ID of the Private Link Service (PLS) for the egress proxy to which the managed private endpoint will connect."
+}
+
 # Configurazione dei Linked Services per Azure PostgreSQL in Azure Data Factory.
 # Ogni entry definisce una connessione verso un database PostgreSQL specifico,
 # con le credenziali e i parametri di connessione recuperati da Azure Key Vault.

@@ -1,7 +1,7 @@
 resource "azurerm_data_factory_managed_private_endpoint" "df_connection_managed_private_endpoint" {
   for_each           = var.adf_managed_private_endpoint
   name               = "AzureDataFactoryTo${each.key}"
-  data_factory_id    = data.azurerm_data_factory.obeserv_data_factory.id
+  data_factory_id    = var.data_factory_id
   target_resource_id = each.value.target_resource_id
   fqdns              = each.value.fqdns
   subresource_name   = each.value.subresource_name
