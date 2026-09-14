@@ -61,11 +61,6 @@ variable "adf_linked_service_postgresql" {
   description = "(Optional): A map of linked service configurations for PostgreSQL databases. "
   default     = {}
 
-  validation {
-    # If map is not empty, then egress_proxy_pls_id must be defined
-    condition     = (length(var.adf_linked_service_postgresql) == 0) || (var.egress_proxy_pls_id != null)
-    error_message = "If adf_linked_service_postgresql is not empty, then egress_proxy_pls_id must be defined."
-  }
 }
 
 
