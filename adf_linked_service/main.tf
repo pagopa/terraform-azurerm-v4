@@ -7,6 +7,13 @@ resource "azurerm_data_factory_managed_private_endpoint" "proxy_private_endpoint
 }
 
 
+moved {
+  from = azurerm_data_factory_managed_private_endpoint.proxy_private_endpoint
+  to   = azurerm_data_factory_managed_private_endpoint.proxy_private_endpoint[0]
+}
+
+
+
 data "azapi_resource" "privatelink_private_endpoint_connection" {
     count = var.egress_proxy_pls_id != null ? 1 : 0
 
@@ -23,6 +30,11 @@ locals {
   privatelink_private_endpoint_connection_name = var.egress_proxy_pls_id != null ? data.azapi_resource.privatelink_private_endpoint_connection[0].output.properties.privateEndpointConnections[0].name : ""
 }
 
+
+moved {
+  from = azapi_resource_action.approve_privatelink_private_endpoint_connection
+  to   = azapi_resource_action.approve_privatelink_private_endpoint_connection[0]
+}
 
 resource "azapi_resource_action" "approve_privatelink_private_endpoint_connection" {
     count = var.egress_proxy_pls_id != null ? 1 : 0
