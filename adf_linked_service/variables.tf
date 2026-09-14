@@ -23,7 +23,7 @@ variable "data_factory_principal_id" {
 variable "egress_proxy_pls_id" {
   type        = string
   description = "(Optional): The ID of the Private Link Service (PLS) for the egress proxy to which the managed private endpoint will connect. Required if adf_linked_service_postgresql is not empty."
-  default = null
+  default     = null
 
   validation {
     # if adf_linked_service_postgresql is not empty, then egress_proxy_pls_id must be defined
