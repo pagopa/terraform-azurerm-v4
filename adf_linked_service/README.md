@@ -1,7 +1,10 @@
 # ADF linked service
 
-This module creates a linked service that can be used by ADX clusters to reach the following kind of resources:
+This module creates managed private endpoints on the given ADF instance.
 
+To manage connection to PostgreSQL private database  it will create a linked service to a private link service that will be used as a proxy to reach the database.
+
+Manages the following kind of private endpoints;
 - private PostgreSQL databases in a private subnet (requires configuration of `adf_egress_proxy` module and `adf_egress_connection` module)
 - storage blob
 - CosmosDB
@@ -10,25 +13,51 @@ This module creates a linked service that can be used by ADX clusters to reach t
 
 ## How to use it
 
-### Basic usage – single node pool with external subnet
-
 ```hcl
 module "adf_linked_service" {
   source = "./.terraform/modules/__v4__/adf_linked_service"
 
-  data_factory_id = data.azurerm_data_factory.data_factory.id
+  data_factory_id           = data.azurerm_data_factory.data_factory.id
   data_factory_principal_id = data.azurerm_data_factory.data_factory.identity[0].principal_id
-  egress_proxy_pls_id = data.azurerm_private_link_service.adf_egress_proxy_pls.id
-  env_short = var.env_short
+  env_short                 = var.env_short
   
+  # required for PostgreSQL private database connection
+  egress_proxy_pls_id       = data.azurerm_private_link_service.adf_egress_proxy_pls.id
+  
+  # optional
   adf_linked_service_postgresql = {
     "idpay-db" = {
-      key_vault_id              = data.azurerm_key_vault.domain_kv.id
-      host          = trimsuffix(module.idpay_pgflex[0].private_fqdn, ".") # to remove trailing dot
-      port          = "5432"
-      database_name      = local.idpay_postgresql_database_name
-      username      = azurerm_key_vault_secret.idpay_postgres_admin_user[0].value
-      password_secret_name      = azurerm_key_vault_secret.idpay_postgres_admin_password[0].name
+      key_vault_id          = data.azurerm_key_vault.domain_kv.id
+      host                  = trimsuffix(module.idpay_pgflex[0].private_fqdn, ".") # to remove trailing dot included in fqdn
+      port                  = "5432"
+      database_name         = local.idpay_postgresql_database_name
+      username              = azurerm_key_vault_secret.idpay_postgres_admin_user[0].value
+      password_secret_name  = azurerm_key_vault_secret.idpay_postgres_admin_password[0].name
+    }
+  }
+  
+  # optional
+  adf_linked_service_cosmos = {
+    "my-db" = {
+      connection_string = azurerm_key_vault_secret.my_conn_string.value
+      account_name      = azurerm_cosmosdb_account.my_cosmos.name
+      database          = "db"
+    }
+  }
+  # optional  
+  adf_linked_service_blob = {
+    "my-blob" = {
+      connection_string = azurerm_key_vault_secret.my_blob_conn_string.value
+    }
+  }
+  
+  # optional
+  adf_managed_private_endpoint = {
+    AfmMarketplaceSql = {
+      target_resource_id = data.azurerm_cosmosdb_account.afm_cosmos_account.id
+      fqdns              = null
+      subresource_name   = "Sql"
+      type               = "cosmosdb"
     }
   }
 
