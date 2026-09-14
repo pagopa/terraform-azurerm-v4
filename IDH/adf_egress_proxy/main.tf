@@ -82,7 +82,7 @@ module "load_balancer_egress" {
 resource "azurerm_linux_virtual_machine_scale_set" "vmss_egress" {
   name                            = "${var.name}-vmss"
   resource_group_name             = var.resource_group_name
-  location                        = data.azurerm_resource_group.vmss_rg.location
+  location                        = data.azurerm_resource_group.resource_group.location
   sku                             = module.idh_loader.idh_resource_configuration.vmss.sku
   instances                       = module.idh_loader.idh_resource_configuration.vmss.instances
   admin_username                  = var.vmss_credentials.admin_login
@@ -136,7 +136,7 @@ resource "azurerm_monitor_autoscale_setting" "vmss_scale" {
   count               = module.idh_loader.idh_resource_configuration.vmss.scale_enabled ? 1 : 0
   name                = "${var.name}-vmss-scale"
   resource_group_name = var.resource_group_name
-  location            = data.azurerm_resource_group.vmss_rg.location
+  location            = data.azurerm_resource_group.resource_group.location
   target_resource_id  = azurerm_linux_virtual_machine_scale_set.vmss_egress.id
 
   profile {
@@ -222,7 +222,7 @@ resource "azurerm_key_vault_secret" "output_database_map" {
 resource "azurerm_private_link_service" "vmss_pls" {
   name                = "${var.name}-privatelink"
   resource_group_name = var.resource_group_name
-  location            = data.azurerm_resource_group.vmss_rg.location
+  location            = data.azurerm_resource_group.resource_group.location
 
   auto_approval_subscription_ids              = [data.azurerm_client_config.current.subscription_id]
   visibility_subscription_ids                 = [data.azurerm_client_config.current.subscription_id]
