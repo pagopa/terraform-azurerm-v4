@@ -1,0 +1,16 @@
+small:
+  vmss:
+    scale_enabled: true
+    sku: Standard_D2ds_v6
+    instances: 1
+    zones: ["1"]
+  snet_tier_vmss: slash28_privatelink_true
+  snet_tier_pls: slash28_privatelink_false
+medium:
+  vmss:
+    scale_enabled: true
+    sku: Standard_D4ds_v6
+    instances: 1
+    zones: ["1"]
+  snet_tier_vmss: slash28_privatelink_true
+  snet_tier_pls: slash28_privatelink_false

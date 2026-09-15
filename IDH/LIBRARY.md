@@ -2,6 +2,7 @@
 
 | Module | Documentation |
 |-----------|------------------|
+| adf_egress_proxy | [README](adf_egress_proxy/README.md) |
 | aks_node_pool | [README](aks_node_pool/README.md) |
 | app_service_function | [README](app_service_function/README.md) |
 | app_service_webapp | [README](app_service_webapp/README.md) |
