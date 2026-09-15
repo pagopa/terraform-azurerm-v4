@@ -79,16 +79,13 @@ No modules.
 | Name | Type |
 |------|------|
 | [azapi_resource.df_connection_linked_service_postgres](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/resource) | resource |
-| [azapi_resource_action.approve_privatelink_private_endpoint_connection](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/resource_action) | resource |
 | [azapi_resource_action.df_connection_approve_private_endpoint_connection](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/resource_action) | resource |
 | [azurerm_data_factory_linked_custom_service.df_connection_linked_service_cosmosdb](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory_linked_custom_service) | resource |
 | [azurerm_data_factory_linked_service_azure_blob_storage.df_connection_linked_service_blob](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory_linked_service_azure_blob_storage) | resource |
 | [azurerm_data_factory_linked_service_key_vault.df_connection_linked_service_key_vault](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory_linked_service_key_vault) | resource |
 | [azurerm_data_factory_managed_private_endpoint.df_connection_managed_private_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory_managed_private_endpoint) | resource |
-| [azurerm_data_factory_managed_private_endpoint.proxy_private_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory_managed_private_endpoint) | resource |
 | [azurerm_key_vault_access_policy.df_connection_access_kv](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_access_policy) | resource |
 | [azapi_resource.df_connection_privatelink_private_endpoint_connection](https://registry.terraform.io/providers/azure/azapi/latest/docs/data-sources/resource) | data source |
-| [azapi_resource.privatelink_private_endpoint_connection](https://registry.terraform.io/providers/azure/azapi/latest/docs/data-sources/resource) | data source |
 | [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
 
 ## Inputs
@@ -101,7 +98,6 @@ No modules.
 | <a name="input_adf_managed_private_endpoint"></a> [adf\_managed\_private\_endpoint](#input\_adf\_managed\_private\_endpoint) | (Optional): A map of managed private endpoint configurations for Azure Data Factory. Each entry should contain the target resource ID, FQDNs, subresource name, and type. | <pre>map(object({<br/>    target_resource_id = string       #ID della risorsa di destinazione.<br/>    fqdns              = list(string) #lista di FQDN (Fully Qualified Domain Names) recuperati da Key Vault, utilizzati per la risoluzione DNS dell'endpoint privato.<br/>    subresource_name   = string       #nome della sottorisorsa per cui è necessario approvare la connessione (opzionale, dipende dal servizio di destinazione).<br/>    type               = string       #tipo di risorsa di destinazione, utilizzato per mappare correttamente le API di Azure durante l'approvazione della connessione privata.<br/>  }))</pre> | `{}` | no |
 | <a name="input_data_factory_id"></a> [data\_factory\_id](#input\_data\_factory\_id) | (Required): The ID of the Azure Data Factory instance to which the managed private endpoint will be associated. | `string` | n/a | yes |
 | <a name="input_data_factory_principal_id"></a> [data\_factory\_principal\_id](#input\_data\_factory\_principal\_id) | (Required): The principal ID of the Azure Data Factory instance to which the managed private endpoint will be associated. | `string` | n/a | yes |
-| <a name="input_egress_proxy_pls_id"></a> [egress\_proxy\_pls\_id](#input\_egress\_proxy\_pls\_id) | (Optional): The ID of the Private Link Service (PLS) for the egress proxy to which the managed private endpoint will connect. Required if adf\_linked\_service\_postgresql is not empty. | `string` | `null` | no |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | (Required): Short environment name (e.g., 'd', 'u', 'p'). | `string` | n/a | yes |
 
 ## Outputs
