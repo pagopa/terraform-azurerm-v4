@@ -2,8 +2,6 @@
 
 This module creates managed private endpoints on the given ADF instance.
 
-To manage connection to PostgreSQL private database  it will create a linked service to a private link service that will be used as a proxy to reach the database.
-
 Manages the following kind of private endpoints;
 - private PostgreSQL databases in a private subnet (requires configuration of `adf_egress_proxy` module and `adf_egress_connection` module)
 - storage blob
@@ -20,9 +18,6 @@ module "adf_linked_service" {
   data_factory_id           = data.azurerm_data_factory.data_factory.id
   data_factory_principal_id = data.azurerm_data_factory.data_factory.identity[0].principal_id
   env_short                 = var.env_short
-  
-  # required for PostgreSQL private database connection
-  egress_proxy_pls_id       = data.azurerm_private_link_service.adf_egress_proxy_pls.id
   
   # optional
   adf_linked_service_postgresql = {
