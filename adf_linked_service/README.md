@@ -22,12 +22,13 @@ module "adf_linked_service" {
   # optional
   adf_linked_service_postgresql = {
     "idpay-db" = {
-      key_vault_id          = data.azurerm_key_vault.domain_kv.id
-      host                  = trimsuffix(module.idpay_pgflex[0].private_fqdn, ".") # to remove trailing dot included in fqdn
-      port                  = "5432"
-      database_name         = local.idpay_postgresql_database_name
-      username              = azurerm_key_vault_secret.idpay_postgres_admin_user[0].value
-      password_secret_name  = azurerm_key_vault_secret.idpay_postgres_admin_password[0].name
+      key_vault_id             = data.azurerm_key_vault.domain_kv.id
+      host                     = trimsuffix(module.idpay_pgflex[0].private_fqdn, ".") # to remove trailing dot included in fqdn
+      port                     = "5432"
+      database_name            = local.idpay_postgresql_database_name
+      username                 = azurerm_key_vault_secret.idpay_postgres_admin_user[0].value
+      password_secret_name     = azurerm_key_vault_secret.idpay_postgres_admin_password[0].name
+      create_kv_access_policy  = true
     }
   }
   
@@ -92,7 +93,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_adf_linked_service_postgresql"></a> [adf\_linked\_service\_postgresql](#input\_adf\_linked\_service\_postgresql) | (Optional): A map of linked service configurations for PostgreSQL databases. | <pre>map(object({<br/>    key_vault_id         = string # ID del Key Vault da cui recuperare la password di accesso al db.<br/>    host                 = string # hostname privato del server PostgreSQL, esposto sul proxy_adf.<br/>    port                 = string # porta del server PostgreSQL esposta dal proxy_adf (può non coincidere con la porta nativa del server).<br/>    database_name        = string # nome del database PostgreSQL.<br/>    username             = string # username per l'autenticazione al database PostgreSQL.<br/>    password_secret_name = string # nome del segreto contenente la password per l'autenticazione.<br/>  }))</pre> | `{}` | no |
+| <a name="input_adf_linked_service_postgresql"></a> [adf\_linked\_service\_postgresql](#input\_adf\_linked\_service\_postgresql) | (Optional): A map of linked service configurations for PostgreSQL databases. | <pre>map(object({<br/>    key_vault_id            = string # ID del Key Vault da cui recuperare la password di accesso al db.<br/>    host                    = string # hostname privato del server PostgreSQL, esposto sul proxy_adf.<br/>    port                    = string # porta del server PostgreSQL esposta dal proxy_adf (può non coincidere con la porta nativa del server).<br/>    database_name           = string # nome del database PostgreSQL.<br/>    username                = string # username per l'autenticazione al database PostgreSQL.<br/>    password_secret_name    = string # nome del segreto contenente la password per l'autenticazione.<br/>    create_kv_access_policy = bool   # abilita la creazione della policy di accesso al Key Vault per il Data Factory, necessaria per recuperare la password del database. Abilitare se non creata esternamente<br/>  }))</pre> | `{}` | no |
 | <a name="input_adf_linked_services_blob"></a> [adf\_linked\_services\_blob](#input\_adf\_linked\_services\_blob) | (Optional): A map of linked service configurations for Azure Blob Storage accounts. Each entry should contain a connection string. | <pre>map(object({<br/>    connection_string = string #stringa di connessione all'account di archiviazione Azure Blob Storage.<br/>  }))</pre> | `{}` | no |
 | <a name="input_adf_linked_services_cosmosdb"></a> [adf\_linked\_services\_cosmosdb](#input\_adf\_linked\_services\_cosmosdb) | (Optional): A map of linked service configurations for Cosmos DB accounts. Each entry should contain a connection string and the corresponding database name. | <pre>map(object({<br/>    connection_string = string #connection string dell'account Cosmos DB.<br/>    account_name      = string #nome dell'account Cosmos DB.<br/>    database          = string #nome del database Cosmos DB a cui collegarsi.<br/>  }))</pre> | `{}` | no |
 | <a name="input_adf_managed_private_endpoint"></a> [adf\_managed\_private\_endpoint](#input\_adf\_managed\_private\_endpoint) | (Optional): A map of managed private endpoint configurations for Azure Data Factory. Each entry should contain the target resource ID, FQDNs, subresource name, and type. | <pre>map(object({<br/>    target_resource_id = string       #ID della risorsa di destinazione.<br/>    fqdns              = list(string) #lista di FQDN (Fully Qualified Domain Names) recuperati da Key Vault, utilizzati per la risoluzione DNS dell'endpoint privato.<br/>    subresource_name   = string       #nome della sottorisorsa per cui è necessario approvare la connessione (opzionale, dipende dal servizio di destinazione).<br/>    type               = string       #tipo di risorsa di destinazione, utilizzato per mappare correttamente le API di Azure durante l'approvazione della connessione privata.<br/>  }))</pre> | `{}` | no |

@@ -36,15 +36,17 @@ variable "data_factory_principal_id" {
 #        database_name = "idpay-database"
 #        username = "myusername"
 #        password_secret_name = "idpay-postgres-admin-password"
+#        create_kv_access_policy = "true"
 #      }
 variable "adf_linked_service_postgresql" {
   type = map(object({
-    key_vault_id         = string # ID del Key Vault da cui recuperare la password di accesso al db.
-    host                 = string # hostname privato del server PostgreSQL, esposto sul proxy_adf.
-    port                 = string # porta del server PostgreSQL esposta dal proxy_adf (può non coincidere con la porta nativa del server).
-    database_name        = string # nome del database PostgreSQL.
-    username             = string # username per l'autenticazione al database PostgreSQL.
-    password_secret_name = string # nome del segreto contenente la password per l'autenticazione.
+    key_vault_id            = string # ID del Key Vault da cui recuperare la password di accesso al db.
+    host                    = string # hostname privato del server PostgreSQL, esposto sul proxy_adf.
+    port                    = string # porta del server PostgreSQL esposta dal proxy_adf (può non coincidere con la porta nativa del server).
+    database_name           = string # nome del database PostgreSQL.
+    username                = string # username per l'autenticazione al database PostgreSQL.
+    password_secret_name    = string # nome del segreto contenente la password per l'autenticazione.
+    create_kv_access_policy = bool   # abilita la creazione della policy di accesso al Key Vault per il Data Factory, necessaria per recuperare la password del database. Abilitare se non creata esternamente
   }))
   description = "(Optional): A map of linked service configurations for PostgreSQL databases. "
   default     = {}
