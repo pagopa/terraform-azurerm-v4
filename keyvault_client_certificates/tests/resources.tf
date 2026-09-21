@@ -78,6 +78,7 @@ module "client_certificate" {
   certificates = {
     "the-first-certificate2" = {
       key_vault_name                      = module.kv_client.name
+      key_vault_id                        = module.kv_client.id
       subject                             = "CN=the-first-certificate,OU=DevOps,O=DevOpsLabs,C=IT"
       validity_in_months                  = 3
       renewal_days_before_expiry          = 30
@@ -85,6 +86,7 @@ module "client_certificate" {
     }
     "the-second-certificate2" = {
       key_vault_name                      = module.kv_client.name
+      key_vault_id                        = module.kv_client.id
       subject                             = "CN=the-second-certificate,OU=DevOps,O=DevOpsLabs,C=IT"
       validity_in_months                  = 2
       san_dns_names                       = ["example.com"]

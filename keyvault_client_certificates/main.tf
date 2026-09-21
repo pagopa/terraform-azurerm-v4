@@ -170,3 +170,49 @@ resource "terraform_data" "client_cert_stable_cleanup" {
     BASH
   }
 }
+
+# ---------------------------------------------------------------------------
+# Certificate chain (leaf + root CA) exposed to the module consumer
+# ---------------------------------------------------------------------------
+
+# Only certificates whose destination Key Vault id is known can have their leaf
+# read back: every Key Vault data source is addressed by id, not by name.
+locals {
+  chain_certificates = {
+    for name, cert in var.certificates : name => cert
+    if cert.key_vault_id != null
+  }
+
+  # certificate_data_base64 is the DER of a public certificate as a single
+  # base64 line; PEM requires it wrapped at 64 characters.
+  root_ca_pem = format(
+    "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n",
+    join("\n", regexall(".{1,64}", data.azurerm_key_vault_certificate.root_ca.certificate_data_base64))
+  )
+
+  leaf_pem = {
+    for name, _ in local.chain_certificates :
+    name => format(
+      "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n",
+      join("\n", regexall(".{1,64}", data.azurerm_key_vault_certificate.leaf[name].certificate_data_base64))
+    )
+  }
+
+  certificate_chain_pem = {
+    for name, pem in local.leaf_pem : name => "${pem}${local.root_ca_pem}"
+  }
+}
+
+# Current certificate, as emitted by sign_cert.py through merge_certificate —
+# not the promoted "-stable-*" copy. Reading it as a Key Vault certificate (and
+# not as the "-pfx" secret) keeps the value public: certificate_data_base64 is
+# the public DER only, so no private key is ever pulled into the state.
+# depends_on defers the read to apply time, after the signing provisioner ran.
+data "azurerm_key_vault_certificate" "leaf" {
+  for_each = local.chain_certificates
+
+  name         = each.key
+  key_vault_id = each.value.key_vault_id
+
+  depends_on = [terraform_data.client_cert_sign]
+}
