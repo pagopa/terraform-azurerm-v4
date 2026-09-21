@@ -10,9 +10,10 @@ variable "root_key_vault_name" {
 }
 
 variable "certificates" {
-  description = "Map of client certificates to be issued"
+  description = "Map of client certificates to be issued. Set key_vault_id to have the module expose the leaf + root CA PEM chain in the certificate_chain_pem output."
   type = map(object({
     key_vault_name                      = string
+    key_vault_id                        = optional(string, null)
     subject                             = string
     validity_in_months                  = number
     san_dns_names                       = optional(list(string), [])
