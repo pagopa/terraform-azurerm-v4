@@ -22,12 +22,13 @@ module "adf_linked_service" {
   # optional
   adf_linked_service_postgresql = {
     "idpay-db" = {
-      key_vault_id          = data.azurerm_key_vault.domain_kv.id
-      host                  = trimsuffix(module.idpay_pgflex[0].private_fqdn, ".") # to remove trailing dot included in fqdn
-      port                  = "5432"
-      database_name         = local.idpay_postgresql_database_name
-      username              = azurerm_key_vault_secret.idpay_postgres_admin_user[0].value
-      password_secret_name  = azurerm_key_vault_secret.idpay_postgres_admin_password[0].name
+      key_vault_id             = data.azurerm_key_vault.domain_kv.id
+      host                     = trimsuffix(module.idpay_pgflex[0].private_fqdn, ".") # to remove trailing dot included in fqdn
+      port                     = "5432"
+      database_name            = local.idpay_postgresql_database_name
+      username                 = azurerm_key_vault_secret.idpay_postgres_admin_user[0].value
+      password_secret_name     = azurerm_key_vault_secret.idpay_postgres_admin_password[0].name
+      create_kv_access_policy  = true
     }
   }
   

@@ -1,5 +1,5 @@
 resource "azurerm_key_vault_access_policy" "df_connection_access_kv" {
-  for_each     = var.adf_linked_service_postgresql
+  for_each     = {for pg in var.adf_linked_service_postgresql : pg.key => pg.value if pg.value.create_kv_access_policy }
   key_vault_id = each.value.key_vault_id
 
   tenant_id = data.azurerm_client_config.current.tenant_id
