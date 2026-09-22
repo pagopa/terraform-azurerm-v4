@@ -91,6 +91,8 @@ module "aks_node_pool_foo" {
     coalesce(var.node_tags, {})
   )
 
+  max_pods = var.max_pods
+
   tags = var.tags
 }
 

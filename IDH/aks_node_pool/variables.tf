@@ -188,3 +188,10 @@ variable "tags" {
   type        = map(any)
   description = "(Optional): Map of tags to assign to the resource."
 }
+
+
+variable "max_pods" {
+  type        = number
+  description = "(Optional): Maximum number of pods per node."
+  default     = null
+}
