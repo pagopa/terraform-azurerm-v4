@@ -7,6 +7,7 @@ Standard_B8ms_active:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 1
+  zones: ["1", "2", "3"]
 Standard_B8ms_passive:
   vm_size: "Standard_B8ms"
   os_disk_type: "Managed"
@@ -15,6 +16,7 @@ Standard_B8ms_passive:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
 
 ### B4
 Standard_B4ms_active:
@@ -25,6 +27,7 @@ Standard_B4ms_active:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 1
+  zones: ["1", "2", "3"]
 Standard_B4ms_passive:
   vm_size: "Standard_B4ms"
   os_disk_type: "Managed"
@@ -33,6 +36,7 @@ Standard_B4ms_passive:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
 
 ### B2
 Standard_B2ms_active:
@@ -43,6 +47,7 @@ Standard_B2ms_active:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 1
+  zones: ["1", "2", "3"]
 Standard_B2ms_passive:
   vm_size: "Standard_B2ms"
   os_disk_type: "Managed"
@@ -51,3 +56,4 @@ Standard_B2ms_passive:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]

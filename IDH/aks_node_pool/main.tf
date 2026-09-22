@@ -93,6 +93,8 @@ module "aks_node_pool_foo" {
 
   max_pods = var.max_pods
 
+  zones = module.idh_loader.idh_resource_configuration.zones
+
   tags = var.tags
 }
 
