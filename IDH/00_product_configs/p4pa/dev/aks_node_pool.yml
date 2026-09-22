@@ -6,6 +6,7 @@ Standard_B2ms:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
 Standard_B4ms:
   vm_size: "Standard_B4ms"
   os_disk_type: "Managed"
@@ -14,6 +15,7 @@ Standard_B4ms:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
 Standard_B8ms:
   vm_size: "Standard_B8ms"
   os_disk_type: "Managed"
@@ -22,3 +24,4 @@ Standard_B8ms:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
