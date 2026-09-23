@@ -284,7 +284,7 @@ variable "alert_action" {
 
 variable "diagnostic_settings_enabled" {
   type        = bool
-  default     = true
+  default     = false
   description = "Is diagnostic settings enabled?"
 }
 
