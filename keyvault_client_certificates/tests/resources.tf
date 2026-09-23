@@ -72,26 +72,25 @@ module "client_certificate" {
   root_key_vault_name = module.private_ca.key_vault_name
 
   # For testing only: overrides rotation_days with rotation_minutes
-  # rotation_minutes_override        = var.rotation_minutes_override
-  # stable_rotation_minutes_override = var.stable_rotation_minutes_override
+  # rotation_minutes_override = var.rotation_minutes_override
 
   certificates = {
     "the-first-certificate2" = {
-      key_vault_name                      = module.kv_client.name
-      key_vault_id                        = module.kv_client.id
-      subject                             = "CN=the-first-certificate,OU=DevOps,O=DevOpsLabs,C=IT"
-      validity_in_months                  = 3
-      renewal_days_before_expiry          = 30
-      stable_promotion_days_before_expiry = 7
+      key_vault_name             = module.kv_client.name
+      key_vault_id               = module.kv_client.id
+      subject                    = "CN=the-first-certificate,OU=DevOps,O=DevOpsLabs,C=IT"
+      validity_in_months         = 3
+      renewal_days_before_expiry = 30
+      stable_promotion_id        = "1"
     }
     "the-second-certificate2" = {
-      key_vault_name                      = module.kv_client.name
-      key_vault_id                        = module.kv_client.id
-      subject                             = "CN=the-second-certificate,OU=DevOps,O=DevOpsLabs,C=IT"
-      validity_in_months                  = 2
-      san_dns_names                       = ["example.com"]
-      renewal_days_before_expiry          = 20
-      stable_promotion_days_before_expiry = 5
+      key_vault_name             = module.kv_client.name
+      key_vault_id               = module.kv_client.id
+      subject                    = "CN=the-second-certificate,OU=DevOps,O=DevOpsLabs,C=IT"
+      validity_in_months         = 2
+      san_dns_names              = ["example.com"]
+      renewal_days_before_expiry = 20
+      stable_promotion_id        = "1"
     }
   }
 

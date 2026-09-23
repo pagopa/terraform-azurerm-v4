@@ -22,16 +22,22 @@ Each certificate is represented by four secrets in the destination Key Vault:
 
 Clients read only the `-stable-*` secrets. The current certificate (`-pfx`) can be renewed without impacting running services; clients pick up the new certificate only when the stable is explicitly promoted.
 
-### Automatic rotation
+### Automatic renewal, manual promotion
 
-Two `time_rotating` resources per certificate drive the lifecycle without any manual intervention or git changes:
+Renewal of the current certificate is automatic: `time_rotating.cert_rotation` fires after `validity_months * 30 - renewal_days_before_expiry` days and renews `-pfx`.
 
-| Resource | Fires after | Action |
-|---|---|---|
-| `time_rotating.cert_rotation` | `validity_months * 30 - renewal_days_before_expiry` days | Renews `-pfx` |
-| `time_rotating.cert_stable` | `validity_months * 30 - stable_promotion_days_before_expiry` days | Promotes `-pfx` → `-stable-*` |
+Promotion `-pfx` → `-stable-*` is manual and driven by the per-certificate `stable_promotion_id` attribute: every time it is set to a new value, the next apply promotes that certificate (and only that one). Any string of letters, digits, `.`, `_` or `-` is accepted; the promotion date (e.g. `"2026-09-23"`) is a convenient choice because it also records when the stable was last promoted.
 
-Because rotation always fires before promotion, the two events never overlap.
+| `stable_promotion_id` | Effect on apply |
+|---|---|
+| unchanged | Nothing is promoted, even if `-pfx` was renewed in the meantime |
+| changed to a new value | `-pfx` is promoted to `-stable-*` |
+| `null` | Nothing is promoted |
+
+If a promotion fails, the resource stays tainted and the next apply retries it with the same id.
+
+> [!IMPORTANT]
+> The first deploy of a certificate must always set `stable_promotion_id`: with `null`, the certificate is issued but no `-stable-*` secret is created, and clients reading them fail.
 
 ### Cleanup on certificate removal
 
@@ -48,19 +54,20 @@ module "keyvault_client_certificates" {
 
   certificates = {
     "my-service" = {
-      key_vault_name                      = module.kv_app.name
-      subject                             = "CN=my-service,O=PagoPA S.p.A.,C=IT"
-      validity_in_months                  = 3
-      renewal_days_before_expiry          = 30
-      stable_promotion_days_before_expiry = 7
+      key_vault_name             = module.kv_app.name
+      subject                    = "CN=my-service,O=PagoPA S.p.A.,C=IT"
+      validity_in_months         = 3
+      renewal_days_before_expiry = 30
+      # Change it to promote -pfx to -stable-*; must be set on the first deploy
+      stable_promotion_id        = "2026-09-23"
     }
     "pagopa-forwarder" = {
-      key_vault_name                      = module.kv_forwarder.name
-      subject                             = "CN=pagopa-forwarder,O=PagoPA S.p.A.,C=IT"
-      validity_in_months                  = 12
-      renewal_days_before_expiry          = 50
-      stable_promotion_days_before_expiry = 20
-      san_dns_names                       = ["forwarder.internal.pagopa.it"]
+      key_vault_name             = module.kv_forwarder.name
+      subject                    = "CN=pagopa-forwarder,O=PagoPA S.p.A.,C=IT"
+      validity_in_months         = 12
+      renewal_days_before_expiry = 50
+      san_dns_names              = ["forwarder.internal.pagopa.it"]
+      stable_promotion_id        = "2026-09-23"
     }
   }
 
@@ -91,7 +98,6 @@ No modules.
 | [terraform_data.client_cert_stable](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [terraform_data.client_cert_stable_cleanup](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [time_rotating.cert_rotation](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/rotating) | resource |
-| [time_rotating.cert_stable](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/rotating) | resource |
 | [azurerm_key_vault_certificate.leaf](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_certificate) | data source |
 | [azurerm_key_vault_certificate.root_ca](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_certificate) | data source |
 
@@ -99,7 +105,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued. Set key\_vault\_id to have the module expose the leaf + root CA PEM chain in the certificate\_chain\_pem output. | <pre>map(object({<br/>    key_vault_name                      = string<br/>    key_vault_id                        = optional(string, null)<br/>    subject                             = string<br/>    validity_in_months                  = number<br/>    san_dns_names                       = optional(list(string), [])<br/>    renewal_days_before_expiry          = optional(number, 60)<br/>    stable_promotion_days_before_expiry = optional(number, 20)<br/>  }))</pre> | `{}` | no |
+| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued. Set key\_vault\_id to have the module expose the leaf + root CA PEM chain in the certificate\_chain\_pem output. Set stable\_promotion\_id to a new value (e.g. the promotion date) to promote that certificate (<name>-pfx) to its stable secrets (<name>-stable-*); null never promotes. The first deploy of a certificate must set it, otherwise no -stable-* secret is created. | <pre>map(object({<br/>    key_vault_name             = string<br/>    key_vault_id               = optional(string, null)<br/>    subject                    = string<br/>    validity_in_months         = number<br/>    san_dns_names              = optional(list(string), [])<br/>    renewal_days_before_expiry = optional(number, 60)<br/>    stable_promotion_id        = optional(string, null)<br/>  }))</pre> | `{}` | no |
 | <a name="input_root_key_vault_id"></a> [root\_key\_vault\_id](#input\_root\_key\_vault\_id) | ID of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
 | <a name="input_root_key_vault_name"></a> [root\_key\_vault\_name](#input\_root\_key\_vault\_name) | Name of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for the resources | `map(string)` | n/a | yes |

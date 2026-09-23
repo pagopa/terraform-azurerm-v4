@@ -18,17 +18,6 @@ resource "time_rotating" "cert_rotation" {
   # rotation_minutes = var.rotation_minutes_override
 }
 
-# Fires at (validity_months * 30 - stable_promotion_days_before_expiry) days → promotes certificate to stable certificate
-resource "time_rotating" "cert_stable" {
-  for_each = var.certificates
-
-  rotation_days = each.value.validity_in_months * 30 - each.value.stable_promotion_days_before_expiry
-
-  # For testing only: overrides rotation_days with rotation_minutes
-  # rotation_days    = var.stable_rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.stable_promotion_days_before_expiry) : null
-  # rotation_minutes = var.stable_rotation_minutes_override
-}
-
 # Phase 1: emit / renew the current certificate
 resource "terraform_data" "client_cert_sign" {
   for_each = var.certificates
@@ -80,7 +69,8 @@ resource "terraform_data" "client_cert_sign" {
 }
 
 # Phase 2: promote cert to cert-stable
-# Runs on first creation and when time_rotating.cert_stable fires (Y days before expiry).
+# Manual only: runs whenever the certificate's stable_promotion_id changes to a
+# new value. A failed promotion leaves the resource tainted, so the next apply retries it.
 # depends_on ensures certificate exists before promotion.
 resource "terraform_data" "client_cert_stable" {
   for_each = var.certificates
@@ -88,13 +78,20 @@ resource "terraform_data" "client_cert_stable" {
   depends_on = [terraform_data.client_cert_sign]
 
   triggers_replace = {
-    stable_id = time_rotating.cert_stable[each.key].id
+    promotion_id = each.value.stable_promotion_id
   }
 
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command     = <<-BASH
       set -euo pipefail
+
+      %{~if each.value.stable_promotion_id == null~}
+      echo "==> No stable_promotion_id set for '${each.key}', skipping promotion."
+      exit 0
+      %{~else~}
+      echo "==> Promoting '${each.key}' to stable (promotion id: ${each.value.stable_promotion_id})..."
+      %{~endif~}
 
       VENV_DIR="${path.module}/.venv-stable-${each.key}"
 
