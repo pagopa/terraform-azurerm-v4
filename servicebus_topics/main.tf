@@ -31,7 +31,7 @@ locals {
 
   topic_map = {
     for idx, name in local.topic_names : name =>
-    azurerm_servicebus_topic.topic[idx].id
+    azurerm_servicebus_topic.topics[idx].id
   }
 }
 
