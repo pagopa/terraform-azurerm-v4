@@ -51,7 +51,12 @@ resource "terraform_data" "client_cert_sign" {
 
       if [ ! -f "$VENV_DIR/bin/activate" ]; then
         echo "==> Creating virtualenv in $VENV_DIR..."
-        python3 -m venv "$VENV_DIR"
+        # Fall back to virtualenv on agents missing python3-venv (no ensurepip)
+        if ! python3 -m venv "$VENV_DIR"; then
+          echo "    python3 -m venv failed, falling back to virtualenv..."
+          rm -rf "$VENV_DIR"
+          python3 -m virtualenv "$VENV_DIR"
+        fi
         "$VENV_DIR/bin/pip" install --quiet --upgrade pip
         "$VENV_DIR/bin/pip" install --quiet \
           cryptography==41.0.7 \
@@ -109,7 +114,12 @@ resource "terraform_data" "client_cert_stable" {
 
       if [ ! -f "$VENV_DIR/bin/activate" ]; then
         echo "==> Creating virtualenv in $VENV_DIR..."
-        python3 -m venv "$VENV_DIR"
+        # Fall back to virtualenv on agents missing python3-venv (no ensurepip)
+        if ! python3 -m venv "$VENV_DIR"; then
+          echo "    python3 -m venv failed, falling back to virtualenv..."
+          rm -rf "$VENV_DIR"
+          python3 -m virtualenv "$VENV_DIR"
+        fi
         "$VENV_DIR/bin/pip" install --quiet --upgrade pip
         "$VENV_DIR/bin/pip" install --quiet \
           cryptography==41.0.7 \
