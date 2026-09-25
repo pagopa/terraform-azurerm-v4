@@ -1,14 +1,11 @@
 locals {
   private_root_ca_name = "private-root-ca"
 
-  # Effective promotion id per certificate, from exactly one source: the
-  # stable_promotion_id in certificates, or var.stable_promotion_ids (passed by
-  # pipelines at apply time). Mixing them is rejected by validation: once a run
-  # omits stable_promotion_ids, the id would fall back to the one in
-  # certificates, change, and promote again.
+  # Promotion id per certificate, passed by pipelines at apply time through
+  # var.stable_promotion_ids; null for the certificates not listed there.
   stable_promotion_id = {
-    for name, cert in var.certificates :
-    name => lookup(var.stable_promotion_ids, name, cert.stable_promotion_id)
+    for name in keys(var.certificates) :
+    name => lookup(var.stable_promotion_ids, name, null)
   }
 }
 
