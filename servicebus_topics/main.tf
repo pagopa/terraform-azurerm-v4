@@ -36,21 +36,21 @@ locals {
 }
 
 resource "azurerm_servicebus_topic" "topic" {
-  count = length(local.topic_values)
+  for_each = local.topic_values
 
-  name                                    = local.topic_values[count.index].name
+  name                                    = each.value.name
   namespace_id                            = var.servicebus_namespace_id
-  status                                  = local.topic_values[count.index].status
-  auto_delete_on_idle                     = local.topic_values[count.index].auto_delete_on_idle
-  default_message_ttl                     = local.topic_values[count.index].default_message_ttl
-  duplicate_detection_history_time_window = local.topic_values[count.index].duplicate_detection_history_time_window
-  batched_operations_enabled              = local.topic_values[count.index].batched_operations_enabled
-  express_enabled                         = local.topic_values[count.index].express_enabled
-  partitioning_enabled                    = local.topic_values[count.index].partitioning_enabled
-  max_message_size_in_kilobytes           = local.topic_values[count.index].max_message_size_in_kilobytes
-  max_size_in_megabytes                   = local.topic_values[count.index].max_size_in_megabytes
-  requires_duplicate_detection            = local.topic_values[count.index].requires_duplicate_detection
-  support_ordering                        = local.topic_values[count.index].support_ordering
+  status                                  = each.value.status
+  auto_delete_on_idle                     = each.value.auto_delete_on_idle
+  default_message_ttl                     = each.value.default_message_ttl
+  duplicate_detection_history_time_window = each.value.duplicate_detection_history_time_window
+  batched_operations_enabled              = each.value.batched_operations_enabled
+  express_enabled                         = each.value.express_enabled
+  partitioning_enabled                    = each.value.partitioning_enabled
+  max_message_size_in_kilobytes           = each.value.max_message_size_in_kilobytes
+  max_size_in_megabytes                   = each.value.max_size_in_megabytes
+  requires_duplicate_detection            = each.value.requires_duplicate_detection
+  support_ordering                        = each.value.support_ordering
 }
 
 resource "azurerm_servicebus_topic_authorization_rule" "topic_auth_rule" {
