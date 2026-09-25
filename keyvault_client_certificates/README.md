@@ -24,27 +24,24 @@ Clients read only the `-stable-*` secrets. The current certificate (`-pfx`) can 
 
 ### Automatic renewal, manual promotion
 
-Renewal of the current certificate is automatic: `time_rotating.cert_rotation` fires after `validity_months * 30 - renewal_days_before_expiry` days and renews `-pfx`.
+Renewal of the current certificate is automatic: `time_rotating.cert_rotation` fires after `validity_months * 30 - renewal_days_before_expiry` days and renews `-pfx` on the next apply.
 
-Promotion `-pfx` → `-stable-*` is manual and driven by the per-certificate `stable_promotion_id` attribute: every time it is set to a new value, the next apply promotes that certificate (and only that one). Any string of letters, digits, `.`, `_` or `-` is accepted; the promotion date (e.g. `"2026-09-23"`) is a convenient choice because it also records when the stable was last promoted.
+Promotion `-pfx` → `-stable-*` is manual and driven by the module variable `stable_promotion_ids` (certificate name → promotion id), passed by pipelines at apply time. Any string of letters, digits, `.`, `_` or `-` is accepted; a build id is a good choice: it is new on every run and traces who promoted and when.
 
-| `stable_promotion_id` | Effect on apply |
+| Promotion id of the certificate | Effect on apply |
 |---|---|
-| unchanged | Nothing is promoted, even if `-pfx` was renewed in the meantime |
-| changed to a new value | `-pfx` is promoted to `-stable-*` |
-| `null` | Nothing is promoted |
+| not passed | Nothing is promoted, even if `-pfx` was renewed in the meantime |
+| same id as the last promotion | Nothing is promoted |
+| new id | `-pfx` is promoted to `-stable-*` |
 
-If a promotion fails, the resource stays tainted and the next apply retries it with the same id.
+Only the listed certificates are promoted. If a promotion fails, the resource stays tainted and the next apply retries it.
 
 > [!IMPORTANT]
-> The first deploy of a certificate must always set a promotion id (`stable_promotion_id`, or its entry in `stable_promotion_ids`): with `null`, the certificate is issued but no `-stable-*` secret is created, and clients reading them fail.
+> The first deploy of a certificate must always pass its promotion id (e.g. `-var 'stable_promotion_ids={"cert-a":"$(Build.BuildId)"}'`): without it, the certificate is issued but no `-stable-*` secret is created, and clients reading them fail. The certificate issued in that same apply is the one promoted.
 
-### Promotion from pipelines
-
-Instead of writing `stable_promotion_id` in the code, a pipeline can pass the ids at apply time through the module variable `stable_promotion_ids` (certificate name → id). Only the listed certificates are promoted; a run that omits the variable promotes nothing. A build id makes a good promotion id: it is new on every run and traces who promoted and when.
+The stack declares the variable and passes it to the module:
 
 ```hcl
-# stack
 variable "stable_promotion_ids" {
   type    = map(string)
   default = {}
@@ -65,10 +62,10 @@ The same mechanism serves two flows; the module does not change, only who decide
 
 Things to know:
 
-- **One source per certificate.** A certificate listed in `stable_promotion_ids` must not set `stable_promotion_id` (rejected by validation): the next run without the variable would fall back to the code id, see it change and promote again.
 - **Plan noise after a promotion.** The next run without the variable turns that certificate's id back to `null`: the plan shows `client_cert_stable["<name>"]` replaced, but nothing is promoted.
 - **Promotion and renewal share the apply.** If the renewal of the same certificate is due in the promotion run, the new `-pfx` is issued and promoted at once, before anyone was notified. Promotion pipelines should save the plan (`terraform plan -out=tfplan`), inspect it (`terraform show -json tfplan`) and stop if it changes anything other than the `client_cert_stable` instances being promoted — in particular any `client_cert_sign`.
 - **Concurrent runs.** The renewal and promotion pipelines share the state: the backend lock rejects the second concurrent apply, so avoid scheduling them at the same time.
+- **Checking current vs stable.** `scripts/check_cert_promotion.sh` tells whether `-pfx` and `-stable-*` hold the same certificate (exit `0`) or the current was renewed and not promoted yet (exit `1`).
 
 ### Cleanup on certificate removal
 
@@ -89,8 +86,6 @@ module "keyvault_client_certificates" {
       subject                    = "CN=my-service,O=PagoPA S.p.A.,C=IT"
       validity_in_months         = 3
       renewal_days_before_expiry = 30
-      # Change it to promote -pfx to -stable-*; must be set on the first deploy
-      stable_promotion_id        = "2026-09-23"
     }
     "pagopa-forwarder" = {
       key_vault_name             = module.kv_forwarder.name
@@ -98,9 +93,11 @@ module "keyvault_client_certificates" {
       validity_in_months         = 12
       renewal_days_before_expiry = 50
       san_dns_names              = ["forwarder.internal.pagopa.it"]
-      stable_promotion_id        = "2026-09-23"
     }
   }
+
+  # Promotion ids passed by pipelines, e.g. {"my-service" = "<build id>"}
+  stable_promotion_ids = var.stable_promotion_ids
 
   tags = var.tags
 }
@@ -135,10 +132,10 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued. Set stable\_promotion\_id to a new value (e.g. the promotion date) to promote that certificate (<name>-pfx) to its stable secrets (<name>-stable-*); null never promotes. The first deploy of a certificate must set it, otherwise no -stable-* secret is created. | <pre>map(object({<br/>    key_vault_name             = string<br/>    subject                    = string<br/>    validity_in_months         = number<br/>    san_dns_names              = optional(list(string), [])<br/>    renewal_days_before_expiry = optional(number, 60)<br/>    stable_promotion_id        = optional(string, null)<br/>  }))</pre> | `{}` | no |
+| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued. Promotion to the stable secrets is driven by stable\_promotion\_ids. | <pre>map(object({<br/>    key_vault_name             = string<br/>    subject                    = string<br/>    validity_in_months         = number<br/>    san_dns_names              = optional(list(string), [])<br/>    renewal_days_before_expiry = optional(number, 60)<br/>  }))</pre> | `{}` | no |
 | <a name="input_root_key_vault_id"></a> [root\_key\_vault\_id](#input\_root\_key\_vault\_id) | ID of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
 | <a name="input_root_key_vault_name"></a> [root\_key\_vault\_name](#input\_root\_key\_vault\_name) | Name of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
-| <a name="input_stable_promotion_ids"></a> [stable\_promotion\_ids](#input\_stable\_promotion\_ids) | Promotion ids by certificate name, alternative to stable\_promotion\_id in certificates. Meant to be passed by pipelines at apply time (e.g. -var 'stable\_promotion\_ids={"my-cert":"<build id>"}'): a certificate is promoted when its id changes; runs omitting it never promote. A certificate listed here must not set stable\_promotion\_id. | `map(string)` | `{}` | no |
+| <a name="input_stable_promotion_ids"></a> [stable\_promotion\_ids](#input\_stable\_promotion\_ids) | Promotion ids by certificate name, passed by pipelines at apply time (e.g. -var 'stable\_promotion\_ids={"my-cert":"<build id>"}'): a certificate (<name>-pfx) is promoted to its stable secrets (<name>-stable-*) when its id changes. Runs omitting it never promote: the first deploy of a certificate must list it, otherwise no -stable-* secret is created. | `map(string)` | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for the resources | `map(string)` | n/a | yes |
 
 ## Outputs

@@ -79,9 +79,10 @@ resource "terraform_data" "client_cert_sign" {
 }
 
 # Phase 2: promote cert to cert-stable
-# Manual only: runs whenever the certificate's effective promotion id
-# (local.stable_promotion_id) changes to a new non-null value. A failed
-# promotion leaves the resource tainted, so the next apply retries it.
+# Manual only: runs whenever the certificate's promotion id
+# (local.stable_promotion_id) changes to a new non-null value; with a null id
+# it never promotes, so a renewal alone never reaches the stable secrets.
+# A failed promotion leaves the resource tainted, so the next apply retries it.
 # depends_on ensures certificate exists before promotion.
 resource "terraform_data" "client_cert_stable" {
   for_each = var.certificates
