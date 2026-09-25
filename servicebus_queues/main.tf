@@ -31,7 +31,7 @@ locals {
 
   queue_map = {
     for idx, name in local.queue_names : name =>
-    azurerm_servicebus_queue.queue[idx].id
+    azurerm_servicebus_queue.queues[idx].id
   }
 }
 

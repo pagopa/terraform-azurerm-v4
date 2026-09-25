@@ -1,12 +1,12 @@
 output "topic_ids" {
   description = "Map of Service Bus Topic names to their resource IDs."
-  value       = { for name, topic in azurerm_servicebus_topic.topic : topic.name => topic.id }
+  value       = { for name, topic in azurerm_servicebus_topic.topics : topic.name => topic.id }
 }
 
 output "topics" {
   description = "Map of Service Bus Topic names to their main resource attributes."
   value = {
-    for name, topic in azurerm_servicebus_topic.topic : topic.name => {
+    for name, topic in azurerm_servicebus_topic.topics : topic.name => {
       id                                      = topic.id
       name                                    = topic.name
       namespace_id                            = topic.namespace_id
@@ -29,7 +29,7 @@ output "topic_authorization_rules" {
   description = "Map of Service Bus Topic authorization rules and their generated credentials."
   sensitive   = true
   value = {
-    for name, rule in azurerm_servicebus_topic_authorization_rule.topic_auth_rule : name => {
+    for name, rule in azurerm_servicebus_topic_authorization_rule.topic_auth_rules : name => {
       id                                = rule.id
       name                              = rule.name
       topic_id                          = rule.topic_id

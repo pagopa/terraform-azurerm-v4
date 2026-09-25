@@ -35,7 +35,7 @@ locals {
   }
 }
 
-resource "azurerm_servicebus_topic" "topic" {
+resource "azurerm_servicebus_topic" "topics" {
   for_each = local.topic_values
 
   name                                    = each.value.name
@@ -53,7 +53,7 @@ resource "azurerm_servicebus_topic" "topic" {
   support_ordering                        = each.value.support_ordering
 }
 
-resource "azurerm_servicebus_topic_authorization_rule" "topic_auth_rule" {
+resource "azurerm_servicebus_topic_authorization_rule" "topic_auth_rules" {
   for_each = local.key_topic_map
 
   name     = each.value.key_name
@@ -64,6 +64,6 @@ resource "azurerm_servicebus_topic_authorization_rule" "topic_auth_rule" {
   manage = each.value.manage
 
   depends_on = [
-    azurerm_servicebus_topic.topic
+    azurerm_servicebus_topic.topics
   ]
 }

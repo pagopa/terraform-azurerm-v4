@@ -1,12 +1,12 @@
 output "queue_ids" {
   description = "Map of Service Bus Queue names to their resource IDs."
-  value       = { for name, queue in azurerm_servicebus_queue.queue : queue.name => queue.id }
+  value       = { for name, queue in azurerm_servicebus_queue.queues : queue.name => queue.id }
 }
 
 output "queues" {
   description = "Map of Service Bus Queue names to their main resource attributes."
   value = {
-    for name, queue in azurerm_servicebus_queue.queue : queue.name => {
+    for name, queue in azurerm_servicebus_queue.queues : queue.name => {
       id                                      = queue.id
       name                                    = queue.name
       namespace_id                            = queue.namespace_id
@@ -34,7 +34,7 @@ output "queue_authorization_rules" {
   description = "Map of Service Bus Queue authorization rules and their generated credentials."
   sensitive   = true
   value = {
-    for name, rule in azurerm_servicebus_queue_authorization_rule.queue_auth_rule : name => {
+    for name, rule in azurerm_servicebus_queue_authorization_rule.queue_auth_rules : name => {
       id                                = rule.id
       name                              = rule.name
       queue_id                          = rule.queue_id
