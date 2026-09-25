@@ -37,7 +37,38 @@ Promotion `-pfx` → `-stable-*` is manual and driven by the per-certificate `st
 If a promotion fails, the resource stays tainted and the next apply retries it with the same id.
 
 > [!IMPORTANT]
-> The first deploy of a certificate must always set `stable_promotion_id`: with `null`, the certificate is issued but no `-stable-*` secret is created, and clients reading them fail.
+> The first deploy of a certificate must always set a promotion id (`stable_promotion_id`, or its entry in `stable_promotion_ids`): with `null`, the certificate is issued but no `-stable-*` secret is created, and clients reading them fail.
+
+### Promotion from pipelines
+
+Instead of writing `stable_promotion_id` in the code, a pipeline can pass the ids at apply time through the module variable `stable_promotion_ids` (certificate name → id). Only the listed certificates are promoted; a run that omits the variable promotes nothing. A build id makes a good promotion id: it is new on every run and traces who promoted and when.
+
+```hcl
+# stack
+variable "stable_promotion_ids" {
+  type    = map(string)
+  default = {}
+}
+
+module "keyvault_client_certificates" {
+  ...
+  stable_promotion_ids = var.stable_promotion_ids
+}
+```
+
+The same mechanism serves two flows; the module does not change, only who decides which certificates to promote:
+
+| Flow | Who decides | Apply |
+|---|---|---|
+| On-demand pipeline | An operator, choosing one certificate (e.g. after the renewal e-mail) | `terraform apply -var 'stable_promotion_ids={"cert-a":"$(Build.BuildId)"}'` |
+| Scheduled pipeline | A rule in the pipeline (e.g. stable expiring within N days) | Same command, listing only the certificates matching the rule |
+
+Things to know:
+
+- **One source per certificate.** A certificate listed in `stable_promotion_ids` must not set `stable_promotion_id` (rejected by validation): the next run without the variable would fall back to the code id, see it change and promote again.
+- **Plan noise after a promotion.** The next run without the variable turns that certificate's id back to `null`: the plan shows `client_cert_stable["<name>"]` replaced, but nothing is promoted.
+- **Promotion and renewal share the apply.** If the renewal of the same certificate is due in the promotion run, the new `-pfx` is issued and promoted at once, before anyone was notified. Promotion pipelines should save the plan (`terraform plan -out=tfplan`), inspect it (`terraform show -json tfplan`) and stop if it changes anything other than the `client_cert_stable` instances being promoted — in particular any `client_cert_sign`.
+- **Concurrent runs.** The renewal and promotion pipelines share the state: the backend lock rejects the second concurrent apply, so avoid scheduling them at the same time.
 
 ### Cleanup on certificate removal
 
@@ -98,22 +129,19 @@ No modules.
 | [terraform_data.client_cert_stable](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [terraform_data.client_cert_stable_cleanup](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [time_rotating.cert_rotation](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/rotating) | resource |
-| [azurerm_key_vault_certificate.leaf](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_certificate) | data source |
 | [azurerm_key_vault_certificate.root_ca](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_certificate) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued. Set key\_vault\_id to have the module expose the leaf + root CA PEM chain in the certificate\_chain\_pem output. Set stable\_promotion\_id to a new value (e.g. the promotion date) to promote that certificate (<name>-pfx) to its stable secrets (<name>-stable-*); null never promotes. The first deploy of a certificate must set it, otherwise no -stable-* secret is created. | <pre>map(object({<br/>    key_vault_name             = string<br/>    key_vault_id               = optional(string, null)<br/>    subject                    = string<br/>    validity_in_months         = number<br/>    san_dns_names              = optional(list(string), [])<br/>    renewal_days_before_expiry = optional(number, 60)<br/>    stable_promotion_id        = optional(string, null)<br/>  }))</pre> | `{}` | no |
+| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued. Set stable\_promotion\_id to a new value (e.g. the promotion date) to promote that certificate (<name>-pfx) to its stable secrets (<name>-stable-*); null never promotes. The first deploy of a certificate must set it, otherwise no -stable-* secret is created. | <pre>map(object({<br/>    key_vault_name             = string<br/>    subject                    = string<br/>    validity_in_months         = number<br/>    san_dns_names              = optional(list(string), [])<br/>    renewal_days_before_expiry = optional(number, 60)<br/>    stable_promotion_id        = optional(string, null)<br/>  }))</pre> | `{}` | no |
 | <a name="input_root_key_vault_id"></a> [root\_key\_vault\_id](#input\_root\_key\_vault\_id) | ID of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
 | <a name="input_root_key_vault_name"></a> [root\_key\_vault\_name](#input\_root\_key\_vault\_name) | Name of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
+| <a name="input_stable_promotion_ids"></a> [stable\_promotion\_ids](#input\_stable\_promotion\_ids) | Promotion ids by certificate name, alternative to stable\_promotion\_id in certificates. Meant to be passed by pipelines at apply time (e.g. -var 'stable\_promotion\_ids={"my-cert":"<build id>"}'): a certificate is promoted when its id changes; runs omitting it never promote. A certificate listed here must not set stable\_promotion\_id. | `map(string)` | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for the resources | `map(string)` | n/a | yes |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_certificate_chain_pem"></a> [certificate\_chain\_pem](#output\_certificate\_chain\_pem) | Full PEM chain (current leaf certificate followed by the root CA) per certificate name. Only populated for certificates declaring key\_vault\_id. |
-| <a name="output_root_ca_pem"></a> [root\_ca\_pem](#output\_root\_ca\_pem) | Public certificate of the private root CA, in PEM format. |
+No outputs.
 <!-- END_TF_DOCS -->

@@ -1,5 +1,15 @@
 locals {
   private_root_ca_name = "private-root-ca"
+
+  # Effective promotion id per certificate, from exactly one source: the
+  # stable_promotion_id in certificates, or var.stable_promotion_ids (passed by
+  # pipelines at apply time). Mixing them is rejected by validation: once a run
+  # omits stable_promotion_ids, the id would fall back to the one in
+  # certificates, change, and promote again.
+  stable_promotion_id = {
+    for name, cert in var.certificates :
+    name => lookup(var.stable_promotion_ids, name, cert.stable_promotion_id)
+  }
 }
 
 data "azurerm_key_vault_certificate" "root_ca" {
@@ -69,8 +79,9 @@ resource "terraform_data" "client_cert_sign" {
 }
 
 # Phase 2: promote cert to cert-stable
-# Manual only: runs whenever the certificate's stable_promotion_id changes to a
-# new value. A failed promotion leaves the resource tainted, so the next apply retries it.
+# Manual only: runs whenever the certificate's effective promotion id
+# (local.stable_promotion_id) changes to a new non-null value. A failed
+# promotion leaves the resource tainted, so the next apply retries it.
 # depends_on ensures certificate exists before promotion.
 resource "terraform_data" "client_cert_stable" {
   for_each = var.certificates
@@ -78,7 +89,7 @@ resource "terraform_data" "client_cert_stable" {
   depends_on = [terraform_data.client_cert_sign]
 
   triggers_replace = {
-    promotion_id = each.value.stable_promotion_id
+    promotion_id = local.stable_promotion_id[each.key]
   }
 
   provisioner "local-exec" {
@@ -86,11 +97,11 @@ resource "terraform_data" "client_cert_stable" {
     command     = <<-BASH
       set -euo pipefail
 
-      %{~if each.value.stable_promotion_id == null~}
+      %{~if local.stable_promotion_id[each.key] == null~}
       echo "==> No stable_promotion_id set for '${each.key}', skipping promotion."
       exit 0
       %{~else~}
-      echo "==> Promoting '${each.key}' to stable (promotion id: ${each.value.stable_promotion_id})..."
+      echo "==> Promoting '${each.key}' to stable (promotion id: ${local.stable_promotion_id[each.key]})..."
       %{~endif~}
 
       VENV_DIR="${path.module}/.venv-stable-${each.key}"
@@ -166,50 +177,4 @@ resource "terraform_data" "client_cert_stable_cleanup" {
         --name       "${self.input.cert_name}-stable-cert" || true
     BASH
   }
-}
-
-# ---------------------------------------------------------------------------
-# Certificate chain (leaf + root CA) exposed to the module consumer
-# ---------------------------------------------------------------------------
-
-# Only certificates whose destination Key Vault id is known can have their leaf
-# read back: every Key Vault data source is addressed by id, not by name.
-locals {
-  chain_certificates = {
-    for name, cert in var.certificates : name => cert
-    if cert.key_vault_id != null
-  }
-
-  # certificate_data_base64 is the DER of a public certificate as a single
-  # base64 line; PEM requires it wrapped at 64 characters.
-  root_ca_pem = format(
-    "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n",
-    join("\n", regexall(".{1,64}", data.azurerm_key_vault_certificate.root_ca.certificate_data_base64))
-  )
-
-  leaf_pem = {
-    for name, _ in local.chain_certificates :
-    name => format(
-      "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n",
-      join("\n", regexall(".{1,64}", data.azurerm_key_vault_certificate.leaf[name].certificate_data_base64))
-    )
-  }
-
-  certificate_chain_pem = {
-    for name, pem in local.leaf_pem : name => "${pem}${local.root_ca_pem}"
-  }
-}
-
-# Current certificate, as emitted by sign_cert.py through merge_certificate —
-# not the promoted "-stable-*" copy. Reading it as a Key Vault certificate (and
-# not as the "-pfx" secret) keeps the value public: certificate_data_base64 is
-# the public DER only, so no private key is ever pulled into the state.
-# depends_on defers the read to apply time, after the signing provisioner ran.
-data "azurerm_key_vault_certificate" "leaf" {
-  for_each = local.chain_certificates
-
-  name         = each.key
-  key_vault_id = each.value.key_vault_id
-
-  depends_on = [terraform_data.client_cert_sign]
 }
