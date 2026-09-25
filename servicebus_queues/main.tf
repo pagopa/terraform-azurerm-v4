@@ -38,7 +38,7 @@ locals {
 
 resource "azurerm_servicebus_queue" "queues" {
   for_each = local.queue_values
-  
+
   name                                    = each.value.name
   namespace_id                            = var.servicebus_namespace_id
   auto_delete_on_idle                     = each.value.auto_delete_on_idle
