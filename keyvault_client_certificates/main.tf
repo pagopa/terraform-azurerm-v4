@@ -18,11 +18,11 @@ data "azurerm_key_vault_certificate" "root_ca" {
 resource "time_rotating" "cert_rotation" {
   for_each = var.certificates
 
-  rotation_days = each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry
+  #rotation_days = each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry
 
   # For testing only: overrides rotation_days with rotation_minutes
-  # rotation_days    = var.rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry) : null
-  # rotation_minutes = var.rotation_minutes_override
+  rotation_days    = each.value.rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry) : null
+  rotation_minutes = each.value.rotation_minutes_override
 }
 
 # Phase 1: emit / renew the current certificate

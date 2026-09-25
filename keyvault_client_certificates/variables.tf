@@ -17,6 +17,8 @@ variable "certificates" {
     validity_in_months         = number
     san_dns_names              = optional(list(string), [])
     renewal_days_before_expiry = optional(number, 60)
+    # For testing only: overrides rotation_days with rotation_minutes
+    rotation_minutes_override = optional(number, null)
   }))
   default = {}
 }
@@ -36,13 +38,6 @@ variable "stable_promotion_ids" {
     error_message = "stable_promotion_ids values must be non-empty strings of letters, digits, '.', '_' or '-'."
   }
 }
-
-# For testing only: overrides rotation_days with rotation_minutes
-# variable "rotation_minutes_override" {
-#   type        = number
-#   default     = null
-#   description = "If set, replaces rotation_days with rotation_minutes on time_rotating.cert_rotation. For testing only — do not use in production."
-# }
 
 variable "tags" {
   type        = map(string)
