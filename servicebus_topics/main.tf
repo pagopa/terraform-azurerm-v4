@@ -2,12 +2,6 @@ locals {
   # Map of <topic_names, topic>
   topics = { for t in var.servicebus_topics : t.name => t }
 
-  # List of topic names
-  topic_names = [for t in var.servicebus_topics : t.name]
-
-  # List of topic values
-  topic_values = [for t in var.servicebus_topics : t]
-
   # Map of <authorization_key, authorization(topic, properties)>
   key_topic_map = {
     for tk in flatten([
@@ -30,13 +24,12 @@ locals {
   }
 
   topic_map = {
-    for idx, name in local.topic_names : name =>
-    azurerm_servicebus_topic.topics[idx].id
+    for name, topic in azurerm_servicebus_topic.topics : name => topic.id
   }
 }
 
 resource "azurerm_servicebus_topic" "topics" {
-  for_each = local.topic_values
+  for_each = local.topics
 
   name                                    = each.value.name
   namespace_id                            = var.servicebus_namespace_id

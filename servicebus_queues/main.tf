@@ -2,12 +2,6 @@ locals {
   # Map of <queue_names, queue>
   queues = { for q in var.servicebus_queues : q.name => q }
 
-  # List of queue names
-  queue_names = [for q in var.servicebus_queues : q.name]
-
-  # List of queue values
-  queue_values = [for q in var.servicebus_queues : q]
-
   # Map of <authorization_key, authorization(queue, properties)>
   key_queue_map = {
     for qk in flatten([
@@ -30,14 +24,13 @@ locals {
   }
 
   queue_map = {
-    for idx, name in local.queue_names : name =>
-    azurerm_servicebus_queue.queues[idx].id
+    for name, queue in azurerm_servicebus_queue.queues : name => queue.id
   }
 }
 
 
 resource "azurerm_servicebus_queue" "queues" {
-  for_each = local.queue_values
+  for_each = local.queues
 
   name                                    = each.value.name
   namespace_id                            = var.servicebus_namespace_id
