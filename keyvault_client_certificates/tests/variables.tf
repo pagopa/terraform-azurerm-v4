@@ -18,3 +18,9 @@ variable "tags" {
     Source    = "https://github.com/pagopa/terraform-azurerm-v4"
   }
 }
+
+variable "stable_promotion_ids" {
+  type        = map(string)
+  description = "Promotion ids by certificate name, passed at apply time to promote a certificate to stable"
+  default     = {}
+}

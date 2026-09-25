@@ -1,5 +1,12 @@
 locals {
   private_root_ca_name = "private-root-ca"
+
+  # Promotion id per certificate, passed by pipelines at apply time through
+  # var.stable_promotion_ids; null for the certificates not listed there.
+  stable_promotion_id = {
+    for name in keys(var.certificates) :
+    name => lookup(var.stable_promotion_ids, name, null)
+  }
 }
 
 data "azurerm_key_vault_certificate" "root_ca" {
@@ -11,22 +18,11 @@ data "azurerm_key_vault_certificate" "root_ca" {
 resource "time_rotating" "cert_rotation" {
   for_each = var.certificates
 
-  rotation_days = each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry
+  #rotation_days = each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry
 
   # For testing only: overrides rotation_days with rotation_minutes
-  # rotation_days    = var.rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry) : null
-  # rotation_minutes = var.rotation_minutes_override
-}
-
-# Fires at (validity_months * 30 - stable_promotion_days_before_expiry) days → promotes certificate to stable certificate
-resource "time_rotating" "cert_stable" {
-  for_each = var.certificates
-
-  rotation_days = each.value.validity_in_months * 30 - each.value.stable_promotion_days_before_expiry
-
-  # For testing only: overrides rotation_days with rotation_minutes
-  # rotation_days    = var.stable_rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.stable_promotion_days_before_expiry) : null
-  # rotation_minutes = var.stable_rotation_minutes_override
+  rotation_days    = each.value.rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry) : null
+  rotation_minutes = each.value.rotation_minutes_override
 }
 
 # Phase 1: emit / renew the current certificate
@@ -55,7 +51,12 @@ resource "terraform_data" "client_cert_sign" {
 
       if [ ! -f "$VENV_DIR/bin/activate" ]; then
         echo "==> Creating virtualenv in $VENV_DIR..."
-        python3 -m venv "$VENV_DIR"
+        # Fall back to virtualenv on agents missing python3-venv (no ensurepip)
+        if ! python3 -m venv "$VENV_DIR"; then
+          echo "    python3 -m venv failed, falling back to virtualenv..."
+          rm -rf "$VENV_DIR"
+          python3 -m virtualenv "$VENV_DIR"
+        fi
         "$VENV_DIR/bin/pip" install --quiet --upgrade pip
         "$VENV_DIR/bin/pip" install --quiet \
           cryptography==41.0.7 \
@@ -80,7 +81,10 @@ resource "terraform_data" "client_cert_sign" {
 }
 
 # Phase 2: promote cert to cert-stable
-# Runs on first creation and when time_rotating.cert_stable fires (Y days before expiry).
+# Manual only: runs whenever the certificate's promotion id
+# (local.stable_promotion_id) changes to a new non-null value; with a null id
+# it never promotes, so a renewal alone never reaches the stable secrets.
+# A failed promotion leaves the resource tainted, so the next apply retries it.
 # depends_on ensures certificate exists before promotion.
 resource "terraform_data" "client_cert_stable" {
   for_each = var.certificates
@@ -88,13 +92,20 @@ resource "terraform_data" "client_cert_stable" {
   depends_on = [terraform_data.client_cert_sign]
 
   triggers_replace = {
-    stable_id = time_rotating.cert_stable[each.key].id
+    promotion_id = local.stable_promotion_id[each.key]
   }
 
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command     = <<-BASH
       set -euo pipefail
+
+      %{~if local.stable_promotion_id[each.key] == null~}
+      echo "==> No stable_promotion_id set for '${each.key}', skipping promotion."
+      exit 0
+      %{~else~}
+      echo "==> Promoting '${each.key}' to stable (promotion id: ${local.stable_promotion_id[each.key]})..."
+      %{~endif~}
 
       VENV_DIR="${path.module}/.venv-stable-${each.key}"
 
@@ -103,7 +114,12 @@ resource "terraform_data" "client_cert_stable" {
 
       if [ ! -f "$VENV_DIR/bin/activate" ]; then
         echo "==> Creating virtualenv in $VENV_DIR..."
-        python3 -m venv "$VENV_DIR"
+        # Fall back to virtualenv on agents missing python3-venv (no ensurepip)
+        if ! python3 -m venv "$VENV_DIR"; then
+          echo "    python3 -m venv failed, falling back to virtualenv..."
+          rm -rf "$VENV_DIR"
+          python3 -m virtualenv "$VENV_DIR"
+        fi
         "$VENV_DIR/bin/pip" install --quiet --upgrade pip
         "$VENV_DIR/bin/pip" install --quiet \
           cryptography==41.0.7 \
@@ -169,50 +185,4 @@ resource "terraform_data" "client_cert_stable_cleanup" {
         --name       "${self.input.cert_name}-stable-cert" || true
     BASH
   }
-}
-
-# ---------------------------------------------------------------------------
-# Certificate chain (leaf + root CA) exposed to the module consumer
-# ---------------------------------------------------------------------------
-
-# Only certificates whose destination Key Vault id is known can have their leaf
-# read back: every Key Vault data source is addressed by id, not by name.
-locals {
-  chain_certificates = {
-    for name, cert in var.certificates : name => cert
-    if cert.key_vault_id != null
-  }
-
-  # certificate_data_base64 is the DER of a public certificate as a single
-  # base64 line; PEM requires it wrapped at 64 characters.
-  root_ca_pem = format(
-    "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n",
-    join("\n", regexall(".{1,64}", data.azurerm_key_vault_certificate.root_ca.certificate_data_base64))
-  )
-
-  leaf_pem = {
-    for name, _ in local.chain_certificates :
-    name => format(
-      "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n",
-      join("\n", regexall(".{1,64}", data.azurerm_key_vault_certificate.leaf[name].certificate_data_base64))
-    )
-  }
-
-  certificate_chain_pem = {
-    for name, pem in local.leaf_pem : name => "${pem}${local.root_ca_pem}"
-  }
-}
-
-# Current certificate, as emitted by sign_cert.py through merge_certificate —
-# not the promoted "-stable-*" copy. Reading it as a Key Vault certificate (and
-# not as the "-pfx" secret) keeps the value public: certificate_data_base64 is
-# the public DER only, so no private key is ever pulled into the state.
-# depends_on defers the read to apply time, after the signing provisioner ran.
-data "azurerm_key_vault_certificate" "leaf" {
-  for_each = local.chain_certificates
-
-  name         = each.key
-  key_vault_id = each.value.key_vault_id
-
-  depends_on = [terraform_data.client_cert_sign]
 }
