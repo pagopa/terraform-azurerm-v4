@@ -62,12 +62,18 @@ variable "otlp_exporter_config" {
     queue_size       = optional(number, 1000)
     consumers        = optional(number, 10)
     memory_limit_mib = optional(number, 2000)
+    batch_timeout    = optional(string, "1s")
+    batch_size       = optional(number, 1024)
+    batch_max_size   = optional(number, 2048)
   })
   description = "Configuration for the OTLP exporter"
   default = {
     queue_size       = 1000
     consumers        = 10
     memory_limit_mib = 2000
+    batch_timeout    = "1s"
+    batch_size       = 1024
+    batch_max_size   = 2048
   }
 }
 
