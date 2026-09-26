@@ -17,6 +17,7 @@ spec:
       memory_limiter:
         check_interval: 1s
         limit_mib: ${memory_limit_mib}
+        spike_limit_mib: 1024
       batch:
         timeout: ${batch_timeout}
         send_batch_size: ${batch_size}
