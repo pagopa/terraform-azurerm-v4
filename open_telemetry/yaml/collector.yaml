@@ -108,9 +108,9 @@ spec:
           exporters: [debug, otlphttp/elastic]
         metrics:
           receivers: [otlp]
-          processors: [memory_limiter, probabilistic_sampler, resource, batch]
+          processors: [memory_limiter, resource, batch]
           exporters: [debug, otlphttp/elastic]
         logs:
           receivers: [otlp]
-          processors: [memory_limiter, probabilistic_sampler, resource, batch]
+          processors: [memory_limiter, resource, batch]
           exporters: [debug, otlphttp/elastic]
