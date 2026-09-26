@@ -19,6 +19,8 @@ spec:
             endpoint: 0.0.0.0:${receiver_port}
 
     processors:
+      probabilistic_sampler:
+        sampling_percentage: 75
       memory_limiter:
         check_interval: 1s
         limit_mib: ${memory_limit_mib}
@@ -102,13 +104,13 @@ spec:
       pipelines:
         traces:
           receivers: [otlp]
-          processors: [memory_limiter, resource %{ if sampling_enabled }, tail_sampling%{endif}, batch]
+          processors: [memory_limiter, probabilistic_sampler, resource %{ if sampling_enabled }, tail_sampling%{endif}, batch]
           exporters: [debug, otlphttp/elastic]
         metrics:
           receivers: [otlp]
-          processors: [memory_limiter, resource, batch]
+          processors: [memory_limiter, probabilistic_sampler, resource, batch]
           exporters: [debug, otlphttp/elastic]
         logs:
           receivers: [otlp]
-          processors: [memory_limiter, resource, batch]
+          processors: [memory_limiter, probabilistic_sampler, resource, batch]
           exporters: [debug, otlphttp/elastic]
