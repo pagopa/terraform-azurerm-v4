@@ -18,6 +18,9 @@ spec:
         check_interval: 1s
         limit_mib: ${memory_limit_mib}
       batch:
+        timeout: ${batch_timeout}
+        send_batch_size: ${batch_size}
+        send_batch_max_size: ${batch_max_size}
       resource:
         attributes:
         - key: deployment.environment
@@ -92,13 +95,13 @@ spec:
       pipelines:
         traces:
           receivers: [otlp]
-          processors: [resource %{ if sampling_enabled }, tail_sampling%{endif}]
+          processors: [resource, batch %{ if sampling_enabled }, tail_sampling%{endif}]
           exporters: [debug, otlphttp/elastic]
         metrics:
           receivers: [otlp]
-          processors: [resource]
+          processors: [resource, batch]
           exporters: [debug, otlphttp/elastic]
         logs:
           receivers: [otlp]
-          processors: [resource]
+          processors: [resource, batch]
           exporters: [debug, otlphttp/elastic]

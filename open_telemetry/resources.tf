@@ -42,6 +42,9 @@ resource "kubectl_manifest" "otel_collector" {
     queue_size                 = var.otlp_exporter_config.queue_size
     num_consumers              = var.otlp_exporter_config.consumers
     memory_limit_mib           = var.otlp_exporter_config.memory_limit_mib
+    batch_timeout              = var.otlp_exporter_config.batch_timeout
+    batch_size                 = var.otlp_exporter_config.batch_size
+    batch_max_size             = var.otlp_exporter_config.batch_max_size
   })
 
   force_conflicts = true
