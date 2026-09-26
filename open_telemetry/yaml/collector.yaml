@@ -95,13 +95,13 @@ spec:
       pipelines:
         traces:
           receivers: [otlp]
-          processors: [resource, batch %{ if sampling_enabled }, tail_sampling%{endif}]
+          processors: [memory_limiter, resource %{ if sampling_enabled }, tail_sampling%{endif}, batch]
           exporters: [debug, otlphttp/elastic]
         metrics:
           receivers: [otlp]
-          processors: [resource, batch]
+          processors: [memory_limiter, resource, batch]
           exporters: [debug, otlphttp/elastic]
         logs:
           receivers: [otlp]
-          processors: [resource, batch]
+          processors: [memory_limiter, resource, batch]
           exporters: [debug, otlphttp/elastic]
