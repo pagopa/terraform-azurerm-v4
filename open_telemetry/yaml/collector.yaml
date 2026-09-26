@@ -39,7 +39,7 @@ spec:
           action: upsert
       tail_sampling:
         decision_wait: 5s
-        num_traces: 350000
+        num_traces: 600000
         policies: [
           {
             # always sample errors
