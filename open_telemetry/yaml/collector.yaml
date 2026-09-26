@@ -20,7 +20,7 @@ spec:
 
     processors:
       probabilistic_sampler:
-        sampling_percentage: 70
+        sampling_percentage: 75
       memory_limiter:
         check_interval: 1s
         limit_mib: ${memory_limit_mib}
@@ -39,7 +39,7 @@ spec:
           action: upsert
       tail_sampling:
         decision_wait: 5s
-        num_traces: 500000
+        num_traces: 350000
         policies: [
           {
             # always sample errors
