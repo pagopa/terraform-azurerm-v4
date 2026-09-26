@@ -6,6 +6,11 @@ metadata:
 spec:
   mode: deployment # This configuration is omittable.
   managementState: managed
+  resources:
+    requests:
+      cpu: "1000m"
+    limits:
+      cpu: "2000m"
   config:
     receivers:
       otlp:
