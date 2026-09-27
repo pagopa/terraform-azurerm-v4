@@ -38,7 +38,7 @@ spec:
           value: ${elastic_namespace}
           action: upsert
       tail_sampling:
-        decision_wait: 5s
+        decision_wait: 30s
         num_traces: 50000
         policies: [
           {
