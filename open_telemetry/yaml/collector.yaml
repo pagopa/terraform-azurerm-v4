@@ -6,6 +6,13 @@ metadata:
 spec:
   mode: deployment # This configuration is omittable.
   managementState: managed
+  %{ if resource_configuration_enabled }
+  resources:
+    requests:
+      cpu: ${cpu_request}
+    limits:
+      cpu: ${cpu_limit}
+  %{ endif }
   config:
     receivers:
       otlp:
@@ -14,10 +21,16 @@ spec:
             endpoint: 0.0.0.0:${receiver_port}
 
     processors:
+      probabilistic_sampler:
+        sampling_percentage: ${probabilistic_sampler_percentage}
       memory_limiter:
-        check_interval: 1s
-        limit_mib: ${memory_limit_mib}
+        check_interval: ${memory_limiter_check_interval}
+        limit_mib: ${memory_limiter_limit_mib}
+        spike_limit_mib: ${memory_limiter_spike_limit_mib}
       batch:
+        timeout: ${batch_timeout}
+        send_batch_size: ${batch_size}
+        send_batch_max_size: ${batch_max_size}
       resource:
         attributes:
         - key: deployment.environment
@@ -27,7 +40,8 @@ spec:
           value: ${elastic_namespace}
           action: upsert
       tail_sampling:
-        decision_wait: 30s
+        decision_wait: ${tail_sampling_decision_wait}
+        num_traces: ${tail_sampling_num_traces}
         policies: [
           {
             # always sample errors
@@ -92,13 +106,13 @@ spec:
       pipelines:
         traces:
           receivers: [otlp]
-          processors: [resource %{ if sampling_enabled }, tail_sampling%{endif}]
+          processors: [memory_limiter %{ if probabilistic_sampler_enabled }, probabilistic_sampler%{endif}, resource %{ if sampling_enabled }, tail_sampling%{endif}, batch]
           exporters: [debug, otlphttp/elastic]
         metrics:
           receivers: [otlp]
-          processors: [resource]
+          processors: [memory_limiter, resource, batch]
           exporters: [debug, otlphttp/elastic]
         logs:
           receivers: [otlp]
-          processors: [resource]
+          processors: [memory_limiter, resource, batch]
           exporters: [debug, otlphttp/elastic]
