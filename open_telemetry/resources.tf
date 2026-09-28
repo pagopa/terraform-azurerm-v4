@@ -29,22 +29,30 @@ resource "kubectl_manifest" "otel_collector" {
     helm_release.opentelemetry_operator_helm
   ]
   yaml_body = templatefile("${path.module}/yaml/collector.yaml", {
-    namespace                  = var.otel_kube_namespace
-    apm_api_key                = var.elasticsearch_api_key
-    apm_endpoint               = var.elasticsearch_apm_host
-    receiver_port              = var.grpc_receiver_port
-    deployment_env             = var.deployment_env
-    elastic_namespace          = var.elastic_namespace
-    probes_sampling_percentage = var.sampling.probes_sampling_percentage
-    sampling_percentage        = var.sampling.sampling_percentage
-    sampling_enabled           = var.sampling.enabled
-    probe_paths                = var.sampling.probe_paths
-    queue_size                 = var.otlp_exporter_config.queue_size
-    num_consumers              = var.otlp_exporter_config.consumers
-    memory_limit_mib           = var.otlp_exporter_config.memory_limit_mib
-    batch_timeout              = var.otlp_exporter_config.batch_timeout
-    batch_size                 = var.otlp_exporter_config.batch_size
-    batch_max_size             = var.otlp_exporter_config.batch_max_size
+    namespace                        = var.otel_kube_namespace
+    apm_api_key                      = var.elasticsearch_api_key
+    apm_endpoint                     = var.elasticsearch_apm_host
+    receiver_port                    = var.grpc_receiver_port
+    deployment_env                   = var.deployment_env
+    elastic_namespace                = var.elastic_namespace
+    probes_sampling_percentage       = var.tail_sampling.probes_sampling_percentage
+    sampling_percentage              = var.tail_sampling.sampling_percentage
+    sampling_enabled                 = var.tail_sampling.enabled
+    tail_sampling_num_traces         = var.tail_sampling.num_traces
+    tail_sampling_decision_wait      = var.tail_sampling.decision_wait
+    probe_paths                      = var.tail_sampling.probe_paths
+    probabilistic_sampler_percentage = var.head_sampling.sampling_percentage
+    probabilistic_sampler_enabled    = var.head_sampling.enabled
+    queue_size                       = var.otlp_exporter_config.queue_size
+    num_consumers                    = var.otlp_exporter_config.consumers
+    memory_limiter_limit_mib         = var.memory_limiter.memory_limit_mib
+    memory_limiter_spike_limit_mib   = var.memory_limiter.spike_limit_mib
+    memory_limiter_check_interval    = var.memory_limiter.check_interval
+    batch_timeout                    = var.otlp_exporter_config.batch_timeout
+    batch_size                       = var.otlp_exporter_config.batch_size
+    batch_max_size                   = var.otlp_exporter_config.batch_max_size
+    cpu_limit                        = var.resources.limits.cpu
+    cpu_request                      = var.resources.requests.cpu
   })
 
   force_conflicts = true

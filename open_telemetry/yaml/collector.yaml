@@ -8,9 +8,9 @@ spec:
   managementState: managed
   resources:
     requests:
-      cpu: "1000m"
+      cpu: ${cpu_request}
     limits:
-      cpu: "2000m"
+      cpu: ${cpu_limit}
   config:
     receivers:
       otlp:
@@ -20,11 +20,11 @@ spec:
 
     processors:
       probabilistic_sampler:
-        sampling_percentage: 75
+        sampling_percentage: ${probabilistic_sampler_percentage}
       memory_limiter:
-        check_interval: 1s
-        limit_mib: ${memory_limit_mib}
-        spike_limit_mib: 1024
+        check_interval: ${memory_limiter_check_interval}
+        limit_mib: ${memory_limiter_limit_mib}
+        spike_limit_mib: ${memory_limiter_spike_limit_mib}
       batch:
         timeout: ${batch_timeout}
         send_batch_size: ${batch_size}
@@ -38,8 +38,8 @@ spec:
           value: ${elastic_namespace}
           action: upsert
       tail_sampling:
-        decision_wait: 30s
-        num_traces: 50000
+        decision_wait: ${tail_sampling_decision_wait}
+        num_traces: ${tail_sampling_num_traces}
         policies: [
           {
             # always sample errors
@@ -104,7 +104,7 @@ spec:
       pipelines:
         traces:
           receivers: [otlp]
-          processors: [memory_limiter, probabilistic_sampler, resource %{ if sampling_enabled }, tail_sampling%{endif}, batch]
+          processors: [memory_limiter %{ if probabilistic_sampler_enabled }, probabilistic_sampler%{endif}, resource %{ if sampling_enabled }, tail_sampling%{endif}, batch]
           exporters: [debug, otlphttp/elastic]
         metrics:
           receivers: [otlp]
