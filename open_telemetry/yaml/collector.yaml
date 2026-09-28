@@ -6,11 +6,13 @@ metadata:
 spec:
   mode: deployment # This configuration is omittable.
   managementState: managed
+  %{ if resource_configuration_enabled }
   resources:
     requests:
       cpu: ${cpu_request}
     limits:
       cpu: ${cpu_limit}
+  %{ endif }
   config:
     receivers:
       otlp:

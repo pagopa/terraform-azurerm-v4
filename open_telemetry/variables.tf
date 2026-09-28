@@ -132,12 +132,5 @@ variable "resources" {
     })
   })
   description = "Resource requests and limits for the OpenTelemetry collector"
-  default = {
-    requests = {
-      cpu = "1000m"
-    }
-    limits = {
-      cpu = "2000m"
-    }
-  }
+  default     = null
 }

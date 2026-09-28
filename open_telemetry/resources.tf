@@ -51,6 +51,7 @@ resource "kubectl_manifest" "otel_collector" {
     batch_timeout                    = var.otlp_exporter_config.batch_timeout
     batch_size                       = var.otlp_exporter_config.batch_size
     batch_max_size                   = var.otlp_exporter_config.batch_max_size
+    resource_configuration_enabled   = var.resources != null
     cpu_limit                        = var.resources.limits.cpu
     cpu_request                      = var.resources.requests.cpu
   })
