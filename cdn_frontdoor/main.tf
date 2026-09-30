@@ -778,10 +778,17 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
 ############################################################
 /* Sends AFD profile logs and metrics to Log Analytics */
 resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings_cdn_profile" {
+  count = var.enable_diagnostic_setting ? 1 : 0
+
   name                       = local.fd_diag_name
   target_resource_id         = azurerm_cdn_frontdoor_profile.this.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
   enabled_log { category_group = "allLogs" }
   enabled_metric { category = "AllMetrics" }
+}
+
+moved {
+  from = azurerm_monitor_diagnostic_setting.diagnostic_settings_cdn_profile
+  to   = azurerm_monitor_diagnostic_setting.diagnostic_settings_cdn_profile[0]
 }
