@@ -20,7 +20,7 @@ variable "servicebus_topics" {
     max_size_in_megabytes                   = optional(number)
     requires_duplicate_detection            = optional(bool)
     support_ordering                        = optional(bool)
-
+    # see azurerm_servicebus_subscription for details on the subscriptions object structure
     subscriptions = optional(list(object({
       name                                      = string
       max_delivery_count                        = number

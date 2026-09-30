@@ -45,3 +45,50 @@ output "topic_authorization_rules" {
     }
   }
 }
+
+output "subscription_ids" {
+  description = "Map of Service Bus Topic subscription composite keys to their resource IDs."
+  value       = { for name, subscription in azurerm_servicebus_subscription.subscriptions : name => subscription.id }
+}
+
+output "subscriptions" {
+  description = "Map of Service Bus Topic subscription composite keys to their main resource attributes."
+  value = {
+    for name, subscription in azurerm_servicebus_subscription.subscriptions : name => {
+      id                                        = subscription.id
+      name                                      = subscription.name
+      topic_id                                  = subscription.topic_id
+      max_delivery_count                        = subscription.max_delivery_count
+      auto_delete_on_idle                       = subscription.auto_delete_on_idle
+      default_message_ttl                       = subscription.default_message_ttl
+      lock_duration                             = subscription.lock_duration
+      dead_lettering_on_message_expiration      = subscription.dead_lettering_on_message_expiration
+      dead_lettering_on_filter_evaluation_error = subscription.dead_lettering_on_filter_evaluation_error
+      batched_operations_enabled                = subscription.batched_operations_enabled
+      requires_session                          = subscription.requires_session
+      forward_to                                = subscription.forward_to
+      forward_dead_lettered_messages_to         = subscription.forward_dead_lettered_messages_to
+      status                                    = subscription.status
+      client_scoped_subscription_enabled        = subscription.client_scoped_subscription_enabled
+    }
+  }
+}
+
+output "subscription_rule_ids" {
+  description = "Map of Service Bus Topic subscription rule composite keys to their resource IDs."
+  value       = { for name, rule in azurerm_servicebus_subscription_rule.subscription_rules : name => rule.id }
+}
+
+output "subscription_rules" {
+  description = "Map of Service Bus Topic subscription rule composite keys to their main resource attributes."
+  value = {
+    for name, rule in azurerm_servicebus_subscription_rule.subscription_rules : name => {
+      id              = rule.id
+      name            = rule.name
+      subscription_id = rule.subscription_id
+      filter_type     = rule.filter_type
+      sql_filter      = rule.sql_filter
+      action          = rule.action
+    }
+  }
+}
