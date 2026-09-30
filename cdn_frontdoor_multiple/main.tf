@@ -27,6 +27,8 @@ resource "azurerm_cdn_frontdoor_endpoint" "endpoints" {
 # Diagnostics
 ############################################################
 resource "azurerm_monitor_diagnostic_setting" "profile_diagnostics" {
+  count = var.enable_diagnostic_setting ? 1 : 0
+
   name                       = "tf-diagnostics"
   target_resource_id         = azurerm_cdn_frontdoor_profile.profile.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
@@ -38,4 +40,9 @@ resource "azurerm_monitor_diagnostic_setting" "profile_diagnostics" {
   enabled_metric {
     category = "AllMetrics"
   }
+}
+
+moved {
+  from = azurerm_monitor_diagnostic_setting.profile_diagnostics
+  to   = azurerm_monitor_diagnostic_setting.profile_diagnostics[0]
 }
