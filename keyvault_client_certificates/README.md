@@ -22,16 +22,50 @@ Each certificate is represented by four secrets in the destination Key Vault:
 
 Clients read only the `-stable-*` secrets. The current certificate (`-pfx`) can be renewed without impacting running services; clients pick up the new certificate only when the stable is explicitly promoted.
 
-### Automatic rotation
+### Automatic renewal, manual promotion
 
-Two `time_rotating` resources per certificate drive the lifecycle without any manual intervention or git changes:
+Renewal of the current certificate is automatic: `time_rotating.cert_rotation` fires after `validity_months * 30 - renewal_days_before_expiry` days and renews `-pfx` on the next apply.
 
-| Resource | Fires after | Action |
+Promotion `-pfx` → `-stable-*` is manual and driven by the module variable `stable_promotion_ids` (certificate name → promotion id), passed by pipelines at apply time. Any string of letters, digits, `.`, `_` or `-` is accepted; a build id is a good choice: it is new on every run and traces who promoted and when.
+
+| Promotion id of the certificate | Effect on apply |
+|---|---|
+| not passed | Nothing is promoted, even if `-pfx` was renewed in the meantime |
+| same id as the last promotion | Nothing is promoted |
+| new id | `-pfx` is promoted to `-stable-*` |
+
+Only the listed certificates are promoted. If a promotion fails, the resource stays tainted and the next apply retries it.
+
+> [!IMPORTANT]
+> The first deploy of a certificate must always pass its promotion id (e.g. `-var 'stable_promotion_ids={"cert-a":"$(Build.BuildId)"}'`): without it, the certificate is issued but no `-stable-*` secret is created, and clients reading them fail. The certificate issued in that same apply is the one promoted.
+
+The stack declares the variable and passes it to the module:
+
+```hcl
+variable "stable_promotion_ids" {
+  type    = map(string)
+  default = {}
+}
+
+module "keyvault_client_certificates" {
+  ...
+  stable_promotion_ids = var.stable_promotion_ids
+}
+```
+
+The same mechanism serves two flows; the module does not change, only who decides which certificates to promote:
+
+| Flow | Who decides | Apply |
 |---|---|---|
-| `time_rotating.cert_rotation` | `validity_months * 30 - renewal_days_before_expiry` days | Renews `-pfx` |
-| `time_rotating.cert_stable` | `validity_months * 30 - stable_promotion_days_before_expiry` days | Promotes `-pfx` → `-stable-*` |
+| On-demand pipeline | An operator, choosing one certificate (e.g. after the renewal e-mail) | `terraform apply -var 'stable_promotion_ids={"cert-a":"$(Build.BuildId)"}'` |
+| Scheduled pipeline | A rule in the pipeline (e.g. stable expiring within N days) | Same command, listing only the certificates matching the rule |
 
-Because rotation always fires before promotion, the two events never overlap.
+Things to know:
+
+- **Plan noise after a promotion.** The next run without the variable turns that certificate's id back to `null`: the plan shows `client_cert_stable["<name>"]` replaced, but nothing is promoted.
+- **Promotion and renewal share the apply.** If the renewal of the same certificate is due in the promotion run, the new `-pfx` is issued and promoted at once, before anyone was notified. Promotion pipelines should save the plan (`terraform plan -out=tfplan`), inspect it (`terraform show -json tfplan`) and stop if it changes anything other than the `client_cert_stable` instances being promoted — in particular any `client_cert_sign`.
+- **Concurrent runs.** The renewal and promotion pipelines share the state: the backend lock rejects the second concurrent apply, so avoid scheduling them at the same time.
+- **Checking current vs stable.** `scripts/check_cert_promotion.sh` tells whether `-pfx` and `-stable-*` hold the same certificate (exit `0`) or the current was renewed and not promoted yet (exit `1`).
 
 ### Cleanup on certificate removal
 
@@ -48,21 +82,22 @@ module "keyvault_client_certificates" {
 
   certificates = {
     "my-service" = {
-      key_vault_name                      = module.kv_app.name
-      subject                             = "CN=my-service,O=PagoPA S.p.A.,C=IT"
-      validity_in_months                  = 3
-      renewal_days_before_expiry          = 30
-      stable_promotion_days_before_expiry = 7
+      key_vault_name             = module.kv_app.name
+      subject                    = "CN=my-service,O=PagoPA S.p.A.,C=IT"
+      validity_in_months         = 3
+      renewal_days_before_expiry = 30
     }
     "pagopa-forwarder" = {
-      key_vault_name                      = module.kv_forwarder.name
-      subject                             = "CN=pagopa-forwarder,O=PagoPA S.p.A.,C=IT"
-      validity_in_months                  = 12
-      renewal_days_before_expiry          = 50
-      stable_promotion_days_before_expiry = 20
-      san_dns_names                       = ["forwarder.internal.pagopa.it"]
+      key_vault_name             = module.kv_forwarder.name
+      subject                    = "CN=pagopa-forwarder,O=PagoPA S.p.A.,C=IT"
+      validity_in_months         = 12
+      renewal_days_before_expiry = 50
+      san_dns_names              = ["forwarder.internal.pagopa.it"]
     }
   }
+
+  # Promotion ids passed by pipelines, e.g. {"my-service" = "<build id>"}
+  stable_promotion_ids = var.stable_promotion_ids
 
   tags = var.tags
 }
@@ -91,23 +126,19 @@ No modules.
 | [terraform_data.client_cert_stable](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [terraform_data.client_cert_stable_cleanup](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [time_rotating.cert_rotation](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/rotating) | resource |
-| [time_rotating.cert_stable](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/rotating) | resource |
-| [azurerm_key_vault_certificate.leaf](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_certificate) | data source |
 | [azurerm_key_vault_certificate.root_ca](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_certificate) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued. Set key\_vault\_id to have the module expose the leaf + root CA PEM chain in the certificate\_chain\_pem output. | <pre>map(object({<br/>    key_vault_name                      = string<br/>    key_vault_id                        = optional(string, null)<br/>    subject                             = string<br/>    validity_in_months                  = number<br/>    san_dns_names                       = optional(list(string), [])<br/>    renewal_days_before_expiry          = optional(number, 60)<br/>    stable_promotion_days_before_expiry = optional(number, 20)<br/>  }))</pre> | `{}` | no |
+| <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of client certificates to be issued. Promotion to the stable secrets is driven by stable\_promotion\_ids. | <pre>map(object({<br/>    key_vault_name             = string<br/>    subject                    = string<br/>    validity_in_months         = number<br/>    san_dns_names              = optional(list(string), [])<br/>    renewal_days_before_expiry = optional(number, 60)<br/>    # For testing only: overrides rotation_days with rotation_minutes<br/>    rotation_minutes_override = optional(number, null)<br/>  }))</pre> | `{}` | no |
 | <a name="input_root_key_vault_id"></a> [root\_key\_vault\_id](#input\_root\_key\_vault\_id) | ID of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
 | <a name="input_root_key_vault_name"></a> [root\_key\_vault\_name](#input\_root\_key\_vault\_name) | Name of the Key Vault containing the Root CA (source) | `string` | n/a | yes |
+| <a name="input_stable_promotion_ids"></a> [stable\_promotion\_ids](#input\_stable\_promotion\_ids) | Promotion ids by certificate name, passed by pipelines at apply time (e.g. -var 'stable\_promotion\_ids={"my-cert":"<build id>"}'): a certificate (<name>-pfx) is promoted to its stable secrets (<name>-stable-*) when its id changes. Runs omitting it never promote: the first deploy of a certificate must list it, otherwise no -stable-* secret is created. | `map(string)` | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for the resources | `map(string)` | n/a | yes |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_certificate_chain_pem"></a> [certificate\_chain\_pem](#output\_certificate\_chain\_pem) | Full PEM chain (current leaf certificate followed by the root CA) per certificate name. Only populated for certificates declaring key\_vault\_id. |
-| <a name="output_root_ca_pem"></a> [root\_ca\_pem](#output\_root\_ca\_pem) | Public certificate of the private root CA, in PEM format. |
+No outputs.
 <!-- END_TF_DOCS -->
