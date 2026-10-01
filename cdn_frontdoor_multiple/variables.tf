@@ -22,6 +22,12 @@ variable "log_analytics_workspace_id" {
   description = "Log Analytics workspace ID for diagnostics"
 }
 
+variable "enable_diagnostic_setting" {
+  type        = bool
+  description = "Whether to enable diagnostic settings for the CDN Front Door profile"
+  default     = true
+}
+
 ############################################################
 # CDN Profile
 ############################################################
@@ -578,3 +584,5 @@ variable "tenant_id" {
   default     = null
   description = "Tenant ID for Key Vault access (required if using CustomerCertificate domains)"
 }
+
+

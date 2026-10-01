@@ -106,6 +106,12 @@ variable "log_analytics_workspace_id" {
   description = "Log Analytics workspace ID that collects Front Door diagnostics and metrics."
 }
 
+variable "enable_diagnostic_setting" {
+  type        = bool
+  description = "Whether to enable diagnostic settings for the CDN Front Door profile"
+  default     = true
+}
+
 ############################################################
 # Routing and caching defaults
 ############################################################
