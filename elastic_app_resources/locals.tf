@@ -30,10 +30,10 @@ locals {
 
 
   alert_messages = {
-    log_query        = "Elasticsearch query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}}"
-    custom_threshold = "Elasticsearch custom threshold alert {{rule.name}} is active. \n {{context.reason}}  \n [View alert details]({{context.alertDetailsUrl}})"
-    apm_anomaly      = "{{context.reason}} \n{{rule.name}} is active with the following conditions: \n - Service name: {{context.serviceName}} \n - Transaction type: {{context.transactionType}} \n - Environment: {{context.environment}} \n - Severity: {{context.triggerValue}} \n - Threshold: {{context.threshold}} \n - Timestamp: {{context.date}} \n - Link: {{context.link}} \n [View alert details]({{context.alertDetailsUrl}})"
-    esql_query       = "ES|QL query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}}"
+    log_query        = "Elasticsearch query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}} \n Check the alert details if there is any investigation manual or dashboard defined"
+    custom_threshold = "Elasticsearch custom threshold alert {{rule.name}} is active. \n {{context.reason}}  \n [View alert details]({{context.alertDetailsUrl}}) \n Check the alert details if there is any investigation manual or dashboard defined"
+    apm_anomaly      = "{{context.reason}} \n{{rule.name}} is active with the following conditions: \n - Service name: {{context.serviceName}} \n - Transaction type: {{context.transactionType}} \n - Environment: {{context.environment}} \n - Severity: {{context.triggerValue}} \n - Threshold: {{context.threshold}} \n - Timestamp: {{context.date}} \n - Link: {{context.link}} \n [View alert details]({{context.alertDetailsUrl}})\n Check the alert details if there is any investigation manual or dashboard defined"
+    esql_query       = "ES|QL query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}}\n Check the alert details if there is any investigation manual or dashboard defined"
   }
 
   rule_type_id_map = {
