@@ -1,9 +1,11 @@
 locals {
-  data_streams   = { for d in var.configuration.dataStream : d => d }
-  application_id = "${var.application_name}-${var.target_env}"
-  dashboards     = { for df in fileset("${var.dashboard_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => "${var.dashboard_folder}/${df}" }
-  queries        = { for qf in fileset("${var.query_folder}", "/*.ndjson") : trimsuffix(basename(qf), ".ndjson") => "${var.query_folder}/${qf}" }
-  alerts         = { for af in fileset("${var.alert_folder}", "/*.yml") : trimsuffix(basename(af), ".yml") => yamldecode(templatefile("${var.alert_folder}/${af}", local.alert_variables)) }
+  data_streams      = { for d in var.configuration.dataStream : d => d }
+  application_id    = "${var.application_name}-${var.target_env}"
+  dashboards        = { for df in fileset("${var.dashboard_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => "${var.dashboard_folder}/${df}" }
+  system_dashboards = { for df in fileset("${path.module}/dashboard", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => "${path.module}/dashboard/${df}" }
+  queries           = { for qf in fileset("${var.query_folder}", "/*.ndjson") : trimsuffix(basename(qf), ".ndjson") => "${var.query_folder}/${qf}" }
+  system_alerts     = { for a in fileset("${path.module}/alert", "/*.yml") : trimsuffix(basename(a), ".yml") => merge(yamldecode(templatefile("${path.module}/alert/${a}", merge(local.system_alert_variables, local.alert_variables))), { alert_channels : var.system_alert_channels }) }
+  alerts            = { for af in fileset("${var.alert_folder}", "/*.yml") : trimsuffix(basename(af), ".yml") => merge(yamldecode(templatefile("${var.alert_folder}/${af}", local.alert_variables)), { alert_channels : var.alert_channels }) }
 
   elastic_namespace = "${var.target_name}.${var.target_env}"
 
@@ -56,5 +58,18 @@ locals {
     env       = var.target_env
     env_short = substr(var.target_env, 0, 1)
     namespace = local.elastic_namespace
+  }
+
+  system_alert_variables = {
+    space_id = var.space_id
+    overlog = {
+      window_size_hours    = var.system_alert.overlog.window_size_hours
+      threshold_percentage = var.system_alert.overlog.threshold_percentage
+      max_lookback_hours   = var.system_alert.overlog.lookback_comparison_hours + var.system_alert.overlog.window_size_hours
+      min_lookback_hours   = var.system_alert.overlog.lookback_comparison_hours
+      frequency_hours      = var.system_alert.overlog.window_size_hours
+    }
+    data_view             = elasticstack_kibana_data_view.kibana_data_view.data_view.title
+    notification_channels = var.system_alert.notification_channels
   }
 }

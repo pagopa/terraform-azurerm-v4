@@ -1,0 +1,47 @@
+name: platform-overlog-alert
+schedule: "${overlog.frequency_hours}h"
+window:
+  size: ${overlog.max_lookback_hours}
+  unit: h
+esql_query:
+  query: '
+    FROM ${data_view}
+    | WHERE (@timestamp >= NOW() - ${overlog.max_lookback_hours} HOUR AND @timestamp < NOW() - ${overlog.min_lookback_hours} HOUR) OR (@timestamp >= NOW() - ${overlog.window_size_hours} HOUR AND @timestamp < NOW() )
+    | EVAL
+    is_now = CASE(@timestamp >= NOW() - ${overlog.window_size_hours} HOUR AND @timestamp < NOW(), true, false),
+    is_previous = CASE(@timestamp >= NOW() - ${overlog.max_lookback_hours} HOUR AND @timestamp < NOW() - ${overlog.min_lookback_hours} HOUR, true, false),
+    now_flag = CASE(is_now, 1, 0),
+    prev_flag = CASE(is_previous, 1, 0)
+    | STATS
+    now_count = SUM(now_flag),
+    prev_count = SUM(prev_flag)
+    | EVAL percent_change = CASE(
+    prev_count > 0,
+    ((now_count - prev_count) * 100.0) / prev_count,
+    CASE(now_count > 0, 100.0, 0.0)
+    )
+    | WHERE percent_change >= ${overlog.threshold_percentage}'
+  exclude_hits_from_previous_run: false
+  group_by: all
+trigger_after_consecutive_runs: 1
+enabled: true
+notification_channels:
+  %{ if can(notification_channels.email.recipient_list_name) }
+  email:
+    recipient_list_name: ${notification_channels.email.recipient_list_name}
+  %{ endif }
+  %{ if can(notification_channels.slack.connector_name) }
+  slack:
+    connector_name: ${notification_channels.slack.connector_name}
+  %{ endif }
+  %{ if can(notification_channels.jsm.connector_name) }
+  jsm:
+    connector_name: ${notification_channels.jsm.connector_name}
+    prioerity: ${notification_channels.jsm.priority}
+  %{ endif }
+investigation:
+  message: |
+    The alert has been triggered because the number of log entries in the last ${overlog.window_size_hours} hours has increased by ${overlog.threshold_percentage}% or more compared to the previous ${overlog.max_lookback_hours} hours.
+    Check the linked dashboard to identify the overlogging service, then evaluate if it can be detached from the log collection configuration on elasticcloud-infra
+  dashboards:
+    - logs-by-service

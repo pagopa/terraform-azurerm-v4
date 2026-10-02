@@ -106,7 +106,7 @@ resource "elasticstack_kibana_data_view" "kibana_apm_data_view" {
 
 
 resource "elasticstack_kibana_import_saved_objects" "dashboard" {
-  for_each   = local.dashboards
+  for_each   = merge(local.dashboards, local.system_dashboards)
   depends_on = [elasticstack_kibana_data_view.kibana_data_view]
   overwrite  = true
   space_id   = var.space_id
@@ -118,7 +118,7 @@ resource "elasticstack_kibana_import_saved_objects" "dashboard" {
     apm_data_view_name  = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.name
     apm_data_view_title = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
     namespace           = local.elastic_namespace
-
+    space_name          = var.space_name
   })
 }
 
@@ -134,30 +134,31 @@ resource "elasticstack_kibana_import_saved_objects" "query" {
   file_contents = file(each.value)
 }
 
+
 resource "elasticstack_kibana_alerting_rule" "alert" {
-  for_each = local.alerts
+  for_each = merge(local.system_alerts, local.alerts)
 
   lifecycle {
     #
     # check connector name not empty
     #
     precondition {
-      condition     = var.alert_channels.jsm.enabled && can(each.value.notification_channels.jsm) ? try(each.value.notification_channels.jsm.connector_name, "") != "" : true
+      condition     = each.value.alert_channels.jsm.enabled && can(each.value.notification_channels.jsm) ? try(each.value.notification_channels.jsm.connector_name, "") != "" : true
       error_message = "'jsm.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.connector_name, "") != "" : true
+      condition     = each.value.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.connector_name, "") != "" : true
       error_message = "'cloudo.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.slack.enabled && can(each.value.notification_channels.slack) ? try(each.value.notification_channels.slack.connector_name, "") != "" : true
+      condition     = each.value.alert_channels.slack.enabled && can(each.value.notification_channels.slack) ? try(each.value.notification_channels.slack.connector_name, "") != "" : true
       error_message = "'slack.connector_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.email.enabled && can(each.value.notification_channels.email) ? try(each.value.notification_channels.email.recipient_list_name, "") != "" : true
+      condition     = each.value.alert_channels.email.enabled && can(each.value.notification_channels.email) ? try(each.value.notification_channels.email.recipient_list_name, "") != "" : true
       error_message = "'email.recipient_list_name' must be defined and not be empty. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
@@ -165,28 +166,28 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     # check connector name available
     #
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) && can(each.value.notification_channels.cloudo.connector_name) ? contains(keys(var.alert_channels.cloudo.connectors), lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name) : true
+      condition     = each.value.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) && can(each.value.notification_channels.cloudo.connector_name) ? contains(keys(each.value.alert_channels.cloudo.connectors), lookup(each.value.notification_channels, "cloudo", { connector_name : "" }).connector_name) : true
       error_message = <<-EOT
       cloudo connector name '${try(each.value.notification_channels.cloudo.connector_name, "cloudo.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
       EOT
     }
 
     precondition {
-      condition     = var.alert_channels.slack.enabled && can(each.value.notification_channels.slack) && can(each.value.notification_channels.slack.connector_name) ? contains(keys(var.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
+      condition     = each.value.alert_channels.slack.enabled && can(each.value.notification_channels.slack) && can(each.value.notification_channels.slack.connector_name) ? contains(keys(each.value.alert_channels.slack.connectors), lookup(each.value.notification_channels, "slack", { connector_name : "" }).connector_name) : true
       error_message = <<-EOT
       slack connector name '${try(each.value.notification_channels.slack.connector_name, "slack.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
       EOT
     }
 
     precondition {
-      condition     = var.alert_channels.jsm.enabled && can(each.value.notification_channels.jsm) && can(each.value.notification_channels.jsm.connector_name) ? contains(keys(var.alert_channels.jsm.connectors), lookup(each.value.notification_channels, "jsm", { connector_name : "" }).connector_name) : true
+      condition     = each.value.alert_channels.jsm.enabled && can(each.value.notification_channels.jsm) && can(each.value.notification_channels.jsm.connector_name) ? contains(keys(each.value.alert_channels.jsm.connectors), lookup(each.value.notification_channels, "jsm", { connector_name : "" }).connector_name) : true
       error_message = <<-EOT
       jsm connector name '${try(each.value.notification_channels.jsm.connector_name, "jsm.connector_name")}' must be defined in var.app_connectors. used by alert '${each.key}' in '${var.application_name}' application
       EOT
     }
 
     precondition {
-      condition     = var.alert_channels.email.enabled && can(each.value.notification_channels.email) && can(each.value.notification_channels.email.recipient_list_name) ? contains(keys(var.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name) : true
+      condition     = each.value.alert_channels.email.enabled && can(each.value.notification_channels.email) && can(each.value.notification_channels.email.recipient_list_name) ? contains(keys(each.value.alert_channels.email.recipients), lookup(each.value.notification_channels, "email", { recipient_list_name : "" }).recipient_list_name) : true
       error_message = <<-EOT
       email list name '${try(each.value.notification_channels.email.recipient_list_name, "email.recipient_list_name")}' must be defined in var.email_recipients. used by alert '${each.key}' in '${var.application_name}' application
       EOT
@@ -197,22 +198,22 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     # cloudo validations
     #
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? contains(local.allowed_cloudo_types, try(each.value.notification_channels.cloudo.type, "")) : true
+      condition     = each.value.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? contains(local.allowed_cloudo_types, try(each.value.notification_channels.cloudo.type, "")) : true
       error_message = "cloudo type must be defined and be one of: '${join(",", local.allowed_cloudo_types)}'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.rule, "") != "" : true
+      condition     = each.value.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.rule, "") != "" : true
       error_message = "cloudo rule must be defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.severity, "") != "" : true
+      condition     = each.value.alert_channels.cloudo.enabled && can(each.value.notification_channels.cloudo) ? try(each.value.notification_channels.cloudo.severity, "") != "" : true
       error_message = "cloudo severity must be defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
-      condition     = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.type, "") == "aks" ? try(each.value.notification_channels.cloudo.attributes.namespace, "") != "" : true
+      condition     = each.value.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.type, "") == "aks" ? try(each.value.notification_channels.cloudo.attributes.namespace, "") != "" : true
       error_message = "cloudo attributes.namespace must be defined when using type 'aks'. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
@@ -554,13 +555,13 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #email
   dynamic "actions" {
-    for_each = var.alert_channels.email.enabled && try(each.value.notification_channels.email.recipient_list_name, "") != "" ? [1] : []
+    for_each = each.value.alert_channels.email.enabled && try(each.value.notification_channels.email.recipient_list_name, "") != "" ? [1] : []
     content {
       group = can(each.value.custom_threshold) ? "custom_threshold.fired" : "query matched"
       id    = "elastic-cloud-email"
       params = jsonencode({
         message = can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : (can(each.value.esql_query) ? local.alert_messages.esql_query : local.alert_messages.log_query))
-        to      = var.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
+        to      = each.value.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
         cc      = []
         subject = "Elastic alert ${var.target_env} ${each.value.name}"
       })
@@ -573,13 +574,13 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #email close
   dynamic "actions" {
-    for_each = var.alert_channels.email.enabled && try(each.value.notification_channels.email.recipient_list_name, "") != "" ? [1] : []
+    for_each = each.value.alert_channels.email.enabled && try(each.value.notification_channels.email.recipient_list_name, "") != "" ? [1] : []
     content {
       group = "recovered"
       id    = "elastic-cloud-email"
       params = jsonencode({
         message = "Recovered - ${var.target_env} ${each.value.name}"
-        to      = var.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
+        to      = each.value.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
         cc      = []
         subject = "Recovered - Elastic alert ${var.target_env} ${each.value.name}"
       })
@@ -592,9 +593,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #jsm create
   dynamic "actions" {
-    for_each = var.alert_channels.jsm.enabled && try(each.value.notification_channels.jsm.connector_name, "") != "" ? [1] : []
+    for_each = each.value.alert_channels.jsm.enabled && try(each.value.notification_channels.jsm.connector_name, "") != "" ? [1] : []
     content {
-      id    = var.alert_channels.jsm.connectors[each.value.notification_channels.jsm.connector_name]
+      id    = each.value.alert_channels.jsm.connectors[each.value.notification_channels.jsm.connector_name]
       group = can(each.value.custom_threshold) ? "custom_threshold.fired" : "query matched"
       params = jsonencode({
         subAction = "createAlert"
@@ -617,10 +618,10 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #jsm close alert
   dynamic "actions" {
-    for_each = var.alert_channels.jsm.enabled && try(each.value.notification_channels.jsm.connector_name, "") != "" ? [1] : []
+    for_each = each.value.alert_channels.jsm.enabled && try(each.value.notification_channels.jsm.connector_name, "") != "" ? [1] : []
     content {
       group = "recovered"
-      id    = var.alert_channels.jsm.connectors[each.value.notification_channels.jsm.connector_name]
+      id    = each.value.alert_channels.jsm.connectors[each.value.notification_channels.jsm.connector_name]
       params = jsonencode({
         subAction = "closeAlert"
         subActionParams = {
@@ -636,9 +637,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #slack
   dynamic "actions" {
-    for_each = var.alert_channels.slack.enabled && try(each.value.notification_channels.slack.connector_name, "") != "" ? [1] : []
+    for_each = each.value.alert_channels.slack.enabled && try(each.value.notification_channels.slack.connector_name, "") != "" ? [1] : []
     content {
-      id    = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
+      id    = each.value.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
       group = can(each.value.custom_threshold) ? "custom_threshold.fired" : "query matched"
       params = jsonencode({
         "message" : can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : (can(each.value.esql_query) ? local.alert_messages.esql_query : local.alert_messages.log_query))
@@ -652,10 +653,10 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #slack close
   dynamic "actions" {
-    for_each = var.alert_channels.slack.enabled && try(each.value.notification_channels.slack.connector_name, "") != "" ? [1] : []
+    for_each = each.value.alert_channels.slack.enabled && try(each.value.notification_channels.slack.connector_name, "") != "" ? [1] : []
     content {
       group = "recovered"
-      id    = var.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
+      id    = each.value.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
       params = jsonencode({
         "message" : "Recovered - ${var.target_env} ${each.value.name}"
       })
@@ -668,9 +669,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #webhook cloudo
   dynamic "actions" {
-    for_each = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.connector_name, "") != "" ? [1] : []
+    for_each = each.value.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.connector_name, "") != "" ? [1] : []
     content {
-      id    = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
+      id    = each.value.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
       group = "query matched"
       params = jsonencode({
         "body" : "{ \"source\": \"elastic\",  \"rule\": \"${each.value.notification_channels.cloudo.rule}\",      \"severity\": \"${each.value.notification_channels.cloudo.severity}\",      \"monitorCondition\": \"Fired\",        \"payload\" : { \"type\": \"${each.value.notification_channels.cloudo.type}\", \"attributes\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}  }      }"
@@ -684,10 +685,10 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   #webhook cloudo close
   dynamic "actions" {
-    for_each = var.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.connector_name, "") != "" ? [1] : []
+    for_each = each.value.alert_channels.cloudo.enabled && try(each.value.notification_channels.cloudo.connector_name, "") != "" ? [1] : []
     content {
       group = "recovered"
-      id    = var.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
+      id    = each.value.alert_channels.cloudo.connectors[each.value.notification_channels.cloudo.connector_name]
       params = jsonencode({
         "body" : "{\"source\": \"elastic\",  \"rule\": \"${each.value.notification_channels.cloudo.rule}\",      \"severity\": \"${each.value.notification_channels.cloudo.severity}\",      \"monitorCondition\": \"Resolved\",        \"payload\" : { \"type\": \"${each.value.notification_channels.cloudo.type}\", \"attributes\": ${jsonencode(each.value.notification_channels.cloudo.attributes)}  }      }"
       })
@@ -697,6 +698,15 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       }
     }
   }
+
+  artifacts = can(each.value.investigation) ? {
+    investigation_guide = {
+      content = lookup(each.value.investigation, "message", null)
+    }
+    dashboards = [for d in lookup(each.value.investigation, "dashboards", []) : {
+      id = try([for result in elasticstack_kibana_import_saved_objects.dashboard[d].success_results : result.destination_id if result.type == "dashboard"][0], null)
+    }]
+  } : null
+
+
 }
-
-

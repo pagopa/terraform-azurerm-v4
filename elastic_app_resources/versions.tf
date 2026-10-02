@@ -3,7 +3,7 @@ terraform {
 
     elasticstack = {
       source  = "elastic/elasticstack"
-      version = "~> 0.16" #required for jsm integration
+      version = ">= 0.16.5" #required for jsm integration and artifacts
     }
   }
 }
