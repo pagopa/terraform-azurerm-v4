@@ -549,7 +549,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
   # manually disabled overrides the default enabled value
   # if at least one channel is enabled, the alert is enabled
-  enabled     = lookup(each.value, "enabled", true) && (var.alert_channels.email.enabled || var.alert_channels.jsm.enabled || var.alert_channels.slack.enabled)
+  enabled     = lookup(each.value, "enabled", true) && (each.value.alert_channels.email.enabled || each.value.alert_channels.jsm.enabled || each.value.alert_channels.slack.enabled)
   space_id    = var.space_id
   alert_delay = lookup(each.value, "trigger_after_consecutive_runs", null)
 
