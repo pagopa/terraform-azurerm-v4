@@ -437,12 +437,22 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
 
     precondition {
       condition     = can(each.value.window.size) && can(each.value.window.unit)
-      error_message = "'window' must be ddefined and must have 'size' and 'unit' defined. used by alert '${each.key}' in '${var.application_name}' application"
+      error_message = "'window' must be defined and must have 'size' and 'unit' defined. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
     precondition {
       condition     = can(each.value.schedule)
       error_message = "'schedule' must be defined. used by alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition = lookup(each.value, "investigation", null) != null ? lookup(each.value.investigation, "message", null) != null || lookup(each.value.investigation, "dashboards", null) != null : true
+      error_message = "investigation must define at least one of 'message' or 'dashboards' for alert '${each.key}' in '${var.application_name}' application"
+    }
+
+    precondition {
+      condition     = lookup(each.value, "investigation", null) != null && lookup(lookup(each.value, "investigation", {}), "dashboards", null) != null ? alltrue([for dashboard in each.value.investigation.dashboards : contains(keys(merge(local.dashboards, local.system_dashboards)), dashboard)]) : true
+      error_message = "investigation.dashboards must contain only dashboard names from files in '${var.application_name}' dashboard folder. used by alert '${each.key}' in '${var.application_name}' application"
     }
 
   }
@@ -699,13 +709,13 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
   }
 
-  artifacts = can(each.value.investigation) ? {
-    investigation_guide = {
-      content = lookup(each.value.investigation, "message", null)
-    }
-    dashboards = [for d in lookup(each.value.investigation, "dashboards", []) : {
+  artifacts = lookup(each.value, "investigation", null) != null ? {
+    investigation_guide = can(each.value.investigation.message) ? {
+      content = each.value.investigation.message
+    } : null
+    dashboards = length(try(each.value.investigation.dashboards, [])) > 0 ?  [for d in try(each.value.investigation.dashboards, []) : {
       id = try([for result in elasticstack_kibana_import_saved_objects.dashboard[d].success_results : result.destination_id if result.type == "dashboard"][0], null)
-    }]
+    }] : null
   } : null
 
 
