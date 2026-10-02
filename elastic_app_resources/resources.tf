@@ -573,7 +573,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         message = can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : (can(each.value.esql_query) ? local.alert_messages.esql_query : local.alert_messages.log_query))
         to      = each.value.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
         cc      = []
-        subject = "Elastic alert ${var.target_env} ${each.value.name}"
+        subject = "Elastic alert ${var.target_env} ${var.space_name} ${each.value.name}"
       })
       frequency {
         notify_when = "onActionGroupChange"
@@ -592,7 +592,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
         message = "Recovered - ${var.target_env} ${each.value.name}"
         to      = each.value.alert_channels.email.recipients[each.value.notification_channels.email.recipient_list_name],
         cc      = []
-        subject = "Recovered - Elastic alert ${var.target_env} ${each.value.name}"
+        subject = "Recovered - Elastic alert ${var.target_env} ${var.space_name} ${each.value.name}"
       })
       frequency {
         notify_when = "onActionGroupChange"
@@ -614,7 +614,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
           tags = [
             "{{rule.tags}}"
           ],
-          message     = "Elastic alert ${var.target_env} ${each.value.name}"
+          message     = "Elastic alert ${var.target_env} ${var.space_name} ${each.value.name}"
           priority    = each.value.notification_channels.jsm.priority
           description = can(each.value.custom_threshold) ? local.alert_messages.custom_threshold : (can(each.value.apm_metric) ? local.alert_messages.apm_anomaly : (can(each.value.esql_query) ? local.alert_messages.esql_query : local.alert_messages.log_query))
         }
@@ -668,7 +668,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       group = "recovered"
       id    = each.value.alert_channels.slack.connectors[each.value.notification_channels.slack.connector_name]
       params = jsonencode({
-        "message" : "Recovered - ${var.target_env} ${each.value.name}"
+        "message" : "Recovered - ${var.target_env} ${var.space_name} ${each.value.name}"
       })
       frequency {
         notify_when = "onActionGroupChange"
