@@ -63,15 +63,15 @@ locals {
   system_alert_variables = {
     space_id = var.space_id
     overlog = {
-      window_size_hours    = var.system_alert.overlog.window_size_hours
-      threshold_percentage = var.system_alert.overlog.threshold_percentage
-      max_lookback_hours   = var.system_alert.overlog.lookback_comparison_hours + var.system_alert.overlog.window_size_hours
-      min_lookback_hours   = var.system_alert.overlog.lookback_comparison_hours
-      frequency_hours      = var.system_alert.overlog.window_size_hours
+      window_size_hours                   = var.system_alert.overlog.window_size_hours
+      threshold_percentage                = var.system_alert.overlog.threshold_percentage
+      max_lookback_hours                  = var.system_alert.overlog.lookback_comparison_hours + var.system_alert.overlog.window_size_hours
+      min_lookback_hours                  = var.system_alert.overlog.lookback_comparison_hours
+      frequency_hours                     = var.system_alert.overlog.window_size_hours
       max_lookback_hours_skip_on_saturday = var.system_alert.overlog.lookback_comparison_hours + var.system_alert.overlog.window_size_hours + 24
-      max_lookback_hours_skip_on_sunday = var.system_alert.overlog.lookback_comparison_hours + var.system_alert.overlog.window_size_hours + 48
+      max_lookback_hours_skip_on_sunday   = var.system_alert.overlog.lookback_comparison_hours + var.system_alert.overlog.window_size_hours + 48
       min_lookback_hours_skip_on_saturday = var.system_alert.overlog.lookback_comparison_hours + 24
-      min_lookback_hours_skip_on_sunday = var.system_alert.overlog.lookback_comparison_hours + 48
+      min_lookback_hours_skip_on_sunday   = var.system_alert.overlog.lookback_comparison_hours + 48
     }
     data_view             = elasticstack_kibana_data_view.kibana_data_view.data_view.title
     notification_channels = var.system_alert.notification_channels

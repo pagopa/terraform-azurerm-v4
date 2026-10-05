@@ -446,7 +446,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     }
 
     precondition {
-      condition = lookup(each.value, "investigation", null) != null ? lookup(each.value.investigation, "message", null) != null || lookup(each.value.investigation, "dashboards", null) != null : true
+      condition     = lookup(each.value, "investigation", null) != null ? lookup(each.value.investigation, "message", null) != null || lookup(each.value.investigation, "dashboards", null) != null : true
       error_message = "investigation must define at least one of 'message' or 'dashboards' for alert '${each.key}' in '${var.application_name}' application"
     }
 
@@ -713,7 +713,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
     investigation_guide = can(each.value.investigation.message) ? {
       content = each.value.investigation.message
     } : null
-    dashboards = length(try(each.value.investigation.dashboards, [])) > 0 ?  [for d in try(each.value.investigation.dashboards, []) : {
+    dashboards = length(try(each.value.investigation.dashboards, [])) > 0 ? [for d in try(each.value.investigation.dashboards, []) : {
       id = try([for result in elasticstack_kibana_import_saved_objects.dashboard[d].success_results : result.destination_id if result.type == "dashboard"][0], null)
     }] : null
   } : null
