@@ -4,23 +4,33 @@ window:
   size: ${overlog.max_lookback_hours}
   unit: h
 esql_query:
-  query: '
+  query: |
     FROM ${data_view}
-    | WHERE (@timestamp >= NOW() - ${overlog.max_lookback_hours} HOUR AND @timestamp < NOW() - ${overlog.min_lookback_hours} HOUR) OR (@timestamp >= NOW() - ${overlog.window_size_hours} HOUR AND @timestamp < NOW() )
-    | EVAL
-    is_now = CASE(@timestamp >= NOW() - ${overlog.window_size_hours} HOUR AND @timestamp < NOW(), true, false),
-    is_previous = CASE(@timestamp >= NOW() - ${overlog.max_lookback_hours} HOUR AND @timestamp < NOW() - ${overlog.min_lookback_hours} HOUR, true, false),
-    now_flag = CASE(is_now, 1, 0),
-    prev_flag = CASE(is_previous, 1, 0)
-    | STATS
-    now_count = SUM(now_flag),
-    prev_count = SUM(prev_flag)
+    | KEEP @timestamp
+    | EVAL now_ts = NOW()
+    | EVAL now_start = now_ts - ${overlog.window_size_hours} HOUR
+    | EVAL prev_start = CASE(
+        DAY_NAME(now_ts - ${overlog.max_lookback_hours} HOUR) == "Saturday", now_ts - ${overlog.max_lookback_hours_skip_on_saturday} HOUR,
+        DAY_NAME(now_ts - ${overlog.max_lookback_hours} HOUR) == "Sunday", now_ts - ${overlog.max_lookback_hours_skip_on_sunday} HOUR,
+        now_ts - ${overlog.max_lookback_hours} HOUR
+      )
+    | EVAL prev_end = CASE(
+        DAY_NAME(now_ts - ${overlog.min_lookback_hours} HOUR) == "Saturday", now_ts - ${overlog.min_lookback_hours_skip_on_saturday} HOUR,
+        DAY_NAME(now_ts - ${overlog.min_lookback_hours} HOUR) == "Sunday", now_ts - ${overlog.min_lookback_hours_skip_on_sunday} HOUR,
+        now_ts - ${overlog.min_lookback_hours} HOUR
+      )
+    | EVAL is_now = @timestamp >= now_start AND @timestamp < now_ts,
+           is_previous = @timestamp >= prev_start AND @timestamp < prev_end
+    | WHERE is_now OR is_previous
+    | EVAL now_flag = CASE(is_now, 1, 0),
+           prev_flag = CASE(is_previous, 1, 0)
+    | STATS now_count = SUM(now_flag), prev_count = SUM(prev_flag)
     | EVAL percent_change = CASE(
-    prev_count > 0,
-    ((now_count - prev_count) * 100.0) / prev_count,
-    CASE(now_count > 0, 100.0, 0.0)
-    )
-    | WHERE percent_change >= ${overlog.threshold_percentage}'
+        prev_count > 0, ((now_count - prev_count) * 100.0) / prev_count,
+        now_count > 0, 100.0,
+        0.0
+      )
+    | WHERE percent_change >= ${overlog.threshold_percentage}
   exclude_hits_from_previous_run: false
   group_by: all
 trigger_after_consecutive_runs: 1
