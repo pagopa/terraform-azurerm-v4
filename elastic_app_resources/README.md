@@ -298,6 +298,8 @@ The module ships its own `overlog` alert (see `alert/platform_overlog_alert.yml`
 the last `window_size_hours` hours against the volume of a previous window shifted `lookback_comparison_hours` hours
 back, and fires when the increase exceeds `threshold_percentage`:
 
+If the previous window falls on a weekend day, the window is expanded to look in the first available working day before the weekend, so that weekend log volume drops do not trigger false positives.
+
 ```hcl
 system_alert = {
   overlog = {
