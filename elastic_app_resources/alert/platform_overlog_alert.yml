@@ -1,7 +1,7 @@
 name: platform-overlog-alert
 schedule: "${overlog.frequency_hours}h"
 window:
-  size: ${overlog.max_lookback_hours}
+  size: ${overlog.max_lookback_hours_skip_on_sunday}
   unit: h
 esql_query:
   query: |
