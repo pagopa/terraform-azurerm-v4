@@ -256,13 +256,15 @@ variable "system_alert_channels" {
 variable "system_alert" {
   type = object({
     overlog = optional(object({
-      window_size_hours         = optional(number, 1)  # time window to evaluate the overlog alert on
-      lookback_comparison_hours = optional(number, 24) # compoare the current time window to the previous time window shifted this many hours back in time
-      threshold_percentage      = optional(number, 20) # max allowed increase in log volume between the current time window and the previous time window
+      window_size_hours         = optional(number, 1)    # time window to evaluate the overlog alert on
+      lookback_comparison_hours = optional(number, 24)   # compoare the current time window to the previous time window shifted this many hours back in time
+      threshold_percentage      = optional(number, 20)   # max allowed increase in log volume between the current time window and the previous time window
+      min_count_threshold       = optional(number, 5000) # min number of recors to be found in the current time window to trigger the alert. This is to avoid triggering the alert on low volume logs that may have a high percentage increase but are not significant.
       }), {
       window_size_hours         = 1
       lookback_comparison_hours = 24
       threshold_percentage      = 20
+      min_count_threshold       = 5000
     })
     notification_channels = object({ # defines the notification channels to be used for embedded system alerts. At least one channel must be defined.
       email = optional(object({

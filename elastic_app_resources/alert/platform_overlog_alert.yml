@@ -6,27 +6,25 @@ window:
 esql_query:
   query: |
     FROM ${data_view}
+    // 1) Filtro pushdown su Lucene: al massimo 4 ore di dati invece dell'intero indice
+    | WHERE @timestamp >= NOW() - ${overlog.window_size_hours} hour
+     OR (@timestamp >= NOW() - ${overlog.max_lookback_hours} hours AND @timestamp < NOW() - ${overlog.min_lookback_hours} hours)
+     OR (@timestamp >= NOW() - ${overlog.max_lookback_hours_skip_on_saturday} hours AND @timestamp < NOW() - ${overlog.min_lookback_hours_skip_on_saturday} hours)
+     OR (@timestamp >= NOW() - ${overlog.max_lookback_hours_skip_on_sunday} hours AND @timestamp < NOW() - ${overlog.min_lookback_hours_skip_on_sunday} hours)
     | KEEP @timestamp
-    | EVAL now_ts = NOW()
-    | EVAL now_start = now_ts - ${overlog.window_size_hours} HOUR
-    | EVAL prev_start = CASE(
-        DAY_NAME(now_ts - ${overlog.max_lookback_hours} HOUR) == "Saturday", now_ts - ${overlog.max_lookback_hours_skip_on_saturday} HOUR,
-        DAY_NAME(now_ts - ${overlog.max_lookback_hours} HOUR) == "Sunday", now_ts - ${overlog.max_lookback_hours_skip_on_sunday} HOUR,
-        now_ts - ${overlog.max_lookback_hours} HOUR
-      )
+    // 2) Un solo riferimento per il giorno, così la finestra precedente resta coerente
     | EVAL prev_end = CASE(
-        DAY_NAME(now_ts - ${overlog.min_lookback_hours} HOUR) == "Saturday", now_ts - ${overlog.min_lookback_hours_skip_on_saturday} HOUR,
-        DAY_NAME(now_ts - ${overlog.min_lookback_hours} HOUR) == "Sunday", now_ts - ${overlog.min_lookback_hours_skip_on_sunday} HOUR,
-        now_ts - ${overlog.min_lookback_hours} HOUR
+        DAY_NAME(NOW() - ${overlog.min_lookback_hours} hours) == "Saturday", NOW() - ${overlog.min_lookback_hours_skip_on_saturday} hours,
+        DAY_NAME(NOW() - ${overlog.min_lookback_hours} hours) == "Sunday",   NOW() - ${overlog.min_lookback_hours_skip_on_sunday} hours,
+        NOW() - ${overlog.min_lookback_hours} hours
       )
-    | EVAL is_now = @timestamp >= now_start AND @timestamp < now_ts,
-           is_previous = @timestamp >= prev_start AND @timestamp < prev_end
-    | WHERE is_now OR is_previous
-    | EVAL now_flag = CASE(is_now, 1, 0),
-           prev_flag = CASE(is_previous, 1, 0)
-    | STATS now_count = SUM(now_flag), prev_count = SUM(prev_flag)
+    | EVAL prev_start = prev_end - 1 hour
+    // 3) Conteggi condizionali senza colonne flag intermedie
+    | STATS now_count  = COUNT(*) WHERE @timestamp >= NOW() - 1 hour,
+            prev_count = COUNT(*) WHERE @timestamp >= prev_start AND @timestamp < prev_end
+    | WHERE now_count > ${overlog.min_count_threshold}
     | EVAL percent_change = CASE(
-        prev_count > 0, ((now_count - prev_count) * 100.0) / prev_count,
+        prev_count > 0, (now_count - prev_count) * 100.0 / prev_count,
         now_count > 0, 100.0,
         0.0
       )
