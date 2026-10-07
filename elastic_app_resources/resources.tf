@@ -138,6 +138,7 @@ resource "elasticstack_kibana_import_saved_objects" "dashboard" {
     apm_data_view_title = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
     namespace           = local.elastic_namespace
     space_name          = var.space_name
+    id = "${each.key}-${each.value.space_id}"
   })
 }
 
