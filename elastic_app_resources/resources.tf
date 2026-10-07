@@ -734,7 +734,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       content = each.value.investigation.message
     } : null
     dashboards = length(try(each.value.investigation.dashboards, [])) > 0 ? [for d in try(each.value.investigation.dashboards, []) : {
-      id = try([for result in elasticstack_kibana_import_saved_objects.dashboard[d].success_results : result.destination_id if result.type == "dashboard"][0] && result.type == "dashboard"][0] != null else "${d}-${var.application_name}-${each.value.space_id}", null)
+      id = coalesce(try([for result in elasticstack_kibana_import_saved_objects.dashboard[d].success_results : result.destination_id if result.type == "dashboard" && result.destination_id != null][0] , null), "${d}-${var.application_name}-${each.value.space_id}")
     }] : null
   } : null
 
