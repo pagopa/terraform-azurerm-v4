@@ -46,6 +46,12 @@ variable "space_name" {
   description = "Kibana space name where to create the data views and dashboards for this application. Used in resources display name"
 }
 
+
+variable "system_space_id" {
+  type        = string
+  description = "Kibana space identifier where to create the system resources related to this application"
+}
+
 variable "target_env" {
   type        = string
   description = "Name of the monitored target environment containing this application"

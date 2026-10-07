@@ -109,17 +109,8 @@ resource "elasticstack_kibana_import_saved_objects" "dashboard" {
   for_each   = merge(local.dashboards, local.system_dashboards)
   depends_on = [elasticstack_kibana_data_view.kibana_data_view]
   overwrite  = true
-  space_id   = var.space_id
-  file_contents = templatefile(each.value, {
-    data_view           = elasticstack_kibana_data_view.kibana_data_view.data_view.id
-    data_view_name      = elasticstack_kibana_data_view.kibana_data_view.data_view.name
-    data_view_title     = elasticstack_kibana_data_view.kibana_data_view.data_view.title
-    apm_data_view       = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
-    apm_data_view_name  = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.name
-    apm_data_view_title = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
-    namespace           = local.elastic_namespace
-    space_name          = var.space_name
-  })
+  space_id   = lookup(each.value, "space_id", null) != null ? each.value.space_id : var.space_id
+  file_contents = each.value
 }
 
 
@@ -560,7 +551,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   # manually disabled overrides the default enabled value
   # if at least one channel is enabled, the alert is enabled
   enabled     = lookup(each.value, "enabled", true) && (each.value.alert_channels.email.enabled || each.value.alert_channels.jsm.enabled || each.value.alert_channels.slack.enabled)
-  space_id    = var.space_id
+  space_id    = lookup(each.value, "space_id", null) != null ? each.value.space_id : var.space_id
   alert_delay = lookup(each.value, "trigger_after_consecutive_runs", null)
 
   #email

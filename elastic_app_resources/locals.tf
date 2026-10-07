@@ -1,10 +1,10 @@
 locals {
   data_streams      = { for d in var.configuration.dataStream : d => d }
   application_id    = "${var.application_name}-${var.target_env}"
-  dashboards        = { for df in fileset("${var.dashboard_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => "${var.dashboard_folder}/${df}" }
-  system_dashboards = { for df in fileset("${path.module}/dashboard", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => "${path.module}/dashboard/${df}" }
+  dashboards        = { for df in fileset("${var.dashboard_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => templatefile("${var.dashboard_folder}/${df}", local.dashboard_variables) }
+  system_dashboards = { for df in fileset("${path.module}/dashboard", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => templatefile("${path.module}/dashboard/${df}", merge(local.dashboard_variables, {space_id = var.system_space_id})) }
   queries           = { for qf in fileset("${var.query_folder}", "/*.ndjson") : trimsuffix(basename(qf), ".ndjson") => "${var.query_folder}/${qf}" }
-  system_alerts     = { for a in fileset("${path.module}/alert", "/*.yml") : trimsuffix(basename(a), ".yml") => merge(yamldecode(templatefile("${path.module}/alert/${a}", merge(local.system_alert_variables, local.alert_variables))), { alert_channels : var.system_alert_channels }) }
+  system_alerts     = { for a in fileset("${path.module}/alert", "/*.yml") : trimsuffix(basename(a), ".yml") => merge(yamldecode(templatefile("${path.module}/alert/${a}", merge(local.system_alert_variables, local.alert_variables))), { alert_channels : var.system_alert_channels, space_id: var.system_space_id }) }
   alerts            = { for af in fileset("${var.alert_folder}", "/*.yml") : trimsuffix(basename(af), ".yml") => merge(yamldecode(templatefile("${var.alert_folder}/${af}", local.alert_variables)), { alert_channels : var.alert_channels }) }
 
   elastic_namespace = "${var.target_name}.${var.target_env}"
@@ -76,5 +76,16 @@ locals {
     }
     data_view             = elasticstack_kibana_data_view.kibana_data_view.data_view.title
     notification_channels = var.system_alert.notification_channels
+  }
+
+  dashboard_variables = {
+    data_view           = elasticstack_kibana_data_view.kibana_data_view.data_view.id
+    data_view_name      = elasticstack_kibana_data_view.kibana_data_view.data_view.name
+    data_view_title     = elasticstack_kibana_data_view.kibana_data_view.data_view.title
+    apm_data_view       = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
+    apm_data_view_name  = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.name
+    apm_data_view_title = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
+    namespace           = local.elastic_namespace
+    space_name          = var.space_name
   }
 }
