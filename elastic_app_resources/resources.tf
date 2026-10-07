@@ -108,7 +108,7 @@ resource "elasticstack_kibana_data_view" "kibana_apm_data_view" {
 resource "elasticstack_kibana_import_saved_objects" "dashboard" {
   for_each   = merge(local.dashboards, local.system_dashboards)
   depends_on = [elasticstack_kibana_data_view.kibana_data_view]
-  create_new_copies  = true
+  overwrite  = true
   space_id   = each.value.space_id
   file_contents = templatefile(each.value.file, {
     data_view           = elasticstack_kibana_data_view.kibana_data_view.data_view.id
