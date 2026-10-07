@@ -138,7 +138,7 @@ resource "elasticstack_kibana_import_saved_objects" "dashboard" {
     apm_data_view_title = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
     namespace           = local.elastic_namespace
     space_name          = var.space_name
-    id = "${each.key}-${each.value.space_id}"
+    id = "${each.key}-${var.application_name}-${each.value.space_id}"
   })
 }
 
@@ -734,7 +734,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       content = each.value.investigation.message
     } : null
     dashboards = length(try(each.value.investigation.dashboards, [])) > 0 ? [for d in try(each.value.investigation.dashboards, []) : {
-      id = try([for result in elasticstack_kibana_import_saved_objects.dashboard[d].success_results : result.destination_id if result.type == "dashboard"][0], null)
+      id = try([for result in elasticstack_kibana_import_saved_objects.dashboard[d].success_results : result.destination_id if result.type == "dashboard"][0] && result.type == "dashboard"][0] != null else "${d}-${var.application_name}-${each.value.space_id}", null)
     }] : null
   } : null
 
