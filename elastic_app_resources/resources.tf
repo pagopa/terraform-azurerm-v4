@@ -127,18 +127,18 @@ resource "elasticstack_kibana_import_saved_objects" "dashboard" {
   overwrite  = true
   space_id   = each.value.space_id
   file_contents = templatefile(each.value.file, {
-    data_view           = elasticstack_kibana_data_view.kibana_data_view.data_view.id
-    system_data_view           = elasticstack_kibana_data_view.kibana_system_data_view.data_view.id
-    data_view_name      = elasticstack_kibana_data_view.kibana_data_view.data_view.name
-    system_data_view_name      = elasticstack_kibana_data_view.kibana_system_data_view.data_view.name
-    data_view_title     = elasticstack_kibana_data_view.kibana_data_view.data_view.title
-    system_data_view_title     = elasticstack_kibana_data_view.kibana_system_data_view.data_view.title
-    apm_data_view       = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
-    apm_data_view_name  = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.name
-    apm_data_view_title = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
-    namespace           = local.elastic_namespace
-    space_name          = var.space_name
-    id = "${each.key}-${var.application_name}-${each.value.space_id}"
+    data_view              = elasticstack_kibana_data_view.kibana_data_view.data_view.id
+    system_data_view       = elasticstack_kibana_data_view.kibana_system_data_view.data_view.id
+    data_view_name         = elasticstack_kibana_data_view.kibana_data_view.data_view.name
+    system_data_view_name  = elasticstack_kibana_data_view.kibana_system_data_view.data_view.name
+    data_view_title        = elasticstack_kibana_data_view.kibana_data_view.data_view.title
+    system_data_view_title = elasticstack_kibana_data_view.kibana_system_data_view.data_view.title
+    apm_data_view          = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
+    apm_data_view_name     = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.name
+    apm_data_view_title    = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
+    namespace              = local.elastic_namespace
+    space_name             = var.space_name
+    id                     = "${each.key}-${var.application_name}-${each.value.space_id}"
   })
 }
 
@@ -734,7 +734,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       content = each.value.investigation.message
     } : null
     dashboards = length(try(each.value.investigation.dashboards, [])) > 0 ? [for d in try(each.value.investigation.dashboards, []) : {
-      id = coalesce(try([for result in elasticstack_kibana_import_saved_objects.dashboard[d].success_results : result.destination_id if result.type == "dashboard" && result.destination_id != null][0] , null), "${d}-${var.application_name}-${each.value.space_id}")
+      id = coalesce(try([for result in elasticstack_kibana_import_saved_objects.dashboard[d].success_results : result.destination_id if result.type == "dashboard" && result.destination_id != null][0], null), "${d}-${var.application_name}-${each.value.space_id}")
     }] : null
   } : null
 

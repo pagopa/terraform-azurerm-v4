@@ -1,11 +1,11 @@
 locals {
   data_streams      = { for d in var.configuration.dataStream : d => d }
   application_id    = "${var.application_name}-${var.target_env}"
-  dashboards        = { for df in fileset("${var.dashboard_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => {file: "${var.dashboard_folder}/${df}", space_id = var.space_id} }
-  system_dashboards = { for df in fileset("${path.module}/dashboard", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => {file: "${path.module}/dashboard/${df}", space_id = var.system_space_id} }
+  dashboards        = { for df in fileset("${var.dashboard_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => { file : "${var.dashboard_folder}/${df}", space_id = var.space_id } }
+  system_dashboards = { for df in fileset("${path.module}/dashboard", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => { file : "${path.module}/dashboard/${df}", space_id = var.system_space_id } }
   queries           = { for qf in fileset("${var.query_folder}", "/*.ndjson") : trimsuffix(basename(qf), ".ndjson") => "${var.query_folder}/${qf}" }
-  system_alerts     = { for a in fileset("${path.module}/alert", "/*.yml") : trimsuffix(basename(a), ".yml") => merge(yamldecode(templatefile("${path.module}/alert/${a}", merge(local.system_alert_variables, local.alert_variables))), { alert_channels : var.system_alert_channels, space_id: var.system_space_id }) }
-  alerts            = { for af in fileset("${var.alert_folder}", "/*.yml") : trimsuffix(basename(af), ".yml") => merge(yamldecode(templatefile("${var.alert_folder}/${af}", local.alert_variables)), { alert_channels : var.alert_channels , space_id = var.space_id}) }
+  system_alerts     = { for a in fileset("${path.module}/alert", "/*.yml") : trimsuffix(basename(a), ".yml") => merge(yamldecode(templatefile("${path.module}/alert/${a}", merge(local.system_alert_variables, local.alert_variables))), { alert_channels : var.system_alert_channels, space_id : var.system_space_id }) }
+  alerts            = { for af in fileset("${var.alert_folder}", "/*.yml") : trimsuffix(basename(af), ".yml") => merge(yamldecode(templatefile("${var.alert_folder}/${af}", local.alert_variables)), { alert_channels : var.alert_channels, space_id = var.space_id }) }
 
   elastic_namespace = "${var.target_name}.${var.target_env}"
 
