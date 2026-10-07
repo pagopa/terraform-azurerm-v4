@@ -109,8 +109,17 @@ resource "elasticstack_kibana_import_saved_objects" "dashboard" {
   for_each   = merge(local.dashboards, local.system_dashboards)
   depends_on = [elasticstack_kibana_data_view.kibana_data_view]
   overwrite  = true
-  space_id   = lookup(each.value, "space_id", null) != null ? each.value.space_id : var.space_id
-  file_contents = each.value
+  space_id   = each.value.space_id
+  file_contents = templatefile(each.value.file, {
+    data_view           = elasticstack_kibana_data_view.kibana_data_view.data_view.id
+    data_view_name      = elasticstack_kibana_data_view.kibana_data_view.data_view.name
+    data_view_title     = elasticstack_kibana_data_view.kibana_data_view.data_view.title
+    apm_data_view       = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
+    apm_data_view_name  = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.name
+    apm_data_view_title = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
+    namespace           = local.elastic_namespace
+    space_name          = var.space_name
+  })
 }
 
 
