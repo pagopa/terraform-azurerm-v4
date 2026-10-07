@@ -104,21 +104,41 @@ resource "elasticstack_kibana_data_view" "kibana_apm_data_view" {
   }
 }
 
+resource "elasticstack_kibana_data_view" "kibana_system_data_view" {
+  space_id = var.system_space_id
+  data_view = {
+    id              = "system_${replace(var.configuration.displayName, "-", "_")}_${var.target_name}_${var.target_env}"
+    name            = "System ${var.configuration.displayName} ${var.target_name} ${var.target_env}"
+    title           = join(",", [for idx in var.configuration.dataView.indexIdentifiers : "${idx}-${local.elastic_namespace}"])
+    time_field_name = "@timestamp"
+
+    runtime_field_map = length(local.runtime_fields) != 0 ? local.runtime_fields : null
+  }
+
+  lifecycle {
+    ignore_changes = [data_view.field_attrs]
+  }
+}
+
 
 resource "elasticstack_kibana_import_saved_objects" "dashboard" {
   for_each   = merge(local.dashboards, local.system_dashboards)
   depends_on = [elasticstack_kibana_data_view.kibana_data_view]
   overwrite  = true
-  space_id   = var.space_id
-  file_contents = templatefile(each.value, {
-    data_view           = elasticstack_kibana_data_view.kibana_data_view.data_view.id
-    data_view_name      = elasticstack_kibana_data_view.kibana_data_view.data_view.name
-    data_view_title     = elasticstack_kibana_data_view.kibana_data_view.data_view.title
-    apm_data_view       = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
-    apm_data_view_name  = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.name
-    apm_data_view_title = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
-    namespace           = local.elastic_namespace
-    space_name          = var.space_name
+  space_id   = each.value.space_id
+  file_contents = templatefile(each.value.file, {
+    data_view              = elasticstack_kibana_data_view.kibana_data_view.data_view.id
+    system_data_view       = elasticstack_kibana_data_view.kibana_system_data_view.data_view.id
+    data_view_name         = elasticstack_kibana_data_view.kibana_data_view.data_view.name
+    system_data_view_name  = elasticstack_kibana_data_view.kibana_system_data_view.data_view.name
+    data_view_title        = elasticstack_kibana_data_view.kibana_data_view.data_view.title
+    system_data_view_title = elasticstack_kibana_data_view.kibana_system_data_view.data_view.title
+    apm_data_view          = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.id
+    apm_data_view_name     = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.name
+    apm_data_view_title    = elasticstack_kibana_data_view.kibana_apm_data_view.data_view.title
+    namespace              = local.elastic_namespace
+    space_name             = var.space_name
+    id                     = "${each.key}-${var.application_name}-${each.value.space_id}"
   })
 }
 
@@ -560,7 +580,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   # manually disabled overrides the default enabled value
   # if at least one channel is enabled, the alert is enabled
   enabled     = lookup(each.value, "enabled", true) && (each.value.alert_channels.email.enabled || each.value.alert_channels.jsm.enabled || each.value.alert_channels.slack.enabled)
-  space_id    = var.space_id
+  space_id    = lookup(each.value, "space_id", null) != null ? each.value.space_id : var.space_id
   alert_delay = lookup(each.value, "trigger_after_consecutive_runs", null)
 
   #email
@@ -714,7 +734,7 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
       content = each.value.investigation.message
     } : null
     dashboards = length(try(each.value.investigation.dashboards, [])) > 0 ? [for d in try(each.value.investigation.dashboards, []) : {
-      id = try([for result in elasticstack_kibana_import_saved_objects.dashboard[d].success_results : result.destination_id if result.type == "dashboard"][0], null)
+      id = coalesce(try([for result in elasticstack_kibana_import_saved_objects.dashboard[d].success_results : result.destination_id if result.type == "dashboard" && result.destination_id != null][0], null), "${d}-${var.application_name}-${each.value.space_id}")
     }] : null
   } : null
 
