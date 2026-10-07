@@ -121,6 +121,9 @@ resource "elasticstack_kibana_import_saved_objects" "dashboard" {
     space_name          = var.space_name
   })
 }
+output "dashboard" {
+  value = elasticstack_kibana_import_saved_objects.dashboard
+}
 
 
 
