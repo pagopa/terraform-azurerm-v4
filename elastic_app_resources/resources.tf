@@ -107,8 +107,8 @@ resource "elasticstack_kibana_data_view" "kibana_apm_data_view" {
 resource "elasticstack_kibana_data_view" "kibana_system_data_view" {
   space_id = var.system_space_id
   data_view = {
-    id              = "${replace(var.configuration.displayName, "-", "_")}_${var.target_name}_${var.target_env}"
-    name            = "${var.configuration.displayName} ${var.target_name} ${var.target_env}"
+    id              = "system_${replace(var.configuration.displayName, "-", "_")}_${var.target_name}_${var.target_env}"
+    name            = "System ${var.configuration.displayName} ${var.target_name} ${var.target_env}"
     title           = join(",", [for idx in var.configuration.dataView.indexIdentifiers : "${idx}-${local.elastic_namespace}"])
     time_field_name = "@timestamp"
 
