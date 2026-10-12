@@ -31,7 +31,7 @@ esql_query:
     | WHERE percent_change >= ${overlog.threshold_percentage}
   exclude_hits_from_previous_run: false
   group_by: all
-trigger_after_consecutive_runs: 1
+trigger_after_consecutive_runs: ${overlog.trigger_after_consecutive_runs}
 enabled: true
 notification_channels:
   %{ if can(notification_channels.email.recipient_list_name) }
