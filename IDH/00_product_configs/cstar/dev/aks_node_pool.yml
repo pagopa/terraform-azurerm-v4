@@ -8,7 +8,18 @@ Standard_B8ms_active:
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 1
   zones: ["1", "2", "3"]
+  deprecated: true
 Standard_B8ms_passive:
+  vm_size: "Standard_B8ms"
+  os_disk_type: "Managed"
+  os_disk_size_gb: 128
+  ultra_ssd_enabled: false
+  enable_host_encryption: false
+  upgrade_settings_max_surge: "33%"
+  node_min_allowed: 0
+  zones: ["1", "2", "3"]
+  deprecated: true
+Standard_B8ms:
   vm_size: "Standard_B8ms"
   os_disk_type: "Managed"
   os_disk_size_gb: 128
@@ -28,7 +39,18 @@ Standard_B4ms_active:
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 1
   zones: ["1", "2", "3"]
+  deprecated: true
 Standard_B4ms_passive:
+  vm_size: "Standard_B4ms"
+  os_disk_type: "Managed"
+  os_disk_size_gb: 128
+  ultra_ssd_enabled: false
+  enable_host_encryption: false
+  upgrade_settings_max_surge: "33%"
+  node_min_allowed: 0
+  zones: ["1", "2", "3"]
+  deprecated: true
+Standard_B4ms:
   vm_size: "Standard_B4ms"
   os_disk_type: "Managed"
   os_disk_size_gb: 128
@@ -48,7 +70,18 @@ Standard_B2ms_active:
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 1
   zones: ["1", "2", "3"]
+  deprecated: true
 Standard_B2ms_passive:
+  vm_size: "Standard_B2ms"
+  os_disk_type: "Managed"
+  os_disk_size_gb: 128
+  ultra_ssd_enabled: false
+  enable_host_encryption: false
+  upgrade_settings_max_surge: "33%"
+  node_min_allowed: 0
+  zones: ["1", "2", "3"]
+  deprecated: true
+Standard_B2ms:
   vm_size: "Standard_B2ms"
   os_disk_type: "Managed"
   os_disk_size_gb: 128
