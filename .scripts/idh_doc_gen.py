@@ -158,7 +158,7 @@ def doc_generate() -> None:
                 deprecated = flat_data.get('deprecated', False)
                 description = desc_template.format_map(Default(flat_data))
                 module_docs.append(
-                    f"| {config['platform']} | {config['environment']} |  {resource_name} | {'**Deprecated**' if deprecated else '-'} | {description} |"
+                    f"| {config['platform']} | {config['environment']} |  {'~~'+resource_name+'~~' if deprecated else resource_name} | {'**Yes**' if deprecated else 'No'} | {description} |"
                 )
 
 
