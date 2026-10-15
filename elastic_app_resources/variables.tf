@@ -268,8 +268,8 @@ variable "system_alert" {
       min_count_threshold            = optional(number, 5000) # min number of recors to be found in the current time window to trigger the alert. This is to avoid triggering the alert on low volume logs that may have a high percentage increase but are not significant.
       trigger_after_consecutive_runs = optional(number, 2)    # number of consecutive runs to trigger the alert
       flapping = optional(object({
-        enabled = optional(bool, false)
-        look_back_window = optional(number, 20)
+        enabled                 = optional(bool, false)
+        look_back_window        = optional(number, 20)
         status_change_threshold = optional(number, 4)
       }), null)
       }), {
@@ -279,8 +279,8 @@ variable "system_alert" {
       min_count_threshold            = 5000
       trigger_after_consecutive_runs = 2
       flapping = {
-        enabled = false
-        look_back_window = 20
+        enabled                 = false
+        look_back_window        = 20
         status_change_threshold = 4
       }
     })
