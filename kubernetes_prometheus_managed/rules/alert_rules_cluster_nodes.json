@@ -2,7 +2,7 @@
   {
     "alert": "KubeCPUQuotaOvercommit",
     "enabled": true,
-    "expression": "sum(min without(resource) (kube_resourcequota{job=\"kube-state-metrics\", type=\"hard\", resource=~\"(cpu|requests.cpu)\"}))  /sum(kube_node_status_allocatable{resource=\"cpu\", job=\"kube-state-metrics\"})  > 1.5",
+    "expression": "sum by (cluster) (min without(resource) (kube_resourcequota{job=\"kube-state-metrics\", type=\"hard\", resource=~\"(cpu|requests.cpu)\"})) / sum by (cluster) (kube_node_status_allocatable{job=\"kube-state-metrics\", resource=\"cpu\"}) > 1.5",
     "severity": 4,
     "for": "PT5M",
     "severity_label": "info",
@@ -18,7 +18,7 @@
   {
     "alert": "KubeMemoryQuotaOvercommit",
     "enabled": true,
-    "expression": "sum(min without(resource) (kube_resourcequota{job=\"kube-state-metrics\", type=\"hard\", resource=~\"(memory|requests.memory)\"}))  /sum(kube_node_status_allocatable{resource=\"memory\", job=\"kube-state-metrics\"})  > 1.5",
+    "expression": "sum by (cluster) (min without(resource) (kube_resourcequota{job=\"kube-state-metrics\", type=\"hard\", resource=~\"(memory|requests.memory)\"})) / sum by (cluster) (kube_node_status_allocatable{job=\"kube-state-metrics\", resource=\"memory\"}) > 1.5",
     "severity": 4,
     "for": "PT5M",
     "severity_label": "info",
@@ -34,13 +34,13 @@
   {
     "alert": "KubeContainerOOMKilledCount",
     "enabled": true,
-    "expression": "sum by (cluster,container,controller,namespace)(kube_pod_container_status_last_terminated_reason{reason=\"OOMKilled\"} * on(cluster,namespace,pod) group_left(controller) label_replace(kube_pod_owner, \"controller\", \"$1\", \"owner_name\", \"(.*)\")) > 0",
+    "expression": "sum by (cluster, namespace, controller, container) ((increase(kube_pod_container_status_restarts_total{job=\"kube-state-metrics\"}[10m]) > 0) * on (cluster, namespace, pod, container) group_left() (kube_pod_container_status_last_terminated_reason{job=\"kube-state-metrics\", reason=\"OOMKilled\"} == 1) * on (cluster, namespace, pod) group_left(controller) max by (cluster, namespace, pod, controller) (label_replace(kube_pod_owner{job=\"kube-state-metrics\"}, \"controller\", \"$1\", \"owner_name\", \"(.*)\"))) > 0",
     "severity": 3,
     "for": "PT5M",
     "severity_label": "info",
     "annotations": {
-      "summary": "Number of OOM killed containers is greater than 0",
-      "description": "Number of OOM killed containers is greater than 0. For more information on this alert, please refer to this [link](https://aka.ms/aks-alerts/cluster-level-recommended-alerts)."
+      "summary": "Container OOMKilled",
+      "description": "Container {{ $labels.container }} of {{ $labels.namespace }}/{{ $labels.controller }} in cluster {{ $labels.cluster }} was OOMKilled in the last 10 minutes. For more information on this alert, please refer to this [link](https://aka.ms/aks-alerts/cluster-level-recommended-alerts)."
     },
     "alert_resolution": {
       "auto_resolved": true,
@@ -52,7 +52,7 @@
     "enabled": true,
     "expression": "(sum(rate(rest_client_requests_total{code=~\"5..\"}[5m])) by (cluster, instance, job, namespace)  / sum(rate(rest_client_requests_total[5m])) by (cluster, instance, job, namespace)) > 0.01",
     "severity": 1,
-    "severity_label": "critical",
+    "severity_label": "error",
     "for": "PT15M",
     "annotations": {
       "summary": "Kubernetes API server client",
@@ -178,23 +178,23 @@
   {
     "alert": "KubePersistentVolumeClaimNotBound",
     "enabled": true,
-    "expression": "kube_persistentvolumeclaim_status_condition{condition='Bound',status='false'} == 1",
+    "expression": "kube_persistentvolumeclaim_status_phase{job=\"kube-state-metrics\", phase=\"Pending\"} == 1",
     "severity": 2,
     "severity_label": "warning",
-    "for": "PT5M",
+    "for": "PT15M",
     "annotations": {
-      "summary": "PersistentVolumeClaim {{ $labels.pvc }} in namespace {{ $labels.namespace }} is not bound.",
-      "description": "Please check the status of the PVC and the associated PV."
+      "summary": "PersistentVolumeClaim {{ $labels.persistentvolumeclaim }} in namespace {{ $labels.namespace }} is not bound.",
+      "description": "PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} in cluster {{ $labels.cluster }} has been Pending for more than 15 minutes. Please check the status of the PVC and the associated PV."
     },
     "alert_resolution": {
-      "auto_resolved": false,
+      "auto_resolved": true,
       "time_to_resolve": "PT15M"
     }
   },
   {
     "alert": "KubeNodeUnreachable",
     "enabled": true,
-    "expression": "(kube_node_spec_taint{job=\"kube-state-metrics\",key=\"node.kubernetes.io/unreachable\",effect=\"NoSchedule\"} unless ignoring(key,value) kube_node_spec_taint{job=\"kube-state-metrics\",key=~\"ToBeDeletedByClusterAutoscaler|cloud.google.com/impending-node-termination|aws-node-termination-handler/spot-itn\"}) == 1",
+    "expression": "(kube_node_spec_taint{job=\"kube-state-metrics\", key=\"node.kubernetes.io/unreachable\", effect=\"NoSchedule\"} unless ignoring(key, value) kube_node_spec_taint{job=\"kube-state-metrics\", key=\"ToBeDeletedByClusterAutoscaler\"}) == 1",
     "severity": 1,
     "severity_label": "error",
     "for": "PT15M",
@@ -217,6 +217,166 @@
     "annotations": {
       "summary": "Node {{ $labels.node }} readiness status change multiple times.",
       "description": "The readiness status of node {{ $labels.node }} in {{ $labels.cluster}} has changed more than 2 times in the last 15 minutes. For more information on this alert, please refer to this [link](https://aka.ms/aks-alerts/node-level-recommended-alerts)."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodePoolMemoryUsageHigh",
+    "enabled": true,
+    "expression": "(1 - sum by (cluster, nodepool) (label_replace(node_memory_MemAvailable_bytes{job=\"node\"}, \"nodepool\", \"$1\", \"instance\", \"aks-([a-z0-9]+)-.*\")) / sum by (cluster, nodepool) (label_replace(node_memory_MemTotal_bytes{job=\"node\"}, \"nodepool\", \"$1\", \"instance\", \"aks-([a-z0-9]+)-.*\"))) * 100 > 85",
+    "severity": 0,
+    "for": "PT10M",
+    "severity_label": "critical",
+    "annotations": {
+      "summary": "Node pool MEMORY usage high",
+      "description": "Node pool {{ $labels.nodepool }} in cluster {{ $labels.cluster }} is using {{ $value | humanize }}% of its total memory (threshold 85%). Action: scale the node pool (increase max_count / node_count) or use a larger VM size."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodePoolMemoryRequestsSaturated",
+    "enabled": true,
+    "expression": "sum by (cluster, nodepool) (label_replace(kube_pod_container_resource_requests{job=\"kube-state-metrics\", resource=\"memory\"} * on (cluster, namespace, pod) group_left() max by (cluster, namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Running\"} == 1), \"nodepool\", \"$1\", \"node\", \"aks-([a-z0-9]+)-.*\")) / sum by (cluster, nodepool) (label_replace(kube_node_status_allocatable{job=\"kube-state-metrics\", resource=\"memory\"}, \"nodepool\", \"$1\", \"node\", \"aks-([a-z0-9]+)-.*\")) * 100 > 90",
+    "severity": 0,
+    "for": "PT15M",
+    "severity_label": "critical",
+    "annotations": {
+      "summary": "Node pool MEMORY requests saturated",
+      "description": "Node pool {{ $labels.nodepool }} in cluster {{ $labels.cluster }} has {{ $value | humanize }}% of allocatable memory requested (threshold 90%). New pods may stay Pending. Action: scale the node pool (increase max_count / node_count) or use a larger VM size."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodePoolCpuUsageHigh",
+    "enabled": true,
+    "expression": "(1 - avg by (cluster, nodepool) (label_replace(rate(node_cpu_seconds_total{job=\"node\", mode=\"idle\"}[5m]), \"nodepool\", \"$1\", \"instance\", \"aks-([a-z0-9]+)-.*\"))) * 100 > 85",
+    "severity": 0,
+    "for": "PT10M",
+    "severity_label": "critical",
+    "annotations": {
+      "summary": "Node pool CPU usage high",
+      "description": "Node pool {{ $labels.nodepool }} in cluster {{ $labels.cluster }} is using {{ $value | humanize }}% of its total CPU (threshold 85%). Action: scale the node pool (increase max_count / node_count) or use a larger VM size."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodePoolCpuRequestsSaturated",
+    "enabled": true,
+    "expression": "sum by (cluster, nodepool) (label_replace(kube_pod_container_resource_requests{job=\"kube-state-metrics\", resource=\"cpu\"} * on (cluster, namespace, pod) group_left() max by (cluster, namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Running\"} == 1), \"nodepool\", \"$1\", \"node\", \"aks-([a-z0-9]+)-.*\")) / sum by (cluster, nodepool) (label_replace(kube_node_status_allocatable{job=\"kube-state-metrics\", resource=\"cpu\"}, \"nodepool\", \"$1\", \"node\", \"aks-([a-z0-9]+)-.*\")) * 100 > 90",
+    "severity": 0,
+    "for": "PT15M",
+    "severity_label": "critical",
+    "annotations": {
+      "summary": "Node pool CPU requests saturated",
+      "description": "Node pool {{ $labels.nodepool }} in cluster {{ $labels.cluster }} has {{ $value | humanize }}% of allocatable CPU requested (threshold 90%). New pods may stay Pending. Action: scale the node pool (increase max_count / node_count) or use a larger VM size."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodeMemoryUsageHigh",
+    "enabled": true,
+    "expression": "(1 - node_memory_MemAvailable_bytes{job=\"node\"} / node_memory_MemTotal_bytes{job=\"node\"}) * 100 > 90",
+    "severity": 2,
+    "for": "PT15M",
+    "severity_label": "warning",
+    "annotations": {
+      "summary": "Node MEMORY usage high",
+      "description": "Node {{ $labels.instance }} in cluster {{ $labels.cluster }} is using {{ $value | humanize }}% of its memory (threshold 90%)."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodeCpuUsageHigh",
+    "enabled": true,
+    "expression": "(1 - avg by (cluster, instance) (rate(node_cpu_seconds_total{job=\"node\", mode=\"idle\"}[5m]))) * 100 > 90",
+    "severity": 2,
+    "for": "PT15M",
+    "severity_label": "warning",
+    "annotations": {
+      "summary": "Node CPU usage high",
+      "description": "Node {{ $labels.instance }} in cluster {{ $labels.cluster }} is using {{ $value | humanize }}% of its CPU (threshold 90%)."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubePersistentVolumeFillingUpCritical",
+    "enabled": true,
+    "expression": "kubelet_volume_stats_available_bytes{job=\"kubelet\"} / kubelet_volume_stats_capacity_bytes{job=\"kubelet\"} < 0.03 and kubelet_volume_stats_used_bytes{job=\"kubelet\"} > 0 unless on(namespace, persistentvolumeclaim) kube_persistentvolumeclaim_access_mode{job=\"kube-state-metrics\", access_mode=\"ReadOnlyMany\"} == 1",
+    "severity": 1,
+    "for": "PT5M",
+    "severity_label": "error",
+    "annotations": {
+      "summary": "PersistentVolume is almost full",
+      "description": "The PersistentVolume claimed by {{ $labels.persistentvolumeclaim }} in Namespace {{ $labels.namespace }} only has {{ $value | humanizePercentage }} free space."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodeNotReady",
+    "enabled": true,
+    "expression": "kube_node_status_condition{job=\"kube-state-metrics\", condition=\"Ready\", status=\"true\"} == 0",
+    "severity": 1,
+    "for": "PT15M",
+    "severity_label": "error",
+    "annotations": {
+      "summary": "Node is not ready",
+      "description": "Node {{ $labels.node }} in cluster {{ $labels.cluster }} has been NotReady for more than 15 minutes."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodePressure",
+    "enabled": true,
+    "expression": "kube_node_status_condition{job=\"kube-state-metrics\", condition=~\"MemoryPressure|DiskPressure|PIDPressure\", status=\"true\"} == 1",
+    "severity": 1,
+    "for": "PT5M",
+    "severity_label": "error",
+    "annotations": {
+      "summary": "Node under {{ $labels.condition }}",
+      "description": "Node {{ $labels.node }} in cluster {{ $labels.cluster }} reports {{ $labels.condition }}: kubelet is evicting pods."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodeFilesystemUsageHigh",
+    "enabled": true,
+    "expression": "(1 - node_filesystem_avail_bytes{job=\"node\", fstype!~\"tmpfs|overlay|squashfs\"} / node_filesystem_size_bytes{job=\"node\", fstype!~\"tmpfs|overlay|squashfs\"}) * 100 > 85",
+    "severity": 2,
+    "for": "PT15M",
+    "severity_label": "warning",
+    "annotations": {
+      "summary": "Node filesystem usage high",
+      "description": "Filesystem {{ $labels.mountpoint }} on node {{ $labels.instance }} in cluster {{ $labels.cluster }} is {{ $value | humanize }}% full (threshold 85%)."
     },
     "alert_resolution": {
       "auto_resolved": true,
