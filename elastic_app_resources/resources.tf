@@ -584,9 +584,9 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   alert_delay = lookup(each.value, "trigger_after_consecutive_runs", null)
 
   flapping = lookup(each.value, "flapping", true)  ? null : {
-    enabled = false
-    lookBackWindow = 20
-    statusChangeThreshold = 4
+    enabled = each.value.flapping.enabled
+    look_back_window = each.value.flapping.look_back_window
+    status_change_threshold = each.value.flapping.status_change_threshold
   }
 
   #email
