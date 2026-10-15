@@ -1,0 +1,98 @@
+[
+  {
+    "alert": "KubeNodePoolMemoryUsageHigh",
+    "enabled": true,
+    "expression": "(1 - sum by (cluster, nodepool) (label_replace(node_memory_MemAvailable_bytes{job=\"node\"}, \"nodepool\", \"$1\", \"instance\", \"aks-([a-z0-9]+)-.*\")) / sum by (cluster, nodepool) (label_replace(node_memory_MemTotal_bytes{job=\"node\"}, \"nodepool\", \"$1\", \"instance\", \"aks-([a-z0-9]+)-.*\"))) * 100 > 85",
+    "severity": 0,
+    "for": "PT10M",
+    "severity_label": "critical",
+    "annotations": {
+      "summary": "Node pool MEMORY usage high",
+      "description": "Node pool {{ $labels.nodepool }} in cluster {{ $labels.cluster }} is using {{ $value | humanize }}% of its total memory (threshold 85%). Action: scale the node pool (increase max_count / node_count) or use a larger VM size."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodePoolMemoryRequestsSaturated",
+    "enabled": true,
+    "expression": "sum by (cluster, nodepool) (label_replace(kube_pod_container_resource_requests{job=\"kube-state-metrics\", resource=\"memory\"} * on (cluster, namespace, pod) group_left() max by (cluster, namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Running\"} == 1), \"nodepool\", \"$1\", \"node\", \"aks-([a-z0-9]+)-.*\")) / sum by (cluster, nodepool) (label_replace(kube_node_status_allocatable{job=\"kube-state-metrics\", resource=\"memory\"}, \"nodepool\", \"$1\", \"node\", \"aks-([a-z0-9]+)-.*\")) * 100 > 90",
+    "severity": 0,
+    "for": "PT15M",
+    "severity_label": "critical",
+    "annotations": {
+      "summary": "Node pool MEMORY requests saturated",
+      "description": "Node pool {{ $labels.nodepool }} in cluster {{ $labels.cluster }} has {{ $value | humanize }}% of allocatable memory requested (threshold 90%). New pods may stay Pending. Action: scale the node pool (increase max_count / node_count) or use a larger VM size."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodePoolCpuUsageHigh",
+    "enabled": true,
+    "expression": "(1 - avg by (cluster, nodepool) (label_replace(rate(node_cpu_seconds_total{job=\"node\", mode=\"idle\"}[5m]), \"nodepool\", \"$1\", \"instance\", \"aks-([a-z0-9]+)-.*\"))) * 100 > 85",
+    "severity": 0,
+    "for": "PT10M",
+    "severity_label": "critical",
+    "annotations": {
+      "summary": "Node pool CPU usage high",
+      "description": "Node pool {{ $labels.nodepool }} in cluster {{ $labels.cluster }} is using {{ $value | humanize }}% of its total CPU (threshold 85%). Action: scale the node pool (increase max_count / node_count) or use a larger VM size."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodePoolCpuRequestsSaturated",
+    "enabled": true,
+    "expression": "sum by (cluster, nodepool) (label_replace(kube_pod_container_resource_requests{job=\"kube-state-metrics\", resource=\"cpu\"} * on (cluster, namespace, pod) group_left() max by (cluster, namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Running\"} == 1), \"nodepool\", \"$1\", \"node\", \"aks-([a-z0-9]+)-.*\")) / sum by (cluster, nodepool) (label_replace(kube_node_status_allocatable{job=\"kube-state-metrics\", resource=\"cpu\"}, \"nodepool\", \"$1\", \"node\", \"aks-([a-z0-9]+)-.*\")) * 100 > 90",
+    "severity": 0,
+    "for": "PT15M",
+    "severity_label": "critical",
+    "annotations": {
+      "summary": "Node pool CPU requests saturated",
+      "description": "Node pool {{ $labels.nodepool }} in cluster {{ $labels.cluster }} has {{ $value | humanize }}% of allocatable CPU requested (threshold 90%). New pods may stay Pending. Action: scale the node pool (increase max_count / node_count) or use a larger VM size."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodeMemoryUsageHigh",
+    "enabled": true,
+    "expression": "(1 - node_memory_MemAvailable_bytes{job=\"node\"} / node_memory_MemTotal_bytes{job=\"node\"}) * 100 > 90",
+    "severity": 2,
+    "for": "PT15M",
+    "severity_label": "warning",
+    "annotations": {
+      "summary": "Node MEMORY usage high",
+      "description": "Node {{ $labels.instance }} in cluster {{ $labels.cluster }} is using {{ $value | humanize }}% of its memory (threshold 90%)."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  },
+  {
+    "alert": "KubeNodeCpuUsageHigh",
+    "enabled": true,
+    "expression": "(1 - avg by (cluster, instance) (rate(node_cpu_seconds_total{job=\"node\", mode=\"idle\"}[5m]))) * 100 > 90",
+    "severity": 2,
+    "for": "PT15M",
+    "severity_label": "warning",
+    "annotations": {
+      "summary": "Node CPU usage high",
+      "description": "Node {{ $labels.instance }} in cluster {{ $labels.cluster }} is using {{ $value | humanize }}% of its CPU (threshold 90%)."
+    },
+    "alert_resolution": {
+      "auto_resolved": true,
+      "time_to_resolve": "PT10M"
+    }
+  }
+]
