@@ -583,11 +583,11 @@ resource "elasticstack_kibana_alerting_rule" "alert" {
   space_id    = lookup(each.value, "space_id", null) != null ? each.value.space_id : var.space_id
   alert_delay = lookup(each.value, "trigger_after_consecutive_runs", null)
 
-  flapping = lookup(each.value, "flapping", true)  ? null : {
+  flapping = lookup(each.value, "flapping", null) != null  ? {
     enabled = each.value.flapping.enabled
     look_back_window = each.value.flapping.look_back_window
     status_change_threshold = each.value.flapping.status_change_threshold
-  }
+  } : null
 
   #email
   dynamic "actions" {
