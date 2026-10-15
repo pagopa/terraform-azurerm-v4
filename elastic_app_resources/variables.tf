@@ -73,6 +73,16 @@ variable "dashboard_folder" {
 
 }
 
+variable "system_alert_folder" {
+  type        = string
+  description = "Path to the folder containing system alerts"
+}
+
+variable "system_dashboard_folder" {
+  type        = string
+  description = "Path to the folder containing system dashboards"
+}
+
 variable "library_index_custom_path" {
   type        = string
   description = "Path to the library folder of @custom index components"
