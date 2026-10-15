@@ -74,6 +74,7 @@ locals {
       min_lookback_hours_skip_on_sunday   = var.system_alert.overlog.lookback_comparison_hours + 48
       min_count_threshold                 = var.system_alert.overlog.min_count_threshold
       trigger_after_consecutive_runs      = var.system_alert.overlog.trigger_after_consecutive_runs
+      flapping                            = var.system_alert.overlog.flapping
     }
     data_view             = elasticstack_kibana_data_view.kibana_data_view.data_view.title
     notification_channels = var.system_alert.notification_channels
