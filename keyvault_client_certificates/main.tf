@@ -1,5 +1,12 @@
 locals {
   private_root_ca_name = "private-root-ca"
+
+  # Promotion id per certificate, passed by pipelines at apply time through
+  # var.stable_promotion_ids; null for the certificates not listed there.
+  stable_promotion_id = {
+    for name in keys(var.certificates) :
+    name => lookup(var.stable_promotion_ids, name, null)
+  }
 }
 
 data "azurerm_key_vault_certificate" "root_ca" {
@@ -14,19 +21,8 @@ resource "time_rotating" "cert_rotation" {
   rotation_days = each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry
 
   # For testing only: overrides rotation_days with rotation_minutes
-  # rotation_days    = var.rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry) : null
-  # rotation_minutes = var.rotation_minutes_override
-}
-
-# Fires at (validity_months * 30 - stable_promotion_days_before_expiry) days → promotes certificate to stable certificate
-resource "time_rotating" "cert_stable" {
-  for_each = var.certificates
-
-  rotation_days = each.value.validity_in_months * 30 - each.value.stable_promotion_days_before_expiry
-
-  # For testing only: overrides rotation_days with rotation_minutes
-  # rotation_days    = var.stable_rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.stable_promotion_days_before_expiry) : null
-  # rotation_minutes = var.stable_rotation_minutes_override
+  #rotation_days    = each.value.rotation_minutes_override == null ? (each.value.validity_in_months * 30 - each.value.renewal_days_before_expiry) : null
+  #rotation_minutes = each.value.rotation_minutes_override
 }
 
 # Phase 1: emit / renew the current certificate
@@ -55,7 +51,12 @@ resource "terraform_data" "client_cert_sign" {
 
       if [ ! -f "$VENV_DIR/bin/activate" ]; then
         echo "==> Creating virtualenv in $VENV_DIR..."
-        python3 -m venv "$VENV_DIR"
+        # Fall back to virtualenv on agents missing python3-venv (no ensurepip)
+        if ! python3 -m venv "$VENV_DIR"; then
+          echo "    python3 -m venv failed, falling back to virtualenv..."
+          rm -rf "$VENV_DIR"
+          python3 -m virtualenv "$VENV_DIR"
+        fi
         "$VENV_DIR/bin/pip" install --quiet --upgrade pip
         "$VENV_DIR/bin/pip" install --quiet \
           cryptography==41.0.7 \
@@ -80,7 +81,10 @@ resource "terraform_data" "client_cert_sign" {
 }
 
 # Phase 2: promote cert to cert-stable
-# Runs on first creation and when time_rotating.cert_stable fires (Y days before expiry).
+# Manual only: runs whenever the certificate's promotion id
+# (local.stable_promotion_id) changes to a new non-null value; with a null id
+# it never promotes, so a renewal alone never reaches the stable secrets.
+# A failed promotion leaves the resource tainted, so the next apply retries it.
 # depends_on ensures certificate exists before promotion.
 resource "terraform_data" "client_cert_stable" {
   for_each = var.certificates
@@ -88,13 +92,20 @@ resource "terraform_data" "client_cert_stable" {
   depends_on = [terraform_data.client_cert_sign]
 
   triggers_replace = {
-    stable_id = time_rotating.cert_stable[each.key].id
+    promotion_id = local.stable_promotion_id[each.key]
   }
 
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command     = <<-BASH
       set -euo pipefail
+
+      %{~if local.stable_promotion_id[each.key] == null~}
+      echo "==> No stable_promotion_id set for '${each.key}', skipping promotion."
+      exit 0
+      %{~else~}
+      echo "==> Promoting '${each.key}' to stable (promotion id: ${local.stable_promotion_id[each.key]})..."
+      %{~endif~}
 
       VENV_DIR="${path.module}/.venv-stable-${each.key}"
 
@@ -103,7 +114,12 @@ resource "terraform_data" "client_cert_stable" {
 
       if [ ! -f "$VENV_DIR/bin/activate" ]; then
         echo "==> Creating virtualenv in $VENV_DIR..."
-        python3 -m venv "$VENV_DIR"
+        # Fall back to virtualenv on agents missing python3-venv (no ensurepip)
+        if ! python3 -m venv "$VENV_DIR"; then
+          echo "    python3 -m venv failed, falling back to virtualenv..."
+          rm -rf "$VENV_DIR"
+          python3 -m virtualenv "$VENV_DIR"
+        fi
         "$VENV_DIR/bin/pip" install --quiet --upgrade pip
         "$VENV_DIR/bin/pip" install --quiet \
           cryptography==41.0.7 \

@@ -1,9 +1,11 @@
 locals {
-  data_streams   = { for d in var.configuration.dataStream : d => d }
-  application_id = "${var.application_name}-${var.target_env}"
-  dashboards     = { for df in fileset("${var.dashboard_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => "${var.dashboard_folder}/${df}" }
-  queries        = { for qf in fileset("${var.query_folder}", "/*.ndjson") : trimsuffix(basename(qf), ".ndjson") => "${var.query_folder}/${qf}" }
-  alerts         = { for af in fileset("${var.alert_folder}", "/*.yml") : trimsuffix(basename(af), ".yml") => yamldecode(templatefile("${var.alert_folder}/${af}", local.alert_variables)) }
+  data_streams      = { for d in var.configuration.dataStream : d => d }
+  application_id    = "${var.application_name}-${var.target_env}"
+  dashboards        = { for df in fileset("${var.dashboard_folder}", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => { file : "${var.dashboard_folder}/${df}", space_id = var.space_id } }
+  system_dashboards = { for df in fileset("${path.module}/dashboard", "/*.ndjson") : trimsuffix(basename(df), ".ndjson") => { file : "${path.module}/dashboard/${df}", space_id = var.system_space_id } }
+  queries           = { for qf in fileset("${var.query_folder}", "/*.ndjson") : trimsuffix(basename(qf), ".ndjson") => "${var.query_folder}/${qf}" }
+  system_alerts     = { for a in fileset("${path.module}/alert", "/*.yml") : trimsuffix(basename(a), ".yml") => merge(yamldecode(templatefile("${path.module}/alert/${a}", merge(local.system_alert_variables, local.alert_variables))), { alert_channels : var.system_alert_channels, space_id : var.system_space_id }) }
+  alerts            = { for af in fileset("${var.alert_folder}", "/*.yml") : trimsuffix(basename(af), ".yml") => merge(yamldecode(templatefile("${var.alert_folder}/${af}", local.alert_variables)), { alert_channels : var.alert_channels, space_id = var.space_id }) }
 
   elastic_namespace = "${var.target_name}.${var.target_env}"
 
@@ -28,10 +30,10 @@ locals {
 
 
   alert_messages = {
-    log_query        = "Elasticsearch query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}}"
-    custom_threshold = "Elasticsearch custom threshold alert {{rule.name}} is active. \n {{context.reason}}  \n [View alert details]({{context.alertDetailsUrl}})"
-    apm_anomaly      = "{{context.reason}} \n{{rule.name}} is active with the following conditions: \n - Service name: {{context.serviceName}} \n - Transaction type: {{context.transactionType}} \n - Environment: {{context.environment}} \n - Severity: {{context.triggerValue}} \n - Threshold: {{context.threshold}} \n - Timestamp: {{context.date}} \n - Link: {{context.link}} \n [View alert details]({{context.alertDetailsUrl}})"
-    esql_query       = "ES|QL query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}}"
+    log_query        = "Elasticsearch query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}} \n Check the alert details if there is any investigation manual or dashboard defined"
+    custom_threshold = "Elasticsearch custom threshold alert {{rule.name}} is active. \n {{context.reason}}  \n [View alert details]({{context.alertDetailsUrl}}) \n Check the alert details if there is any investigation manual or dashboard defined"
+    apm_anomaly      = "{{context.reason}} \n{{rule.name}} is active with the following conditions: \n - Service name: {{context.serviceName}} \n - Transaction type: {{context.transactionType}} \n - Environment: {{context.environment}} \n - Severity: {{context.triggerValue}} \n - Threshold: {{context.threshold}} \n - Timestamp: {{context.date}} \n - Link: {{context.link}} \n [View alert details]({{context.alertDetailsUrl}})\n Check the alert details if there is any investigation manual or dashboard defined"
+    esql_query       = "ES|QL query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}}\n Check the alert details if there is any investigation manual or dashboard defined"
   }
 
   rule_type_id_map = {
@@ -56,5 +58,24 @@ locals {
     env       = var.target_env
     env_short = substr(var.target_env, 0, 1)
     namespace = local.elastic_namespace
+  }
+
+  system_alert_variables = {
+    space_id = var.space_id
+    overlog = {
+      window_size_hours                   = var.system_alert.overlog.window_size_hours
+      threshold_percentage                = var.system_alert.overlog.threshold_percentage
+      max_lookback_hours                  = var.system_alert.overlog.lookback_comparison_hours + var.system_alert.overlog.window_size_hours
+      min_lookback_hours                  = var.system_alert.overlog.lookback_comparison_hours
+      frequency_hours                     = var.system_alert.overlog.window_size_hours
+      max_lookback_hours_skip_on_saturday = var.system_alert.overlog.lookback_comparison_hours + var.system_alert.overlog.window_size_hours + 24
+      max_lookback_hours_skip_on_sunday   = var.system_alert.overlog.lookback_comparison_hours + var.system_alert.overlog.window_size_hours + 48
+      min_lookback_hours_skip_on_saturday = var.system_alert.overlog.lookback_comparison_hours + 24
+      min_lookback_hours_skip_on_sunday   = var.system_alert.overlog.lookback_comparison_hours + 48
+      min_count_threshold                 = var.system_alert.overlog.min_count_threshold
+      trigger_after_consecutive_runs      = var.system_alert.overlog.trigger_after_consecutive_runs
+    }
+    data_view             = elasticstack_kibana_data_view.kibana_data_view.data_view.title
+    notification_channels = var.system_alert.notification_channels
   }
 }

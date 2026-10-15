@@ -44,3 +44,8 @@ output "replica_fqdn" {
 output "virtual_endpoint_name" {
   value = azurerm_postgresql_flexible_server_virtual_endpoint.virtual_endpoint.*.name
 }
+
+
+output "private_fqdn" {
+  value = module.pgflex.private_fqdn
+}

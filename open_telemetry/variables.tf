@@ -59,31 +59,78 @@ variable "elastic_namespace" {
 
 variable "otlp_exporter_config" {
   type = object({
-    queue_size       = optional(number, 1000)
-    consumers        = optional(number, 10)
-    memory_limit_mib = optional(number, 2000)
+    queue_size     = optional(number, 1000)
+    consumers      = optional(number, 10)
+    batch_timeout  = optional(string, "1s")
+    batch_size     = optional(number, 1024)
+    batch_max_size = optional(number, 2048)
   })
   description = "Configuration for the OTLP exporter"
   default = {
-    queue_size       = 1000
-    consumers        = 10
-    memory_limit_mib = 2000
+    queue_size     = 1000
+    consumers      = 10
+    batch_timeout  = "1s"
+    batch_size     = 1024
+    batch_max_size = 2048
   }
 }
 
 
-variable "sampling" {
+variable "tail_sampling" {
   type = object({
     enabled                    = bool
     probes_sampling_percentage = optional(number, 1)
     sampling_percentage        = optional(number, 50)
     probe_paths                = optional(list(string), [])
+    num_traces                 = optional(number, 50000)
+    decision_wait              = optional(string, "30s")
   })
-  description = "Sampling configuration for the OpenTelemetry collector traces"
+  description = "Tail Sampling configuration for the OpenTelemetry collector traces"
   default = {
     enabled                    = false
     probes_sampling_percentage = 1
     sampling_percentage        = 50
     probe_paths                = []
+    num_traces                 = 50000
+    decision_wait              = "30s"
   }
+}
+
+variable "head_sampling" {
+  type = object({
+    enabled             = bool
+    sampling_percentage = optional(number, 75)
+  })
+  description = "Head Sampling configuration for the OpenTelemetry collector traces"
+  default = {
+    enabled             = false
+    sampling_percentage = 75
+  }
+}
+
+variable "memory_limiter" {
+  type = object({
+    memory_limit_mib = optional(number, 4096)
+    spike_limit_mib  = optional(number, 1024)
+    check_interval   = optional(string, "1s")
+  })
+  description = "Memory Limiter configuration for the OpenTelemetry collector"
+  default = {
+    memory_limit_mib = 4096
+    spike_limit_mib  = 1024
+    check_interval   = "1s"
+  }
+}
+
+variable "resources" {
+  type = object({
+    requests = object({
+      cpu = string
+    })
+    limits = object({
+      cpu = string
+    })
+  })
+  description = "Resource requests and limits for the OpenTelemetry collector"
+  default     = null
 }

@@ -6,6 +6,7 @@ Standard_D2ads:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
 Standard_D4ads:
   vm_size: "Standard_D4ads_v5"
   os_disk_type: "Managed"
@@ -14,6 +15,7 @@ Standard_D4ads:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
 Standard_D8ads:
   vm_size: "Standard_D8ads_v5"
   os_disk_type: "Managed"
@@ -22,3 +24,4 @@ Standard_D8ads:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]

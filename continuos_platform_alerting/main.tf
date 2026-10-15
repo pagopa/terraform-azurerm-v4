@@ -1,151 +1,188 @@
-# ============================================================
-# DATA SOURCE: Discovery risorse  per dominio
-# ============================================================
-# Per ogni dominio in var.alerting_domains, recupera dinamicamente
-# tutte le risorse Azure  taggate con quel dominio.
-data "azurerm_resources" "this" {
-  for_each = toset(var.alerting_domains)
-  type     = var.azure_resource_type
+# Discovery dinamica: una chiamata a azurerm_resources per ciascun
+# namespace target, invece di richiedere all'utente di elencare a mano
+# le risorse esistenti. Stesso pattern usato negli altri moduli di
+# monitoring del repo (dynamic resource discovery + cross-join).
+data "azurerm_resources" "discovered" {
+  for_each = toset(local.namespaces_with_defs)
 
-  required_tags = {
-    domain = each.key
+  type = each.value
+}
+
+locals {
+  # Cross-join tra risorse scoperte e definizioni di alert AMBA del
+  # namespace corrispondente. Il risultato e' una mappa piatta
+  # "<resource_id>::<alert_name>" => { ...alert def + contesto risorsa },
+  # pronta per il for_each della risorsa azurerm_monitor_metric_alert.
+  resource_alert_pairs = merge([
+    for ns in local.namespaces_with_defs : {
+      for pair in setproduct(
+        data.azurerm_resources.discovered[ns].resources,
+        local.alert_defs_by_namespace[ns]
+      ) :
+      "${pair[0].id}::${pair[1].name}" => merge(pair[1], {
+        namespace       = ns
+        resource_id     = pair[0].id
+        resource_name   = pair[0].name
+        alert_name_safe = replace(replace(pair[1].name, " ", "-"), "/[^A-Za-z0-9_-]/", "")
+        # Il resource group dell'alert e' quello della risorsa monitorata
+        # (indice 4 di un Azure resource ID: /subscriptions/{}/resourceGroups/{}/...).
+        alert_resource_group = element(split("/", pair[0].id), 4)
+        override_key         = "${ns}|${pair[1].name}"
+      })
+    }
+  ]...)
+
+  # Risoluzione action group: override specifico per namespace, altrimenti
+  # il default globale. Nessun errore se entrambi sono null: in quel caso
+  # l'alert viene creata senza blocco "action" (va collegata manualmente
+  # o via alert processing rule esterna).
+  action_group_by_namespace = {
+    for ns in local.namespaces_with_defs :
+    ns => try(var.action_group_overrides[ns], var.action_group_ids)
   }
 }
 
 locals {
-  # ============================================================
-  # custom_action_group_map
-  # ============================================================
-  # Converte la lista di input in una map indicizzata per chiave,
-  # per permettere lookup O(1) nella risoluzione degli action group.
-  custom_action_group_map = {
-    for item in var.global_custom_action_group :
-    item.key => item.action_groups
+  amba_dataset = jsondecode(file("${path.module}/data/amba_alerts.json"))
+
+  # Tutti i namespace per cui il dataset AMBA sincronizzato contiene
+  # definizioni di alert di tipo Metric.
+  all_available_namespaces = sort(keys(local.amba_dataset.namespaces))
+
+  # Applica included_namespaces (whitelist, vuota = tutti) ed
+  # excluded_namespaces (blacklist, applicata dopo).
+  target_namespaces = [
+    for ns in local.all_available_namespaces : ns
+    if(
+      (length(var.included_namespaces) == 0 || contains(var.included_namespaces, ns))
+      && !contains(var.excluded_namespaces, ns)
+    )
+  ]
+
+  # Ricostruzione esplicita di ogni alert con uno schema di attributi
+  # fisso e identico per tutti gli elementi (indipendentemente dal
+  # criterionType). sync_amba_alerts.py gia' produce un JSON omogeneo,
+  # ma questa normalizzazione e' fatta anche qui, lato Terraform, come
+  # difesa in profondita': se in futuro il dataset dovesse tornare ad
+  # avere attribute set diversi tra gli elementi di una stessa lista
+  # (es. campi presenti solo su DynamicThresholdCriterion), jsondecode()
+  # produce oggetti non uniformi e setproduct()/merge() più a valle
+  # falliscono con un errore di type unification poco intuitivo.
+  normalized_namespaces = {
+    for ns in local.all_available_namespaces : ns => [
+      for a in local.amba_dataset.namespaces[ns] : {
+        name                      = a.name
+        description               = a.description
+        metricName                = a.metricName
+        criterionType             = a.criterionType
+        severity                  = a.severity
+        windowSize                = a.windowSize
+        evaluationFrequency       = a.evaluationFrequency
+        timeAggregation           = a.timeAggregation
+        operator                  = a.operator
+        threshold                 = try(a.threshold, null)
+        autoMitigate              = try(a.autoMitigate, true)
+        enabled                   = try(a.enabled, false)
+        dimensions                = try(a.dimensions, [])
+        alertSensitivity          = try(a.alertSensitivity, null)
+        numberOfEvaluationPeriods = try(a.numberOfEvaluationPeriods, null)
+        minFailingPeriodsToAlert  = try(a.minFailingPeriodsToAlert, null)
+      }
+    ]
   }
 
-  # ============================================================
-  # resource_id_map
-  # ============================================================
-  # Appiattisce la struttura per dominio restituita dal data source
-  # producendo una lista piatta di oggetti  con i campi
-  # essenziali per la creazione degli alert.
-  resource_id_map = flatten([
-    for rp in data.azurerm_resources.this : [
-      for r in rp.resources : {
-        resource_name = r.name
-        resource_rg   = r.resource_group_name
-        resource_id   = r.id
-      }
+  # Per ciascun namespace target, le definizioni di alert normalizzate
+  # e filtrate per enabled_only (Must Have vs Must+Nice to Have).
+  alert_defs_by_namespace = {
+    for ns in local.target_namespaces : ns => [
+      for a in local.normalized_namespaces[ns] : a
+      if !var.enabled_only || a.enabled
     ]
-  ])
-
-  # ============================================================
-  # resource_metric_map
-  # ============================================================
-  # Cross join risorsa × metriche: ogni elemento rappresenta un
-  # singolo alert da creare (una metrica su una istanza ).
-  #
-  # Logica di risoluzione action group (dal più specifico al più generico):
-  #   1. "{resource_name}-{metric_name}" → override per risorsa + metrica
-  #   2. "{resource_name}"               → override per risorsa
-  #   3. "default"                        → fallback globale
-  resource_metric_map = flatten([
-    for rp in local.resource_id_map : [
-      for m in var.resource_metric_alerts : {
-        resource_name    = rp.resource_name
-        resource_rg      = rp.resource_rg
-        resource_id      = rp.resource_id
-        metric_name      = m.metric_name
-        metric_namespace = m.metric_namespace
-        aggregation      = m.aggregation
-        operator         = m.operator
-        threshold        = m.threshold
-        frequency        = m.frequency
-        window_size      = m.window_size
-        severity         = m.severity
-        action_group = try(
-          local.custom_action_group_map["${rp.resource_name}-${m.metric_name}"],
-          try(
-            local.custom_action_group_map[rp.resource_name],
-            local.custom_action_group_map["default"]
-          )
-        )
-      }
-    ]
-  ])
-
-  # ============================================================
-  # resource_action_group_map
-  # ============================================================
-  # Appiattisce il campo action_group (lista) di ogni alert,
-  # producendo una coppia (alert, action group) per ogni elemento.
-  # Necessario per il lookup individuale degli action group via
-  # data source.
-  resource_action_group_map = flatten([
-    for rp in local.resource_metric_map : [
-      for ag in rp.action_group : {
-        resource_name                    = rp.resource_name
-        metric_name                      = rp.metric_name
-        action_group_name                = ag.action_group_name
-        action_group_name_resource_group = ag.resource_group_name
-      }
-    ]
-  ])
-}
-
-# ============================================================
-# DATA SOURCE: Lookup degli Action Group referenziati
-# ============================================================
-# Recupera l'ID ARM di ogni action group unico referenziato
-# negli alert. La chiave composta garantisce unicità anche
-# quando lo stesso action group appare su più alert.
-data "azurerm_monitor_action_group" "this" {
-  for_each = {
-    for val in local.resource_action_group_map :
-    "${val.resource_name}-${val.metric_name}-${val.action_group_name}" => val
   }
 
-  resource_group_name = each.value.action_group_name_resource_group
-  name                = each.value.action_group_name
+  # Solo i namespace che, dopo il filtro enabled_only, hanno ancora
+  # almeno una definizione di alert: evita di lanciare data source di
+  # discovery inutili.
+  namespaces_with_defs = [
+    for ns in local.target_namespaces : ns
+    if length(local.alert_defs_by_namespace[ns]) > 0
+  ]
 }
 
-# ============================================================
-# RESOURCE: Metric Alert per ogni combinazione risorsa × metrica
-# ============================================================
+
 resource "azurerm_monitor_metric_alert" "this" {
-  for_each = {
-    for val in local.resource_metric_map :
-    "${val.resource_name}-${val.metric_name}" => val
-  }
+  for_each = local.resource_alert_pairs
 
-  enabled             = var.resource_alerts_enabled
-  name                = "CPA-${upper(each.key)}"
-  resource_group_name = each.value.resource_rg
+  name                = "amba-${each.value.resource_name}-${each.value.alert_name_safe}"
+  resource_group_name = each.value.alert_resource_group
   scopes              = [each.value.resource_id]
-  frequency           = each.value.frequency
-  window_size         = each.value.window_size
-  severity            = each.value.severity
+  description         = each.value.description
 
-  # Collega tutti gli action group risolti per questo alert.
-  dynamic "action" {
-    for_each = {
-      for k, v in data.azurerm_monitor_action_group.this :
-      k => v
-      if startswith(k, "${each.value.resource_name}-${each.value.metric_name}-")
-    }
+  severity      = try(var.severity_overrides[each.value.override_key], each.value.severity)
+  frequency     = each.value.evaluationFrequency
+  window_size   = each.value.windowSize
+  auto_mitigate = each.value.autoMitigate
+  enabled       = each.value.enabled
+
+  dynamic "criteria" {
+    for_each = each.value.criterionType == "StaticThresholdCriterion" ? [each.value] : []
     content {
-      action_group_id    = action.value["id"]
-      webhook_properties = null
+      metric_namespace = each.value.namespace
+      metric_name      = each.value.metricName
+      aggregation      = each.value.timeAggregation
+      operator         = each.value.operator
+      threshold        = try(var.threshold_overrides[each.value.override_key], each.value.threshold)
+
+      dynamic "dimension" {
+        for_each = each.value.dimensions
+        content {
+          name     = dimension.value.name
+          operator = dimension.value.operator
+          values   = dimension.value.values
+        }
+      }
     }
   }
 
-  criteria {
-    aggregation      = each.value.aggregation
-    metric_namespace = each.value.metric_namespace
-    metric_name      = each.value.metric_name
-    operator         = each.value.operator
-    threshold        = each.value.threshold
+  dynamic "dynamic_criteria" {
+    for_each = each.value.criterionType == "DynamicThresholdCriterion" ? [each.value] : []
+    content {
+      metric_namespace         = each.value.namespace
+      metric_name              = each.value.metricName
+      aggregation              = each.value.timeAggregation
+      operator                 = each.value.operator
+      alert_sensitivity        = each.value.alertSensitivity
+      evaluation_total_count   = each.value.numberOfEvaluationPeriods
+      evaluation_failure_count = each.value.minFailingPeriodsToAlert
+
+      dynamic "dimension" {
+        for_each = each.value.dimensions
+        content {
+          name     = dimension.value.name
+          operator = dimension.value.operator
+          values   = dimension.value.values
+        }
+      }
+    }
+  }
+
+  dynamic "action" {
+    for_each = concat(try(
+      var.action_group_metric_add_by_metric[each.value.override_key], []),
+      local.action_group_by_namespace[each.value.namespace]
+    )
+    content {
+      action_group_id = action.value
+    }
   }
 
   tags = var.tags
+
+  lifecycle {
+    # Il dataset AMBA a monte cambia periodicamente (nuove metriche,
+    # soglie riviste): evitiamo che un giro di sync_amba_alerts.py non
+    # ancora rivisto in PR provochi un drift inatteso e silenzioso sulla
+    # description, che Microsoft aggiorna spesso senza cambiare la logica.
+    ignore_changes = [description]
+  }
 }

@@ -6,6 +6,7 @@ Standard_D4ds:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
 Standard_D8ds:
   vm_size: "Standard_D8ds_v5"
   os_disk_type: "Managed"
@@ -14,6 +15,7 @@ Standard_D8ds:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
 Standard_D16ds:
   vm_size: "Standard_D16ds_v5"
   os_disk_type: "Managed"
@@ -22,6 +24,7 @@ Standard_D16ds:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
 Standard_B4ms_noncore:
   vm_size: "Standard_B4ms"
   os_disk_type: "Managed"
@@ -31,6 +34,7 @@ Standard_B4ms_noncore:
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
   predefined_node_type: "non_core"
+  zones: ["1", "2", "3"]
 Standard_B8ms_noncore:
   vm_size: "Standard_B8ms"
   os_disk_type: "Managed"
@@ -40,3 +44,4 @@ Standard_B8ms_noncore:
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
   predefined_node_type: "non_core"
+  zones: ["1", "2", "3"]

@@ -3,25 +3,27 @@
 ## cstar
 | Product  | Environment | Tier | Deprecated | Description |
 |:-------------:|:----------------:|:---------:|:---------:|:----------------|
-| cstar | dev |  standard_private | - | Sku: Standard, capacity: 1, auto_inflate: False, public: False, private endpoint: True, alerts enabled: False |
+| cstar | dev |  standard_private | No | Sku: Standard, capacity: 1, auto_inflate: False, public: False, private endpoint: True, alerts enabled: False |
 |---|---|---|---|
-| cstar | prod |  heavy_load_private | - | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
-| cstar | prod |  standard_private | - | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
+| cstar | prod |  heavy_load_private | No | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
+| cstar | prod |  standard_c1_private | No | Sku: Standard, capacity: 1, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
+| cstar | prod |  standard_private | No | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
 |---|---|---|---|
-| cstar | uat |  standard_private | - | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: False |
+| cstar | uat |  standard_c1_private | No | Sku: Standard, capacity: 1, auto_inflate: True, public: False, private endpoint: True, alerts enabled: False |
+| cstar | uat |  standard_private | No | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: False |
 ## dvopla
 | Product  | Environment | Tier | Deprecated | Description |
 |:-------------:|:----------------:|:---------:|:---------:|:----------------|
-| dvopla | dev |  standard | - | Sku: Standard, capacity: 1, auto_inflate: False, public: True, private endpoint: False, alerts enabled: False |
+| dvopla | dev |  standard | No | Sku: Standard, capacity: 1, auto_inflate: False, public: True, private endpoint: False, alerts enabled: False |
 ## pagopa
 | Product  | Environment | Tier | Deprecated | Description |
 |:-------------:|:----------------:|:---------:|:---------:|:----------------|
-| pagopa | dev |  standard | - | Sku: Standard, capacity: 1, auto_inflate: False, public: False, private endpoint: True, alerts enabled: False |
+| pagopa | dev |  standard | No | Sku: Standard, capacity: 1, auto_inflate: False, public: False, private endpoint: True, alerts enabled: False |
 |---|---|---|---|
-| pagopa | prod |  heavy_load_private | - | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
-| pagopa | prod |  heavy_load_public | - | Sku: Standard, capacity: 5, auto_inflate: True, public: True, private endpoint: False, alerts enabled: True |
-| pagopa | prod |  standard_private | - | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
-| pagopa | prod |  standard_public | - | Sku: Standard, capacity: 5, auto_inflate: True, public: True, private endpoint: False, alerts enabled: True |
+| pagopa | prod |  heavy_load_private | No | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
+| pagopa | prod |  heavy_load_public | No | Sku: Standard, capacity: 5, auto_inflate: True, public: True, private endpoint: False, alerts enabled: True |
+| pagopa | prod |  standard_private | No | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: True |
+| pagopa | prod |  standard_public | No | Sku: Standard, capacity: 5, auto_inflate: True, public: True, private endpoint: False, alerts enabled: True |
 |---|---|---|---|
-| pagopa | uat |  standard_private | - | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: False |
-| pagopa | uat |  standard_public | - | Sku: Standard, capacity: 5, auto_inflate: True, public: True, private endpoint: False, alerts enabled: False |
+| pagopa | uat |  standard_private | No | Sku: Standard, capacity: 5, auto_inflate: True, public: False, private endpoint: True, alerts enabled: False |
+| pagopa | uat |  standard_public | No | Sku: Standard, capacity: 5, auto_inflate: True, public: True, private endpoint: False, alerts enabled: False |

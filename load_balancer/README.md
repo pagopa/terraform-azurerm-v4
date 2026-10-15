@@ -51,6 +51,8 @@ No modules.
 | <a name="output_azurerm_lb_backend_address_pool_id"></a> [azurerm\_lb\_backend\_address\_pool\_id](#output\_azurerm\_lb\_backend\_address\_pool\_id) | the id for the azurerm\_lb\_backend\_address\_pool resource |
 | <a name="output_azurerm_lb_frontend_ip_configuration"></a> [azurerm\_lb\_frontend\_ip\_configuration](#output\_azurerm\_lb\_frontend\_ip\_configuration) | the frontend\_ip\_configuration for the azurerm\_lb resource |
 | <a name="output_azurerm_lb_id"></a> [azurerm\_lb\_id](#output\_azurerm\_lb\_id) | the id for the azurerm\_lb resource |
+| <a name="output_azurerm_lb_name"></a> [azurerm\_lb\_name](#output\_azurerm\_lb\_name) | the name for the azurerm\_lb resource |
+| <a name="output_azurerm_lb_rg_name"></a> [azurerm\_lb\_rg\_name](#output\_azurerm\_lb\_rg\_name) | the resource group name for the azurerm\_lb resource |
 | <a name="output_azurerm_private_ip_address"></a> [azurerm\_private\_ip\_address](#output\_azurerm\_private\_ip\_address) | Private IP Address to assign to the Load Balancer. |
 | <a name="output_azurerm_public_ip_address"></a> [azurerm\_public\_ip\_address](#output\_azurerm\_public\_ip\_address) | the ip address for the azurerm\_lb\_public\_ip resource |
 | <a name="output_azurerm_public_ip_id"></a> [azurerm\_public\_ip\_id](#output\_azurerm\_public\_ip\_id) | the id for the azurerm\_lb\_public\_ip resource |

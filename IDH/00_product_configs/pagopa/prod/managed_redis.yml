@@ -21,6 +21,29 @@ balanced_0_5gb:
   connection_alert_enabled: true
   connection_threshold: 12000
 
+balanced_0_5gb_no_cluster:
+  sku_name: "Balanced_B0"
+  high_availability_enabled: true
+  public_network_access: "Disabled"
+  access_keys_authentication_enabled: true
+  client_protocol: "Encrypted"
+  clustering_policy: "NoCluster"
+  eviction_policy: "AllKeysLRU"
+  persistence_configuration:
+    rdb_frequency:
+    aof_frequency:
+  modules: []
+  private_endpoint_enabled: true
+  geo_replication_allowed: false
+  cpu_alert_enabled: true
+  cpu_threshold: 80
+  memory_alert_enabled: true
+  memory_threshold: 80
+  eviction_alert_enabled: true
+  eviction_threshold: 0
+  connection_alert_enabled: true
+  connection_threshold: 12000
+
 balanced_1gb:
   sku_name: "Balanced_B1"
   high_availability_enabled: true
@@ -28,6 +51,29 @@ balanced_1gb:
   access_keys_authentication_enabled: true
   client_protocol: "Encrypted"
   clustering_policy: "EnterpriseCluster"
+  eviction_policy: "AllKeysLRU"
+  persistence_configuration:
+    rdb_frequency:
+    aof_frequency:
+  modules: []
+  private_endpoint_enabled: true
+  geo_replication_allowed: false
+  cpu_alert_enabled: true
+  cpu_threshold: 80
+  memory_alert_enabled: true
+  memory_threshold: 80
+  eviction_alert_enabled: true
+  eviction_threshold: 0
+  connection_alert_enabled: true
+  connection_threshold: 12000
+
+balanced_1gb_no_cluster:
+  sku_name: "Balanced_B1"
+  high_availability_enabled: true
+  public_network_access: "Disabled"
+  access_keys_authentication_enabled: true
+  client_protocol: "Encrypted"
+  clustering_policy: "NoCluster"
   eviction_policy: "AllKeysLRU"
   persistence_configuration:
     rdb_frequency:

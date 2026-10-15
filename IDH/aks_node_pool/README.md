@@ -159,6 +159,7 @@ module "aks_node_pool" {
 | <a name="input_env"></a> [env](#input\_env) | (Required): Environment for which the resource will be created. | `string` | n/a | yes |
 | <a name="input_idh_resource_tier"></a> [idh\_resource\_tier](#input\_idh\_resource\_tier) | (Required): The name of IDH resource tier to be created. | `string` | n/a | yes |
 | <a name="input_kubernetes_cluster_id"></a> [kubernetes\_cluster\_id](#input\_kubernetes\_cluster\_id) | (Required): AKS cluster id. | `string` | n/a | yes |
+| <a name="input_max_pods"></a> [max\_pods](#input\_max\_pods) | (Optional): Maximum number of pods per node. | `number` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | (Required): Node pool name. Must not exceed 12 characters. | `string` | n/a | yes |
 | <a name="input_node_count_max"></a> [node\_count\_max](#input\_node\_count\_max) | (Required): Maximum number of nodes in the node pool. | `number` | n/a | yes |
 | <a name="input_node_count_min"></a> [node\_count\_min](#input\_node\_count\_min) | (Required): Minimum number of nodes in the node pool. | `number` | n/a | yes |

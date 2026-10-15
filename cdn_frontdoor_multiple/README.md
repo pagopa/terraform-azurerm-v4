@@ -182,6 +182,7 @@ module "cdn" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_custom_domains"></a> [custom\_domains](#input\_custom\_domains) | Custom domains with DNS and certificate management | <pre>map(object({<br/>    dns_zone_name                = string<br/>    dns_zone_resource_group_name = string<br/>    certificate_type             = optional(string, "ManagedCertificate")<br/>    keyvault_id                  = optional(string)<br/>    keyvault_certificate_name    = optional(string)<br/>    enable_dns_records           = optional(bool, true)<br/>    ttl                          = optional(number, 3600)<br/>  }))</pre> | `{}` | no |
+| <a name="input_enable_diagnostic_setting"></a> [enable\_diagnostic\_setting](#input\_enable\_diagnostic\_setting) | Whether to enable diagnostic settings for the CDN Front Door profile | `bool` | `true` | no |
 | <a name="input_endpoints"></a> [endpoints](#input\_endpoints) | CDN Front Door endpoints (entry points) | <pre>map(object({<br/>    name = optional(string)<br/>  }))</pre> | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | Azure region | `string` | n/a | yes |
 | <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id) | Log Analytics workspace ID for diagnostics | `string` | n/a | yes |

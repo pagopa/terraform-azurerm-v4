@@ -7,6 +7,8 @@ Standard_D8ads_v5_active:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 1
+  zones: ["1", "2", "3"]
+  deprecated: true
 Standard_D8ads_v5_passive:
   vm_size: "Standard_D8ads_v5"
   os_disk_type: "Ephemeral"
@@ -15,6 +17,17 @@ Standard_D8ads_v5_passive:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
+  deprecated: true
+Standard_D8ads:
+  vm_size: "Standard_D8ads_v5"
+  os_disk_type: "Ephemeral"
+  os_disk_size_gb: 128
+  ultra_ssd_enabled: false
+  enable_host_encryption: false
+  upgrade_settings_max_surge: "33%"
+  node_min_allowed: 0
+  zones: ["1", "2", "3"]
 
 ### D8 Intel
 Standard_D8ds_v5_active:
@@ -25,7 +38,8 @@ Standard_D8ds_v5_active:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 1
-
+  zones: ["1", "2", "3"]
+  deprecated: true
 Standard_D8ds_v5_passive:
   vm_size: "Standard_D8ds_v5"
   os_disk_type: "Ephemeral"
@@ -34,6 +48,17 @@ Standard_D8ds_v5_passive:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
+  deprecated: true
+Standard_D8ds:
+  vm_size: "Standard_D8ds_v5"
+  os_disk_type: "Ephemeral"
+  os_disk_size_gb: 128
+  ultra_ssd_enabled: false
+  enable_host_encryption: false
+  upgrade_settings_max_surge: "33%"
+  node_min_allowed: 0
+  zones: ["1", "2", "3"]
 
 ### D4
 Standard_D4ads_v5_active:
@@ -44,6 +69,8 @@ Standard_D4ads_v5_active:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 1
+  zones: ["1", "2", "3"]
+  deprecated: true
 Standard_D4ads_v5_passive:
   vm_size: "Standard_D4ads_v5"
   os_disk_type: "Ephemeral"
@@ -52,6 +79,17 @@ Standard_D4ads_v5_passive:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
+  deprecated: true
+Standard_D4ads:
+  vm_size: "Standard_D4ads_v5"
+  os_disk_type: "Ephemeral"
+  os_disk_size_gb: 128
+  ultra_ssd_enabled: false
+  enable_host_encryption: false
+  upgrade_settings_max_surge: "33%"
+  node_min_allowed: 0
+  zones: ["1", "2", "3"]
 
 ### D2
 Standard_D2ads_v5_active:
@@ -62,6 +100,8 @@ Standard_D2ads_v5_active:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 1
+  zones: ["1", "2", "3"]
+  deprecated: true
 Standard_D2ads_v5_passive:
   vm_size: "Standard_D2ads_v5"
   os_disk_type: "Ephemeral"
@@ -70,3 +110,14 @@ Standard_D2ads_v5_passive:
   enable_host_encryption: false
   upgrade_settings_max_surge: "33%"
   node_min_allowed: 0
+  zones: ["1", "2", "3"]
+  deprecated: true
+Standard_D2ads:
+  vm_size: "Standard_D2ads_v5"
+  os_disk_type: "Ephemeral"
+  os_disk_size_gb: 128
+  ultra_ssd_enabled: false
+  enable_host_encryption: false
+  upgrade_settings_max_surge: "33%"
+  node_min_allowed: 0
+  zones: ["1", "2", "3"]

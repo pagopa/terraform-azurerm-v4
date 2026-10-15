@@ -118,3 +118,22 @@ variable "enabled_metric_collection" {
   }
   description = "Controls the enabled metric collection for various components"
 }
+
+
+variable "output_worker" {
+  type        = number
+  default     = 1
+  description = "Number of workers for the elastic agent output"
+}
+
+variable "output_idle_connection_timeout" {
+  type        = string
+  default     = "3s"
+  description = "Idle connection timeout for the elastic agent output"
+}
+
+variable "elastic_agent_version" {
+  type        = string
+  default     = "9.3.2"
+  description = "Version of the elastic agent to be installed"
+}
