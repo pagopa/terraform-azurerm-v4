@@ -34,9 +34,9 @@ esql_query:
 trigger_after_consecutive_runs: ${overlog.trigger_after_consecutive_runs}
 enabled: true
 flapping:
-    enabled: ${overlog.flapping}
-    look_back_window: 20
-    status_change_threshold: 4
+  enabled: ${overlog.flapping}
+  look_back_window: 20
+  status_change_threshold: 4
 notification_channels:
   %{ if can(notification_channels.email.recipient_list_name) }
   email:
