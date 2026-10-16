@@ -50,7 +50,7 @@ module "aks_node_pool_foo" {
 
 
   # Core identifiers
-  name                  = local.node_pool_foo_name
+  name                  = var.double_node_pool.enabled ? "${var.name}foo" : var.name
   kubernetes_cluster_id = var.kubernetes_cluster_id
   vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) : var.vnet_subnet_id
   orchestrator_version  = var.double_node_pool.enabled ? var.double_node_pool.node_pool_foo.version_override : null
@@ -70,8 +70,11 @@ module "aks_node_pool_foo" {
   autoscale_enabled = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.autoscale_enabled : false) : var.autoscale_enabled
   node_count_min    = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.node_count_min : 0) : var.node_count_min
   node_count_max    = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.node_count_max : 0) : var.node_count_max
-  node_count        = var.double_node_pool.enabled && !var.double_node_pool.node_pool_foo.active ? 0 : null
-  override_node_count = var.double_node_pool.enabled && !var.double_node_pool.node_pool_foo.active
+  override_node_count = {
+    # override to 0 only when pool not active
+    enabled = var.double_node_pool.enabled && !var.double_node_pool.node_pool_foo.active
+    count = 0
+  }
   ###############################################################
   # Kubernetes runtime metadata
   ###############################################################
@@ -108,7 +111,7 @@ module "aks_node_pool_bar" {
   count = var.double_node_pool.enabled ? 1 : 0
 
   # Core identifiers
-  name                  = local.node_pool_bar_name
+  name                  = "${var.name}bar"
   kubernetes_cluster_id = var.kubernetes_cluster_id
   vnet_subnet_id        = var.embedded_subnet.enabled ? try(module.aks_overlay_snet[0].subnet_id, null) : var.vnet_subnet_id
   orchestrator_version  = var.double_node_pool.node_pool_bar.version_override
@@ -128,8 +131,11 @@ module "aks_node_pool_bar" {
   autoscale_enabled = var.double_node_pool.node_pool_bar.active ? var.autoscale_enabled : false
   node_count_min    = var.double_node_pool.node_pool_bar.active ? var.node_count_min : 0
   node_count_max    = var.double_node_pool.node_pool_bar.active ? var.node_count_max : 0
- node_count        = var.double_node_pool.enabled && !var.double_node_pool.node_pool_bar.active ? 0 : null
-  override_node_count = var.double_node_pool.enabled && !var.double_node_pool.node_pool_bar.active
+  override_node_count = {
+    # override to 0 only when pool not active
+    enabled = var.double_node_pool.enabled && !var.double_node_pool.node_pool_bar.active
+    count = 0
+  }
 
   ###############################################################
   # Kubernetes runtime metadata

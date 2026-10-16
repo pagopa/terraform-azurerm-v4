@@ -57,12 +57,6 @@ variable "node_count_min" {
   description = "(Required): Minimum node count"
 }
 
-variable "node_count" {
-  type        = number
-  default     = null
-  description = "(Optional): Initial node count. Defaults to node_count_min when null."
-}
-
 variable "node_count_max" {
   type        = number
   description = "(Required): Maximum node count"
@@ -115,7 +109,13 @@ variable "orchestrator_version" {
 
 
 variable "override_node_count" {
-  type        = bool
-  default     = false
-  description = "(Optional): Override the node count for the node pool."
+  type        = object({
+    enabled = bool
+    count  = number
+  })
+  default     = {
+    enabled = false
+    count   = 0
+  }
+  description = "(Optional): Override the node count for the node pool. Affects the pool even if autoscaling is enabled. If enabled, the node count will be set to the specified count."
 }
