@@ -109,10 +109,10 @@ module "aks_node_pool" {
 
 **foo-bar rotation workflow:**
 
-1. Activate the inactive node pool
-2. Remove the autoscale from the old active node pool (from portal)
-3. Drain the old active node pool and cordon it to prevent new pods from being scheduled
-4. Deactivate the old active node pool
+1. (terraform) Activate the inactive node pool
+2. (portal) Remove the autoscale from the old active node pool (from portal)
+3. (portal/lens) Drain the old active node pool and cordon it to prevent new pods from being scheduled
+4. (terraform) Deactivate the old active node pool
 
 ## Notes
 
@@ -146,7 +146,6 @@ module "aks_node_pool" {
 | Name | Type |
 |------|------|
 | [azurerm_subnet_nat_gateway_association.aks_overlay_snet_nat_association](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_nat_gateway_association) | resource |
-| [azurerm_kubernetes_cluster.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/kubernetes_cluster) | data source |
 
 ## Inputs
 

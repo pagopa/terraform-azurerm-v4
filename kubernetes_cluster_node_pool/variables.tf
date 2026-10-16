@@ -109,11 +109,11 @@ variable "orchestrator_version" {
 
 
 variable "override_node_count" {
-  type        = object({
+  type = object({
     enabled = bool
-    count  = number
+    count   = number
   })
-  default     = {
+  default = {
     enabled = false
     count   = 0
   }

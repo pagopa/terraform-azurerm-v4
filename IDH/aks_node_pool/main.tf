@@ -73,7 +73,7 @@ module "aks_node_pool_foo" {
   override_node_count = {
     # override to 0 only when pool not active
     enabled = var.double_node_pool.enabled && !var.double_node_pool.node_pool_foo.active
-    count = 0
+    count   = 0
   }
   ###############################################################
   # Kubernetes runtime metadata
@@ -134,7 +134,7 @@ module "aks_node_pool_bar" {
   override_node_count = {
     # override to 0 only when pool not active
     enabled = var.double_node_pool.enabled && !var.double_node_pool.node_pool_bar.active
-    count = 0
+    count   = 0
   }
 
   ###############################################################
