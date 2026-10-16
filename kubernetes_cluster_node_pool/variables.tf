@@ -57,6 +57,12 @@ variable "node_count_min" {
   description = "(Required): Minimum node count"
 }
 
+variable "node_count" {
+  type        = number
+  default     = null
+  description = "(Optional): Initial node count. Defaults to node_count_min when null."
+}
+
 variable "node_count_max" {
   type        = number
   description = "(Required): Maximum node count"

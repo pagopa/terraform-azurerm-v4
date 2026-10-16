@@ -146,6 +146,7 @@ module "aks_node_pool" {
 | Name | Type |
 |------|------|
 | [azurerm_subnet_nat_gateway_association.aks_overlay_snet_nat_association](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_nat_gateway_association) | resource |
+| [azurerm_kubernetes_cluster.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/kubernetes_cluster) | data source |
 
 ## Inputs
 

@@ -21,7 +21,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   os_type                 = "Linux"
 
   auto_scaling_enabled = var.autoscale_enabled
-  node_count           = var.node_count_min
+  node_count           = coalesce(var.node_count, var.node_count_min)
   min_count            = var.node_count_min
   max_count            = var.node_count_max
 
