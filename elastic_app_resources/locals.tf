@@ -26,7 +26,7 @@ locals {
     }
   }
 
-  ingest_pipeline = { for k, v in var.configuration.indexTemplate : k => jsondecode(file("${var.library_ingest_pipeline_path}/${v.ingestPipeline}.json")) }
+  ingest_pipeline = { for k, v in var.configuration.indexTemplate : k => yamldecode(file("${var.library_ingest_pipeline_path}/${v.ingestPipeline}.yaml")) }
 
 
   alert_messages = {
