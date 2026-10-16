@@ -7,14 +7,6 @@ module "idh_loader" {
 }
 
 
-
-# Read the cluster (not the pools) so that pools not yet created don't fail the lookup:
-# the current node_count is available only for pools that already exist.
-data "azurerm_kubernetes_cluster" "this" {
-  name                = local.cluster_name
-  resource_group_name = local.cluster_rg_name
-}
-
 # IDH/subnet
 module "aks_overlay_snet" {
   source = "../subnet"
@@ -78,8 +70,8 @@ module "aks_node_pool_foo" {
   autoscale_enabled = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.autoscale_enabled : false) : var.autoscale_enabled
   node_count_min    = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.node_count_min : 0) : var.node_count_min
   node_count_max    = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.node_count_max : 0) : var.node_count_max
-  node_count        = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? lookup(local.current_node_counts, local.node_pool_foo_name, null) : 0 ): lookup(local.current_node_counts, local.node_pool_foo_name, null)
-
+  node_count        = var.double_node_pool.enabled && !var.double_node_pool.node_pool_foo.active ? 0 : null
+  override_node_count = var.double_node_pool.enabled && !var.double_node_pool.node_pool_foo.active
   ###############################################################
   # Kubernetes runtime metadata
   ###############################################################
@@ -136,7 +128,8 @@ module "aks_node_pool_bar" {
   autoscale_enabled = var.double_node_pool.node_pool_bar.active ? var.autoscale_enabled : false
   node_count_min    = var.double_node_pool.node_pool_bar.active ? var.node_count_min : 0
   node_count_max    = var.double_node_pool.node_pool_bar.active ? var.node_count_max : 0
-  node_count        = var.double_node_pool.node_pool_bar.active ? lookup(local.current_node_counts, local.node_pool_bar_name, null) : 0
+ node_count        = var.double_node_pool.enabled && !var.double_node_pool.node_pool_bar.active ? 0 : null
+  override_node_count = var.double_node_pool.enabled && !var.double_node_pool.node_pool_bar.active
 
   ###############################################################
   # Kubernetes runtime metadata

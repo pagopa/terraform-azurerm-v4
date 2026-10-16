@@ -112,3 +112,10 @@ variable "orchestrator_version" {
   default     = null
   description = "(Optional): Kubernetes version for the node pool. If not specified, it will inherit the cluster's Kubernetes version."
 }
+
+
+variable "override_node_count" {
+  type        = bool
+  default     = false
+  description = "(Optional): Override the node count for the node pool."
+}
