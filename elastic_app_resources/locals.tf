@@ -26,8 +26,19 @@ locals {
     }
   }
 
-  ingest_pipeline = { for k, v in var.configuration.indexTemplate : k => yamldecode(file("${var.library_ingest_pipeline_path}/${v.ingestPipeline}.yaml")) }
+  ingest_pipeline = { for k, v in var.configuration.indexTemplate : k => jsondecode(file("${var.library_ingest_pipeline_path}/${v.ingestPipeline}.json")) }
 
+  embedded_processors = compact([
+    # drop documents based on log level filtering
+    var.configuration.log_filtering.log_level_filtering.enabled ? jsondecode(templatefile("${path.module}/processor/drop_log_level.json", {
+        log_level_field = var.configuration.log_filtering.log_level_filtering.field
+        log_level_filter = join(",", var.configuration.log_filtering.log_level_filtering.levels)
+      })) : null,
+    # drop documents based on sampling percentage
+    var.configuration.log_filtering.sampling.enabled ? jsondecode(templatefile("${path.module}/processor/drop_sampling.json", {
+        sampling_percentage = var.configuration.log_filtering.sampling.percentage
+      })) : null
+  ])
 
   alert_messages = {
     log_query        = "Elasticsearch query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}} \n Check the alert details if there is any investigation manual or dashboard defined"

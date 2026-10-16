@@ -1,0 +1,7 @@
+{
+  "drop" : {
+    "if" : "Math.random() * 100 > ${sampling_percentage}",
+    "description" : "Drop events based on sampling percentage",
+    "ignore_failure" : true
+  }
+}

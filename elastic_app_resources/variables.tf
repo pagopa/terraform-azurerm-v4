@@ -29,8 +29,27 @@ variable "configuration" {
       }), {
       indexIdentifiers = []
     })
-
-  })
+    log_filtering = optional(object({
+      sampling = object({
+        enabled = bool
+        percentage = optional(number, 50)
+      })
+      log_level_filtering = object({
+        enabled = bool
+        field   = optional(string, "log.level")
+        levels = optional(list(string), ["DEBUG", "TRACE"])
+      })
+    }, {
+        sampling = {
+          enabled    = false
+          percentage = 50
+        }
+        log_level_filtering = {
+          enabled = false
+          field   = "log.level"
+          levels  = ["DEBUG", "TRACE"]
+        }
+      }))
 
   description = "Configuration for this application"
 }

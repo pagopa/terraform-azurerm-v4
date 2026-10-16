@@ -1,0 +1,7 @@
+{
+  "drop" : {
+    "if" : "${log_level_field} in [${log_level_filter}]",
+    "ignore_failure" : true,
+    "description" : "Drop events based on log level"
+  }
+}
