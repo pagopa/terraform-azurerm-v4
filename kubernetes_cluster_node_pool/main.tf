@@ -5,6 +5,13 @@ resource "random_string" "rotation" {
 }
 
 
+# Read the cluster (not the pools) so that pools not yet created don't fail the lookup:
+# the current node_count is available only for pools that already exist.
+data "azurerm_kubernetes_cluster" "this" {
+  name                = local.cluster_name
+  resource_group_name = local.cluster_rg_name
+}
+
 resource "azurerm_kubernetes_cluster_node_pool" "this" {
   kubernetes_cluster_id = var.kubernetes_cluster_id
 
@@ -21,7 +28,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   os_type                 = "Linux"
 
   auto_scaling_enabled = var.autoscale_enabled
-  node_count           = var.node_count_min
+  node_count           = var.override_node_count.enabled ? var.override_node_count.count : lookup(local.current_node_counts, var.name, var.node_count_min)
   min_count            = var.node_count_min
   max_count            = var.node_count_max
 
@@ -41,9 +48,4 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
 
   tags = merge(var.tags, var.node_tags)
 
-  lifecycle {
-    ignore_changes = [
-      node_count
-    ]
-  }
 }

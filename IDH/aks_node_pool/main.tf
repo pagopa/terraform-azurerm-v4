@@ -7,7 +7,6 @@ module "idh_loader" {
 }
 
 
-
 # IDH/subnet
 module "aks_overlay_snet" {
   source = "../subnet"
@@ -71,7 +70,11 @@ module "aks_node_pool_foo" {
   autoscale_enabled = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.autoscale_enabled : false) : var.autoscale_enabled
   node_count_min    = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.node_count_min : 0) : var.node_count_min
   node_count_max    = var.double_node_pool.enabled ? (var.double_node_pool.node_pool_foo.active ? var.node_count_max : 0) : var.node_count_max
-
+  override_node_count = {
+    # override to 0 only when pool not active
+    enabled = var.double_node_pool.enabled && !var.double_node_pool.node_pool_foo.active
+    count   = 0
+  }
   ###############################################################
   # Kubernetes runtime metadata
   ###############################################################
@@ -128,6 +131,11 @@ module "aks_node_pool_bar" {
   autoscale_enabled = var.double_node_pool.node_pool_bar.active ? var.autoscale_enabled : false
   node_count_min    = var.double_node_pool.node_pool_bar.active ? var.node_count_min : 0
   node_count_max    = var.double_node_pool.node_pool_bar.active ? var.node_count_max : 0
+  override_node_count = {
+    # override to 0 only when pool not active
+    enabled = var.double_node_pool.enabled && !var.double_node_pool.node_pool_bar.active
+    count   = 0
+  }
 
   ###############################################################
   # Kubernetes runtime metadata
