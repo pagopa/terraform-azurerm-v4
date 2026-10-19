@@ -62,10 +62,10 @@ spec:
             runAsUser: 0
           resources:
             limits:
-              memory: 2048Mi
+              memory: 1536Mi
             requests:
-              cpu: 700m
-              memory: 1024Mi
+              cpu: 350m
+              memory: 768Mi
           volumeMounts:
             - name: datastreams
               mountPath: /etc/elastic-agent/agent.yml
