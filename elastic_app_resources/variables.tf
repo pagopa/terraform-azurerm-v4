@@ -14,19 +14,19 @@ variable "configuration" {
   type = object({
     displayName = string
     indexTemplate = map(object({
-      indexPatterns    = list(string)
-      customComponent  = optional(string, null)
+      indexPatterns = list(string)
+      customComponent = optional(string, null)
       packageComponent = optional(string, null)
-      ingestPipeline   = string
+      ingestPipeline = string
     }))
     dataStream = list(string)
     dataView = object({
       indexIdentifiers = list(string)
-      runtimeFields    = optional(list(any), [])
+      runtimeFields = optional(list(any), [])
     })
     apmDataView = optional(object({
       indexIdentifiers = list(string)
-      }), {
+    }), {
       indexIdentifiers = []
     })
     log_filtering = optional(object({
@@ -36,21 +36,21 @@ variable "configuration" {
       })
       log_level_filtering = object({
         enabled = bool
-        field   = optional(string, "log.level")
+        field = optional(string, "log.level")
         levels = optional(list(string), ["DEBUG", "TRACE"])
       })
-    }, {
-        sampling = {
-          enabled    = false
-          percentage = 50
-        }
-        log_level_filtering = {
-          enabled = false
-          field   = "log.level"
-          levels  = ["DEBUG", "TRACE"]
-        }
-      }))
-
+    }), {
+      sampling = {
+        enabled    = false
+        percentage = 50
+      }
+      log_level_filtering = {
+        enabled = false
+        field   = "log.level"
+        levels = ["DEBUG", "TRACE"]
+      }
+    })
+  })
   description = "Configuration for this application"
 }
 
