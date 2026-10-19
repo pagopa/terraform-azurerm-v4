@@ -37,7 +37,7 @@ variable "configuration" {
       log_level_filtering = object({
         enabled = bool
         field = optional(string, "log.level")
-        levels = optional(string, "[\"DEBUG\", \"TRACE\"]")
+        levels = optional(list(string), ["DEBUG", "TRACE"])
       })
     }), {
       sampling = {
@@ -47,7 +47,7 @@ variable "configuration" {
       log_level_filtering = {
         enabled = false
         field   = "log.level"
-        levels = "[\"DEBUG\", \"TRACE\"]"
+        levels = ["DEBUG", "TRACE"]
       }
     })
   })
