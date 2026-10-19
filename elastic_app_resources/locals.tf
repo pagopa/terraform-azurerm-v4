@@ -30,9 +30,10 @@ locals {
 
   embedded_processors = flatten([
     # drop documents based on log level filtering
-    var.configuration.log_filtering.log_level_filtering.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_log_level.json", {
-        log_level_field = var.configuration.log_filtering.log_level_filtering.field
-        log_level_filter = join(",", [for l in var.configuration.log_filtering.log_level_filtering.levels : "\\\"${l}\\\""])
+    var.configuration.log_filtering.field_filtering.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_field_value.json", {
+        field = var.configuration.log_filtering.field_filtering.field
+        filtered_values_json = join(",", [for l in var.configuration.log_filtering.field_filtering.filtered_values : "\\\"${l}\\\""])
+        field_structure = var.configuration.log_filtering.field_filtering.field_structure
       }))] : [],
     # drop documents based on sampling percentage
     var.configuration.log_filtering.sampling.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_sampling.json", {
