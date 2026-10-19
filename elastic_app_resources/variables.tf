@@ -56,7 +56,7 @@ variable "configuration" {
   description = "Configuration for this application"
 
   validation {
-    condition     = contains(["plain", "structured"], var.configuration.log_filtering.field_filtering.field_structure)
+    condition     = contains(["plain", "object"], var.configuration.log_filtering.field_filtering.field_structure)
     error_message = "configuration.log_filtering.field_filtering.field_structure must be either \"plain\" or \"structured\". Used by ${var.application_name} application"
   }
 }

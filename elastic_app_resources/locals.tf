@@ -31,7 +31,7 @@ locals {
   embedded_processors = flatten([
     # drop documents based on log level filtering
     var.configuration.log_filtering.field_filtering.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_field_value.json", {
-        field = var.configuration.log_filtering.field_filtering.field
+        field = var.configuration.log_filtering.field_filtering.field_structure == "object" ? join("?.", split(".", var.configuration.log_filtering.field_filtering.field)): var.configuration.log_filtering.field_filtering.field
         filtered_values_json = join(",", [for l in var.configuration.log_filtering.field_filtering.filtered_values : "\\\"${l}\\\""])
         field_structure = var.configuration.log_filtering.field_filtering.field_structure
       }))] : [],
