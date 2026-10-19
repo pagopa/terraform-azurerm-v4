@@ -33,22 +33,28 @@ variable "configuration" {
       sampling = object({
         enabled = bool
         percentage = optional(number, 50)
+        keep = optional(object({
+          field = string
+          values = list(string)
+          field_structure = optional(string, "flat")
+        }), null)
       })
       field_filtering = object({
         enabled = bool
         field = optional(string, "log.level")
-        field_structure = optional(string, "plain")
+        field_structure = optional(string, "flat")
         filtered_values = optional(list(string), ["DEBUG", "TRACE"])
       })
     }), {
       sampling = {
         enabled    = false
         percentage = 50
+        keep = null
       }
       field_filtering = {
         enabled = false
         field   = "log.level"
-        field_structure = "plain"
+        field_structure = "flat"
         filtered_values = ["DEBUG", "TRACE"]
       }
     })
@@ -56,7 +62,7 @@ variable "configuration" {
   description = "Configuration for this application"
 
   validation {
-    condition     = contains(["plain", "object"], var.configuration.log_filtering.field_filtering.field_structure)
+    condition     = contains(["flat", "object"], var.configuration.log_filtering.field_filtering.field_structure)
     error_message = "configuration.log_filtering.field_filtering.field_structure must be either \"plain\" or \"structured\". Used by ${var.application_name} application"
   }
 }

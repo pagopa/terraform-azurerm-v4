@@ -37,7 +37,11 @@ locals {
       }))] : [],
     # drop documents based on sampling percentage
     var.configuration.log_filtering.sampling.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_sampling.json", {
-        sampling_percentage = var.configuration.log_filtering.sampling.percentage
+        sampling_percentage = var.configuration.log_filtering.sampling.percentage,
+        keep_field_enabled = var.configuration.log_filtering.sampling.keep != null
+        keep_field = var.configuration.log_filtering.sampling.keep != null ? (var.configuration.log_filtering.sampling.keep.field_structure == "object" ? join("?.", split(".", var.configuration.log_filtering.sampling.field)): var.configuration.log_filtering.sampling.field) : ""
+        keep_field_structure = var.configuration.log_filtering.sampling.keep != null ? var.configuration.log_filtering.sampling.keep.field_structure : ""
+        keep_field_values_json = var.configuration.log_filtering.sampling.keep != null ? join(",", [for l in var.configuration.log_filtering.sampling.values : "\\\"${l}\\\""]) : ""
       }))] : []
   ])
 
