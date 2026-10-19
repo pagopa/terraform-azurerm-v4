@@ -63,7 +63,7 @@ variable "configuration" {
 
   validation {
     condition     = contains(["flat", "object"], var.configuration.log_filtering.field_filtering.field_structure)
-    error_message = "configuration.log_filtering.field_filtering.field_structure must be either \"plain\" or \"structured\". Used by ${var.application_name} application"
+    error_message = "configuration.log_filtering.field_filtering.field_structure must be either \"flat\" or \"structured\". Used by ${var.application_name} application"
   }
 }
 
