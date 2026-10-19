@@ -1,7 +1,8 @@
 {
   "drop" : {
-    "if" : "%{if field_structure == \"plain\"}[${filtered_values_json}].contains(ctx['${field}']) %{else} [${filtered_values_json}].contains(ctx?.${field}) %{endif}",
+    "if" : "[${filtered_values_json}].contains(ctx['${field}'])",
     "ignore_failure" : true,
     "description" : "Drop events based on field filtering"
   }
 }
+[${log_level_filter}].contains(ctx['${log_level_field}'])
