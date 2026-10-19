@@ -5,4 +5,3 @@
     "description" : "Drop events based on field filtering"
   }
 }
-[${log_level_filter}].contains(ctx['${log_level_field}'])
