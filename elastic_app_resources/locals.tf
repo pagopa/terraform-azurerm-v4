@@ -28,16 +28,16 @@ locals {
 
   ingest_pipeline = { for k, v in var.configuration.indexTemplate : k => jsondecode(file("${var.library_ingest_pipeline_path}/${v.ingestPipeline}.json")) }
 
-  embedded_processors = compact([
+  embedded_processors = flatten([
     # drop documents based on log level filtering
-    var.configuration.log_filtering.log_level_filtering.enabled ? jsondecode(templatefile("${path.module}/processor/drop_log_level.json", {
+    var.configuration.log_filtering.log_level_filtering.enabled ? jsondecode(templatefile("${path.module}/processor/drop_log_level.json", [{
         log_level_field = var.configuration.log_filtering.log_level_filtering.field
         log_level_filter = join(",", var.configuration.log_filtering.log_level_filtering.levels)
-      })) : null,
+      }])) : [],
     # drop documents based on sampling percentage
-    var.configuration.log_filtering.sampling.enabled ? jsondecode(templatefile("${path.module}/processor/drop_sampling.json", {
+    var.configuration.log_filtering.sampling.enabled ? jsondecode(templatefile("${path.module}/processor/drop_sampling.json", [{
         sampling_percentage = var.configuration.log_filtering.sampling.percentage
-      })) : null
+      }])) : []
   ])
 
   alert_messages = {
