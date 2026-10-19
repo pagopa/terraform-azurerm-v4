@@ -1,6 +1,6 @@
 {
   "drop" : {
-    "if" : "[${filtered_values_json}].contains(ctx['${field}'])",
+    "if" : "%{if field_structure == \"plain\"} [${filtered_values_json}].contains(ctx['${field}']) %{endif}",
     "ignore_failure" : true,
     "description" : "Drop events based on field filtering"
   }
