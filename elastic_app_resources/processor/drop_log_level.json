@@ -1,6 +1,6 @@
 {
   "drop" : {
-    "if" : "[${log_level_filter}].contains(ctx['${log_level_field}'])",
+    "if" : "[\"DEBUG\", \"TRACE\"].contains(ctx['${log_level_field}'])",
     "ignore_failure" : true,
     "description" : "Drop events based on log level"
   }
