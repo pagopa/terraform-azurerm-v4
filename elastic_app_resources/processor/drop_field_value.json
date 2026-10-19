@@ -4,7 +4,7 @@
     "if" : "[${filtered_values_json}].contains(ctx['${field}'])",
     %{else}
     "if": "[${filtered_values_json}].contains(ctx?.${field})",
-    %{else}
+    %{endif}
     "ignore_failure" : true,
     "description" : "Drop events based on field filtering"
   }
