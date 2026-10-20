@@ -361,13 +361,13 @@ Drops every document whose `field` value is one of `filtered_values` (e.g. `DEBU
 Randomly drops about `percentage`% of the documents. If `keep` is set, documents whose `keep.field` value is
 in `keep.values` are never dropped, so only the remaining documents are sampled.
 
-| Attribute              | Default | Description                                                         |
-|------------------------|---------|---------------------------------------------------------------------|
-| `enabled`              | -       | Enables the sampling                                                |
-| `percentage`           | `50`    | Percentage (0-100) of documents to drop                             |
-| `keep.field`           | -       | Field used to exclude documents from sampling                       |
-| `keep.values`          | -       | Values of `keep.field` that are always retained                     |
-| `keep.field_structure` | `flat`  | `flat` or `object`, same meaning as in field filtering              |
+| Attribute              | Default | Description                                            |
+|------------------------|---------|--------------------------------------------------------|
+| `enabled`              | -       | Enables the sampling                                   |
+| `percentage`           | `50`    | Percentage (0-100) of documents to keep                |
+| `keep.field`           | -       | Field used to exclude documents from sampling          |
+| `keep.values`          | -       | Values of `keep.field` that are always retained        |
+| `keep.field_structure` | `flat`  | `flat` or `object`, same meaning as in field filtering |
 
 > **Note:** `field_filtering.field_structure` must be `flat` or `object`. Use `object` when the logs are not
 > flattened by the ingest pipeline, otherwise the filter will not match. Processors use `ignore_failure`, so a missing
