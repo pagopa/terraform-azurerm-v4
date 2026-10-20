@@ -30,19 +30,19 @@ locals {
 
   log_filtering_configuration = {
     sampling: {
-      enabled: coalesce(var.configuration.log_filtering.sampling.enabled, var.default_log_filtering.sampling.enabled)
-      percentage: coalesce(var.configuration.log_filtering.sampling.percentage, var.default_log_filtering.sampling.percentage)
+      enabled: try(var.configuration.log_filtering.sampling.enabled, var.default_log_filtering.sampling.enabled)
+      percentage: try(var.configuration.log_filtering.sampling.percentage, var.default_log_filtering.sampling.percentage)
       keep: var.configuration.log_filtering.sampling.keep != null ? {
-        field: coalesce(var.configuration.log_filtering.sampling.keep.field, var.default_log_filtering.sampling.keep.field)
-        field_structure: coalesce(var.configuration.log_filtering.sampling.keep.field_structure, var.default_log_filtering.sampling.keep.field_structure)
-        values: coalesce(var.configuration.log_filtering.sampling.keep.values, var.default_log_filtering.sampling.keep.values)
+        field: try(var.configuration.log_filtering.sampling.keep.field, var.default_log_filtering.sampling.keep.field)
+        field_structure: try(var.configuration.log_filtering.sampling.keep.field_structure, var.default_log_filtering.sampling.keep.field_structure)
+        values: try(var.configuration.log_filtering.sampling.keep.values, var.default_log_filtering.sampling.keep.values)
       } :  var.default_log_filtering.sampling.keep
     }
     field_filtering: {
-      enabled: coalesce(var.configuration.log_filtering.field_filtering.enabled, var.default_log_filtering.field_filtering.enabled)
-      field: coalesce(var.configuration.log_filtering.field_filtering.field, var.default_log_filtering.field_filtering.field)
-      field_structure: coalesce(var.configuration.log_filtering.field_filtering.field_structure, var.default_log_filtering.field_filtering.field_structure)
-      values: coalesce(var.configuration.log_filtering.field_filtering.values, var.default_log_filtering.field_filtering.values)
+      enabled: try(var.configuration.log_filtering.field_filtering.enabled, var.default_log_filtering.field_filtering.enabled)
+      field: try(var.configuration.log_filtering.field_filtering.field, var.default_log_filtering.field_filtering.field)
+      field_structure: try(var.configuration.log_filtering.field_filtering.field_structure, var.default_log_filtering.field_filtering.field_structure)
+      values: try(var.configuration.log_filtering.field_filtering.values, var.default_log_filtering.field_filtering.values)
     }
   }
 
