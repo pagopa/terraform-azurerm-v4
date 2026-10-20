@@ -31,18 +31,18 @@ locals {
   embedded_processors = flatten([
     # drop documents based on log level filtering
     var.configuration.log_filtering.field_filtering.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_field_value.json", {
-        field = var.configuration.log_filtering.field_filtering.field_structure == "object" ? join("?.", split(".", var.configuration.log_filtering.field_filtering.field)): var.configuration.log_filtering.field_filtering.field
-        filtered_values_json = join(",", [for l in var.configuration.log_filtering.field_filtering.filtered_values : "\\\"${l}\\\""])
-        field_structure = var.configuration.log_filtering.field_filtering.field_structure
-      }))] : [],
+      field                = var.configuration.log_filtering.field_filtering.field_structure == "object" ? join("?.", split(".", var.configuration.log_filtering.field_filtering.field)) : var.configuration.log_filtering.field_filtering.field
+      filtered_values_json = join(",", [for l in var.configuration.log_filtering.field_filtering.filtered_values : "\\\"${l}\\\""])
+      field_structure      = var.configuration.log_filtering.field_filtering.field_structure
+    }))] : [],
     # drop documents based on sampling percentage
     var.configuration.log_filtering.sampling.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_sampling.json", {
-        sampling_percentage = var.configuration.log_filtering.sampling.percentage,
-        keep_field_enabled = var.configuration.log_filtering.sampling.keep != null
-        keep_field = var.configuration.log_filtering.sampling.keep != null ? (var.configuration.log_filtering.sampling.keep.field_structure == "object" ? join("?.", split(".", var.configuration.log_filtering.sampling.keep.field)): var.configuration.log_filtering.sampling.keep.field) : ""
-        keep_field_structure = var.configuration.log_filtering.sampling.keep != null ? var.configuration.log_filtering.sampling.keep.field_structure : ""
-        keep_field_values_json = var.configuration.log_filtering.sampling.keep != null ? join(",", [for l in var.configuration.log_filtering.sampling.keep.values : "\\\"${l}\\\""]) : ""
-      }))] : []
+      sampling_percentage    = var.configuration.log_filtering.sampling.percentage,
+      keep_field_enabled     = var.configuration.log_filtering.sampling.keep != null
+      keep_field             = var.configuration.log_filtering.sampling.keep != null ? (var.configuration.log_filtering.sampling.keep.field_structure == "object" ? join("?.", split(".", var.configuration.log_filtering.sampling.keep.field)) : var.configuration.log_filtering.sampling.keep.field) : ""
+      keep_field_structure   = var.configuration.log_filtering.sampling.keep != null ? var.configuration.log_filtering.sampling.keep.field_structure : ""
+      keep_field_values_json = var.configuration.log_filtering.sampling.keep != null ? join(",", [for l in var.configuration.log_filtering.sampling.keep.values : "\\\"${l}\\\""]) : ""
+    }))] : []
   ])
 
   alert_messages = {

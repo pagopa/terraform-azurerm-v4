@@ -14,46 +14,46 @@ variable "configuration" {
   type = object({
     displayName = string
     indexTemplate = map(object({
-      indexPatterns = list(string)
-      customComponent = optional(string, null)
+      indexPatterns    = list(string)
+      customComponent  = optional(string, null)
       packageComponent = optional(string, null)
-      ingestPipeline = string
+      ingestPipeline   = string
     }))
     dataStream = list(string)
     dataView = object({
       indexIdentifiers = list(string)
-      runtimeFields = optional(list(any), [])
+      runtimeFields    = optional(list(any), [])
     })
     apmDataView = optional(object({
       indexIdentifiers = list(string)
-    }), {
+      }), {
       indexIdentifiers = []
     })
     log_filtering = optional(object({
       sampling = object({
-        enabled = bool
+        enabled    = bool
         percentage = optional(number, 50)
         keep = optional(object({
-          field = string
-          values = list(string)
+          field           = string
+          values          = list(string)
           field_structure = optional(string, "flat")
         }), null)
       })
       field_filtering = object({
-        enabled = bool
-        field = optional(string, "log.level")
+        enabled         = bool
+        field           = optional(string, "log.level")
         field_structure = optional(string, "flat")
         filtered_values = optional(list(string), ["DEBUG", "TRACE"])
       })
-    }), {
+      }), {
       sampling = {
         enabled    = false
         percentage = 50
-        keep = null
+        keep       = null
       }
       field_filtering = {
-        enabled = false
-        field   = "log.level"
+        enabled         = false
+        field           = "log.level"
         field_structure = "flat"
         filtered_values = ["DEBUG", "TRACE"]
       }
@@ -63,7 +63,7 @@ variable "configuration" {
 
   validation {
     condition     = contains(["flat", "object"], var.configuration.log_filtering.field_filtering.field_structure)
-    error_message = "configuration.log_filtering.field_filtering.field_structure must be either \"flat\" or \"structured\". Used by ${var.application_name} application"
+    error_message = "configuration.log_filtering.field_filtering.field_structure must be either \"flat\" or \"object\". Used by ${var.application_name} application"
   }
 }
 

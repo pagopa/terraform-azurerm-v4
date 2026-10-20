@@ -9,7 +9,8 @@ This module creates the elasticsearch resources required to monitor an applicati
 This module provisions, for a single application monitored on Elasticsearch/Kibana, the full set of observability
 resources needed to ingest, index, visualize and alert on its logs/APM data:
 
-- Ingest pipelines (`elasticstack_elasticsearch_ingest_pipeline`), one per index defined in `configuration.indexTemplate`
+- Ingest pipelines (`elasticstack_elasticsearch_ingest_pipeline`), one per index defined in `configuration.indexTemplate`,
+  optionally extended with log filtering/sampling processors (see [Log filtering](#log-filtering-configurationlog_filtering))
 - `@custom` and `@package` component templates and the related index templates
 - Data streams (`configuration.dataStream`)
 - Kibana data views: one "logs" data view (built from `configuration.dataView`) and one APM data view (built from
@@ -315,6 +316,63 @@ system_alert = {
 }
 ```
 
+### Log filtering (`configuration.log_filtering`)
+
+The module can drop unwanted documents at ingestion time. When enabled, extra `drop` processors are appended **after**
+the processors of the library ingest pipeline, in every pipeline defined in `configuration.indexTemplate`.
+Both filters are disabled by default, and can be combined (field filtering is evaluated first).
+
+```hcl
+configuration = {
+  # ...
+  log_filtering = {
+    field_filtering = {
+      enabled         = true
+      field           = "log.level"          # default
+      field_structure = "flat"               # default, "flat" or "object"
+      filtered_values = ["DEBUG", "TRACE"]   # default
+    }
+    sampling = {
+      enabled    = true
+      percentage = 50                        # default
+      keep = {                               # optional
+        field           = "log.level"
+        values          = ["ERROR", "WARN"]
+        field_structure = "flat"             # default, "flat" or "object"
+      }
+    }
+  }
+}
+```
+
+#### Field filtering
+
+Drops every document whose `field` value is one of `filtered_values` (e.g. `DEBUG` and `TRACE` logs).
+
+| Attribute         | Default              | Description                                                                |
+|-------------------|----------------------|----------------------------------------------------------------------------|
+| `enabled`         | -                    | Enables the filter                                                         |
+| `field`           | `log.level`          | Document field to evaluate                                                 |
+| `field_structure` | `flat`               | `flat`: the field is a single key containing dots (`ctx['log.level']`); `object`: the field is a nested object path (`ctx?.log?.level`) |
+| `filtered_values` | `["DEBUG", "TRACE"]` | Values of the field that cause the document to be dropped                  |
+
+#### Sampling
+
+Randomly drops about `percentage`% of the documents. If `keep` is set, documents whose `keep.field` value is
+in `keep.values` are never dropped, so only the remaining documents are sampled.
+
+| Attribute              | Default | Description                                                         |
+|------------------------|---------|---------------------------------------------------------------------|
+| `enabled`              | -       | Enables the sampling                                                |
+| `percentage`           | `50`    | Percentage (0-100) of documents to drop                             |
+| `keep.field`           | -       | Field used to exclude documents from sampling                       |
+| `keep.values`          | -       | Values of `keep.field` that are always retained                     |
+| `keep.field_structure` | `flat`  | `flat` or `object`, same meaning as in field filtering              |
+
+> **Note:** `field_filtering.field_structure` must be `flat` or `object`. Use `object` when the logs are not
+> flattened by the ingest pipeline, otherwise the filter will not match. Processors use `ignore_failure`, so a missing
+> field never blocks ingestion.
+
 ### Multiple index templates and data streams
 
 `configuration.indexTemplate` is a map, so an application can define several index/pipeline combinations sharing the
@@ -391,7 +449,7 @@ No modules.
 | <a name="input_alert_channels"></a> [alert\_channels](#input\_alert\_channels) | Configuration for alert channels to be used in the application alerts. Each channel can be enabled or disabled, and if enabled, must have the necessary recipients or connectors defined. | <pre>object({<br/>    email = optional(object({<br/>      enabled    = bool<br/>      recipients = map(list(string))<br/>      }), {<br/>      enabled    = false<br/>      recipients = {}<br/>    })<br/>    slack = optional(object({<br/>      enabled    = bool<br/>      connectors = map(string)<br/>      }), {<br/>      enabled    = false<br/>      connectors = {}<br/>    })<br/>    jsm = optional(object({<br/>      enabled    = bool<br/>      connectors = map(string)<br/>      }), {<br/>      enabled    = false<br/>      connectors = {}<br/>    })<br/>    cloudo = optional(object({<br/>      enabled    = bool<br/>      connectors = map(string)<br/>      }), {<br/>      enabled    = false<br/>      connectors = {}<br/>    })<br/>  })</pre> | <pre>{<br/>  "cloudo": {<br/>    "connectors": {},<br/>    "enabled": false<br/>  },<br/>  "email": {<br/>    "enabled": false,<br/>    "recipients": {}<br/>  },<br/>  "jsm": {<br/>    "connectors": {},<br/>    "enabled": false<br/>  },<br/>  "slack": {<br/>    "connectors": {},<br/>    "enabled": false<br/>  }<br/>}</pre> | no |
 | <a name="input_alert_folder"></a> [alert\_folder](#input\_alert\_folder) | Path to the alert containing folder for this application | `string` | n/a | yes |
 | <a name="input_application_name"></a> [application\_name](#input\_application\_name) | Name of this application | `string` | n/a | yes |
-| <a name="input_configuration"></a> [configuration](#input\_configuration) | Configuration for this application | <pre>object({<br/>    displayName = string<br/>    indexTemplate = map(object({<br/>      indexPatterns    = list(string)<br/>      customComponent  = optional(string, null)<br/>      packageComponent = optional(string, null)<br/>      ingestPipeline   = string<br/>    }))<br/>    dataStream = list(string)<br/>    dataView = object({<br/>      indexIdentifiers = list(string)<br/>      runtimeFields    = optional(list(any), [])<br/>    })<br/>    apmDataView = optional(object({<br/>      indexIdentifiers = list(string)<br/>      }), {<br/>      indexIdentifiers = []<br/>    })<br/><br/>  })</pre> | n/a | yes |
+| <a name="input_configuration"></a> [configuration](#input\_configuration) | Configuration for this application | <pre>object({<br/>    displayName = string<br/>    indexTemplate = map(object({<br/>      indexPatterns    = list(string)<br/>      customComponent  = optional(string, null)<br/>      packageComponent = optional(string, null)<br/>      ingestPipeline   = string<br/>    }))<br/>    dataStream = list(string)<br/>    dataView = object({<br/>      indexIdentifiers = list(string)<br/>      runtimeFields    = optional(list(any), [])<br/>    })<br/>    apmDataView = optional(object({<br/>      indexIdentifiers = list(string)<br/>      }), {<br/>      indexIdentifiers = []<br/>    })<br/>    log_filtering = optional(object({<br/>      sampling = object({<br/>        enabled    = bool<br/>        percentage = optional(number, 50)<br/>        keep = optional(object({<br/>          field           = string<br/>          values          = list(string)<br/>          field_structure = optional(string, "flat")<br/>        }), null)<br/>      })<br/>      field_filtering = object({<br/>        enabled         = bool<br/>        field           = optional(string, "log.level")<br/>        field_structure = optional(string, "flat")<br/>        filtered_values = optional(list(string), ["DEBUG", "TRACE"])<br/>      })<br/>      }), {<br/>      sampling = {<br/>        enabled    = false<br/>        percentage = 50<br/>        keep       = null<br/>      }<br/>      field_filtering = {<br/>        enabled         = false<br/>        field           = "log.level"<br/>        field_structure = "flat"<br/>        filtered_values = ["DEBUG", "TRACE"]<br/>      }<br/>    })<br/>  })</pre> | n/a | yes |
 | <a name="input_custom_index_component_parameters"></a> [custom\_index\_component\_parameters](#input\_custom\_index\_component\_parameters) | Additional parameters to be used in the index component templates. The key is the parameter name, the value is the parameter value | `map(string)` | `{}` | no |
 | <a name="input_dashboard_folder"></a> [dashboard\_folder](#input\_dashboard\_folder) | Path to the dashboard containing folder for this application | `string` | n/a | yes |
 | <a name="input_default_custom_component_name"></a> [default\_custom\_component\_name](#input\_default\_custom\_component\_name) | Name of the default @custom index component to be used if none is defined in this app configuration | `string` | n/a | yes |
