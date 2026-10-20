@@ -28,20 +28,38 @@ locals {
 
   ingest_pipeline = { for k, v in var.configuration.indexTemplate : k => jsondecode(file("${var.library_ingest_pipeline_path}/${v.ingestPipeline}.json")) }
 
+  log_filtering_configuration = {
+    sampling: {
+      enabled: coalesce(var.configuration.log_filtering.sampling.enabled, var.default_log_filtering.sampling.enabled)
+      percentage: coalesce(var.configuration.log_filtering.sampling.percentage, var.default_log_filtering.sampling.percentage)
+      keep: var.configuration.log_filtering.sampling.keep != null ? {
+        field: coalesce(var.configuration.log_filtering.sampling.keep.field, var.default_log_filtering.sampling.keep.field)
+        field_structure: coalesce(var.configuration.log_filtering.sampling.keep.field_structure, var.default_log_filtering.sampling.keep.field_structure)
+        values: coalesce(var.configuration.log_filtering.sampling.keep.values, var.default_log_filtering.sampling.keep.values)
+      } :  var.default_log_filtering.sampling.keep
+    }
+    field_filtering: {
+      enabled: coalesce(var.configuration.log_filtering.field_filtering.enabled, var.default_log_filtering.field_filtering.enabled)
+      field: coalesce(var.configuration.log_filtering.field_filtering.field, var.default_log_filtering.field_filtering.field)
+      field_structure: coalesce(var.configuration.log_filtering.field_filtering.field_structure, var.default_log_filtering.field_filtering.field_structure)
+      values: coalesce(var.configuration.log_filtering.field_filtering.values, var.default_log_filtering.field_filtering.values)
+    }
+  }
+
   embedded_processors = flatten([
     # drop documents based on log level filtering
-    var.configuration.log_filtering.field_filtering.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_field_value.json", {
-      field                = var.configuration.log_filtering.field_filtering.field_structure == "object" ? join("?.", split(".", var.configuration.log_filtering.field_filtering.field)) : var.configuration.log_filtering.field_filtering.field
-      filtered_values_json = join(",", [for l in var.configuration.log_filtering.field_filtering.values : "\\\"${l}\\\""])
-      field_structure      = var.configuration.log_filtering.field_filtering.field_structure
+    local.log_filtering_configuration.field_filtering.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_field_value.json", {
+      field                = local.log_filtering_configuration.field_filtering.field_structure == "object" ? join("?.", split(".", local.log_filtering_configuration.field_filtering.field)) : local.log_filtering_configuration.field_filtering.field
+      filtered_values_json = join(",", [for l in local.log_filtering_configuration.field_filtering.values : "\\\"${l}\\\""])
+      field_structure      = local.log_filtering_configuration.field_filtering.field_structure
     }))] : [],
     # drop documents based on sampling percentage
-    var.configuration.log_filtering.sampling.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_sampling.json", {
-      sampling_percentage    = var.configuration.log_filtering.sampling.percentage,
-      keep_field_enabled     = var.configuration.log_filtering.sampling.keep != null
-      keep_field             = var.configuration.log_filtering.sampling.keep != null ? (var.configuration.log_filtering.sampling.keep.field_structure == "object" ? join("?.", split(".", var.configuration.log_filtering.sampling.keep.field)) : var.configuration.log_filtering.sampling.keep.field) : ""
-      keep_field_structure   = var.configuration.log_filtering.sampling.keep != null ? var.configuration.log_filtering.sampling.keep.field_structure : ""
-      keep_field_values_json = var.configuration.log_filtering.sampling.keep != null ? join(",", [for l in var.configuration.log_filtering.sampling.keep.values : "\\\"${l}\\\""]) : ""
+    local.log_filtering_configuration.sampling.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_sampling.json", {
+      sampling_percentage    = local.log_filtering_configuration.sampling.percentage,
+      keep_field_enabled     = local.log_filtering_configuration.sampling.keep != null
+      keep_field             = local.log_filtering_configuration.sampling.keep != null ? (local.log_filtering_configuration.sampling.keep.field_structure == "object" ? join("?.", split(".", local.log_filtering_configuration.sampling.keep.field)) : local.log_filtering_configuration.sampling.keep.field) : ""
+      keep_field_structure   = local.log_filtering_configuration.sampling.keep != null ? local.log_filtering_configuration.sampling.keep.field_structure : ""
+      keep_field_values_json = local.log_filtering_configuration.sampling.keep != null ? join(",", [for l in local.log_filtering_configuration.sampling.keep.values : "\\\"${l}\\\""]) : ""
     }))] : []
   ])
 

@@ -74,8 +74,51 @@ variable "configuration" {
     condition     = contains(["flat", "object"], var.configuration.log_filtering.field_filtering.field_structure)
     error_message = "configuration.log_filtering.field_filtering.field_structure must be either \"flat\" or \"object\". Used by ${var.application_name} application"
   }
+
+  validation {
+    condition     = contains(["flat", "object"], try(var.configuration.log_filtering.sampling.keep.field_structure, "flat"))
+    error_message = "configuration.log_filtering.sampling.keep.field_structure must be either \"flat\" or \"object\". Used by ${var.application_name} application"
+  }
 }
 
+
+variable "default_log_filtering" {
+  type = object({
+    sampling = object({
+        enabled    = bool
+        percentage = number
+        keep = object({
+          field           = string
+          values          = list(string)
+          field_structure = string
+        })
+      })
+      field_filtering = object({
+        enabled         = bool
+        field           = string
+        field_structure = string
+        values = list(string)
+      })
+  })
+  description = "(Optional) Default log filtering configuration to be used for all applications. If not provided, this default will be used"
+  default = {
+    sampling = {
+      enabled    = true
+      percentage = 50
+      keep = {
+        field           = "log.level"
+        values          = ["ERROR", "WARN"]
+        field_structure = "flat"
+      }
+    }
+    field_filtering = {
+      enabled         = true
+      field           = "log.level"
+      field_structure = "flat"
+      values          = ["DEBUG", "TRACE"]
+    }
+  }
+}
 
 variable "space_id" {
   type        = string
