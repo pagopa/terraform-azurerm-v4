@@ -30,7 +30,7 @@ variable "configuration" {
       indexIdentifiers = []
     })
     log_filtering = optional(object({
-      sampling = object({
+      sampling = optional(object({
         enabled    = bool
         percentage = optional(number, 50)
         keep = optional(object({
@@ -38,12 +38,21 @@ variable "configuration" {
           values          = list(string)
           field_structure = optional(string, "flat")
         }), null)
+        }), {
+        enabled    = false
+        percentage = 50
+        keep       = null
       })
-      field_filtering = object({
+      field_filtering = optional(object({
         enabled         = bool
         field           = optional(string, "log.level")
         field_structure = optional(string, "flat")
         values          = optional(list(string), ["DEBUG", "TRACE"])
+        }), {
+        enabled         = false
+        field           = "log.level"
+        field_structure = "flat"
+        values          = ["DEBUG", "TRACE"]
       })
       }), {
       sampling = {
