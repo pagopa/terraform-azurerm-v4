@@ -43,7 +43,7 @@ variable "configuration" {
         enabled         = bool
         field           = optional(string, "log.level")
         field_structure = optional(string, "flat")
-        filtered_values = optional(list(string), ["DEBUG", "TRACE"])
+        values          = optional(list(string), ["DEBUG", "TRACE"])
       })
       }), {
       sampling = {
@@ -55,7 +55,7 @@ variable "configuration" {
         enabled         = false
         field           = "log.level"
         field_structure = "flat"
-        filtered_values = ["DEBUG", "TRACE"]
+        values          = ["DEBUG", "TRACE"]
       }
     })
   })
