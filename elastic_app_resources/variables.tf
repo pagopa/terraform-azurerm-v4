@@ -37,36 +37,15 @@ variable "configuration" {
           field           = string
           values          = list(string)
           field_structure = optional(string, "flat")
-        }), null)
-        }), {
-        enabled    = false
-        percentage = 50
-        keep       = null
-      })
+        }))
+        }))
       field_filtering = optional(object({
         enabled         = bool
         field           = optional(string, "log.level")
         field_structure = optional(string, "flat")
         values          = optional(list(string), ["DEBUG", "TRACE"])
-        }), {
-        enabled         = false
-        field           = "log.level"
-        field_structure = "flat"
-        values          = ["DEBUG", "TRACE"]
-      })
-      }), {
-      sampling = {
-        enabled    = false
-        percentage = 50
-        keep       = null
-      }
-      field_filtering = {
-        enabled         = false
-        field           = "log.level"
-        field_structure = "flat"
-        values          = ["DEBUG", "TRACE"]
-      }
-    })
+        }))
+      }))
   })
   description = "Configuration for this application"
 
