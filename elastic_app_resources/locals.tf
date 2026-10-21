@@ -29,20 +29,20 @@ locals {
   ingest_pipeline = { for k, v in var.configuration.indexTemplate : k => jsondecode(file("${var.library_ingest_pipeline_path}/${v.ingestPipeline}.json")) }
 
   log_filtering_configuration = {
-    sampling: {
-      enabled: try(var.configuration.log_filtering.sampling.enabled, var.default_log_filtering.sampling.enabled)
-      percentage: try(var.configuration.log_filtering.sampling.percentage, var.default_log_filtering.sampling.percentage)
-      keep: var.configuration.log_filtering.sampling.keep != null ? {
-        field: try(var.configuration.log_filtering.sampling.keep.field, var.default_log_filtering.sampling.keep.field)
-        field_structure: try(var.configuration.log_filtering.sampling.keep.field_structure, var.default_log_filtering.sampling.keep.field_structure)
-        values: try(var.configuration.log_filtering.sampling.keep.values, var.default_log_filtering.sampling.keep.values)
-      } :  var.default_log_filtering.sampling.keep
+    sampling : {
+      enabled : try(var.configuration.log_filtering.sampling.enabled, var.default_log_filtering.sampling.enabled)
+      percentage : try(var.configuration.log_filtering.sampling.percentage, var.default_log_filtering.sampling.percentage)
+      keep : try(var.configuration.log_filtering.sampling.keep, null) != null ? {
+        field : try(var.configuration.log_filtering.sampling.keep.field, var.default_log_filtering.sampling.keep.field)
+        field_structure : try(var.configuration.log_filtering.sampling.keep.field_structure, var.default_log_filtering.sampling.keep.field_structure)
+        values : try(var.configuration.log_filtering.sampling.keep.values, var.default_log_filtering.sampling.keep.values)
+      } : var.default_log_filtering.sampling.keep
     }
-    field_filtering: {
-      enabled: try(var.configuration.log_filtering.field_filtering.enabled, var.default_log_filtering.field_filtering.enabled)
-      field: try(var.configuration.log_filtering.field_filtering.field, var.default_log_filtering.field_filtering.field)
-      field_structure: try(var.configuration.log_filtering.field_filtering.field_structure, var.default_log_filtering.field_filtering.field_structure)
-      values: try(var.configuration.log_filtering.field_filtering.values, var.default_log_filtering.field_filtering.values)
+    field_filtering : {
+      enabled : try(var.configuration.log_filtering.field_filtering.enabled, var.default_log_filtering.field_filtering.enabled)
+      field : try(var.configuration.log_filtering.field_filtering.field, var.default_log_filtering.field_filtering.field)
+      field_structure : try(var.configuration.log_filtering.field_filtering.field_structure, var.default_log_filtering.field_filtering.field_structure)
+      values : try(var.configuration.log_filtering.field_filtering.values, var.default_log_filtering.field_filtering.values)
     }
   }
 

@@ -38,25 +38,25 @@ variable "configuration" {
           values          = list(string)
           field_structure = optional(string, "flat")
         }))
-        }))
+      }))
       field_filtering = optional(object({
         enabled         = bool
         field           = optional(string, "log.level")
         field_structure = optional(string, "flat")
         values          = optional(list(string), ["DEBUG", "TRACE"])
-        }))
       }))
+    }))
   })
   description = "Configuration for this application"
 
   validation {
-    condition     = contains(["flat", "object"], var.configuration.log_filtering.field_filtering.field_structure)
-    error_message = "configuration.log_filtering.field_filtering.field_structure must be either \"flat\" or \"object\". Used by ${var.application_name} application"
+    condition     = can(var.configuration.log_filtering.field_filtering.field_structure) ? contains(["flat", "object"], try(var.configuration.log_filtering.field_filtering.field_structure, "flat")) : true
+    error_message = "configuration.log_filtering.field_filtering.field_structure must be either \"flat\" or \"object\". Used by '${var.application_name}' application"
   }
 
   validation {
-    condition     = contains(["flat", "object"], try(var.configuration.log_filtering.sampling.keep.field_structure, "flat"))
-    error_message = "configuration.log_filtering.sampling.keep.field_structure must be either \"flat\" or \"object\". Used by ${var.application_name} application"
+    condition     = can(var.configuration.log_filtering.sampling.keep.field_structure) ? contains(["flat", "object"], try(var.configuration.log_filtering.sampling.keep.field_structure, "flat")) : true
+    error_message = "configuration.log_filtering.sampling.keep.field_structure must be either \"flat\" or \"object\". Used by '${var.application_name}' application"
   }
 }
 
@@ -64,20 +64,20 @@ variable "configuration" {
 variable "default_log_filtering" {
   type = object({
     sampling = object({
-        enabled    = bool
-        percentage = number
-        keep = object({
-          field           = string
-          values          = list(string)
-          field_structure = string
-        })
-      })
-      field_filtering = object({
-        enabled         = bool
+      enabled    = bool
+      percentage = number
+      keep = object({
         field           = string
+        values          = list(string)
         field_structure = string
-        values = list(string)
       })
+    })
+    field_filtering = object({
+      enabled         = bool
+      field           = string
+      field_structure = string
+      values          = list(string)
+    })
   })
   description = "(Optional) Default log filtering configuration to be used for all applications. If not provided, this default will be used"
   default = {
