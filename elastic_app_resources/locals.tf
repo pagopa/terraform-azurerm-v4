@@ -28,6 +28,40 @@ locals {
 
   ingest_pipeline = { for k, v in var.configuration.indexTemplate : k => jsondecode(file("${var.library_ingest_pipeline_path}/${v.ingestPipeline}.json")) }
 
+  log_filtering_configuration = {
+    sampling : {
+      enabled : try(var.configuration.log_filtering.sampling.enabled, var.default_log_filtering.sampling.enabled)
+      percentage : try(var.configuration.log_filtering.sampling.percentage, var.default_log_filtering.sampling.percentage)
+      keep : try(var.configuration.log_filtering.sampling.keep, null) != null ? {
+        field : try(var.configuration.log_filtering.sampling.keep.field, var.default_log_filtering.sampling.keep.field)
+        field_structure : try(var.configuration.log_filtering.sampling.keep.field_structure, var.default_log_filtering.sampling.keep.field_structure)
+        values : try(var.configuration.log_filtering.sampling.keep.values, var.default_log_filtering.sampling.keep.values)
+      } : var.default_log_filtering.sampling.keep
+    }
+    field_filtering : {
+      enabled : try(var.configuration.log_filtering.field_filtering.enabled, var.default_log_filtering.field_filtering.enabled)
+      field : try(var.configuration.log_filtering.field_filtering.field, var.default_log_filtering.field_filtering.field)
+      field_structure : try(var.configuration.log_filtering.field_filtering.field_structure, var.default_log_filtering.field_filtering.field_structure)
+      values : try(var.configuration.log_filtering.field_filtering.values, var.default_log_filtering.field_filtering.values)
+    }
+  }
+
+  embedded_processors = flatten([
+    # drop documents based on log level filtering
+    local.log_filtering_configuration.field_filtering.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_field_value.json", {
+      field                = local.log_filtering_configuration.field_filtering.field_structure == "object" ? join("?.", split(".", local.log_filtering_configuration.field_filtering.field)) : local.log_filtering_configuration.field_filtering.field
+      filtered_values_json = join(",", [for l in local.log_filtering_configuration.field_filtering.values : "\\\"${l}\\\""])
+      field_structure      = local.log_filtering_configuration.field_filtering.field_structure
+    }))] : [],
+    # drop documents based on sampling percentage
+    local.log_filtering_configuration.sampling.enabled ? [jsondecode(templatefile("${path.module}/processor/drop_sampling.json", {
+      sampling_percentage    = local.log_filtering_configuration.sampling.percentage,
+      keep_field_enabled     = local.log_filtering_configuration.sampling.keep != null
+      keep_field             = local.log_filtering_configuration.sampling.keep != null ? (local.log_filtering_configuration.sampling.keep.field_structure == "object" ? join("?.", split(".", local.log_filtering_configuration.sampling.keep.field)) : local.log_filtering_configuration.sampling.keep.field) : ""
+      keep_field_structure   = local.log_filtering_configuration.sampling.keep != null ? local.log_filtering_configuration.sampling.keep.field_structure : ""
+      keep_field_values_json = local.log_filtering_configuration.sampling.keep != null ? join(",", [for l in local.log_filtering_configuration.sampling.keep.values : "\\\"${l}\\\""]) : ""
+    }))] : []
+  ])
 
   alert_messages = {
     log_query        = "Elasticsearch query rule {{rule.name}} is active: \n - Value: {{context.value}} \n - Conditions Met: {{context.conditions}} over {{rule.params.timeWindowSize}}'{{rule.params.timeWindowUnit}}\n- Timestamp: {{context.date}}\n- Link: {{context.link}} \n Check the alert details if there is any investigation manual or dashboard defined"

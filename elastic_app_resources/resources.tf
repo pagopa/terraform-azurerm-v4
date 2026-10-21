@@ -3,7 +3,7 @@ resource "elasticstack_elasticsearch_ingest_pipeline" "ingest_pipeline" {
   name        = "${local.application_id}-${each.key}-pipeline"
   description = "Ingest pipeline for ${var.configuration.displayName} ${each.key} ${var.target_name} ${var.target_env}"
 
-  processors = [for p in local.ingest_pipeline[each.key].processors : jsonencode(p)]
+  processors = [for p in concat(local.ingest_pipeline[each.key].processors, local.embedded_processors) : jsonencode(p)]
   on_failure = length(lookup(local.ingest_pipeline[each.key], "onFailure", [])) > 0 ? [for p in lookup(local.ingest_pipeline[each.key], "onFailure", []) : jsonencode(p)] : null
 }
 

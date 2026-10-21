@@ -1,0 +1,15 @@
+{
+  "drop" : {
+    %{if keep_field_enabled}
+      %{if keep_field_structure == "flat"}
+      "if" : "(Math.random() * 100 > ${sampling_percentage}) && ![${keep_field_values_json}].contains(ctx['${keep_field}'])",
+      %{else}
+      "if" : "(Math.random() * 100 > ${sampling_percentage}) && ![${keep_field_values_json}].contains(ctx?.${keep_field})",
+      %{endif}
+    %{else}
+      "if" : "(Math.random() * 100 > ${sampling_percentage})",
+    %{ endif }
+    "description" : "Drop events based on sampling percentage",
+    "ignore_failure" : true
+  }
+}

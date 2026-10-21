@@ -1,0 +1,11 @@
+{
+  "drop" : {
+    %{if field_structure == "flat"}
+    "if" : "[${filtered_values_json}].contains(ctx['${field}'])",
+    %{else}
+    "if": "[${filtered_values_json}].contains(ctx?.${field})",
+    %{endif}
+    "ignore_failure" : true,
+    "description" : "Drop events based on field filtering"
+  }
+}
