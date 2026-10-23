@@ -86,7 +86,7 @@ variable "build_vnet_rg_name" {
   default     = null
 }
 
-variable "build_script_content" {
+variable "script_custom_content" {
   type        = string
   description = "(Optional) Custom installation script"
   default     = null
