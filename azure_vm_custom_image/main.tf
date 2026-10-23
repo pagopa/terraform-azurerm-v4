@@ -41,7 +41,7 @@ resource "null_resource" "build_packer_image" {
     base_image_offer           = var.base_image_offer
     base_image_sku             = var.base_image_sku
     base_image_version         = var.base_image_version
-    build_script_content       = var.build_script_content
+    build_script_content       = var.script_custom_content
     vm_sku                     = var.vm_sku
     target_image_name          = local.target_image_name
     location                   = var.location
@@ -75,7 +75,7 @@ resource "null_resource" "build_packer_image" {
       -var "vm_sku=${var.vm_sku}" \
       -var "target_image_name=${local.target_image_name}" \
       -var "build_rg_name=${azurerm_resource_group.build_rg.name}" \
-      -var "build_script_content=${var.build_script_content}" \
+      -var "build_script_content=${var.script_custom_content}" \
       ${var.use_external_vnet ? "-var 'build_vnet_name=${var.build_vnet_name}'" : ""} \
       ${var.use_external_vnet ? "-var 'build_vnet_subnet_name=${var.build_subnet_name}'" : ""} \
       ${var.use_external_vnet ? "-var 'build_vnet_rg_name=${var.build_vnet_rg_name}'" : ""} \
