@@ -25,7 +25,7 @@ source "azure-arm" "ubuntu" {
 
   ssh_username                      = "packer"
   # not used
-  ssh_password                      = "password"
+  ssh_password                      = "Password10!"
   communicator                      = "ssh"
 }
 

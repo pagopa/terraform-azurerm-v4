@@ -56,7 +56,7 @@ variable "vm_sku" {
 variable "build_rg_name" {
   type        = string
   description = "(Optional) Packer build temporary resource group name"
-  default     = "tmp-packer-azdo-image-build"
+  default     = "tmp-packer-image-build"
 }
 
 #
