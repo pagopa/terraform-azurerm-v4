@@ -37,7 +37,7 @@ variable "base_image_offer" {
 }
 variable "base_image_sku" {
   type        = string
-  default     = "server-arm64"
+  default     = "server"
   description = "(Optional) - https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine_scale_set#source_image_reference"
 }
 

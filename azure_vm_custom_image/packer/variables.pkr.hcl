@@ -15,7 +15,7 @@ variable "base_image_offer" {
 }
 variable "base_image_sku" {
   type        = string
-  default = "server-arm64"
+  default = "server"
 }
 variable "base_image_version" {
   type        = string
