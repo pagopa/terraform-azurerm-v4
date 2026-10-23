@@ -32,12 +32,12 @@ variable "image_version" {
 
 variable "base_image_offer" {
   type        = string
-  default     = "0001-com-ubuntu-server-jammy"
+  default     = "ubuntu-26_04-lts"
   description = "(Optional) - https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine_scale_set#source_image_reference"
 }
 variable "base_image_sku" {
   type        = string
-  default     = "22_04-lts-gen2"
+  default     = "server-arm64"
   description = "(Optional) - https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine_scale_set#source_image_reference"
 }
 
