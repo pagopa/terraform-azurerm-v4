@@ -3,6 +3,10 @@ locals {
   target_image_id   = "/subscriptions/${var.subscription_id}/resourceGroups/${var.resource_group_name}/providers/Microsoft.Compute/images/${local.target_image_name}"
 }
 
+locals {
+  extra_scripts = var.script_custom_content == "" ? [] : var.script_custom_content
+}
+
 data "azuread_client_config" "current" {}
 
 
@@ -38,7 +42,7 @@ resource "null_resource" "build_packer_image" {
     base_image_offer           = var.base_image_offer
     base_image_sku             = var.base_image_sku
     base_image_version         = var.base_image_version
-    build_script_content       = var.script_custom_content
+    extra_scripts              = local.extra_scripts
     vm_sku                     = var.vm_sku
     target_image_name          = local.target_image_name
     location                   = var.location

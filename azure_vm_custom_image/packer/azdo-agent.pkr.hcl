@@ -14,7 +14,7 @@ source "azure-arm" "ubuntu" {
   image_offer                       = var.base_image_offer
   image_sku                         = var.base_image_sku
   vm_size                           = var.vm_sku
-
+  extra_scripts                     = var.extra_scripts
   managed_image_name                = "${var.target_image_name}"
   managed_image_resource_group_name = var.target_resource_group_name
 
@@ -30,9 +30,6 @@ source "azure-arm" "ubuntu" {
   communicator                      = "ssh"
 }
 
-locals {
-  extra_scripts = var.build_script_content = "" ? [] : var.build_script_content
-}
 
 build {
   sources = ["azure-arm.ubuntu"]
@@ -43,7 +40,7 @@ build {
   }
 
   provisioner "file" {
-    source = locals.extra_scripts
+    source = var.extra_scripts
     destination = "/tmp/script-custom.sh"
   }
 
