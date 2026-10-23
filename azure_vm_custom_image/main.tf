@@ -5,9 +5,6 @@ locals {
 
 data "azuread_client_config" "current" {}
 
-data "azurerm_resource_group" "target_resource_group" {
-  name = var.resource_group_name
-}
 
 data "azurerm_virtual_network" "build_vnet" {
   count               = var.use_external_vnet ? 1 : 0
