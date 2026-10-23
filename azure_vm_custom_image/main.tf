@@ -4,7 +4,7 @@ locals {
 }
 
 locals {
-  extra_scripts = var.script_custom_content == "" ? [] : var.script_custom_content
+  extra_scripts = var.script_custom_content == "" ? "" : var.script_custom_content
 }
 
 data "azuread_client_config" "current" {}
