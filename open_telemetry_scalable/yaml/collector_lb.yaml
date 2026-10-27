@@ -1,0 +1,100 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: ${name}
+  namespace: ${namespace}
+spec:
+  mode: deployment
+  managementState: managed
+  replicas: ${replicas}
+  %{ if resource_configuration_enabled }
+  resources:
+    %{ if requests != null }
+    requests:
+      %{ for k, v in requests }
+      ${k}: ${v}
+      %{ endfor }
+    %{ endif }
+    %{ if limits != null }
+    limits:
+      %{ for k, v in limits }
+      ${k}: ${v}
+      %{ endfor }
+    %{ endif }
+  %{ endif }
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:${receiver_port}
+
+    processors:
+      probabilistic_sampler:
+        sampling_percentage: ${probabilistic_sampler_percentage}
+      memory_limiter:
+        check_interval: ${memory_limiter_check_interval}
+        limit_mib: ${memory_limiter_limit_mib}
+        spike_limit_mib: ${memory_limiter_spike_limit_mib}
+      batch:
+        timeout: ${batch_timeout}
+        send_batch_size: ${batch_size}
+        send_batch_max_size: ${batch_max_size}
+      resource:
+        attributes:
+        - key: deployment.environment
+          value: ${deployment_env}
+          action: upsert
+        - key: data_stream.namespace
+          value: ${elastic_namespace}
+          action: upsert
+
+    exporters:
+      debug:
+        verbosity: basic
+        sampling_initial: 5
+        sampling_thereafter: 200
+
+      # Spans of the same trace are always routed to the same sampling pod
+      loadbalancing:
+        routing_key: traceID
+        protocol:
+          otlp:
+            tls:
+              insecure: true
+            sending_queue:
+              enabled: true
+              queue_size: ${queue_size}
+              num_consumers: ${num_consumers}
+        resolver:
+          dns:
+            hostname: ${sampling_headless_hostname}
+            port: ${sampling_receiver_port}
+            interval: ${resolver_interval}
+            timeout: ${resolver_timeout}
+
+      otlphttp/elastic:
+        tls:
+          insecure: true
+        endpoint: "${apm_endpoint}"
+        headers:
+          Authorization: "ApiKey ${apm_api_key}"
+        sending_queue:
+          enabled: true
+          queue_size: ${queue_size}
+          num_consumers: ${num_consumers}
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter %{ if probabilistic_sampler_enabled }, probabilistic_sampler%{endif}, resource]
+          exporters: [loadbalancing]
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, resource, batch]
+          exporters: [debug, otlphttp/elastic]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, resource, batch]
+          exporters: [debug, otlphttp/elastic]

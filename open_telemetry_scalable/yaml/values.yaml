@@ -1,0 +1,17 @@
+%{ if affinity_selector != null }
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: ${affinity_selector.key}
+          operator: In
+          values:
+            - ${affinity_selector.value}
+%{ endif }
+manager:
+  collectorImage:
+    repository: "otel/opentelemetry-collector-contrib"
+admissionWebhooks:
+  certManager:
+    enabled: false
