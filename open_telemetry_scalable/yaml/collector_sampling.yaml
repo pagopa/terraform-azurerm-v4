@@ -1,0 +1,109 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: ${name}
+  namespace: ${namespace}
+spec:
+  mode: statefulset
+  managementState: managed
+  replicas: ${replicas}
+  %{ if resource_configuration_enabled }
+  resources:
+    %{ if requests != null }
+    requests:
+      %{ for k, v in requests }
+      ${k}: ${v}
+      %{ endfor }
+    %{ endif }
+    %{ if limits != null }
+    limits:
+      %{ for k, v in limits }
+      ${k}: ${v}
+      %{ endfor }
+    %{ endif }
+  %{ endif }
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:${receiver_port}
+
+    processors:
+      memory_limiter:
+        check_interval: ${memory_limiter_check_interval}
+        limit_mib: ${memory_limiter_limit_mib}
+        spike_limit_mib: ${memory_limiter_spike_limit_mib}
+      batch:
+        timeout: ${batch_timeout}
+        send_batch_size: ${batch_size}
+        send_batch_max_size: ${batch_max_size}
+      tail_sampling:
+        decision_wait: ${tail_sampling_decision_wait}
+        num_traces: ${tail_sampling_num_traces}
+        policies: [
+          {
+            # always sample errors
+            name: trace-status-policy,
+            type: status_code,
+            status_code: { status_codes: [ERROR] }
+          },
+          {
+            # low sampling for readiness/liveness probes
+            name: downsample-readiness-policy,
+            type: and,
+            and:
+              {
+                and_sub_policy:
+                  [
+                    {
+                      # filter by route
+                      name: route-live-ready-policy,
+                      type: string_attribute,
+                      string_attribute:
+                        {
+                          key: http.route,
+                          values: [%{for probe_path in probe_paths}"${probe_path}",%{endfor}],
+                          enabled_regex_matching: true,
+                        },
+                    },
+                    {
+                      # apply probabilistic sampling
+                      name: probabilistic-policy,
+                      type: probabilistic,
+                      probabilistic: { sampling_percentage: ${probes_sampling_percentage} },
+                    }
+                  ]
+              }
+          },
+          {
+            # apply probabilistic sampling
+            name: probabilistic-policy,
+            type: probabilistic,
+            probabilistic: { sampling_percentage: ${sampling_percentage} },
+          }
+        ]
+
+    exporters:
+      debug:
+        verbosity: basic
+        sampling_initial: 5
+        sampling_thereafter: 200
+
+      otlphttp/elastic:
+        tls:
+          insecure: true
+        endpoint: "${apm_endpoint}"
+        headers:
+          Authorization: "ApiKey ${apm_api_key}"
+        sending_queue:
+          enabled: true
+          queue_size: ${queue_size}
+          num_consumers: ${num_consumers}
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter %{ if sampling_enabled }, tail_sampling%{endif}, batch]
+          exporters: [debug, otlphttp/elastic]
