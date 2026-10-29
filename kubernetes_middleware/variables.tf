@@ -1,0 +1,159 @@
+variable "https_endpoint" {
+  type        = string
+  description = "Https endpoint to check"
+}
+
+variable "location_string" {
+  type        = string
+  description = "(Required) Location string"
+}
+
+variable "time_trigger" {
+  type        = string
+  description = "cron trigger pattern"
+  default     = "*/1 * * * *"
+}
+
+variable "expiration_delta_in_days" {
+  type        = string
+  default     = "7"
+  description = "(Optional)"
+}
+
+#
+# 🔒 KV
+#
+variable "keyvault_name" {
+  type        = string
+  description = "(Required) Keyvault name"
+}
+
+variable "keyvault_tenant_id" {
+  type        = string
+  description = "(Required) Keyvault tenant id"
+}
+
+variable "kv_secret_name_for_application_insights_connection_string" {
+  type        = string
+  description = "(Required) The name of the secret inside the kv that contains the application insights connection string"
+}
+
+#
+# 🪖 HELM & Kubernetes
+#
+variable "namespace" {
+  type        = string
+  description = "(Required) Namespace where the helm chart will be installed"
+}
+
+variable "helm_chart_present" {
+  type        = bool
+  description = "Is this helm chart present?"
+  default     = true
+}
+
+variable "helm_chart_version" {
+  type        = string
+  description = "Helm chart version for the tls checker application"
+  default     = "7.6.0"
+}
+
+variable "helm_chart_image_name" {
+  type        = string
+  description = "Docker image name"
+  default     = "ghcr.io/pagopa/infra-ssl-check"
+}
+
+variable "helm_chart_image_tag" {
+  type        = string
+  description = "Docker image tag"
+  default     = "v1.3.4@sha256:c3d45736706c981493b6216451fc65e99a69d5d64409ccb1c4ca93fef57c921d"
+}
+
+#
+# App Insigths and alert
+#
+variable "application_insights_resource_group" {
+  type        = string
+  description = "(Required) Application Insights resource group"
+}
+
+variable "application_insights_id" {
+  type        = string
+  description = "(Required) Application Insights id"
+}
+
+variable "application_insights_action_group_ids" {
+  type        = list(string)
+  description = "(Required) Application insights action group ids"
+}
+
+variable "alert_name" {
+  type        = string
+  description = "(Optional) Alert name"
+  default     = null
+}
+
+variable "alert_enabled" {
+  type        = bool
+  description = "(Optional) Is this alert enabled?"
+  default     = true
+}
+
+#
+# Workload Identity
+#
+
+variable "workload_identity_enabled" {
+  type        = bool
+  description = "Enable workload identity chart"
+  default     = false
+}
+
+variable "workload_identity_service_account_name" {
+  type        = string
+  description = "Service account name linked to workload identity"
+  default     = null
+}
+
+variable "workload_identity_client_id" {
+  type        = string
+  description = "ClientID in form of 'qwerty123-a1aa-1234-xyza-qwerty123' linked to workload identity"
+  default     = null
+}
+
+variable "pod_ram" {
+  type        = number
+  description = "Pod request and limit for RAM memory (in `Mi`)"
+  default     = 30
+}
+
+variable "pod_cpu" {
+  type        = number
+  description = "Pod request and limit for CPU (in `m`)"
+  default     = 10
+}
+
+variable "tolerations" {
+  type        = string
+  description = "Pod tolerations"
+  default     = ""
+}
+
+variable "affinity" {
+  type        = string
+  description = "Pod Affinity and Anti-Affinity"
+  default     = ""
+}
+
+variable "cert_mounter_chart_version" {
+  type        = string
+  description = "(Optional) Cert mounter chart version"
+  default     = "2.0.2"
+}
+
+variable "helm_release_name" {
+  type        = string
+  description = "(Optional) Cert Mounter release name. Changed this field force the helm destroy and re-install"
+  default     = "cert-mounter-blueprint"
+}
