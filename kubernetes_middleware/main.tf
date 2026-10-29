@@ -130,7 +130,7 @@ resource "helm_release" "helm_cert_mounter_this" {
   values = [
     templatefile("${path.module}/templates/cert-mounter-workload-identity.yaml.tpl", {
       NAMESPACE                   = var.namespace,
-      CERTIFICATE_NAME            = var.https_endpoint,
+      CERTIFICATE_NAME            = replace(var.https_endpoint, ".", "-"),
       KEY_VAULT_NAME              = var.keyvault_name,
       TENANT_ID                   = var.keyvault_tenant_id,
       SERVICE_ACCOUNT_NAME        = var.workload_identity_service_account_name,
