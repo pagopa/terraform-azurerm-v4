@@ -128,7 +128,7 @@ resource "helm_release" "helm_cert_mounter_this" {
   force_update = true
 
   values = [
-    templatefile("${path.module}/helm/cert-mounter-workload-identity.yaml.tpl", {
+    templatefile("${path.module}/templates/cert-mounter-workload-identity.yaml.tpl", {
       NAMESPACE                   = var.namespace,
       CERTIFICATE_NAME            = var.https_endpoint,
       KEY_VAULT_NAME              = var.keyvault_name,
