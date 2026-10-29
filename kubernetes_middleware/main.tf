@@ -83,7 +83,7 @@ resource "azurerm_monitor_metric_alert" "alert_this" {
   }
 
   depends_on = [
-    helm_release.helm_this[0]
+    helm_release.helm_tls_checker_this[0]
   ]
 }
 
