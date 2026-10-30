@@ -157,21 +157,28 @@ These inputs have no default:
 <!-- markdownlint-disable -->
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
+
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.12 |
+
 ## Modules
+
 No modules.
+
 ## Resources
+
 | Name | Type |
 |------|------|
 | [azurerm_monitor_metric_alert.alert_this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [helm_release.helm_cert_mounter_this](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.helm_reloader_this](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.helm_tls_checker_this](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
+
 ## Inputs
+
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_affinity"></a> [affinity](#input\_affinity) | Pod Affinity and Anti-Affinity | `string` | `""` | no |
@@ -199,6 +206,8 @@ No modules.
 | <a name="input_tolerations"></a> [tolerations](#input\_tolerations) | Pod tolerations | `string` | `""` | no |
 | <a name="input_workload_identity_client_id"></a> [workload\_identity\_client\_id](#input\_workload\_identity\_client\_id) | ClientID in form of 'qwerty123-a1aa-1234-xyza-qwerty123' linked to workload identity | `string` | `null` | no |
 | <a name="input_workload_identity_service_account_name"></a> [workload\_identity\_service\_account\_name](#input\_workload\_identity\_service\_account\_name) | Service account name linked to workload identity | `string` | `null` | no |
+
 ## Outputs
+
 No outputs.
 <!-- END_TF_DOCS -->
