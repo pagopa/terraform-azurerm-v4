@@ -104,12 +104,6 @@ variable "alert_enabled" {
 # Workload Identity
 #
 
-variable "workload_identity_enabled" {
-  type        = bool
-  description = "Enable workload identity chart"
-  default     = false
-}
-
 variable "workload_identity_service_account_name" {
   type        = string
   description = "Service account name linked to workload identity"

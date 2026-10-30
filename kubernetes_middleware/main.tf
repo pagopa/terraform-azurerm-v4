@@ -6,7 +6,7 @@ resource "helm_release" "helm_tls_checker_this" {
   name         = local.helm_chart_name
   chart        = "microservice-chart"
   repository   = "https://pagopa.github.io/aks-microservice-chart-blueprint"
-  version      = local.chart_version
+  version      = var.helm_chart_version
   timeout      = 180
   force_update = true
 
@@ -27,7 +27,7 @@ resource "helm_release" "helm_tls_checker_this" {
         kv_secret_name_for_application_insights_connection_string = var.kv_secret_name_for_application_insights_connection_string
         SERVICE_ACCOUNT_NAME                                      = var.workload_identity_service_account_name
         WORKLOAD_IDENTITY_CLIENT_ID                               = var.workload_identity_client_id
-    }) 
+    })
   ]
 }
 
