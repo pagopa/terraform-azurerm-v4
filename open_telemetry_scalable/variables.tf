@@ -4,6 +4,13 @@ variable "otel_kube_namespace" {
   nullable    = false
 }
 
+variable "domain_label" {
+  type        = string
+  description = "Domain label used in the namespace metadata"
+  default = "core"
+  nullable    = false
+}
+
 variable "create_namespace" {
   type        = bool
   default     = false
