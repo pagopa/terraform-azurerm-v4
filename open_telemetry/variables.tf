@@ -6,7 +6,7 @@ variable "otel_kube_namespace" {
 variable "domain_label" {
   type        = string
   description = "Domain label used in the namespace metadata"
-  default = "core"
+  default     = "core"
   nullable    = false
 }
 

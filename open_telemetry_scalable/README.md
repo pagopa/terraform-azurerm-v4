@@ -28,6 +28,13 @@ Suggested migration:
 2. Move applications gradually to `load_balancer_service_endpoint`.
 3. When no application uses the legacy `otel-collector` service, remove the legacy module.
 4. The operator is owned by the legacy module: removing it uninstalls the operator. Before that, move the Helm release into this module (`terraform state mv`) and set `install_operator = true`, or keep the legacy module until the operator is handled elsewhere.
+5. Like the operator, move the namespace resource into this module if it was created by the legacy module.
+
+Example move command: 
+
+```
+./terraform.sh state pagopa-dev mv module.otel_cluster_1.helm_release.opentelemetry_operator_helm 'module.otel_lb_cluster_1.helm_release.opentelemetry_operator_helm[0]'
+```
 
 ## Usage
 
@@ -120,6 +127,7 @@ No modules.
 | <a name="input_collector_name"></a> [collector\_name](#input\_collector\_name) | Base name of the collectors. The load balancer tier is named '<collector\_name>-lb' and the tail sampling tier '<collector\_name>-sampling'. Must differ from the names used by the legacy module ('otel') | `string` | `"otel-scalable"` | no |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | If true creates the namespace used by otel, expects it to exist otherwise. Keep false when deploying side by side with the legacy 'open\_telemetry' module on the same namespace | `bool` | `false` | no |
 | <a name="input_deployment_env"></a> [deployment\_env](#input\_deployment\_env) | Deployment.environment tag value | `string` | n/a | yes |
+| <a name="input_domain_label"></a> [domain\_label](#input\_domain\_label) | Domain label used in the namespace metadata | `string` | `"core"` | no |
 | <a name="input_elastic_namespace"></a> [elastic\_namespace](#input\_elastic\_namespace) | Elastic namespace used to store the apm data. defaults to 'default' | `string` | `"default"` | no |
 | <a name="input_elasticsearch_api_key"></a> [elasticsearch\_api\_key](#input\_elasticsearch\_api\_key) | Api key used by the otel collector | `string` | n/a | yes |
 | <a name="input_elasticsearch_apm_host"></a> [elasticsearch\_apm\_host](#input\_elasticsearch\_apm\_host) | Host where the otel collector will send the collected apm | `string` | n/a | yes |
