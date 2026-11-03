@@ -69,7 +69,7 @@ spec:
         resolver:
           dns:
             hostname: ${sampling_headless_hostname}
-            port: ${sampling_receiver_port}
+            port: '${sampling_receiver_port}'
             interval: ${resolver_interval}
             timeout: ${resolver_timeout}
 
