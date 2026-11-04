@@ -4,10 +4,10 @@ variable "otel_kube_namespace" {
   nullable    = false
 }
 
-variable "domain_label" {
-  type        = string
-  description = "Domain label used in the namespace metadata"
-  default     = "core"
+variable "labels" {
+  type        = map(string)
+  description = "Labels used in the namespace metadata"
+  default     = {}
   nullable    = false
 }
 
