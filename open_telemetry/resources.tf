@@ -3,6 +3,7 @@ resource "kubectl_manifest" "agent_namespace" {
 
   yaml_body = (replace(replace(templatefile("${path.module}/yaml/namespace.yaml", {
     namespace = var.otel_kube_namespace
+    labels    = var.labels
   }), "/(?s:\nstatus:.*)$/", ""), "0640", "416"))
 }
 

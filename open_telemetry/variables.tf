@@ -3,6 +3,13 @@ variable "otel_kube_namespace" {
   description = "Namespace where to install the elastic agent resources"
 }
 
+variable "labels" {
+  type        = map(string)
+  description = "Labels used in the namespace metadata"
+  default     = {}
+  nullable    = false
+}
+
 variable "opentelemetry_operator_helm_version" {
   type        = string
   description = "Helm chart version for otel operator"
