@@ -3,4 +3,6 @@ kind: Namespace
 metadata:
   name: ${namespace}
   labels:
-    domain: ${domain_label}
+    %{ for k, v in labels }
+    ${k}: ${v}
+    %{ endfor }
