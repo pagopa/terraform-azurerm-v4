@@ -62,7 +62,8 @@ resource "azuread_application" "this" {
 # Instantiate the Enterprise Application (Service Principal) for the App Registration.
 # This object is required to manage local directory assignments, such as users and groups.
 resource "azuread_service_principal" "this" {
-  client_id = azuread_application.this.client_id
+  client_id                    = azuread_application.this.client_id
+  app_role_assignment_required = var.app_role_assignment_required
   owners = [
     for i in data.azuread_user.ad_owners : i.object_id
   ]

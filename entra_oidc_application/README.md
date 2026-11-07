@@ -47,6 +47,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_ad_user_owners"></a> [ad\_user\_owners](#input\_ad\_user\_owners) | List of Azure Active Directory user principal names that will be assigned as owners of the Enterprise Application and App Registration | `list(string)` | `[]` | no |
+| <a name="input_app_role_assignment_required"></a> [app\_role\_assignment\_required](#input\_app\_role\_assignment\_required) | If true, only users assigned to the Enterprise App (directly or via authorized\_group\_names) can sign in; others are rejected by Entra ID (AADSTS50105). | `bool` | `false` | no |
 | <a name="input_authorized_group_names"></a> [authorized\_group\_names](#input\_authorized\_group\_names) | List of AD group display names authorized to access the application. Only these groups are emitted in the 'groups' claim. | `list(string)` | n/a | yes |
 | <a name="input_client_secret_display_name"></a> [client\_secret\_display\_name](#input\_client\_secret\_display\_name) | Display name of the generated client secret | `string` | `"OIDC client secret"` | no |
 | <a name="input_display_name"></a> [display\_name](#input\_display\_name) | Full display name of the App Registration and Enterprise Application (e.g. 'myprj-d-argocd'). No naming convention is enforced by the module. | `string` | n/a | yes |
