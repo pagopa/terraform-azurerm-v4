@@ -35,3 +35,9 @@ variable "client_secret_display_name" {
   description = "Display name of the generated client secret"
   default     = "OIDC client secret"
 }
+
+variable "app_role_assignment_required" {
+  type        = bool
+  description = "If true, only users assigned to the Enterprise App (directly or via authorized_group_names) can sign in; others are rejected by Entra ID (AADSTS50105)."
+  default     = false
+}
