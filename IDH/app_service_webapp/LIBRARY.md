@@ -1,5 +1,22 @@
 # IDH app_service_webapp Resources
 
+## cstar
+| Product  | Environment | Tier | Deprecated | Description |
+|:-------------:|:----------------:|:---------:|:---------:|:----------------|
+| cstar | dev |  basic | No | SKU: B1, zone balancing: False, public network access: False, private endpoint enabled: True ip restriction default action: Deny, staging slot: False, autoscale enabled: False, plan type: - |
+| cstar | dev |  basic_high_performance | No | SKU: B3, zone balancing: False, public network access: False, private endpoint enabled: True ip restriction default action: Deny, staging slot: False, autoscale enabled: False, plan type: - |
+| cstar | dev |  basic_public | No | SKU: B1, zone balancing: False, public network access: True, private endpoint enabled: True ip restriction default action: Allow, staging slot: False, autoscale enabled: False, plan type: - |
+|---|---|---|---|
+| cstar | prod |  basic | No | SKU: B1, zone balancing: False, public network access: False, private endpoint enabled: True ip restriction default action: Deny, staging slot: False, autoscale enabled: False, plan type: - |
+| cstar | prod |  basic_high_performance | No | SKU: B3, zone balancing: False, public network access: False, private endpoint enabled: True ip restriction default action: Deny, staging slot: True, autoscale enabled: True, plan type: - |
+| cstar | prod |  premium | No | SKU: P1v3, zone balancing: True, public network access: False, private endpoint enabled: True ip restriction default action: Deny, staging slot: True, autoscale enabled: True, plan type: - |
+| cstar | prod |  premium_high_performance | No | SKU: P3v3, zone balancing: True, public network access: False, private endpoint enabled: True ip restriction default action: Deny, staging slot: True, autoscale enabled: True, plan type: - |
+| cstar | prod |  premium_low_load | No | SKU: P1v3, zone balancing: False, public network access: False, private endpoint enabled: True ip restriction default action: Deny, staging slot: True, autoscale enabled: True, plan type: - |
+|---|---|---|---|
+| cstar | uat |  basic | No | SKU: B1, zone balancing: False, public network access: False, private endpoint enabled: True ip restriction default action: Deny, staging slot: False, autoscale enabled: False, plan type: - |
+| cstar | uat |  basic_high_performance | No | SKU: B3, zone balancing: False, public network access: False, private endpoint enabled: True ip restriction default action: Deny, staging slot: True, autoscale enabled: True, plan type: - |
+| cstar | uat |  basic_public | No | SKU: B1, zone balancing: False, public network access: True, private endpoint enabled: True ip restriction default action: Allow, staging slot: False, autoscale enabled: False, plan type: - |
+| cstar | uat |  premium | No | SKU: P1v3, zone balancing: False, public network access: False, private endpoint enabled: True ip restriction default action: Deny, staging slot: True, autoscale enabled: True, plan type: - |
 ## pagopa
 | Product  | Environment | Tier | Deprecated | Description |
 |:-------------:|:----------------:|:---------:|:---------:|:----------------|
