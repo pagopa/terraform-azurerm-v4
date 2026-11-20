@@ -4,7 +4,7 @@ admin:
   storage_permissions: []
   certificate_permissions: [ Get, List, Update, Create, Import,  Delete, Restore, Purge, Recover]
 developer:
-  key_permissions: [Get, List, Update, Create, Import, Delete]
+  key_permissions: [Get, List, Update, Create, Import, Delete, Encrypt, Decrypt, GetRotationPolicy, SetRotationPolicy, Rotate]
   secret_permissions: [Get, List, Set, Delete]
   storage_permissions: []
   certificate_permissions: [ Get, List, Update, Create, Import, Delete, Restore, Purge, Recover]
