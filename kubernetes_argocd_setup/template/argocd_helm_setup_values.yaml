@@ -168,15 +168,14 @@ server:
   ingress:
     enabled: true
     controller: generic
-    ingressClassName: nginx
+    ingressClassName: haproxy
     hostname: ${ARGOCD_INTERNAL_URL}
     path: /
     pathType: Prefix
     annotations:
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/proxy-body-size: "100m"
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "90"
+      haproxy.org/server-ssl: "true"
+      haproxy.org/ssl-redirect: "true"
+      haproxy.org/timeout-server: "90s"
     extraTls:
       - hosts:
           - ${ARGOCD_INTERNAL_URL}
