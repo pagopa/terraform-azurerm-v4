@@ -1,5 +1,8 @@
 locals {
   certificate_default_key = "default"
+  # The empty-object fallback must list every attribute explicitly: conditional-expression
+  # type unification does not fill in optional object attributes the way direct variable
+  # assignment does, so an actual `{}` here would make `value.<attr>` below fail.
   certificates_input = length(var.certificates) > 0 ? var.certificates : {
     (local.certificate_default_key) = {
       https_endpoint                                            = null
@@ -31,6 +34,10 @@ locals {
     }
   }
 
+  # Resolves each certificates entry against the top-level variables, so unset
+  # attributes keep the previous single-certificate defaults. Ternaries, not
+  # coalesce(): coalesce() also skips empty strings, which are valid
+  # overrides/defaults here (e.g. tolerations/affinity default to "").
   certificates = {
     for key, value in local.certificates_input : key => {
       https_endpoint                                            = value.https_endpoint != null ? value.https_endpoint : var.https_endpoint
@@ -65,6 +72,8 @@ locals {
     }
   }
 
+  # Entries whose TLS checker is actually deployed; helm_release does not accept for_each
+  # entries that should be skipped.
   certificates_with_chart = {
     for key, value in local.certificates : key => value if value.helm_chart_present
   }
@@ -73,6 +82,7 @@ locals {
     for key, value in local.certificates : key => value.alert_name != null ? lower(replace(value.alert_name, "/\\W/", "-")) : lower(replace(value.https_endpoint, "/\\W/", "-"))
   }
 
+  # all this work is mandatory to avoid helm name limit of 53 chars
   tls_checker_helm_chart_names = {
     for key, value in local.certificates : key => "${lower(substr(replace("chckr-${value.alert_name}", "/\\W/", "-"), 0, 47))}${substr(sha256(value.alert_name), 0, 5)}"
   }
