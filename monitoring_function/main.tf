@@ -129,7 +129,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
   }
 
   dynamic "secret" {
-    for_each = var.icinga_settings.enabled ? [true] : []
+    for_each = local.icinga_enabled ? [true] : []
     content {
       name  = "icinga-password"
       value = var.icinga_settings.password
@@ -137,7 +137,7 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
   }
 
   dynamic "secret" {
-    for_each = var.icinga_settings.enabled && var.icinga_settings.ca_cert != null ? [true] : []
+    for_each = local.icinga_has_ca_cert ? [true] : []
     content {
       name  = "icinga-ca-cert"
       value = var.icinga_settings.ca_cert
@@ -196,32 +196,21 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
         value = var.job_settings.log_level
       }
       dynamic "env" {
-        # optional values left unset when null
-        for_each = var.icinga_settings.enabled ? {
-          for k, v in {
-            ICINGA_INTEGRATION_ENABLED = "true"
-            ICINGA_API_URL             = var.icinga_settings.api_url
-            ICINGA_USER                = var.icinga_settings.user
-            ICINGA_HOST                = var.icinga_settings.host
-            ICINGA_TLS_SERVERNAME      = var.icinga_settings.tls_servername
-            BP_API_URL                 = var.icinga_settings.bp_api_url
-            ICINGA_BP                  = var.icinga_settings.bp_name
-          } : k => v if v != null
-        } : {}
+        for_each = local.icinga_env
         content {
           name  = env.key
           value = env.value
         }
       }
       dynamic "env" {
-        for_each = var.icinga_settings.enabled ? { ICINGA_PASSWORD = "icinga-password" } : {}
+        for_each = local.icinga_enabled ? { ICINGA_PASSWORD = "icinga-password" } : {}
         content {
           name        = env.key
           secret_name = env.value
         }
       }
       dynamic "env" {
-        for_each = var.icinga_settings.enabled && var.icinga_settings.ca_cert != null ? { ICINGA_CA_CERT = "icinga-ca-cert" } : {}
+        for_each = local.icinga_has_ca_cert ? { ICINGA_CA_CERT = "icinga-ca-cert" } : {}
         content {
           name        = env.key
           secret_name = env.value
@@ -492,4 +481,25 @@ resource "azurerm_monitor_metric_alert" "self_alert" {
     }
   }
   tags = var.tags
+}
+
+locals {
+  # var.icinga_settings is sensitive (password, CA) and a dynamic block does not accept a sensitive
+  # collection in for_each: the conditions and the non secret values are unmarked here.
+  # password and CA stay sensitive and are passed to the job as secrets
+  icinga_enabled     = nonsensitive(var.icinga_settings.enabled)
+  icinga_has_ca_cert = local.icinga_enabled && nonsensitive(var.icinga_settings.ca_cert != null)
+
+  # environment of the cron job; optional values left unset when null
+  icinga_env = local.icinga_enabled ? {
+    for k, v in {
+      ICINGA_INTEGRATION_ENABLED = "true"
+      ICINGA_API_URL             = nonsensitive(var.icinga_settings.api_url)
+      ICINGA_USER                = nonsensitive(var.icinga_settings.user)
+      ICINGA_HOST                = nonsensitive(var.icinga_settings.host)
+      ICINGA_TLS_SERVERNAME      = nonsensitive(var.icinga_settings.tls_servername)
+      BP_API_URL                 = nonsensitive(var.icinga_settings.bp_api_url)
+      ICINGA_BP                  = nonsensitive(var.icinga_settings.bp_name)
+    } : k => v if v != null
+  } : {}
 }
