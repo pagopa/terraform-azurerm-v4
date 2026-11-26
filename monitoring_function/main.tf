@@ -128,6 +128,22 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
     value = module.synthetic_monitoring_storage_account.primary_access_key
   }
 
+  dynamic "secret" {
+    for_each = var.icinga_settings.enabled ? [true] : []
+    content {
+      name  = "icinga-password"
+      value = var.icinga_settings.password
+    }
+  }
+
+  dynamic "secret" {
+    for_each = var.icinga_settings.enabled && var.icinga_settings.ca_cert != null ? [true] : []
+    content {
+      name  = "icinga-ca-cert"
+      value = var.icinga_settings.ca_cert
+    }
+  }
+
   schedule_trigger_config {
     cron_expression          = var.job_settings.cron_scheduling
     parallelism              = 1
@@ -179,9 +195,35 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
         name  = "LOG_LEVEL"
         value = var.job_settings.log_level
       }
+      dynamic "env" {
+        for_each = var.icinga_settings.enabled ? {
+          ICINGA_INTEGRATION_ENABLED = "true"
+          ICINGA_API_URL             = var.icinga_settings.api_url
+          ICINGA_USER                = var.icinga_settings.user
+          ICINGA_HOST                = var.icinga_settings.host
+          ICINGA_TLS_SERVERNAME      = var.icinga_settings.tls_servername
+        } : {}
+        content {
+          name  = env.key
+          value = env.value
+        }
+      }
+      dynamic "env" {
+        for_each = var.icinga_settings.enabled ? { ICINGA_PASSWORD = "icinga-password" } : {}
+        content {
+          name        = env.key
+          secret_name = env.value
+        }
+      }
+      dynamic "env" {
+        for_each = var.icinga_settings.enabled && var.icinga_settings.ca_cert != null ? { ICINGA_CA_CERT = "icinga-ca-cert" } : {}
+        content {
+          name        = env.key
+          secret_name = env.value
+        }
+      }
     }
   }
-
   replica_retry_limit        = 1
   replica_timeout_in_seconds = var.job_settings.execution_timeout_seconds
 

@@ -245,3 +245,18 @@ variable "enable_synthetic_on_demand" {
   description = "(Optional) If true, enables the on demand synthetic tests execution API"
   default     = false
 }
+
+variable "icinga_settings" {
+  type = object({
+    enabled        = optional(bool, false)
+    api_url        = optional(string) # Port: https://URL:5665
+    user           = optional(string, "synthetic")
+    password       = optional(string)
+    host           = optional(string, "synthetic")
+    ca_cert        = optional(string) # PEM Icinga
+    tls_servername = optional(string) # CN del certificato API
+  })
+  default     = {}
+  sensitive   = true
+  description = "(Optional) Publishes the results of the cron job on Icinga"
+}
