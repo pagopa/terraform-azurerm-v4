@@ -196,12 +196,17 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
         value = var.job_settings.log_level
       }
       dynamic "env" {
+        # optional values left unset when null
         for_each = var.icinga_settings.enabled ? {
-          ICINGA_INTEGRATION_ENABLED = "true"
-          ICINGA_API_URL             = var.icinga_settings.api_url
-          ICINGA_USER                = var.icinga_settings.user
-          ICINGA_HOST                = var.icinga_settings.host
-          ICINGA_TLS_SERVERNAME      = var.icinga_settings.tls_servername
+          for k, v in {
+            ICINGA_INTEGRATION_ENABLED = "true"
+            ICINGA_API_URL             = var.icinga_settings.api_url
+            ICINGA_USER                = var.icinga_settings.user
+            ICINGA_HOST                = var.icinga_settings.host
+            ICINGA_TLS_SERVERNAME      = var.icinga_settings.tls_servername
+            BP_API_URL                 = var.icinga_settings.bp_api_url
+            ICINGA_BP                  = var.icinga_settings.bp_name
+          } : k => v if v != null
         } : {}
         content {
           name  = env.key

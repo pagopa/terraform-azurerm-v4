@@ -255,8 +255,15 @@ variable "icinga_settings" {
     host           = optional(string, "synthetic")
     ca_cert        = optional(string) # PEM Icinga
     tls_servername = optional(string) # CN del certificato API
+    bp_api_url     = optional(string) # bp-api sulla VM Icinga: http://URL:8080. null = business process non aggiornato
+    bp_name        = optional(string) # nome della business process (file <bp_name>.conf), obbligatorio con bp_api_url
   })
   default     = {}
   sensitive   = true
-  description = "(Optional) Publishes the results of the cron job on Icinga"
+  description = "(Optional) Publishes the results of the cron job on Icinga and, with bp_api_url, updates the synthetic nodes of the business process"
+
+  validation {
+    condition     = var.icinga_settings.bp_api_url == null || var.icinga_settings.bp_name != null
+    error_message = "icinga_settings.bp_name is required when icinga_settings.bp_api_url is set."
+  }
 }
