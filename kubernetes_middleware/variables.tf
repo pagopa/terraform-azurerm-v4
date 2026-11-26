@@ -151,3 +151,36 @@ variable "helm_release_name" {
   description = "(Optional) Cert Mounter release name. Changed this field force the helm destroy and re-install"
   default     = "cert-mounter-blueprint"
 }
+
+variable "certificates" {
+  type = map(object({
+    https_endpoint                                            = optional(string)
+    certificate_name                                          = optional(string)
+    location_string                                           = optional(string)
+    alert_name                                                = optional(string)
+    namespace                                                 = optional(string)
+    time_trigger                                              = optional(string)
+    expiration_delta_in_days                                  = optional(string)
+    keyvault_name                                             = optional(string)
+    keyvault_tenant_id                                        = optional(string)
+    kv_secret_name_for_application_insights_connection_string = optional(string)
+    service_account_name                                      = optional(string)
+    workload_identity_client_id                               = optional(string)
+    helm_chart_present                                        = optional(bool)
+    helm_chart_version                                        = optional(string)
+    helm_chart_image_name                                     = optional(string)
+    helm_chart_image_tag                                      = optional(string)
+    alert_enabled                                             = optional(bool)
+    application_insights_resource_group                       = optional(string)
+    application_insights_id                                   = optional(string)
+    application_insights_action_group_ids                     = optional(list(string))
+    pod_ram                                                   = optional(number)
+    pod_cpu                                                   = optional(number)
+    tolerations                                               = optional(string)
+    affinity                                                  = optional(string)
+    cert_mounter_chart_version                                = optional(string)
+    release_name                                              = optional(string)
+  }))
+  description = "(Optional) Additional certificates to monitor and mount, keyed by an arbitrary name. Each key deploys both a TLS checker release with its own metric alert (for `https_endpoint`) and a certificate mounter release (for `certificate_name`), so one entry maps to one endpoint/certificate pair. Any attribute left unset falls back to the corresponding top-level variable (`https_endpoint`, `location_string`, `alert_name`, `namespace`, `time_trigger`, `expiration_delta_in_days`, `keyvault_name`, `keyvault_tenant_id`, `kv_secret_name_for_application_insights_connection_string`, `workload_identity_service_account_name`, `workload_identity_client_id`, `helm_chart_present`, `helm_chart_version`, `helm_chart_image_name`, `helm_chart_image_tag`, `alert_enabled`, `application_insights_resource_group`, `application_insights_id`, `application_insights_action_group_ids`, `pod_ram`, `pod_cpu`, `tolerations`, `affinity`, `cert_mounter_chart_version`), except `certificate_name`, which falls back to `replace(https_endpoint, \".\", \"-\")`, and `release_name` (certificate mounter only), which falls back to `\"$${helm_release_name}-<key>\"`. When left at the default `{}`, the module deploys a single TLS checker, alert and certificate mounter built entirely from the top-level variables, matching the previous single-certificate behavior."
+  default     = {}
+}

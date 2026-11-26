@@ -99,6 +99,32 @@ Add these optional arguments **inside the module block above**, rather than crea
   })
 ```
 These settings apply only to the certificate mounter. They do not change the TLS checker's resources or scheduling, so do not rely on these tolerations to schedule the checker on tainted nodes.
+### Deploy multiple certificates
+Set `certificates` (optional, default `{}`) to monitor and mount more than one certificate from a single module instance. Each map key is an arbitrary, unique name; each key deploys **both** a TLS checker release with its own metric alert (for that entry's `https_endpoint`) **and** a certificate mounter release (for that entry's `certificate_name`), so one entry is one endpoint/certificate pair, end to end. Any attribute left unset falls back to the corresponding top-level variable, except `certificate_name` (defaults to `replace(https_endpoint, ".", "-")`) and `release_name` (certificate mounter only, defaults to `"${helm_release_name}-<key>"`).
+```hcl
+  certificates = {
+    api = {
+      https_endpoint = "api.example.com"
+      alert_name     = "middleware-api-tls" # Must be set and unique per entry; required, see notes below
+    }
+    partner = {
+      https_endpoint = "partner.example.com"
+      alert_name     = "middleware-partner-tls"
+      namespace      = "middleware-partner" # Independent namespace, Key Vault, pod sizing, etc. are all optional per entry
+      keyvault_name  = "partner-kv"
+      pod_ram        = 64
+    }
+  }
+```
+As with the single-certificate configuration, `alert_name` must be set (non-null) for every entry, since it is hashed into the TLS checker's Helm release name; reusing an `alert_name`/`https_endpoint` pair across entries, or with the top-level `alert_name`, collides on both the release name and the alert name. `helm_chart_present` and `alert_enabled` can also be overridden per entry, independently of each other.
+**Migration note:** upgrading to this module version changes resource addresses because `helm_release.helm_tls_checker_this`, `azurerm_monitor_metric_alert.alert_this` and `helm_release.helm_cert_mounter_this` now use `for_each` instead of `count`/a single instance. Existing deployments must run, before applying:
+```bash
+terraform state mv 'azurerm_monitor_metric_alert.alert_this' 'azurerm_monitor_metric_alert.alert_this["default"]'
+terraform state mv 'helm_release.helm_cert_mounter_this' 'helm_release.helm_cert_mounter_this["default"]'
+# Only if helm_chart_present = true:
+terraform state mv 'helm_release.helm_tls_checker_this[0]' 'helm_release.helm_tls_checker_this["default"]'
+```
+(Use `"primary"`/whichever key is used instead of `"default"` if `certificates` is populated with a custom key for what was previously the only certificate.)
 ### Disable alert evaluation
 Set `alert_enabled = false` (optional) in the module block to retain the metric alert resource but disable evaluation. Supply `application_insights_action_group_ids = []` if no notification actions are wanted; this list is a required input even when empty. Neither setting disables the Helm releases.
 ## Inputs and outputs
@@ -135,6 +161,7 @@ These inputs have no default:
 | `pod_cpu` | `number` | `10` | Certificate mounter CPU request and limit in millicores. |
 | `tolerations` | `string` | `""` | Certificate mounter tolerations embedded in YAML; use `jsonencode` for structured values. |
 | `affinity` | `string` | `""` | Certificate mounter affinity embedded in YAML; use `jsonencode` for structured values. |
+| `certificates` | `map(object({...}))` | `{}` | Additional certificates to monitor and mount, keyed by an arbitrary name; each key deploys both a TLS checker + alert and a certificate mounter. See [Deploy multiple certificates](#deploy-multiple-certificates). When left at the default, the module deploys a single checker, alert and mounter from the top-level variables, matching the previous behavior. |
 **Outputs:** none. The module does not return certificate contents, Kubernetes secret names, Helm release details or alert IDs.
 ## Notes
 - **Endpoint format:** the checker template prepends `https://` to `https_endpoint`, while the certificate mounter replaces only dots with hyphens to derive the Key Vault certificate name. Supply a hostname such as `api.example.com`, not a full URL.
@@ -188,6 +215,7 @@ No modules.
 | <a name="input_application_insights_id"></a> [application\_insights\_id](#input\_application\_insights\_id) | (Required) Application Insights id | `string` | n/a | yes |
 | <a name="input_application_insights_resource_group"></a> [application\_insights\_resource\_group](#input\_application\_insights\_resource\_group) | (Required) Application Insights resource group | `string` | n/a | yes |
 | <a name="input_cert_mounter_chart_version"></a> [cert\_mounter\_chart\_version](#input\_cert\_mounter\_chart\_version) | (Optional) Cert mounter chart version | `string` | `"2.0.2"` | no |
+| <a name="input_certificates"></a> [certificates](#input\_certificates) | (Optional) Additional certificates to monitor and mount, keyed by an arbitrary name. Each key deploys both a TLS checker release with its own metric alert (for `https_endpoint`) and a certificate mounter release (for `certificate_name`), so one entry maps to one endpoint/certificate pair. Any attribute left unset falls back to the corresponding top-level variable (`https_endpoint`, `location_string`, `alert_name`, `namespace`, `time_trigger`, `expiration_delta_in_days`, `keyvault_name`, `keyvault_tenant_id`, `kv_secret_name_for_application_insights_connection_string`, `workload_identity_service_account_name`, `workload_identity_client_id`, `helm_chart_present`, `helm_chart_version`, `helm_chart_image_name`, `helm_chart_image_tag`, `alert_enabled`, `application_insights_resource_group`, `application_insights_id`, `application_insights_action_group_ids`, `pod_ram`, `pod_cpu`, `tolerations`, `affinity`, `cert_mounter_chart_version`), except `certificate_name`, which falls back to `replace(https_endpoint, ".", "-")`, and `release_name` (certificate mounter only), which falls back to `"${helm_release_name}-<key>"`. When left at the default `{}`, the module deploys a single TLS checker, alert and certificate mounter built entirely from the top-level variables, matching the previous single-certificate behavior. | <pre>map(object({<br/>    https_endpoint                                            = optional(string)<br/>    certificate_name                                          = optional(string)<br/>    location_string                                           = optional(string)<br/>    alert_name                                                = optional(string)<br/>    namespace                                                 = optional(string)<br/>    time_trigger                                              = optional(string)<br/>    expiration_delta_in_days                                  = optional(string)<br/>    keyvault_name                                             = optional(string)<br/>    keyvault_tenant_id                                        = optional(string)<br/>    kv_secret_name_for_application_insights_connection_string = optional(string)<br/>    service_account_name                                      = optional(string)<br/>    workload_identity_client_id                               = optional(string)<br/>    helm_chart_present                                        = optional(bool)<br/>    helm_chart_version                                        = optional(string)<br/>    helm_chart_image_name                                     = optional(string)<br/>    helm_chart_image_tag                                      = optional(string)<br/>    alert_enabled                                             = optional(bool)<br/>    application_insights_resource_group                       = optional(string)<br/>    application_insights_id                                   = optional(string)<br/>    application_insights_action_group_ids                     = optional(list(string))<br/>    pod_ram                                                   = optional(number)<br/>    pod_cpu                                                   = optional(number)<br/>    tolerations                                               = optional(string)<br/>    affinity                                                  = optional(string)<br/>    cert_mounter_chart_version                                = optional(string)<br/>    release_name                                              = optional(string)<br/>  }))</pre> | `{}` | no |
 | <a name="input_expiration_delta_in_days"></a> [expiration\_delta\_in\_days](#input\_expiration\_delta\_in\_days) | (Optional) | `string` | `"7"` | no |
 | <a name="input_helm_chart_image_name"></a> [helm\_chart\_image\_name](#input\_helm\_chart\_image\_name) | Docker image name | `string` | `"ghcr.io/pagopa/infra-ssl-check"` | no |
 | <a name="input_helm_chart_image_tag"></a> [helm\_chart\_image\_tag](#input\_helm\_chart\_image\_tag) | Docker image tag | `string` | `"v1.3.4@sha256:c3d45736706c981493b6216451fc65e99a69d5d64409ccb1c4ca93fef57c921d"` | no |

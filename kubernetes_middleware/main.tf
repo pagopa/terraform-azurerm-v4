@@ -1,32 +1,31 @@
 resource "helm_release" "helm_tls_checker_this" {
+  for_each = local.certificates_with_chart
 
-  count = var.helm_chart_present ? 1 : 0
-
-  namespace    = var.namespace
-  name         = local.helm_chart_name
+  namespace    = each.value.namespace
+  name         = local.tls_checker_helm_chart_names[each.key]
   chart        = "microservice-chart"
   repository   = "https://pagopa.github.io/aks-microservice-chart-blueprint"
-  version      = var.helm_chart_version
+  version      = each.value.helm_chart_version
   timeout      = 180
   force_update = true
 
   values = [
     templatefile("${path.module}/templates/tls-cert-workload-identity.yaml.tpl",
       {
-        namespace                                                 = var.namespace
-        image_name                                                = var.helm_chart_image_name
-        image_tag                                                 = var.helm_chart_image_tag
-        website_site_name                                         = var.https_endpoint
-        time_trigger                                              = var.time_trigger
-        function_name                                             = var.https_endpoint
-        region                                                    = var.location_string
-        expiration_delta_in_days                                  = var.expiration_delta_in_days
-        host                                                      = var.https_endpoint
-        keyvault_name                                             = var.keyvault_name
-        keyvault_tenant_id                                        = var.keyvault_tenant_id
-        kv_secret_name_for_application_insights_connection_string = var.kv_secret_name_for_application_insights_connection_string
-        SERVICE_ACCOUNT_NAME                                      = var.workload_identity_service_account_name
-        WORKLOAD_IDENTITY_CLIENT_ID                               = var.workload_identity_client_id
+        namespace                                                 = each.value.namespace
+        image_name                                                = each.value.helm_chart_image_name
+        image_tag                                                 = each.value.helm_chart_image_tag
+        website_site_name                                         = each.value.https_endpoint
+        time_trigger                                              = each.value.time_trigger
+        function_name                                             = each.value.https_endpoint
+        region                                                    = each.value.location_string
+        expiration_delta_in_days                                  = each.value.expiration_delta_in_days
+        host                                                      = each.value.https_endpoint
+        keyvault_name                                             = each.value.keyvault_name
+        keyvault_tenant_id                                        = each.value.keyvault_tenant_id
+        kv_secret_name_for_application_insights_connection_string = each.value.kv_secret_name_for_application_insights_connection_string
+        SERVICE_ACCOUNT_NAME                                      = each.value.service_account_name
+        WORKLOAD_IDENTITY_CLIENT_ID                               = each.value.workload_identity_client_id
     })
   ]
 }
@@ -35,14 +34,16 @@ resource "helm_release" "helm_tls_checker_this" {
 # 📢 Alert
 #
 resource "azurerm_monitor_metric_alert" "alert_this" {
-  name                = local.alert_name
-  resource_group_name = var.application_insights_resource_group
-  scopes              = [var.application_insights_id]
+  for_each = local.certificates
+
+  name                = local.tls_checker_alert_names[each.key]
+  resource_group_name = each.value.application_insights_resource_group
+  scopes              = [each.value.application_insights_id]
   description         = "Whenever the average availabilityresults/availabilitypercentage is less than 50%"
   severity            = 0
   frequency           = "PT5M"
   auto_mitigate       = false
-  enabled             = var.alert_enabled
+  enabled             = each.value.alert_enabled
 
   criteria {
     metric_namespace = "microsoft.insights/components"
@@ -54,12 +55,12 @@ resource "azurerm_monitor_metric_alert" "alert_this" {
     dimension {
       name     = "availabilityResult/name"
       operator = "Include"
-      values   = [var.https_endpoint]
+      values   = [each.value.https_endpoint]
     }
   }
 
   dynamic "action" {
-    for_each = var.application_insights_action_group_ids
+    for_each = each.value.application_insights_action_group_ids
 
     content {
       action_group_id = action.value
@@ -67,7 +68,7 @@ resource "azurerm_monitor_metric_alert" "alert_this" {
   }
 
   depends_on = [
-    helm_release.helm_tls_checker_this[0]
+    helm_release.helm_tls_checker_this
   ]
 }
 
@@ -103,26 +104,28 @@ resource "helm_release" "helm_reloader_this" {
 
 
 resource "helm_release" "helm_cert_mounter_this" {
-  name         = replace(substr(var.helm_release_name, 0, 53), ".", "-")
+  for_each = local.certificates
+
+  name         = replace(substr(each.value.release_name, 0, 53), ".", "-")
   repository   = "https://pagopa.github.io/aks-helm-cert-mounter-blueprint"
   chart        = "cert-mounter-blueprint"
-  version      = var.cert_mounter_chart_version
-  namespace    = var.namespace
+  version      = each.value.cert_mounter_chart_version
+  namespace    = each.value.namespace
   timeout      = 120
   force_update = true
 
   values = [
     templatefile("${path.module}/templates/cert-mounter-workload-identity.yaml.tpl", {
-      NAMESPACE                   = var.namespace,
-      CERTIFICATE_NAME            = replace(var.https_endpoint, ".", "-"),
-      KEY_VAULT_NAME              = var.keyvault_name,
-      TENANT_ID                   = var.keyvault_tenant_id,
-      SERVICE_ACCOUNT_NAME        = var.workload_identity_service_account_name,
-      WORKLOAD_IDENTITY_CLIENT_ID = var.workload_identity_client_id,
-      POD_RAM                     = var.pod_ram
-      POD_CPU                     = var.pod_cpu
-      TOLERATIONS                 = var.tolerations
-      AFFINITY                    = var.affinity
+      NAMESPACE                   = each.value.namespace,
+      CERTIFICATE_NAME            = each.value.certificate_name,
+      KEY_VAULT_NAME              = each.value.keyvault_name,
+      TENANT_ID                   = each.value.keyvault_tenant_id,
+      SERVICE_ACCOUNT_NAME        = each.value.service_account_name,
+      WORKLOAD_IDENTITY_CLIENT_ID = each.value.workload_identity_client_id,
+      POD_RAM                     = each.value.pod_ram
+      POD_CPU                     = each.value.pod_cpu
+      TOLERATIONS                 = each.value.tolerations
+      AFFINITY                    = each.value.affinity
     })
   ]
 }
