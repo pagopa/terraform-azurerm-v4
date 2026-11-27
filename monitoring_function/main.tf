@@ -136,14 +136,6 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
     }
   }
 
-  dynamic "secret" {
-    for_each = local.icinga_has_ca_cert ? [true] : []
-    content {
-      name  = "icinga-ca-cert"
-      value = var.icinga_settings.ca_cert
-    }
-  }
-
   schedule_trigger_config {
     cron_expression          = var.job_settings.cron_scheduling
     parallelism              = 1
@@ -204,13 +196,6 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
       }
       dynamic "env" {
         for_each = local.icinga_enabled ? { ICINGA_PASSWORD = "icinga-password" } : {}
-        content {
-          name        = env.key
-          secret_name = env.value
-        }
-      }
-      dynamic "env" {
-        for_each = local.icinga_has_ca_cert ? { ICINGA_CA_CERT = "icinga-ca-cert" } : {}
         content {
           name        = env.key
           secret_name = env.value
@@ -487,8 +472,7 @@ locals {
   # var.icinga_settings is sensitive (password, CA) and a dynamic block does not accept a sensitive
   # collection in for_each: the conditions and the non secret values are unmarked here.
   # password and CA stay sensitive and are passed to the job as secrets
-  icinga_enabled     = nonsensitive(var.icinga_settings.enabled)
-  icinga_has_ca_cert = local.icinga_enabled && nonsensitive(var.icinga_settings.ca_cert != null)
+  icinga_enabled = nonsensitive(var.icinga_settings.enabled)
 
   # environment of the cron job; optional values left unset when null
   icinga_env = local.icinga_enabled ? {
@@ -497,7 +481,6 @@ locals {
       ICINGA_API_URL             = nonsensitive(var.icinga_settings.api_url)
       ICINGA_USER                = nonsensitive(var.icinga_settings.user)
       ICINGA_HOST                = nonsensitive(var.icinga_settings.host)
-      ICINGA_TLS_SERVERNAME      = nonsensitive(var.icinga_settings.tls_servername)
       BP_API_URL                 = nonsensitive(var.icinga_settings.bp_api_url)
       ICINGA_BP                  = nonsensitive(var.icinga_settings.bp_name)
     } : k => v if v != null

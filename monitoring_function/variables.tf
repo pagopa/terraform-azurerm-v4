@@ -248,15 +248,13 @@ variable "enable_synthetic_on_demand" {
 
 variable "icinga_settings" {
   type = object({
-    enabled        = optional(bool, false)
-    api_url        = optional(string) # Port: https://URL:5665
-    user           = optional(string, "synthetic")
-    password       = optional(string)
-    host           = optional(string, "synthetic")
-    ca_cert        = optional(string) # PEM Icinga
-    tls_servername = optional(string) # CN del certificato API
-    bp_api_url     = optional(string) # bp-api sulla VM Icinga: http://URL:8080. null = business process non aggiornato
-    bp_name        = optional(string) # nome della business process (file <bp_name>.conf), obbligatorio con bp_api_url
+    enabled    = optional(bool, false)
+    api_url    = optional(string) # Port: https://URL:5665
+    user       = optional(string, "synthetic")
+    password   = optional(string)
+    host       = optional(string, "synthetic")
+    bp_api_url = optional(string) # bp-api sulla VM Icinga: http://URL:8080. null = business process non aggiornato
+    bp_name    = optional(string) # nome della business process (file <bp_name>.conf), obbligatorio con bp_api_url
   })
   default     = {}
   sensitive   = true
