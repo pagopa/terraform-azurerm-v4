@@ -128,6 +128,22 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
     value = module.synthetic_monitoring_storage_account.primary_access_key
   }
 
+  dynamic "secret" {
+    for_each = local.icinga_enabled ? [true] : []
+    content {
+      name  = "icinga-password"
+      value = var.icinga_settings.password
+    }
+  }
+
+  dynamic "secret" {
+    for_each = local.bp_api_enabled ? [true] : []
+    content {
+      name  = "bp-api-token"
+      value = var.icinga_settings.bp_api_token
+    }
+  }
+
   schedule_trigger_config {
     cron_expression          = var.job_settings.cron_scheduling
     parallelism              = 1
@@ -179,9 +195,25 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
         name  = "LOG_LEVEL"
         value = var.job_settings.log_level
       }
+      dynamic "env" {
+        for_each = local.icinga_env
+        content {
+          name  = env.key
+          value = env.value
+        }
+      }
+      dynamic "env" {
+        for_each = merge(
+          local.icinga_enabled ? { ICINGA_PASSWORD = "icinga-password" } : {},
+          local.bp_api_enabled ? { BP_API_TOKEN = "bp-api-token" } : {},
+        )
+        content {
+          name        = env.key
+          secret_name = env.value
+        }
+      }
     }
   }
-
   replica_retry_limit        = 1
   replica_timeout_in_seconds = var.job_settings.execution_timeout_seconds
 
@@ -445,4 +477,24 @@ resource "azurerm_monitor_metric_alert" "self_alert" {
     }
   }
   tags = var.tags
+}
+
+locals {
+  # var.icinga_settings is sensitive (password, bp-api token) and a dynamic block does not accept a sensitive
+  # collection in for_each: the conditions and the non secret values are unmarked here.
+  # password and bp-api token stay sensitive and are passed to the job as secrets
+  icinga_enabled = nonsensitive(var.icinga_settings.enabled)
+  bp_api_enabled = local.icinga_enabled && nonsensitive(var.icinga_settings.bp_api_url != null)
+
+  # environment of the cron job; optional values left unset when null
+  icinga_env = local.icinga_enabled ? {
+    for k, v in {
+      ICINGA_INTEGRATION_ENABLED = "true"
+      ICINGA_API_URL             = nonsensitive(var.icinga_settings.api_url)
+      ICINGA_USER                = nonsensitive(var.icinga_settings.user)
+      ICINGA_HOST                = nonsensitive(var.icinga_settings.host)
+      BP_API_URL                 = nonsensitive(var.icinga_settings.bp_api_url)
+      ICINGA_BP                  = nonsensitive(var.icinga_settings.bp_name)
+    } : k => v if v != null
+  } : {}
 }

@@ -245,3 +245,29 @@ variable "enable_synthetic_on_demand" {
   description = "(Optional) If true, enables the on demand synthetic tests execution API"
   default     = false
 }
+
+variable "icinga_settings" {
+  type = object({
+    enabled      = optional(bool, false)
+    api_url      = optional(string) # Port: https://URL:5665
+    user         = optional(string, "synthetic")
+    password     = optional(string)
+    host         = optional(string, "synthetic")
+    bp_api_url   = optional(string) # bp-api sulla VM Icinga: https://<fqdn>/bp-api. null = business process non aggiornato
+    bp_name      = optional(string)
+    bp_api_token = optional(string)
+  })
+  default     = {}
+  sensitive   = true
+  description = "(Optional) Publishes the results of the cron job on Icinga and, with bp_api_url, updates the synthetic nodes of the business process"
+
+  validation {
+    condition     = var.icinga_settings.bp_api_url == null || var.icinga_settings.bp_name != null
+    error_message = "icinga_settings.bp_name is required when icinga_settings.bp_api_url is set."
+  }
+
+  validation {
+    condition     = var.icinga_settings.bp_api_url == null || var.icinga_settings.bp_api_token != null
+    error_message = "icinga_settings.bp_api_token is required when icinga_settings.bp_api_url is set."
+  }
+}
