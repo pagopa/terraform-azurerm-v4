@@ -136,6 +136,14 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
     }
   }
 
+  dynamic "secret" {
+    for_each = local.bp_api_enabled ? [true] : []
+    content {
+      name  = "bp-api-token"
+      value = var.icinga_settings.bp_api_token
+    }
+  }
+
   schedule_trigger_config {
     cron_expression          = var.job_settings.cron_scheduling
     parallelism              = 1
@@ -195,7 +203,10 @@ resource "azurerm_container_app_job" "monitoring_terraform_app_job" {
         }
       }
       dynamic "env" {
-        for_each = local.icinga_enabled ? { ICINGA_PASSWORD = "icinga-password" } : {}
+        for_each = merge(
+          local.icinga_enabled ? { ICINGA_PASSWORD = "icinga-password" } : {},
+          local.bp_api_enabled ? { BP_API_TOKEN = "bp-api-token" } : {},
+        )
         content {
           name        = env.key
           secret_name = env.value
@@ -469,10 +480,11 @@ resource "azurerm_monitor_metric_alert" "self_alert" {
 }
 
 locals {
-  # var.icinga_settings is sensitive (password, CA) and a dynamic block does not accept a sensitive
+  # var.icinga_settings is sensitive (password, bp-api token) and a dynamic block does not accept a sensitive
   # collection in for_each: the conditions and the non secret values are unmarked here.
-  # password and CA stay sensitive and are passed to the job as secrets
+  # password and bp-api token stay sensitive and are passed to the job as secrets
   icinga_enabled = nonsensitive(var.icinga_settings.enabled)
+  bp_api_enabled = local.icinga_enabled && nonsensitive(var.icinga_settings.bp_api_url != null)
 
   # environment of the cron job; optional values left unset when null
   icinga_env = local.icinga_enabled ? {

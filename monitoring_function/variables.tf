@@ -248,13 +248,14 @@ variable "enable_synthetic_on_demand" {
 
 variable "icinga_settings" {
   type = object({
-    enabled    = optional(bool, false)
-    api_url    = optional(string) # Port: https://URL:5665
-    user       = optional(string, "synthetic")
-    password   = optional(string)
-    host       = optional(string, "synthetic")
-    bp_api_url = optional(string) # bp-api sulla VM Icinga: http://URL:8080. null = business process non aggiornato
-    bp_name    = optional(string) # nome della business process (file <bp_name>.conf), obbligatorio con bp_api_url
+    enabled      = optional(bool, false)
+    api_url      = optional(string) # Port: https://URL:5665
+    user         = optional(string, "synthetic")
+    password     = optional(string)
+    host         = optional(string, "synthetic")
+    bp_api_url   = optional(string) # bp-api sulla VM Icinga: https://<fqdn>/bp-api. null = business process non aggiornato
+    bp_name      = optional(string)
+    bp_api_token = optional(string)
   })
   default     = {}
   sensitive   = true
@@ -263,5 +264,10 @@ variable "icinga_settings" {
   validation {
     condition     = var.icinga_settings.bp_api_url == null || var.icinga_settings.bp_name != null
     error_message = "icinga_settings.bp_name is required when icinga_settings.bp_api_url is set."
+  }
+
+  validation {
+    condition     = var.icinga_settings.bp_api_url == null || var.icinga_settings.bp_api_token != null
+    error_message = "icinga_settings.bp_api_token is required when icinga_settings.bp_api_url is set."
   }
 }
